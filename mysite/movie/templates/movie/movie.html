@@ -1,0 +1,33 @@
+{% extends "movie/base.html" %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-10">
+                <table class="table table-hover table-bordered">
+		            <thead>
+                        <tr>
+                            <!--refactor-->
+                            <th class="text-center"></th>
+                            <th class="text-center">title</th>
+                            <th class="text-center">rating</th>
+                            <th class="text-center">imdb</th>
+                            <th class="text-center">votes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in lists %}
+                        <tr>
+                            <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                            {% for col in row %}
+                                <td>{{ col }}</td>
+                            {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    {{ list_dicts }}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
