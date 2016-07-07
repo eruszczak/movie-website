@@ -1,0 +1,4 @@
+settings.py
+*.sqlite
+*.sqlite3
+.idea
