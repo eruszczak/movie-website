@@ -1,0 +1,51 @@
+@media (min-width: 1200px) {
+  .container {
+    width: 935px;
+  }
+}
+
+body {
+  background-color: white;
+  padding-top: 70px;
+  font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+}
+
+.navbar-default {
+  color: white;
+  background-color: #159957;
+  /*background-image: linear-gradient(120deg, #155799, #159957);*/
+}
+
+.navbar-default .navbar-nav>li>a:link,
+.navbar-default .navbar-nav>li>a:visited,
+.navbar-default .navbar-nav>li>a:active {
+  color: white;
+}
+
+.navbar-default .navbar-nav>li>a:hover
+.navbar-default .navbar-brand:hover {
+  color: #42da8e;
+}
+
+
+
+.active { font-weight: bold; }
+
+
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+  background-color: #f6f7f8;
+}
+
+table {
+  border-collapse: collapse;
+
+}
+
+thead tr {
+  border-bottom: 0px;
+}
+
+img {
+  max-width: 125px;
+}
