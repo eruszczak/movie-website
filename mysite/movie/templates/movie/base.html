@@ -1,17 +1,93 @@
+{% load staticfiles %}
 <!doctype html>
 <html>
 <head>
 	<!-- <link rel='shortcut icon' type='image/x-icon' href='img/movie.png'/> -->
-	<title>Page</title>
+	<title>Film</title>
+
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-	<script src="scripts.js"></script>
-	<link rel="stylesheet" href="styles.css">
+	<link href="navbar-fixed-top.css" rel="stylesheet">
+
+	<link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+	<script src="{% static 'js/scripts.js' %}"></script>
+	<link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
 </head>
 
 <body>
+<body>
+
+	<nav class="navbar navbar-default navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">Project name</a>
+			</div>
+			<div id="navbar" class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					<li class=""><a href="#">home</a></li>
+					<li><a href="#">film</a></li>
+					<li><a href="#">tv series</a></li>
+					<li><a href="#">book</a></li>
+					<li><a href="#">about</a></li>
+				</ul>
+				<!-- <ul class="nav navbar-nav navbar-right"> -->
+				<!-- <li><a href="../navbar-static-top/">Static top</a></li> -->
+				<!-- <li><a href="../navbar-fixed-top/">Fixed top</a></li> -->
+				<!-- </ul> -->
+			</div>
+		</div>
+	</nav>
+<!-- 		<div class="col-sm-12">
+			<div class="header">
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam<p id="author">heh</p></p><cite>Marilyn Monroe</cite>
+				</div>
+			</div>
+		</div>
+	-->
+
+	<div class="container" style="border: 1px solid red">
+		<div class="row">
+			<div class="col-xs-6" style="border: 1px solid green">
+				<div class="media">
+					<div class="media-left media-middle">
+						<a href="#">
+						<img class="media-object" src="http://placehold.it/200x296" alt="...">
+						</a>
+					</div>
+					<div class="media-body">
+						<h4 class="media-heading">Media heading</h4>
+						<p>title</p>
+						<p>title</p>
+						<p>title</p>
+						<p>title</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-6" style="border: 1px solid green">
+				<div class="media">
+					<div class="media-body">
+						<h4 class="media-heading">Media heading</h4>
+The Pacific follows the lives of a U.S Marine Corps squad during the campaign within the Pacific against the Japanese Empire during WW2. Made by the creators of Band of Brothers, it follows a similar line of thought to outline the hardships of the common man during war.
+					</div>
+					<div class="media-right media-middle">
+						<a href="#">
+						<img class="media-object" src="http://placehold.it/200x296" alt="...">
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
     {% block content %}
 
     {% endblock %}
