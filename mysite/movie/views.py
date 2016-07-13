@@ -20,8 +20,20 @@ def index(request):
     return render(request, 'movie/entry.html', context)
 
 
-def entry_details(request, pk):
+def entry_details(request, const):
     context = {
-        'entry': get_object_or_404(Entry, pk=pk),
+        'entry': get_object_or_404(Entry, const=const),
     }
     return render(request, 'movie/entry_details.html', context)
+
+def entry_groupby_year(request):
+    context = {
+        'years': Entry.objects.order_by().values('year').distinct(),
+    }
+    return render(request, 'movie/entry_details.html', context)
+
+def entry_show_from_year(request, year):
+    context = {
+        'year': Entry.objects.order_by().filter(year=year)
+    }
+    return render(request, 'movie/entry_from_year.html', context)

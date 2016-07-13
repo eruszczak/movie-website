@@ -10,23 +10,20 @@
                             <!--refactor-->
                             <th class="text-center"></th>
                             <th class="text-center">title</th>
-                            <th class="text-center">year</th>
                             <th class="text-center">rating</th>
                             <th class="text-center">imdb</th>
                             <th class="text-center">votes</th>
-                            <th class="text-center">details</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for obj in last_rating %}
+                        {% for obj in year %}
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
                             <td>{{ obj.name }}</td>
-                            <td><a href="{% url 'entry_show_from_year' year=obj.year %}">{{ obj.year }}</a></td>
                             <td>{{ obj.rate }}</td>
-                            <td>{{ obj.rate_imdb }}</td>
                             <td>{{ obj.votes }}</td>
-                            <td><a href="{% url 'entry_details' const=obj.const %}">link</a></td>
+                            <td>{{ obj.year }}</td>
+                            <!--<td><a href="{% url 'entry_details' const=obj.const %}">link</a></td>-->
                         </tr>
                         {% endfor %}
                     </tbody>

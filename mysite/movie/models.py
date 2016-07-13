@@ -24,3 +24,6 @@ class Entry(models.Model):
     release_date = models.CharField(blank=True, null=True, max_length=30)
     votes = models.CharField(max_length=30)
     url_imdb = models.URLField(blank=True, null=True)
+
+class History(models.Model):
+    entry = Entry()
