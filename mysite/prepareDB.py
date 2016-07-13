@@ -114,8 +114,14 @@ def update():
                 print('heh')
                 return
 
-update()
+# update()
 
 # think about RESETing db and then fill it again but OMDB API FOR each entry
 # http://www.omdbapi.com/?i=tt0944947&Season=7 GET season nr first then get info for each season (released, title)
 # series: function? what about models
+
+archive={}
+for y in Entry.objects.order_by('-year').values('year').distinct():
+    archive[y['year']] = Entry.objects.filter(year=y['year']).count()
+    # print(Entry.objects.filter(year=y.year).count()
+    # print(y['y'])
