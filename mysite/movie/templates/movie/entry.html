@@ -16,13 +16,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for row in lists %}
+                        {% for obj in last_rating %}
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                            {% for col in row %}
-                                <td>{{ col }}</td>
-                            {% endfor %}
-                            </tr>
+                            <td>{{ obj.name }}</td>
+                            <td>{{ obj.rate }}</td>
+                            <td>{{ obj.votes }}</td>
+                            <td><a href="{% url 'entry_details' pk=obj.id %}">link</a></td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                     {{ list_dicts }}
