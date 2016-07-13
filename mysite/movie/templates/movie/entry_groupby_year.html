@@ -18,8 +18,7 @@
                     <tbody>
                         {% for y in years %}
                         <tr>
-                            <td>{{ y }}</td>
-                            <!--<td><a href="{% url 'entry_details' const=obj.const %}">link</a></td>-->
+                            <td><a href="{% url 'entry_show_from_year' year=y.year %}">{{ y.year }}</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>

@@ -19,6 +19,9 @@ def index(request):
     }
     return render(request, 'movie/entry.html', context)
 
+def about(request):
+    return render(request, 'movie/about.html')
+
 
 def entry_details(request, const):
     context = {
@@ -28,9 +31,9 @@ def entry_details(request, const):
 
 def entry_groupby_year(request):
     context = {
-        'years': Entry.objects.order_by().values('year').distinct(),
+        'years': Entry.objects.order_by('-year').values('year').distinct(),
     }
-    return render(request, 'movie/entry_details.html', context)
+    return render(request, 'movie/entry_groupby_year.html', context)
 
 def entry_show_from_year(request, year):
     context = {
