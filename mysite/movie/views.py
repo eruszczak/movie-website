@@ -30,8 +30,12 @@ def entry_details(request, const):
     return render(request, 'movie/entry_details.html', context)
 
 def entry_groupby_year(request):
+    year_counter = []
+    for y in Entry.objects.order_by('-year').values('year').distinct():
+        year_counter.append((y['year'], Entry.objects.filter(year=y['year']).count()))
     context = {
-        'years': Entry.objects.order_by('-year').values('year').distinct(),
+        # 'years': Entry.objects.order_by('-year').values('year').distinct(),
+        'year_counter': year_counter
     }
     return render(request, 'movie/entry_groupby_year.html', context)
 

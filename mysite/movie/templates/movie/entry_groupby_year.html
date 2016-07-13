@@ -16,9 +16,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for y in years %}
+                        {% for year, count in year_counter %}
                         <tr>
-                            <td><a href="{% url 'entry_show_from_year' year=y.year %}">{{ y.year }}</a></td>
+                            <td><a href="{% url 'entry_show_from_year' year=year %}">{{ year }} ({{ count }})</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>
