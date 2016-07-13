@@ -1,0 +1,13 @@
+{% extends "movie/base.html" %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-10">
+                {{ entry.name }}
+                {{ entry.votes }}
+                {{ entry.rate }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
