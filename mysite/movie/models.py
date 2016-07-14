@@ -34,8 +34,6 @@ class Entry(models.Model):
     inserted_by_updater = models.BooleanField(default=False)
 
 class Archive(models.Model):
-    id_old = models.CharField(max_length=30, blank=True, null=True)
-    name = models.TextField(blank=True, null=True)
     const = models.CharField(max_length=30, blank=True, null=True)
     rate = models.CharField(max_length=30, blank=True, null=True)
     rate_date = models.CharField(blank=True, null=True, max_length=30)
