@@ -118,14 +118,8 @@ context = {
 #     li.append((s.number, episodes.count()))
 # print(li)
 
-# title = str(i) + ' ' + ''.join(i for i in row['Title'] if i.isalpha()) + '.jpg'
-# if not os.path.isfile(os.path.join(folder, title)):
-#     # print(os.path.join(folder, title))
-#     try:  # if x not in folder
-#         print('pobieram', row['Title'])
-#         print(parsed_json['Poster'], os.path.join(folder, title))
-#         # urllib.request.urlretrieve(parsed_json['Poster'], os.path.join(folder, title))
-#     except:
-#         # print('error', str(i), x.group(), title)
-#         pass
+# for g in Genre.objects.all():
+#     print(g.name, g.entry_set.count())
 
+for g in Genre.objects.get(name='Drama').entry_set.all():
+    print(g.name)

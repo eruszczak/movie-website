@@ -10,4 +10,7 @@ urlpatterns = [
 
     url(r'^year/$', views.entry_groupby_year, name='entry_groupby_year'),
     url(r'^year/(?P<year>\d{4})/$', views.entry_show_from_year, name='entry_show_from_year'),
+
+    url(r'^genre/$', views.entry_groupby_genre, name='entry_groupby_genre'),
+    url(r'^genre/(?P<genre>\S+)/$', views.entry_show_from_genre, name='entry_show_from_genre'),
 ]

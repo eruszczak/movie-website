@@ -5,6 +5,7 @@
         <div class="row">
             <div class="col-xs-10">
                 <p class="lead text-center"><a href="{% url 'entry_groupby_year' %}">All years</a></p>
+                <p class="lead text-center"><a href="{% url 'entry_groupby_genre' %}">All genres</a></p>
                 <table class="table table-hover table-bordered table-condensed">
 		            <thead>
                         <tr>
@@ -22,7 +23,7 @@
                         {% for obj in last_rating %}
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                            <td>{{ obj.name }}</td>
+                            <td><a href="{% url 'entry_details' const=obj.const %}">{{ obj.name }}</a></td>
                             <td><a href="{% url 'entry_show_from_year' year=obj.year %}">{{ obj.year }}</a></td>
                             <td>{{ obj.rate }}</td>
                             <td>{{ obj.rate_imdb }}</td>
