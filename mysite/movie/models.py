@@ -39,3 +39,15 @@ class Archive(models.Model):
     const = models.CharField(max_length=30, blank=True, null=True)
     rate = models.CharField(max_length=30, blank=True, null=True)
     rate_date = models.CharField(blank=True, null=True, max_length=30)
+
+class Season(models.Model):
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
+    number = models.IntegerField(blank=True, null=True)
+
+class Episode(models.Model):
+    season = models.ForeignKey(Season, on_delete=models.CASCADE)
+    const = models.CharField(max_length=30, unique=True)
+    number = models.FloatField(blank=True, null=True)
+    name = models.TextField(blank=True, null=True)
+    release_date = models.CharField(blank=True, null=True, max_length=30)
+    rate_imdb = models.CharField(max_length=30, blank=True, null=True)
