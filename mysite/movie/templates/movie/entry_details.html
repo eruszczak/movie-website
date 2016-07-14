@@ -1,13 +1,31 @@
 {% extends "movie/base.html" %}
+{% load staticfiles %}
+{% static "" as baseUrl %}
 
 {% block content %}
     <div class="container">
         <div class="row">
-            <div class="col-xs-10">
-                {{ entry.name }} ({{ entry.year }})
-                {{ entry.votes }}
-                {{ entry.rate }}
-            </div>
+            <!--<div class="col-xs-10">-->
+                <!--{{ entry.name }} ({{ entry.year }})-->
+                <!--{{ entry.votes }}-->
+                <!--{{ entry.rate }}-->
+            <!--</div>-->
+            <div class="col-xs-6" style="border: 1px solid green">
+				<h1 class="page-header">{{ entry.name }}</h1>
+				<div class="media">
+					<div class="media-left media-middle">
+						<a href="#">
+						<img class="media-object" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="...">
+						</a>
+					</div>
+					<div class="media-body">
+						<h4 class="media-heading">{{ entry.name }}</h4>
+						<p><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></p>
+						<p>{{ entry.votes }}</p>
+						<p>{{ entry.rate }}</p>
+					</div>
+				</div>
+			</div>
         </div>
     </div>
 {% endblock %}
