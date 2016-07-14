@@ -3,7 +3,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 
 import csv
-import xml.etree.ElementTree as ET
 from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode
 from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb
 
@@ -13,7 +12,6 @@ def getSeasonsInfo(entry, totalSeasons):
     for i in range(1, totalSeasons + 1):
         api = 'http://www.omdbapi.com/?i={}&Season='.format(entry.const) + str(i)
         json = getOMDb(entry.const, api)
-        print(json)
         if json and json['Response'] and 'Season' in json:
             season, updated = Season.objects.update_or_create(entry=entry, number=int(json['Season']))
             # if updated:     # DO NOT UPDATE SEASONS FOR NOW AT LEAST
@@ -26,6 +24,13 @@ def getEntryInfo(const, rate, rate_date, is_updated=False, exists=False):
     json = getOMDb(const)
     if not (json and json['Response']):   # if FAIL add to logs AND details of updater etc...
         return
+    elif is_updated and exists:      # if entry exists, updater must be sure that can delete and archive it
+        entry = Entry.objects.get(const=const)
+        archive = Archive.objects.create(const=entry.const, rate=entry.rate, rate_date=entry.rate_date,
+                                 id_old=entry.id, name=entry.name)
+        print('updater. exists ' + entry.name)
+        entry.delete()
+        print('\t...and deleted')
     type, created = Type.objects.get_or_create(name=json['Type'])
     url_imdb = 'http://www.imdb.com/title/{}/'.format(const)
     entry = Entry(const=const, name=json['Title'], type=type, rate=rate, rate_imdb=json['imdbRating'],
@@ -47,9 +52,6 @@ def getEntryInfo(const, rate, rate_date, is_updated=False, exists=False):
 
     if json['Type'] == 'series' and 'totalSeasons' in json:
         getSeasonsInfo(entry, int(json['totalSeasons']))
-
-    if is_updated and exists:      # if entry exists, updater must be sure that can delete and archive it
-        return True
 
 
 
@@ -81,20 +83,14 @@ def update():
         rate = obj.find('description').text.strip()[-2:-1]
         rate_date = prepare_date_xml(obj.find('pubDate').text)
         if Entry.objects.filter(const=const).exists():
-            entry = Entry.objects.get(const=const)
-            print('updater. exists ' + entry.name)                                    # TOO MUCH INFO FOR ARCHIVE
-            if getEntryInfo(const, rate, rate_date, is_updated=True, exists=True):
-                archive = Archive.objects.create(const=entry.const, rate=entry.rate, rate_date=entry.rate_date,
-                                                 id_old=entry.id, name=entry.name)
-                entry.delete()
-                print('\t...and deleted')
-                continue
-            print('if here -> not updated correctly so not archived and deleted too')
-        print('updater. ' + obj.find('title').text)
-        getEntryInfo(const, rate, rate_date, is_updated=True)
-        # time.sleep( 5 )
-        if num > 30:
-            return
+            getEntryInfo(const, rate, rate_date, is_updated=True, exists=True)
+            continue
+        else:
+            print('updater. ' + obj.find('title').text)
+            getEntryInfo(const, rate, rate_date, is_updated=True)
+            # time.sleep( 5 )
+            if num > 30:
+                return
 
 
 update()
