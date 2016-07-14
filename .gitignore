@@ -3,3 +3,4 @@
 *.sqlite3
 .idea
 todo
+/mysite/movie/static/img/posters
