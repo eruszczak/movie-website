@@ -22,7 +22,7 @@ def getSeasonsInfo(entry, totalSeasons):
                 episode = Episode.objects.create(season=season, const=ep['imdbID'], number=ep['Episode'],
                                                  name=ep['Title'], release_date=ep['Released'], rate_imdb=ep['imdbRating'])
 
-def getEntryInfo(const, rate, rate_date, is_updated=False):
+def getEntryInfo(const, rate, rate_date, is_updated=False, exists=False):
     json = getOMDb(const)
     if not (json and json['Response']):   # if FAIL add to logs AND details of updater etc...
         return
@@ -48,6 +48,9 @@ def getEntryInfo(const, rate, rate_date, is_updated=False):
     if json['Type'] == 'series' and 'totalSeasons' in json:
         getSeasonsInfo(entry, int(json['totalSeasons']))
 
+    if is_updated and exists:      # if entry exists, updater must be sure that can delete and archive it
+        return True
+
 
 
 def csvToDatabase():              # fname.isfile()
@@ -57,7 +60,6 @@ def csvToDatabase():              # fname.isfile()
         for num, row in enumerate(reader):
             if Entry.objects.filter(const=row['const']).exists():
                 print('exists ' + row['Title'])
-                # no need for checking if exists here. Only for updating from RSS
                 continue
             rate_date = prepare_date_csv(row['created'])
             print(row['Title'])
@@ -67,25 +69,32 @@ def csvToDatabase():              # fname.isfile()
 
 # csvToDatabase()
 
-
+import time
 
 def update():
     'from rss xml: const, rate and rate_date. Then use const to get info from omdbapi json'
     itemlist = getRSS()
     if not itemlist:
         return
-    for i, obj in enumerate(itemlist, 1):
+    for num, obj in enumerate(itemlist):
         const = obj.find('link').text[-10:-1]
         rate = obj.find('description').text.strip()[-2:-1]
         rate_date = prepare_date_xml(obj.find('pubDate').text)
-        json = getOMDb(const)
-        if json and json['Response']:
-            if Entry.objects.filter(const=const).exists():
-                entry = Entry.objects.get(const=const)
+        if Entry.objects.filter(const=const).exists():
+            entry = Entry.objects.get(const=const)
+            print('updater. exists ' + entry.name)                                    # TOO MUCH INFO FOR ARCHIVE
+            if getEntryInfo(const, rate, rate_date, is_updated=True, exists=True):
                 archive = Archive.objects.create(const=entry.const, rate=entry.rate, rate_date=entry.rate_date,
                                                  id_old=entry.id, name=entry.name)
                 entry.delete()
+                print('\t...and deleted')
                 continue
+            print('if here -> not updated correctly so not archived and deleted too')
+        print('updater. ' + obj.find('title').text)
+        getEntryInfo(const, rate, rate_date, is_updated=True)
+        # time.sleep( 5 )
+        if num > 30:
+            return
 
 
-# update()
+update()
