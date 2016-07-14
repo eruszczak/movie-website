@@ -3,6 +3,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 
 import csv
+import time
 from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode
 from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb
 
@@ -26,16 +27,18 @@ def getEntryInfo(const, rate, rate_date, is_updated=False, exists=False):
         return
     elif is_updated and exists:      # if entry exists, updater must be sure that can delete and archive it
         entry = Entry.objects.get(const=const)
-        archive = Archive.objects.create(const=entry.const, rate=entry.rate, rate_date=entry.rate_date,
-                                 id_old=entry.id, name=entry.name)
+        if Archive.objects.filter(const=entry.const, rate_date=entry.rate_date).exists():
+            return
+        archive = Archive.objects.create(const=entry.const, rate=entry.rate, rate_date=entry.rate_date)
         print('updater. exists ' + entry.name)
         entry.delete()
         print('\t...and deleted')
     type, created = Type.objects.get_or_create(name=json['Type'])
     url_imdb = 'http://www.imdb.com/title/{}/'.format(const)
+    rel_date = prepare_date_json(json['Released']) if json['Released'] != "N/A" else 'N/A'
     entry = Entry(const=const, name=json['Title'], type=type, rate=rate, rate_imdb=json['imdbRating'],
                 rate_date=rate_date, runtime=json['Runtime'][:-4], year=json['Year'][:4], votes=json['imdbVotes'],
-                release_date=prepare_date_json(json['Released']), url_imdb=url_imdb,
+                release_date=rel_date, url_imdb=url_imdb,
                 url_poster=json['Poster'], tomato_user_meter=json['tomatoUserMeter'],
                 tomato_user_rate=json['tomatoUserRating'], tomato_user_reviews=json['tomatoUserReviews'],
                 tomatoConsensus=json['tomatoConsensus'], url_tomato=json['tomatoURL'], plot=json['Plot'],
@@ -66,12 +69,12 @@ def csvToDatabase():              # fname.isfile()
             rate_date = prepare_date_csv(row['created'])
             print(row['Title'])
             getEntryInfo(row['const'], row['You rated'], rate_date)
-            if num > 30:
-                return
+            if num % 100 == 0:
+                time.sleep(5)
 
 # csvToDatabase()
 
-import time
+
 
 def update():
     'from rss xml: const, rate and rate_date. Then use const to get info from omdbapi json'
@@ -89,8 +92,28 @@ def update():
             print('updater. ' + obj.find('title').text)
             getEntryInfo(const, rate, rate_date, is_updated=True)
             # time.sleep( 5 )
-            if num > 30:
-                return
+            # if num > 30:
+            #     return
 
 
-update()
+# update()
+from django.shortcuts import get_object_or_404
+
+context = {
+    'entry': get_object_or_404(Entry, const="tt0286486"),
+}
+# data = {
+#     'seasons_count': Season.objects.filter(entry=obj).count(),
+#     'seasons': Season.objects.filter(entry=obj),
+#     'episodes_count': Episode.objects.filter(season=s).count(),
+#     'episodes': Episode.objects.filter(season=s).count(),
+# }
+li = []
+print(context['entry'].name, 'seasons:', Season.objects.filter(entry=context['entry']).count())
+for s in Season.objects.filter(entry=context['entry']):
+    episodes = Episode.objects.filter(season=s)
+    # print(episodes[0].number)
+    for e in episodes:
+        print(e.number)
+    li.append((s.number, episodes.count()))
+print(li)

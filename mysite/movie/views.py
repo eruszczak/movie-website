@@ -6,7 +6,7 @@ from .models import Entry
 
 def index(request):
     context = {
-        'last_rating': Entry.objects.all(),
+        'last_rating': Entry.objects.all()[:100],
     }
     return render(request, 'movie/entry.html', context)
 
@@ -18,6 +18,7 @@ def entry_details(request, const):
     context = {
         'entry': get_object_or_404(Entry, const=const),
     }
+
     return render(request, 'movie/entry_details.html', context)
 
 def entry_groupby_year(request):
