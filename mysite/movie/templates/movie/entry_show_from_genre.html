@@ -1,0 +1,11 @@
+{% extends "movie/base.html" %}
+
+{% block content %}
+    <div class="container">
+        <div class="col-xs-12">
+            {% for obj in genre %}
+                <p><a href="{% url 'entry_details' const=obj.const %}">{{ obj.name }}</a></p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
