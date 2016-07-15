@@ -71,7 +71,7 @@ def csvToDatabase():              # fname.isfile()
                 continue
             rate_date = prepare_date_csv(row['created'])
             print(row['Title'])
-            getEntryInfo(row['const'], row['You rated'], rate_date)
+            getEntryInfo(row['const'], row['You rated'], rate_date, log)
 csvToDatabase()
 
 
@@ -104,4 +104,4 @@ def update():
 
 
 
-update()
+# update()
