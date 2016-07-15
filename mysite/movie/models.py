@@ -54,5 +54,5 @@ class Episode(models.Model):
 
 class Log(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True)
-    inserted = models.IntegerField(blank=True, null=True)
-    archived = models.IntegerField(blank=True, null=True)
+    new_inserted = models.IntegerField(blank=True, null=True, default=0)
+    updated_archived = models.IntegerField(blank=True, null=True, default=0)
