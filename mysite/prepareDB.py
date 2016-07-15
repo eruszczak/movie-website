@@ -60,6 +60,7 @@ def getEntryInfo(const, rate, rate_date, log, is_updated=False, exists=False):
 
 def csvToDatabase():              # fname.isfile()
     fname = 'ratings.csv'
+    log = Log.objects.create()
     with open(fname, 'r') as f:
         reader = csv.DictReader(f)
         for num, row in enumerate(reader):
