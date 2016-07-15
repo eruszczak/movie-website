@@ -45,7 +45,9 @@ def getOMDb(imdbID, api='http://www.omdbapi.com/?i={}&plot=full&type=true&tomato
 
 def downloadPosters():
     from movie.models import Entry
-    folder = os.path.join(os.path.dirname(os.getcwd()), 'posters')
+    from mysite.settings import STATIC_ROOT
+    folder = os.path.join(STATIC_ROOT, 'img', 'posters')
+    print(folder)
     os.makedirs(folder, exist_ok=True)
     for obj in Entry.objects.all():
         title = obj.const + '.jpg'
