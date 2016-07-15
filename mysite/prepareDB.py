@@ -4,7 +4,7 @@ django.setup()
 
 import csv
 import time
-from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode
+from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log
 from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb
 
 
@@ -21,18 +21,17 @@ def getSeasonsInfo(entry, totalSeasons):
                 episode = Episode.objects.create(season=season, const=ep['imdbID'], number=ep['Episode'],
                                                  name=ep['Title'], release_date=ep['Released'], rate_imdb=ep['imdbRating'])
 
-def getEntryInfo(const, rate, rate_date, is_updated=False, exists=False):
+def getEntryInfo(const, rate, rate_date, log, is_updated=False, exists=False):
     json = getOMDb(const)
-    if not (json and json['Response']):   # if FAIL add to logs AND details of updater etc...
+    if not (json and json['Response']):
         return
     elif is_updated and exists:      # if entry exists, updater must be sure that can delete and archive it
         entry = Entry.objects.get(const=const)
-        # if Archive.objects.filter(const=entry.const, rate_date=entry.rate_date).exists():
-        #     return
         archive = Archive.objects.create(const=entry.const, rate=entry.rate, rate_date=entry.rate_date)
-        print('updater. exists ' + entry.name)
+        print('updater. exists ' + entry.name, '\t...and deleted')
         entry.delete()
-        print('\t...and deleted')
+        log.updated_archived += 1
+        log.save()
     type, created = Type.objects.get_or_create(name=json['Type'].lower())
     url_imdb = 'http://www.imdb.com/title/{}/'.format(const)
     rel_date = prepare_date_json(json['Released']) if json['Released'] != "N/A" else 'N/A'
@@ -45,13 +44,14 @@ def getEntryInfo(const, rate, rate_date, is_updated=False, exists=False):
                 inserted_by_updater=is_updated
                 )
     entry.save()
-    # genres = list(map(str.lower, json['Genre'].replace('Sci-Fi', 'sci_fi').split(', ')))
     for g in json['Genre'].split(', '):
         genre, created = Genre.objects.get_or_create(name=g.lower())
         entry.genre.add(genre)
     for d in json['Director'].split(', '):
         director, created = Director.objects.get_or_create(name=d)
         entry.director.add(director)
+    log.new_inserted += 1
+    log.save()
 
     # if json['Type'] == 'series' and 'totalSeasons' in json:
     #     getSeasonsInfo(entry, int(json['totalSeasons']))
@@ -72,7 +72,7 @@ def csvToDatabase():              # fname.isfile()
             rate_date = prepare_date_csv(row['created'])
             print(row['Title'])
             getEntryInfo(row['const'], row['You rated'], rate_date)
-# csvToDatabase()
+csvToDatabase()
 
 
 
@@ -81,6 +81,7 @@ def update():
     itemlist = getRSS()
     if not itemlist:
         return
+    log = Log.objects.create()
     for num, obj in enumerate(itemlist):
         if num > 13:
             return
@@ -94,13 +95,13 @@ def update():
             elif Entry.objects.filter(const=const, rate_date=rate_date).exists():
                 print('wont update because its the same entry')
                 continue#return
-            getEntryInfo(const, rate, rate_date, is_updated=True, exists=True)
+            getEntryInfo(const, rate, rate_date, log, is_updated=True, exists=True)
             continue
         else:
             print('updater. ' + obj.find('title').text)
-            getEntryInfo(const, rate, rate_date, is_updated=True)
+            getEntryInfo(const, rate, rate_date, log, is_updated=True)
             # time.sleep( 5 )
 
 
 
-# update()
+update()
