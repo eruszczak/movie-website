@@ -3,9 +3,25 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <div class="col-xs-10">
+            <div class="col-xs-12">
                 <p class="lead text-center"><a href="{% url 'entry_groupby_year' %}">All years</a></p>
                 <p class="lead text-center"><a href="{% url 'entry_groupby_genre' %}">All genres</a></p>
+                <p class="lead text-center">{{ ratings.paginator.count }} ratings</p>
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if ratings.has_previous %}
+                            <a href="?page={{ ratings.previous_page_number }}">previous</a>
+                        {% endif %}
+
+                        <span class="current">
+                            Page {{ ratings.number }} of {{ ratings.paginator.num_pages }}.
+                        </span>
+
+                        {% if ratings.has_next %}
+                            <a href="?page={{ ratings.next_page_number }}">next</a>
+                        {% endif %}
+                    </span>
+                </div>
                 <table class="table table-hover table-bordered table-condensed">
 		            <thead>
                         <tr>
@@ -16,24 +32,36 @@
                             <th class="text-center">rating</th>
                             <th class="text-center">imdb</th>
                             <th class="text-center">votes</th>
-                            <th class="text-center">details</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for obj in last_rating %}
+                        {% for obj in ratings %}
                         <tr>
-                            <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                            <th scope="row" class="text-center">{{ forloop.counter0|add:ratings.start_index }}</th>
                             <td><a href="{% url 'entry_details' const=obj.const %}">{{ obj.name }}</a></td>
                             <td><a href="{% url 'entry_show_from_year' year=obj.year %}">{{ obj.year }}</a></td>
                             <td>{{ obj.rate }}</td>
                             <td>{{ obj.rate_imdb }}</td>
                             <td>{{ obj.votes }}</td>
-                            <td><a href="{% url 'entry_details' const=obj.const %}">link</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>
-                    {{ list_dicts }}
                 </table>
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if ratings.has_previous %}
+                            <a href="?page={{ ratings.previous_page_number }}">previous</a>
+                        {% endif %}
+
+                        <span class="current">
+                            Page {{ ratings.number }} of {{ ratings.paginator.num_pages }}.
+                        </span>
+
+                        {% if ratings.has_next %}
+                            <a href="?page={{ ratings.next_page_number }}">next</a>
+                        {% endif %}
+                    </span>
+                </div>
             </div>
         </div>
     </div>

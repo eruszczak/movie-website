@@ -3,6 +3,7 @@
 {% block content %}
     <div class="container">
         <div class="col-xs-12">
+            <p class="lead text-center">{{ counter }} found for {{ genre_name }}</p>
             {% for obj in genre %}
                 <p><a href="{% url 'entry_details' const=obj.const %}">{{ obj.name }}</a></p>
             {% endfor %}

@@ -33,7 +33,7 @@ def getEntryInfo(const, rate, rate_date, is_updated=False, exists=False):
         print('updater. exists ' + entry.name)
         entry.delete()
         print('\t...and deleted')
-    type, created = Type.objects.get_or_create(name=json['Type'])
+    type, created = Type.objects.get_or_create(name=json['Type'].lower())
     url_imdb = 'http://www.imdb.com/title/{}/'.format(const)
     rel_date = prepare_date_json(json['Released']) if json['Released'] != "N/A" else 'N/A'
     entry = Entry(const=const, name=json['Title'], type=type, rate=rate, rate_imdb=json['imdbRating'],
@@ -47,7 +47,7 @@ def getEntryInfo(const, rate, rate_date, is_updated=False, exists=False):
     entry.save()
     # genres = list(map(str.lower, json['Genre'].replace('Sci-Fi', 'sci_fi').split(', ')))
     for g in json['Genre'].split(', '):
-        genre, created = Genre.objects.get_or_create(name=g)
+        genre, created = Genre.objects.get_or_create(name=g.lower())
         entry.genre.add(genre)
     for d in json['Director'].split(', '):
         director, created = Director.objects.get_or_create(name=d)
@@ -121,5 +121,6 @@ context = {
 # for g in Genre.objects.all():
 #     print(g.name, g.entry_set.count())
 
-for g in Genre.objects.get(name='Drama').entry_set.all():
+for g in Genre.objects.get(name='Film-Noir').entry_set.all():
     print(g.name)
+print(Genre.objects.get(name='Film-Noir').entry_set.all().count())
