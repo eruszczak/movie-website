@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Genre(models.Model):
@@ -32,6 +33,7 @@ class Entry(models.Model):
     tomatoConsensus = models.TextField(blank=True, null=True)
     plot = models.TextField(blank=True, null=True)
     inserted_by_updater = models.BooleanField(default=False)
+    inserted_date = models.DateTimeField(default=timezone.now, blank=True)
 
 class Archive(models.Model):
     const = models.CharField(max_length=30, blank=True, null=True)
@@ -49,3 +51,8 @@ class Episode(models.Model):
     name = models.TextField(blank=True, null=True)
     release_date = models.CharField(blank=True, null=True, max_length=30)
     rate_imdb = models.CharField(max_length=30, blank=True, null=True)
+
+class Log(models.Model):
+    date = models.DateTimeField(default=timezone.now, blank=True)
+    inserted = models.IntegerField(blank=True, null=True)
+    archived = models.IntegerField(blank=True, null=True)
