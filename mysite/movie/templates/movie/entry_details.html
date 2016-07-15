@@ -14,13 +14,29 @@
 					<div class="media-body">
 						<h4 class="media-heading">
 							{% for genre in entry.genre.all %}
-								<a href="{% url 'entry_show_from_genre' genre=genre.name|lower %}">{{ genre.name|lower }}</a>
+								<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}</a>
 							{% endfor %}
 						</h4>
 						<p><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></p>
 						<p>votes: {{ entry.votes }}</p>
 						<p>rated:{{ entry.rate }}</p>
 						<p>{{ entry.plot }}</p>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6 col-xs-offset-3">
+					<div class="history">
+						<div class="last">
+							<p class="lead">Current rating</p>
+							<p>{{ entry.rate }} on {{ entry.rate_date }}</p>
+						</div>
+						<div class="history">
+							<p class="lead">History ratings:</p>
+							{% for a in archive %}
+								<p>{{ a.rate }} on {{ a.rate_date }}</p>
+							{% endfor %}
+						</div>
 					</div>
 				</div>
 			</div>

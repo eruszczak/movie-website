@@ -27,8 +27,8 @@ def getEntryInfo(const, rate, rate_date, is_updated=False, exists=False):
         return
     elif is_updated and exists:      # if entry exists, updater must be sure that can delete and archive it
         entry = Entry.objects.get(const=const)
-        if Archive.objects.filter(const=entry.const, rate_date=entry.rate_date).exists():
-            return
+        # if Archive.objects.filter(const=entry.const, rate_date=entry.rate_date).exists():
+        #     return
         archive = Archive.objects.create(const=entry.const, rate=entry.rate, rate_date=entry.rate_date)
         print('updater. exists ' + entry.name)
         entry.delete()
@@ -53,8 +53,8 @@ def getEntryInfo(const, rate, rate_date, is_updated=False, exists=False):
         director, created = Director.objects.get_or_create(name=d)
         entry.director.add(director)
 
-    if json['Type'] == 'series' and 'totalSeasons' in json:
-        getSeasonsInfo(entry, int(json['totalSeasons']))
+    # if json['Type'] == 'series' and 'totalSeasons' in json:
+    #     getSeasonsInfo(entry, int(json['totalSeasons']))
 
 
 
@@ -63,15 +63,15 @@ def csvToDatabase():              # fname.isfile()
     with open(fname, 'r') as f:
         reader = csv.DictReader(f)
         for num, row in enumerate(reader):
+            if num > 30:
+                print('stop')
+                return
             if Entry.objects.filter(const=row['const']).exists():
                 print('exists ' + row['Title'])
                 continue
             rate_date = prepare_date_csv(row['created'])
             print(row['Title'])
             getEntryInfo(row['const'], row['You rated'], rate_date)
-            if num % 100 == 0:
-                time.sleep(5)
-
 # csvToDatabase()
 
 
@@ -82,45 +82,25 @@ def update():
     if not itemlist:
         return
     for num, obj in enumerate(itemlist):
+        if num > 13:
+            return
         const = obj.find('link').text[-10:-1]
         rate = obj.find('description').text.strip()[-2:-1]
         rate_date = prepare_date_xml(obj.find('pubDate').text)
         if Entry.objects.filter(const=const).exists():
+            if Archive.objects.filter(const=const, rate_date=rate_date).exists():
+                print('wont update because its already Archived')
+                continue#return
+            elif Entry.objects.filter(const=const, rate_date=rate_date).exists():
+                print('wont update because its the same entry')
+                continue#return
             getEntryInfo(const, rate, rate_date, is_updated=True, exists=True)
             continue
         else:
             print('updater. ' + obj.find('title').text)
             getEntryInfo(const, rate, rate_date, is_updated=True)
             # time.sleep( 5 )
-            # if num > 30:
-            #     return
+
 
 
 # update()
-from django.shortcuts import get_object_or_404
-
-context = {
-    'entry': get_object_or_404(Entry, const="tt0286486"),
-}
-# data = {
-#     'seasons_count': Season.objects.filter(entry=obj).count(),
-#     'seasons': Season.objects.filter(entry=obj),
-#     'episodes_count': Episode.objects.filter(season=s).count(),
-#     'episodes': Episode.objects.filter(season=s).count(),
-# }
-# li = []
-# print(context['entry'].name, 'seasons:', Season.objects.filter(entry=context['entry']).count())
-# for s in Season.objects.filter(entry=context['entry']):
-#     episodes = Episode.objects.filter(season=s)
-#     # print(episodes[0].number)
-#     for e in episodes:
-#         print(e.number)
-#     li.append((s.number, episodes.count()))
-# print(li)
-
-# for g in Genre.objects.all():
-#     print(g.name, g.entry_set.count())
-
-for g in Genre.objects.get(name='Film-Noir').entry_set.all():
-    print(g.name)
-print(Genre.objects.get(name='Film-Noir').entry_set.all().count())

@@ -28,6 +28,8 @@
                             <!--refactor-->
                             <th class="text-center"></th>
                             <th class="text-center">title</th>
+                            <th class="text-center">ratedate</th>
+                            <th class="text-center">inserted</th>
                             <th class="text-center">year</th>
                             <th class="text-center">rating</th>
                             <th class="text-center">imdb</th>
@@ -39,6 +41,8 @@
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter0|add:ratings.start_index }}</th>
                             <td><a href="{% url 'entry_details' const=obj.const %}">{{ obj.name }}</a></td>
+                            <td>{{ obj.rate_date }}</td>
+                            <td>{{ obj.inserted_date }}</td>
                             <td><a href="{% url 'entry_show_from_year' year=obj.year %}">{{ obj.year }}</a></td>
                             <td>{{ obj.rate }}</td>
                             <td>{{ obj.rate_imdb }}</td>
@@ -62,6 +66,14 @@
                         {% endif %}
                     </span>
                 </div>
+                {% for a in archive %}
+                <table class="table-bordered">
+                    <tr>
+                        <td>{{ a.const }}</td>
+                        <td>{{ a.rate_date }}</td>
+                    </tr>
+                </table>
+                {% endfor %}
             </div>
         </div>
     </div>

@@ -1,13 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from django.db import connections
 
-from .models import Entry, Genre
+from .models import Entry, Genre, Archive
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 def index(request):
-    entries = Entry.objects.all()
+    entries = Entry.objects.all().order_by('-rate_date')
     paginator = Paginator(entries, 75)
     page = request.GET.get('page')
     try:
@@ -18,16 +18,17 @@ def index(request):
         ratings = paginator.page(paginator.num_pages)
     context = {
         'ratings': ratings,
+        'archive': Archive.objects.all(),
     }
     return render(request, 'movie/entry.html', context)
 
 def about(request):
-    return render(request, 'movie/about.html')
+    return render(request, 'movie/about.html', {'archive': Archive.objects.all()})
 
 def entry_details(request, const):
     context = {
         'entry': get_object_or_404(Entry, const=const),
-        # 'genres': get_object_or_404(Genre, const=const),
+        'archive': Archive.objects.filter(const=const),
     }
 
     return render(request, 'movie/entry_details.html', context)
@@ -61,11 +62,9 @@ def entry_groupby_genre(request):
     return render(request, 'movie/entry_groupby_genre.html', context)
 
 def entry_show_from_genre(request, genre):
-    lower_gen = genre
-    genre = (genre[0].upper() + genre[1:]).replace('-fi', '-Fi').replace('-sh', '-Sh').replace('-no', '-No')
     context = {
         'genre': Genre.objects.get(name=genre).entry_set.all(),
         'counter': Genre.objects.get(name=genre).entry_set.all().count(),
-        'genre_name': lower_gen,
+        'genre_name': genre,
     }
     return render(request, 'movie/entry_show_from_genre.html', context)
