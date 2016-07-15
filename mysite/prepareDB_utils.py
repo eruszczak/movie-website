@@ -2,6 +2,7 @@ import json
 import urllib.request
 from time import strptime
 import xml.etree.ElementTree as ET
+import os
 
 def prepare_date_csv(d):                                                                    # MOVE IT TO NEW FILE
     'Sat Nov 12 00:00:00 1993 -> 1993-11-12'
@@ -41,14 +42,16 @@ def getOMDb(imdbID, api='http://www.omdbapi.com/?i={}&plot=full&type=true&tomato
         return False
     return json.loads(req.read().decode('utf-8'))
 
-# def downloadPosters():
-#     folder = os.path.join(os.path.dirname(os.getcwd()), 'posters')
-#     os.makedirs(folder, exist_ok=True)
-#     for obj in Entry.objects.all():
-#         title = obj.const + '.jpg'
-#         img_path = os.path.join(folder, title)
-#         if not os.path.isfile(img_path):
-#             try:
-#                 urllib.request.urlretrieve(obj.url_poster, img_path)
-#             except:
-#                 pass
+
+def downloadPosters():
+    from movie.models import Entry
+    folder = os.path.join(os.path.dirname(os.getcwd()), 'posters')
+    os.makedirs(folder, exist_ok=True)
+    for obj in Entry.objects.all():
+        title = obj.const + '.jpg'
+        img_path = os.path.join(folder, title)
+        if not os.path.isfile(img_path):
+            try:
+                urllib.request.urlretrieve(obj.url_poster, img_path)
+            except:
+                pass
