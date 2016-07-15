@@ -5,7 +5,7 @@ django.setup()
 import csv
 import time
 from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log
-from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb
+from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb, downloadPosters
 
 
 def getSeasonsInfo(entry, totalSeasons):
@@ -73,7 +73,7 @@ def csvToDatabase():              # fname.isfile()
             rate_date = prepare_date_csv(row['created'])
             print(row['Title'])
             getEntryInfo(row['const'], row['You rated'], rate_date, log)
-csvToDatabase()
+# csvToDatabase()
 
 
 
@@ -106,3 +106,4 @@ def update():
 
 
 # update()
+downloadPosters()
