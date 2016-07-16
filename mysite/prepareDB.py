@@ -1,11 +1,10 @@
-import csv
-from .movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log
-from .prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb, downloadPosters
-import django
-import os
-
+import django, os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
+import csv
+from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log
+from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb, downloadPosters, downloadPoster
+
 
 
 def getSeasonsInfo(entry, totalSeasons):
@@ -46,6 +45,7 @@ def getEntryInfo(const, rate, rate_date, log, is_updated=False, exists=False):
                   inserted_by_updater=is_updated
                   )
     entry.save()
+    downloadPoster(entry.const, entry.url_poster)
     for g in json['Genre'].split(', '):
         genre, created = Genre.objects.get_or_create(name=g.lower())
         entry.genre.add(genre)
@@ -65,9 +65,6 @@ def csvToDatabase():  # fname.isfile()
     with open(fname, 'r') as f:
         reader = csv.DictReader(f)
         for num, row in enumerate(reader):
-            if num > 30:
-                print('stop')
-                return
             if Entry.objects.filter(const=row['const']).exists():
                 print('exists ' + row['Title'])
                 continue
@@ -81,11 +78,13 @@ def csvToDatabase():  # fname.isfile()
 def update():
     # from rss xml: const, rate and rate_date. Then use const to get info from omdbapi json
     itemlist = getRSS()
+    log = Log.objects.create()
     if not itemlist:
         return
-    log = Log.objects.create()
+    i = 0
     for num, obj in enumerate(itemlist):
-        if num > 13:
+        i += 1
+        if i > 10:
             return
         const = obj.find('link').text[-10:-1]
         rate = obj.find('description').text.strip()[-2:-1]
@@ -93,10 +92,12 @@ def update():
         if Entry.objects.filter(const=const).exists():
             if Archive.objects.filter(const=const, rate_date=rate_date).exists():
                 print('wont update because its already Archived')
-                continue  # return
+                i += 1
+                continue
             elif Entry.objects.filter(const=const, rate_date=rate_date).exists():
                 print('wont update because its the same entry')
-                continue  # return
+                i += 1
+                continue
             getEntryInfo(const, rate, rate_date, log, is_updated=True, exists=True)
             continue
         else:
@@ -104,6 +105,7 @@ def update():
             getEntryInfo(const, rate, rate_date, log, is_updated=True)
             # time.sleep( 5 )
 
-
-# update()
+update()
 # downloadPosters()
+# u = 'http://ia.media-imdb.com/images/M/MV5BNTE5NzU3MTYzOF5BMl5BanBnXkFtZTgwNTM5NjQxODE@._V1_SX300.jpg'
+# downloadPoster('tt2975590', u)

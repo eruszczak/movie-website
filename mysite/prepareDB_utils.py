@@ -45,15 +45,37 @@ def getOMDb(imdbID, api='http://www.omdbapi.com/?i={}&plot=full&type=true&tomato
 
 def downloadPosters():
     from movie.models import Entry
-    from mysite.settings import STATIC_ROOT
-    folder = os.path.join(STATIC_ROOT, 'img', 'posters')
-    print(folder)
+    from mysite.settings import STATIC_ROOT, BASE_DIR
+    # folder = os.path.join(STATIC_ROOT, 'img', 'posters')
+    folder = os.path.join(BASE_DIR, 'movie', 'static', 'img', 'posters')
     os.makedirs(folder, exist_ok=True)
     for obj in Entry.objects.all():
         title = obj.const + '.jpg'
         img_path = os.path.join(folder, title)
+        if obj.url_poster == 'N/A':
+            url = 'http://placehold.it/300x440'
+        else:
+            url = obj.url_poster
         if not os.path.isfile(img_path):
             try:
-                urllib.request.urlretrieve(obj.url_poster, img_path)
+                urllib.request.urlretrieve(url, img_path)
+                print('downloading', obj.name, title)
             except:
+                print('cant download poster', obj.name)
                 pass
+
+
+def downloadPoster(const, url):
+    from mysite.settings import STATIC_ROOT, BASE_DIR
+    folder = os.path.join(BASE_DIR, 'movie', 'static', 'img', 'posters')
+    title = const + '.jpg'
+    img_path = os.path.join(folder, title)
+    if url == 'N/A':
+        url = 'http://placehold.it/300x440'
+    if not os.path.isfile(img_path):
+        try:
+            urllib.request.urlretrieve(url, img_path)
+            print('downloading', const, title)
+        except:
+            print('cant download poster', const)
+            pass

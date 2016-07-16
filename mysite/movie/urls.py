@@ -3,8 +3,10 @@ from django.contrib import admin
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.index, name='home'),
+    url(r'^$', views.home, name='home'),
+    url(r'^explore/$', views.explore, name='explore'),
     url(r'^about/$', views.about, name='about'),
+    url(r'^book/$', views.book, name='book'),
 
     url(r'^entry/(?P<const>tt\d{7})/$', views.entry_details, name='entry_details'),
 

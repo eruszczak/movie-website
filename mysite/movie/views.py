@@ -1,14 +1,19 @@
 from django.shortcuts import render, get_object_or_404
-from django.db import connections
 
 from .models import Entry, Genre, Archive
-
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
-def index(request):
-    entries = Entry.objects.all().order_by('-rate_date')
-    paginator = Paginator(entries, 75)
+def home(request):
+    context = {
+        'ratings': Entry.objects.all().order_by('-rate_date')[:20]
+    }
+    return render(request, 'movie/home.html', context)
+
+
+def explore(request):
+    entries = Entry.objects.all().order_by('-inserted_date')
+    paginator = Paginator(entries, 50)
     page = request.GET.get('page')
     try:
         ratings = paginator.page(page)
@@ -23,6 +28,10 @@ def index(request):
     return render(request, 'movie/entry.html', context)
 
 
+def book(request):
+    return render(request, 'movie/book.html')
+
+
 def about(request):
     return render(request, 'movie/about.html', {'archive': Archive.objects.all()})
 
@@ -30,7 +39,7 @@ def about(request):
 def entry_details(request, const):
     context = {
         'entry': get_object_or_404(Entry, const=const),
-        'archive': Archive.objects.filter(const=const),
+        'archive': Archive.objects.filter(const=const).order_by('-rate_date'),
     }
 
     return render(request, 'movie/entry_details.html', context)
