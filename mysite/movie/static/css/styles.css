@@ -6,7 +6,7 @@
 
 body {
   background-color: white;
-  padding-top: 50px;
+  padding-top: 60px;
   font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 }
@@ -49,3 +49,15 @@ thead tr {
 /*img {
   max-width: 160px;
 }*/
+
+@media (min-width: 768px) {
+    .navbar .navbar-nav {
+        display: inline-block;
+        float: none;
+        vertical-align: top;
+    }
+
+    .navbar .navbar-collapse {
+        text-align: center;
+    }
+}

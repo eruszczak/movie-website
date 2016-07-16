@@ -7,62 +7,26 @@
                 <p class="lead text-center"><a href="{% url 'entry_groupby_year' %}">All years</a></p>
                 <p class="lead text-center"><a href="{% url 'entry_groupby_genre' %}">All genres</a></p>
                 <p class="lead text-center">{{ ratings.paginator.count }} ratings</p>
-                <nav>
-                    <div class="text-center" style="cursor:default; margin-bottom: -15px">
-                      Page {{ ratings.number }} of {{ ratings.paginator.num_pages }}
-                    <span class="label label-info" >{{ ratings.paginator.per_page }} per page</span></div>
-                    <ul class="pager">
-                      {% if ratings.has_previous %}
-                    <li><a href="?page={{ ratings.previous_page_number }}">Previous</a></li>
-                      {% else %}
-                      <li><a style="cursor: default">Previous</a></li>
-                      {% endif %}
-                      {% if ratings.has_next %}
-                    <li><a href="?page={{ ratings.next_page_number }}">Next</a></li>
-                      {% else %}
-                      <li><a style="cursor: default">Next</a></li>
-                      {% endif %}
-                  </ul>
-                </nav>
+                {% include 'movie/paginator.html' %}
                 <table class="table table-hover table-bordered table-condensed">
 		            <thead>
                         <tr>
-                            <!--refactor-->
                             <th class="text-center"></th>
                             <th class="text-center">title</th>
-                            <th class="text-center">ratedate</th>
-                            <th class="text-center">year</th>
                             <th class="text-center">rating</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for obj in ratings %}
                         <tr>
-                            <th scope="row" class="text-center">{{ forloop.counter0|add:ratings.start_index }}</th>
-                            <td><a href="{% url 'entry_details' const=obj.const %}">{{ obj.name }}</a></td>
-                            <td>{{ obj.rate_date }}</td>
-                            <td><a href="{% url 'entry_show_from_year' year=obj.year %}">{{ obj.year }}</a></td>
-                            <td>{{ obj.rate }}</td>
+                            <th scope="row" class="col-md-1 text-center">{{ forloop.counter0|add:ratings.start_index }}</th>
+                            <td class="col-md-9" style="padding-left: 20px"><a href="{% url 'entry_details' const=obj.const %}">{{ obj.name }}</a></td>
+                            <td class="text-center">{{ obj.rate }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-                <div class="pagination">
-                    <span class="step-links">
-                        {% if ratings.has_previous %}
-                            <a href="?page={{ ratings.previous_page_number }}">previous</a>
-                        {% endif %}
-
-                        <span class="current">
-                            Page {{ ratings.number }} of {{ ratings.paginator.num_pages }}.
-                        </span>
-
-                        {% if ratings.has_next %}
-                            <a href="?page={{ ratings.next_page_number }}">next</a>
-                        {% endif %}
-                    </span>
-                </div>
-
+                {% include 'movie/paginator.html' %}
             </div>
         </div>
     </div>

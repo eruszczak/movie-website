@@ -1,6 +1,7 @@
 {% extends "movie/base.html" %}
 {% load staticfiles %}
 {% static "" as baseUrl %}
+
 {% block content %}
     <!--<div class="container">-->
         <!--<div class="row">-->
@@ -49,26 +50,38 @@
 						<li class="list-group-item">{% for genre in entry.genre.all %}
 							<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}<br></a>
 							{% endfor %}</li>
-					  <li class="list-group-item">{{ entry.votes }} votes</li>
-					  <li class="list-group-item">last seen: {{ entry.rate_date }}</li>
+						  <li class="list-group-item">{{ entry.votes }} votes</li>
+						  <li class="list-group-item">rated: {{ entry.rate }}</li>
+						<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>
+						<li class="list-group-item">last seen: {{ entry.rate_date }}</li>
 					</ul>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-xs-10 col-xs-offset-1"><br>
 					<div class="progress">
-						<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ entry.rate }}%">
-						<span class="sr-only">40% Complete (success)</span>
+
+						<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ entry.rate }}0%">
+						{{ entry.rate }}/10<span class="sr-only">40% Complete (success)</span>
 					  </div></div>
 					{{ entry.plot }}
 				</div>
-				<div class="col-xs-10 col-xs-offset-1">
+				</div>
+			<div class="row">
+				<div class="col-xs-4 col-xs-offset-1">
+				{% if archive %}
 					<div class="history">
-						<p class="lead"><br>History ratings:</p>
+						<p class="lead"><br>History of ratings:</p>
+						<table class="table-bordered table-condensed">
 						{% for a in archive %}
-							<p>{{ a.rate }} on {{ a.rate_date }}</p>
+							<tr>
+								<td class="">{{ a.rate_date }}</td>
+								<td class="col-md-4 text-center">{{ a.rate }}</td>
+							</tr>
 						{% endfor %}
-					</div>
+						</table>
+						</div>
+				{% endif %}
 				</div>
 			</div>
 
