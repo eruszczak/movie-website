@@ -1,45 +1,75 @@
 {% extends "movie/base.html" %}
 {% load staticfiles %}
 {% static "" as baseUrl %}
-
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12">
-				<h1 class="page-header text-center">{{ entry.name }}</h1>
-				<div class="media">
-					<div class="media-left media-middle">
-						<img class="media-object" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="...">
-					</div>
-					<div class="media-body">
-						<h4 class="media-heading">
-							{% for genre in entry.genre.all %}
-								<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}</a>
-							{% endfor %}
-						</h4>
-						<p><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></p>
-						<p>votes: {{ entry.votes }}</p>
-						<p>rated:{{ entry.rate }}</p>
-						<p>{{ entry.plot }}</p>
-					</div>
+    <!--<div class="container">-->
+        <!--<div class="row">-->
+            <!--<div class="col-xs-12">-->
+				<!--<h1 class="page-header text-center">{{ entry.name }}</h1>-->
+				<!--<div class="media">-->
+					<!--<div class="media-left media-middle">-->
+						<!--<img class="media-object" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="...">-->
+					<!--</div>-->
+					<!--<div class="media-body">-->
+						<!--<h4 class="media-heading">-->
+							<!--{% for genre in entry.genre.all %}-->
+								<!--<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}</a>-->
+							<!--{% endfor %}-->
+						<!--</h4>-->
+						<!--<p><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></p>-->
+						<!--<p>votes: {{ entry.votes }}</p>-->
+						<!--<p>rated:{{ entry.rate }}</p>-->
+						<!--<p>{{ entry.plot }}</p>-->
+					<!--</div>-->
+				<!--</div>-->
+			<!--</div>-->
+		<!--</div>-->
+	<!--</div>-->
+					<!--<div class="history">-->
+						<!--<div class="last">-->
+							<!--<p class="lead">Current rating</p>-->
+							<!--<p>{{ entry.rate }} on {{ entry.rate_date }}</p>-->
+						<!--</div>-->
+						<!--<div class="history">-->
+							<!--<p class="lead">History ratings:</p>-->
+							<!--{% for a in archive %}-->
+								<!--<p>{{ a.rate }} on {{ a.rate_date }}</p>-->
+							<!--{% endfor %}-->
+						<!--</div>-->
+					<!--</div>-->
+		<div class="container" style="">
+			<h1 class="page-header text-center">{{ entry.name }}</h1>
+			<div class="row">
+				<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
+					<img class="img-responsive img-thumbnail" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="...">
+				</div>
+				<div class="col-xs-6 col-sm-3 col-md-3">
+					<ul class="list-group" style="margin-left: -10px">
+						<li class="list-group-item"><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></li>
+						<li class="list-group-item">{% for genre in entry.genre.all %}
+							<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}<br></a>
+							{% endfor %}</li>
+					  <li class="list-group-item">{{ entry.votes }} votes</li>
+					  <li class="list-group-item">last seen: {{ entry.rate_date }}</li>
+					</ul>
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-xs-6 col-xs-offset-3">
+				<div class="col-xs-10 col-xs-offset-1"><br>
+					<div class="progress">
+						<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ entry.rate }}%">
+						<span class="sr-only">40% Complete (success)</span>
+					  </div></div>
+					{{ entry.plot }}
+				</div>
+				<div class="col-xs-10 col-xs-offset-1">
 					<div class="history">
-						<div class="last">
-							<p class="lead">Current rating</p>
-							<p>{{ entry.rate }} on {{ entry.rate_date }}</p>
-						</div>
-						<div class="history">
-							<p class="lead">History ratings:</p>
-							{% for a in archive %}
-								<p>{{ a.rate }} on {{ a.rate_date }}</p>
-							{% endfor %}
-						</div>
+						<p class="lead"><br>History ratings:</p>
+						{% for a in archive %}
+							<p>{{ a.rate }} on {{ a.rate_date }}</p>
+						{% endfor %}
 					</div>
 				</div>
 			</div>
-        </div>
-    </div>
+
 {% endblock %}

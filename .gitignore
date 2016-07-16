@@ -1,6 +1,11 @@
-!settings.py
-*.sqlite
-*.sqlite3
+*.pyc
+__pycache__
 .idea
+env/
+
+*.sqlite3
 todo
-/mysite/movie/static/img/posters
+info.py
+posters/
+migrations/
+mysite/static/

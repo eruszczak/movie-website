@@ -22,8 +22,10 @@ def index(request):
     }
     return render(request, 'movie/entry.html', context)
 
+
 def about(request):
     return render(request, 'movie/about.html', {'archive': Archive.objects.all()})
+
 
 def entry_details(request, const):
     context = {
@@ -32,6 +34,7 @@ def entry_details(request, const):
     }
 
     return render(request, 'movie/entry_details.html', context)
+
 
 def entry_groupby_year(request):
     year_counter = []
@@ -46,6 +49,7 @@ def entry_groupby_year(request):
     context['diff'] = int(context['max']) - int(context['min'])
     return render(request, 'movie/entry_groupby_year.html', context)
 
+
 def entry_show_from_year(request, year):
     context = {
         'year': Entry.objects.order_by().filter(year=year),
@@ -54,12 +58,14 @@ def entry_show_from_year(request, year):
     }
     return render(request, 'movie/entry_show_from_year.html', context)
 
+
 def entry_groupby_genre(request):
     context = {
         'genre': Genre.objects.all(),
         'counter': Genre.objects.all().count()
     }
     return render(request, 'movie/entry_groupby_genre.html', context)
+
 
 def entry_show_from_genre(request, genre):
     context = {

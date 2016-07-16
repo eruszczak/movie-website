@@ -6,7 +6,7 @@
 
 body {
   background-color: white;
-  padding-top: 70px;
+  padding-top: 50px;
   font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 }
@@ -46,6 +46,6 @@ thead tr {
   border-bottom: 0px;
 }
 
-img {
+/*img {
   max-width: 160px;
-}
+}*/
