@@ -5,11 +5,14 @@ from django.utils import timezone
 class Genre(models.Model):
     name = models.CharField(max_length=30, unique=True)
 
+
 class Director(models.Model):
     name = models.CharField(max_length=150, unique=True)
 
+
 class Type(models.Model):
     name = models.CharField(max_length=30, unique=True)
+
 
 class Entry(models.Model):
     genre = models.ManyToManyField(Genre)
@@ -35,14 +38,17 @@ class Entry(models.Model):
     inserted_by_updater = models.BooleanField(default=False)
     inserted_date = models.DateTimeField(default=timezone.now, blank=True)
 
+
 class Archive(models.Model):
     const = models.CharField(max_length=30, blank=True, null=True)
     rate = models.CharField(max_length=30, blank=True, null=True)
     rate_date = models.CharField(blank=True, null=True, max_length=30)
 
+
 class Season(models.Model):
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
     number = models.IntegerField(blank=True, null=True)
+
 
 class Episode(models.Model):
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
@@ -51,6 +57,7 @@ class Episode(models.Model):
     name = models.TextField(blank=True, null=True)
     release_date = models.CharField(blank=True, null=True, max_length=30)
     rate_imdb = models.CharField(max_length=30, blank=True, null=True)
+
 
 class Log(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True)
