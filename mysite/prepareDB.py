@@ -4,7 +4,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 import csv
 from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log
-from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb, downloadPosters, \
+from .prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb, downloadPosters, \
     downloadPoster
 
 
@@ -147,20 +147,22 @@ if len(sys.argv) > 1:
         getTV()
     if sys.argv[1] == 'posters':
         downloadPosters()
+    if sys.argv[1] == 'posters':
+        update()
     sys.exit(0)
 
 # downloadPoster('tt2975590', u)
-update()
+# update()
 # downloadPosters()
 # u = 'http://ia.media-imdb.com/images/M/MV5BNTE5NzU3MTYzOF5BMl5BanBnXkFtZTgwNTM5NjQxODE@._V1_SX300.jpg'
 
-e = Entry.objects.get(const='tt0844441')
-if e.type.id == Type.objects.get(name='series').id:
-    s = Season.objects.filter(entry=e)
-    print(s.count())
-    for seas in s:
-        print(seas.number)
-        ep = Episode.objects.filter(season=seas)
-        for epis in ep:
-            print('\t', epis.number)
-    print()
+# e = Entry.objects.get(const='tt0844441')
+# if e.type.id == Type.objects.get(name='series').id:
+#     s = Season.objects.filter(entry=e)
+#     print(s.count())
+#     for seas in s:
+#         print(seas.number)
+#         ep = Episode.objects.filter(season=seas)
+#         for epis in ep:
+#             print('\t', epis.number)
+#     print()
