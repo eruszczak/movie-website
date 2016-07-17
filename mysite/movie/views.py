@@ -43,7 +43,7 @@ def entry_details(request, const):
         season_episodes = []
         for s in seasons:
             episodes = Episode.objects.filter(season=s)
-            season_episodes.append((s.number, episodes))
+            season_episodes.append([s.number, episodes])
         return season_episodes
 
     context = {
@@ -72,7 +72,7 @@ def entry_groupby_year(request):
 
 def entry_show_from_year(request, year):
     context = {
-        'year': Entry.objects.order_by().filter(year=year),
+        'year': Entry.objects.order_by('-rate').filter(year=year),
         'counter': Entry.objects.order_by().filter(year=year).count(),
         'what_year': year,
     }

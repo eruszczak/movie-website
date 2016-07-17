@@ -3,41 +3,6 @@
 {% static "" as baseUrl %}
 
 {% block content %}
-    <!--<div class="container">-->
-        <!--<div class="row">-->
-            <!--<div class="col-xs-12">-->
-				<!--<h1 class="page-header text-center">{{ entry.name }}</h1>-->
-				<!--<div class="media">-->
-					<!--<div class="media-left media-middle">-->
-						<!--<img class="media-object" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="...">-->
-					<!--</div>-->
-					<!--<div class="media-body">-->
-						<!--<h4 class="media-heading">-->
-							<!--{% for genre in entry.genre.all %}-->
-								<!--<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}</a>-->
-							<!--{% endfor %}-->
-						<!--</h4>-->
-						<!--<p><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></p>-->
-						<!--<p>votes: {{ entry.votes }}</p>-->
-						<!--<p>rated:{{ entry.rate }}</p>-->
-						<!--<p>{{ entry.plot }}</p>-->
-					<!--</div>-->
-				<!--</div>-->
-			<!--</div>-->
-		<!--</div>-->
-	<!--</div>-->
-					<!--<div class="history">-->
-						<!--<div class="last">-->
-							<!--<p class="lead">Current rating</p>-->
-							<!--<p>{{ entry.rate }} on {{ entry.rate_date }}</p>-->
-						<!--</div>-->
-						<!--<div class="history">-->
-							<!--<p class="lead">History ratings:</p>-->
-							<!--{% for a in archive %}-->
-								<!--<p>{{ a.rate }} on {{ a.rate_date }}</p>-->
-							<!--{% endfor %}-->
-						<!--</div>-->
-					<!--</div>-->
 		<div class="container" style="">
 			<h1 class="page-header text-center">{{ entry.name }}</h1>
 			<div class="row">
@@ -53,7 +18,7 @@
 						  <li class="list-group-item">{{ entry.votes }} votes</li>
 						  <li class="list-group-item">rated: {{ entry.rate }}</li>
 						<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>
-						<li class="list-group-item">last seen: {{ entry.rate_date }}</li>
+						<li class="list-group-item">rated on: {{ entry.rate_date }}</li>
 					</ul>
 				</div>
 			</div>
@@ -84,26 +49,31 @@
 				{% endif %}
 				</div>
 			</div>
+
+
+
 			<br>
 			{% if episodes %}
 				<div class="row">
 					<div class="col-xs-7">
-						<table>
-							<!--<thead>-->
-								<!--<th></th>-->
-							<!--</thead>-->
-							{% for season, eps in episodes %}
-								<tr>
-									<td>season {{ season }}</td>
-								</tr>
+						{% for season, eps in episodes %}
+						<div id="accordion" role="tablist" aria-multiselectable="true">
+						  <div class="panel panel-default">
+							<div class="panel-heading" role="tab" id="heading{{season}}">
+							  <h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{season}}" aria-expanded="true" aria-controls="collapse{{season}}">
+								  season {{ season }}
+								</a>
+							  </h4>
+							</div>
+							<div id="collapse{{season}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{season}}">
 								{% for e in eps %}
-								<tr>
-									<td>{{ e.number }}</td>
-									<td>{{ e.name }}</td>
-								</tr>
+								{{ e.number }} {{ e.name }} <br>
 								{% endfor %}
+							</div>
+						  </div>
+						</div>
 							{% endfor %}
-						</table>
 					</div>
 				</div>
 			{% endif %}
