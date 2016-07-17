@@ -12,7 +12,7 @@ def home(request):
 
 
 def explore(request):
-    entries = Entry.objects.all().order_by('-inserted_date')
+    entries = Entry.objects.all().order_by('-rate_date', '-inserted_date')
     paginator = Paginator(entries, 50)
     page = request.GET.get('page')
     try:

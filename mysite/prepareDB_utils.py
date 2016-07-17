@@ -48,7 +48,7 @@ def downloadPosters():
     from mysite.settings import STATIC_ROOT, BASE_DIR
     # folder = os.path.join(STATIC_ROOT, 'img', 'posters')
     folder = os.path.join(BASE_DIR, 'movie', 'static', 'img', 'posters')
-    os.makedirs(folder, exist_ok=True)
+    # os.makedirs(folder, exist_ok=True)
     for obj in Entry.objects.all():
         title = obj.const + '.jpg'
         img_path = os.path.join(folder, title)
