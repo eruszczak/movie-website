@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 
-from .models import Entry, Genre, Archive
+from .models import Entry, Genre, Archive, Season, Episode, Type
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
@@ -37,10 +37,21 @@ def about(request):
 
 
 def entry_details(request, const):
+    def get_seasons(imdb_id):
+        entry = Entry.objects.get(const=imdb_id)
+        seasons = Season.objects.filter(entry=entry)
+        season_episodes = []
+        for s in seasons:
+            episodes = Episode.objects.filter(season=s)
+            season_episodes.append((s.number, episodes))
+        return season_episodes
+
     context = {
         'entry': get_object_or_404(Entry, const=const),
         'archive': Archive.objects.filter(const=const).order_by('-rate_date'),
     }
+    if context['entry'].type.name == 'series':
+        context['episodes'] = get_seasons(const)
 
     return render(request, 'movie/entry_details.html', context)
 

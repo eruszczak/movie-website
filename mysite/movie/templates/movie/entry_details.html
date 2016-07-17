@@ -84,5 +84,28 @@
 				{% endif %}
 				</div>
 			</div>
+			<br>
+			{% if episodes %}
+				<div class="row">
+					<div class="col-xs-7">
+						<table>
+							<!--<thead>-->
+								<!--<th></th>-->
+							<!--</thead>-->
+							{% for season, eps in episodes %}
+								<tr>
+									<td>season {{ season }}</td>
+								</tr>
+								{% for e in eps %}
+								<tr>
+									<td>{{ e.number }}</td>
+									<td>{{ e.name }}</td>
+								</tr>
+								{% endfor %}
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+			{% endif %}
 
 {% endblock %}
