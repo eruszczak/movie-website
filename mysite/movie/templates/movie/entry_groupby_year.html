@@ -3,12 +3,11 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <div class="col-xs-10">
-                <p class="lead text-center">found ratings from {{ counter }} different years</p>
-                    {% for year, count in year_counter %}
-                    <span><a href="{% url 'entry_show_from_year' year=year %}">{{ year }} ({{ count }})</a></span>
-                    {% endfor %}
-                    {{ list_dicts }}
+            <p class="lead text-center">found ratings from {{ counter }} different years</p>
+            <div class="col-md-2">
+                {% for year, count in year_counter %}
+                <p><a href="{% url 'entry_show_from_year' year=year %}">{{ year }} ({{ count }})</a></p>
+                {% endfor %}
             </div>
         </div>
     </div>

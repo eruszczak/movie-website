@@ -45,6 +45,14 @@ class Archive(models.Model):
     rate_date = models.CharField(blank=True, null=True, max_length=30)
 
 
+class Recommend(models.Model):
+    const = models.CharField(max_length=30, unique=True)
+    name = models.TextField(blank=True, null=True)
+    inserted_date = models.DateTimeField(default=timezone.now, blank=True)
+    year = models.CharField(max_length=30, blank=True, null=True)
+    url_imdb = models.URLField(blank=True, null=True)
+
+
 class Season(models.Model):
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
     number = models.IntegerField(blank=True, null=True)

@@ -1,13 +1,53 @@
 {% extends "movie/base.html" %}
 
 {% block content %}
-    <div class="container">
-        <div class="row">
-            {% for obj in ratings %}
-            <div class="col-md-9">
 
+
+    <!--<div class="container">-->
+        <!--<div class="row">-->
+            <!--{% for entry in ratings %}-->
+            <!--<div class="col-xs-12">-->
+				<!--<h1 class="page-header text-center">{{ entry.name }}</h1>-->
+				<!--<div class="media">-->
+					<!--<div class="media-left media-middle">-->
+						<!--<img class="media-object" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="...">-->
+					<!--</div>-->
+					<!--<div class="media-body">-->
+						<!--<h4 class="media-heading">-->
+							<!--{% for genre in entry.genre.all %}-->
+								<!--<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}</a>-->
+							<!--{% endfor %}-->
+						<!--</h4>-->
+						<!--<p><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></p>-->
+						<!--<p>votes: {{ entry.votes }}</p>-->
+						<!--<p>rated:{{ entry.rate }}</p>-->
+						<!--<p>{{ entry.plot }}</p>-->
+					<!--</div>-->
+				<!--</div>-->
+			<!--</div>-->
+            <!--{% endfor %}-->
+		<!--</div>-->
+	<!--</div>-->
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+        {% for entry in ratings %}
+            <div class="media">
+              <div class="media-left">
+                  <img class="media-object" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="..." style="max-width: 100px">
+              </div>
+              <div class="media-body">
+                <h4 class="media-heading"><a href="{% url 'entry_details' const=entry.const %}">{{ entry.name }}</a> {{ entry.rate }}/10</h4>
+                {{ entry.plot|slice:":200" }}..
+              </div>
             </div>
-            {% endfor %}
+        {% endfor %}
         </div>
+      </div>
     </div>
+
+
+
+
 {% endblock %}

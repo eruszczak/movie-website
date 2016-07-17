@@ -4,7 +4,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 import csv
 from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log
-from .prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb, downloadPosters, \
+from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb, downloadPosters, \
     downloadPoster
 
 
@@ -17,9 +17,9 @@ def getSeasonsInfo(entry, totalSeasons):
             # if Season.objects.filter(entr=entry, number=i).exists():
             #     print('{} season already exists'.format(api))
             #     continue
-            # if updated:     # DO NOT UPDATE SEASONS FOR NOW AT LEAST
-            #     continue
             season, updated = Season.objects.update_or_create(entry=entry, number=i)
+            if updated:     # DO NOT UPDATE SEASONS FOR NOW AT LEAST
+                continue
             for ep in json['Episodes']:
                 # if Episode.objects.filter(const=ep['imdbID']).exists():
                 #     print('{} {} already exists'.format(api, ep['imdbID']))
@@ -147,7 +147,7 @@ if len(sys.argv) > 1:
         getTV()
     if sys.argv[1] == 'posters':
         downloadPosters()
-    if sys.argv[1] == 'posters':
+    if sys.argv[1] == 'update':
         update()
     sys.exit(0)
 
@@ -166,3 +166,30 @@ if len(sys.argv) > 1:
 #         for epis in ep:
 #             print('\t', epis.number)
 #     print()
+
+
+# def get_seasons(imdb_id):
+#     entry = Entry.objects.get(const=imdb_id)
+#     seasons = Season.objects.filter(entry=entry)
+#     season_episodes = []
+#     for s in seasons:
+#         episodes = Episode.objects.filter(season=s)
+#         season_episodes.append([s.number, episodes])
+#     return season_episodes
+#
+# context = {'episodes': get_seasons('tt0112022')}
+
+
+# for i, (num, eps) in enumerate(context['episodes']):
+#     check = True
+#     for j in range(len(eps) - 1):
+#         if eps[0].number not in (0, 1):
+#             context['episodes'][i].insert(0, check)
+#             break
+#         num_current, num_next = int(eps[j].number), int(eps[j + 1].number)
+#         if num_current + 1 != num_next:
+#             check = False
+#     context['episodes'][i].insert(0, check)
+#
+# for a, b, c in context['episodes']:
+#     print(a, b)
