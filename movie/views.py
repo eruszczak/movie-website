@@ -8,7 +8,7 @@ def home(request):
     context = {
         'ratings': Entry.objects.all().order_by('-rate_date')[:20]
     }
-    return render(request, 'movie/home.html', context)
+    return render(request, 'home.html', context)
 
 
 def explore(request):
@@ -25,18 +25,19 @@ def explore(request):
         'ratings': ratings,
         'archive': Archive.objects.all(),
     }
-    return render(request, 'movie/entry.html', context)
+    return render(request, 'entry.html', context)
 
 
 def book(request):
-    return render(request, 'movie/book.html')
+    return render(request, 'book.html')
 
 
 def about(request):
-    return render(request, 'movie/about.html', {'archive': Archive.objects.all()})
+    return render(request, 'about.html', {'archive': Archive.objects.all()})
 
 
 def entry_details(request, const):
+    # MyModel.objects.extra(select={'length':'Length(name)'}).order_by('length')
     def get_seasons(imdb_id):
         entry = Entry.objects.get(const=imdb_id)
         seasons = Season.objects.filter(entry=entry)
@@ -53,7 +54,7 @@ def entry_details(request, const):
     if context['entry'].type.name == 'series':
         context['episodes'] = get_seasons(const)
 
-    return render(request, 'movie/entry_details.html', context)
+    return render(request, 'entry_details.html', context)
 
 
 def entry_groupby_year(request):
@@ -67,7 +68,7 @@ def entry_groupby_year(request):
         'min': min(year_counter, key=lambda x: x[0])[0],
     }
     context['diff'] = int(context['max']) - int(context['min'])
-    return render(request, 'movie/entry_groupby_year.html', context)
+    return render(request, 'entry_groupby_year.html', context)
 
 
 def entry_show_from_year(request, year):
@@ -76,7 +77,7 @@ def entry_show_from_year(request, year):
         'counter': Entry.objects.order_by().filter(year=year).count(),
         'what_year': year,
     }
-    return render(request, 'movie/entry_show_from_year.html', context)
+    return render(request, 'entry_show_from_year.html', context)
 
 
 def entry_groupby_genre(request):
@@ -84,7 +85,7 @@ def entry_groupby_genre(request):
         'genre': Genre.objects.all(),
         'counter': Genre.objects.all().count()
     }
-    return render(request, 'movie/entry_groupby_genre.html', context)
+    return render(request, 'entry_groupby_genre.html', context)
 
 
 def entry_show_from_genre(request, genre):
@@ -93,4 +94,4 @@ def entry_show_from_genre(request, genre):
         'counter': Genre.objects.get(name=genre).entry_set.all().count(),
         'genre_name': genre,
     }
-    return render(request, 'movie/entry_show_from_genre.html', context)
+    return render(request, 'entry_show_from_genre.html', context)
