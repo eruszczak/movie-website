@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from .models import Entry, Genre, Archive, Season, Episode, Type
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
-
+from django.db.models import Q
 
 def home(request):
     context = {
@@ -14,6 +14,14 @@ def home(request):
 
 def explore(request):
     entries = Entry.objects.all().order_by('-rate_date', '-inserted_date')
+    query = request.GET.get('q')
+    if query:
+        entries = entries.filter(
+            Q(name__icontains=query) |
+            Q(year__icontains=query)
+            ).distinct()
+            # https://docs.djangoproject.com/en/1.9/topics/db/queries/#complex-lookups-with-q-objects
+
     paginator = Paginator(entries, 50)
     page = request.GET.get('page')
     try:

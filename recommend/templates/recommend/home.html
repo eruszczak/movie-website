@@ -1,15 +1,39 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 <form method="POST" action="">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Send" />
+    {{ form|crispy }}
+    <input type="submit" class="btn btn-success" value="Send" />
 </form>
 
+<hr>
+<table class="table table-hover table-bordered table-condensed">
+    <thead>
+        <tr>
+            <th class="text-center"></th>
+            <th class="text-center">title</th>
+            <th class="text-center">date</th>
+            {% if request.user.is_staff %}
+            <th class="text-center">nick</th>
+            <th class="text-center">note</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for obj in obj_list %}
+        <tr>
+            <th scope="row" class="col-md-1 text-center">{{ forloop.counter }}</th>
+            <td class="" style="padding-left: 20px"><a href="http://www.imdb.com/title/{{ obj.const }}/" target="_blank">{{ obj.name }}</a></td>
+            <td class="">{{ obj.date }}</td>
+            {% if request.user.is_staff %}
+            <td class="">{{ obj.nick }}</td>
+            <td class="">{{ obj.note }}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<button type="button" class="btn btn-lg btn-danger" data-toggle="popover" title="Popover title" data-content="And here's some amazing content. It's very engaging. Right?">Click to toggle popover</button>
 
-{% for obj in obj_list %}
-{{ obj.const }}
-{{ obj.date }}
-<br>
-{% endfor %}
 {% endblock %}
