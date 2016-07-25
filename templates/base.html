@@ -14,6 +14,7 @@
 
 	<link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
 	<script src="{% static 'js/scripts.js' %}"></script>
+	<script type="text/javascript" src="http://kozea.github.com/pygal.js/latest/pygal-tooltips.min.js"></script>
 	<link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
 </head>
@@ -35,8 +36,16 @@
 					<li class="/"><a href="{% url 'home' %}">home</a></li>
 					<li><a href="{% url 'explore' %}">explore</a></li>
 					<li><a href="{% url 'book' %}">book</a></li>
+					<li><a href="{% url 'recommend' %}">recommend</a></li>
+					<li><a href="{% url 'charts:home' %}">charts</a></li>
 					<li><a href="{% url 'about' %}">about</a></li>
 				</ul>
+				<form class="navbar-form navbar-right" role="search">
+					<div class="form-group">
+					  <input type="text" class="form-control" placeholder="Search">
+					</div>
+					<button type="submit" class="btn btn-default">Submit</button>
+				  </form>
 				<!-- <ul class="nav navbar-nav navbar-right"> -->
 				<!-- <li><a href="../navbar-static-top/">Static top</a></li> -->
 				<!-- <li><a href="../navbar-fixed-top/">Fixed top</a></li> -->

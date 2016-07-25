@@ -35,11 +35,12 @@
         {% for entry in ratings %}
             <div class="media">
               <div class="media-left">
-                  <img class="media-object" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="..." style="max-width: 100px">
+                  <!--<img class="media-object" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="..." style="max-width: 100px">-->
+                  <img class="media-object" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="..." style="height:8em">
               </div>
               <div class="media-body">
                 <h4 class="media-heading"><a href="{% url 'entry_details' const=entry.const %}">{{ entry.name }}</a> {{ entry.rate }}/10</h4>
-                {{ entry.plot|slice:":200" }}..
+                {{ entry.plot|truncatewords:40 }}
               </div>
             </div>
         {% endfor %}

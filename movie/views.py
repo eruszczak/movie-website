@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 
 from .models import Entry, Genre, Archive, Season, Episode, Type
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.utils import timezone
 
 
 def home(request):
@@ -50,6 +51,8 @@ def entry_details(request, const):
     context = {
         'entry': get_object_or_404(Entry, const=const),
         'archive': Archive.objects.filter(const=const).order_by('-rate_date'),
+        'current_month': str(timezone.now().today().month),
+        'current_year': str(timezone.now().today().year),
     }
     if context['entry'].type.name == 'series':
         context['episodes'] = get_seasons(const)

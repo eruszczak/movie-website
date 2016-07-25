@@ -89,8 +89,8 @@ def getEntryInfo(const, rate, rate_date, log, is_updated=False, exists=False):
     log.new_inserted += 1
     log.save()
 
-    if json['Type'] == 'series':
-        getTV(single_update=True, const=const)
+    # if json['Type'] == 'series':
+    #     getTV(single_update=True, const=const)
 
 
 def csvToDatabase():  # fname.isfile()
@@ -193,3 +193,28 @@ if len(sys.argv) > 1:
 #
 # for a, b, c in context['episodes']:
 #     print(a, b)
+
+l = []
+for g in Genre.objects.all():
+    l.append((g.name, Entry.objects.filter(genre=g).count()))
+    # print(g.get_absolute_url())
+    # print(<a href="{}">here</a>)
+
+l = sorted(l, key=lambda x: x[1], reverse=True)
+
+for genre, value in l:
+    # print('{} {}'.format(value, genre), value)
+    print('{:<4} {}'.format(value, genre))
+
+
+from django.db.models import Count
+genres = Genre.objects.all().annotate(num=Count('entry')).order_by('-num')
+for g in genres:
+    print(g.name, g.entry_set.count(), g.get_absolute_url())
+
+# entries = Entry.objects.values('rate').distinct().annotate(num=Count('rate')).order_by('rate')
+entries = Entry.objects.extra(select={'rate_int': 'CAST(rate as INTEGER)'}).annotate(num=Count('rate'))
+ent = Entry.objects.values('rate').annotate(the_count=Count('rate')).order_by('rate')
+print(sorted(ent, key=lambda x: int(x['rate'])))
+# for e in entries:
+#     print(e.rate)
