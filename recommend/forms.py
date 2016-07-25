@@ -5,16 +5,22 @@ from movie.models import Entry
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.utils import timezone
+# from django.utils.translation import ugettext_lazy as _
 
 
 class RecommendForm(forms.ModelForm):
     class Meta:
         model = Recommendation
-        fields = [
-            'const',
-            'nick',
-            'note',
-        ]
+        fields = ['const', 'nick', 'note']
+        widgets = {
+            'note': forms.Textarea(attrs={'cols': 30, 'rows': 3, 'placeholder': 'an optional message (max 120 chars)'}),
+            'const': forms.TextInput(attrs={'placeholder': 'eg. http://www.imdb.com/title/tt0111503/ or tt0111503'}),
+            'nick': forms.TextInput(attrs={'placeholder': 'nickname'}),
+        }
+        labels = {
+            'const': _('IMDb URL/ID'),
+            'nick': _('Nickname'),
+        }
 
     def clean_const(self):
         import re
