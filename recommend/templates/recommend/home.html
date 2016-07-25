@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form method="POST" action="">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Send" />
+</form>
+
+{% for obj in obj_list %}
+{{ obj.const }}
+{{ obj.date }}
+<br>
+{% endfor %}
+{% endblock %}

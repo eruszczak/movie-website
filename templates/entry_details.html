@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% static "" as baseUrl %}
+{% load get_month %}
 
 {% block content %}
 		<div class="container" style="">
@@ -18,7 +19,7 @@
 						  <li class="list-group-item">{{ entry.votes }} votes</li>
 						  <li class="list-group-item">rated: {{ entry.rate }}</li>
 						<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>
-						<li class="list-group-item">rated on: {{ entry.rate_date }}</li>
+						<li class="list-group-item">rated: {{ entry.rate_date }}{% if entry.rate_date|get_month == current_month and entry.rate_date|slice:":4" == current_year %}<span class="label label-info">this month</span>{% endif %}</li>
 					</ul>
 				</div>
 			</div>

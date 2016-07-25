@@ -1,9 +1,13 @@
 from django.db import models
 from django.utils import timezone
+from django.core.urlresolvers import reverse
 
 
 class Genre(models.Model):
     name = models.CharField(max_length=30, unique=True)
+
+    def get_absolute_url(self):
+        return reverse('entry_show_from_genre', kwargs={'genre': self.name})
 
 
 class Director(models.Model):
@@ -38,19 +42,14 @@ class Entry(models.Model):
     inserted_by_updater = models.BooleanField(default=False)
     inserted_date = models.DateTimeField(default=timezone.now, blank=True)
 
+    def get_absolute_url(self):
+        return reverse('entry_details', kwargs={'const': self.const})
+
 
 class Archive(models.Model):
     const = models.CharField(max_length=30, blank=True, null=True)
     rate = models.CharField(max_length=30, blank=True, null=True)
     rate_date = models.CharField(blank=True, null=True, max_length=30)
-
-
-class Recommend(models.Model):
-    const = models.CharField(max_length=30, unique=True)
-    name = models.TextField(blank=True, null=True)
-    inserted_date = models.DateTimeField(default=timezone.now, blank=True)
-    year = models.CharField(max_length=30, blank=True, null=True)
-    url_imdb = models.URLField(blank=True, null=True)
 
 
 class Season(models.Model):
