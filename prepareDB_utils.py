@@ -28,6 +28,14 @@ def prepare_date_json(date):
     new_date = '{}-{}-{}'.format(date[-4:], month, date[:2])
     return new_date
 
+def convert_to_datetime(date):
+    from datetime import datetime
+    try:
+        # for xml (updating)
+        return datetime.strptime(date, '%a, %d %b %Y 00:00:00 GMT')
+    except:
+        # for csv (initial)
+        return datetime.strptime(date, '%a %b %d 00:00:00 %Y')
 
 def getRSS(user='ur44264813'):
     try:

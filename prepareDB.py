@@ -5,58 +5,58 @@ django.setup()
 import csv
 from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log
 from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb, downloadPosters, \
-    downloadPoster
+    downloadPoster, convert_to_datetime
 
 
-def getSeasonsInfo(entry, totalSeasons):
-    # collects for given entry (tv-show) info about episodes and seasons
-    for i in range(1, totalSeasons + 1):
-        api = 'http://www.omdbapi.com/?i={}&Season='.format(entry.const) + str(i)
-        json = getOMDb(entry.const, api)
-        if json and json['Response'] and 'Season' in json:
-            # if Season.objects.filter(entr=entry, number=i).exists():
-            #     print('{} season already exists'.format(api))
-            #     continue
-            season, updated = Season.objects.update_or_create(entry=entry, number=i)
-            if updated:     # DO NOT UPDATE SEASONS FOR NOW AT LEAST
-                continue
-            for ep in json['Episodes']:
-                # if Episode.objects.filter(const=ep['imdbID']).exists():
-                #     print('{} {} already exists'.format(api, ep['imdbID']))
-                #     continue
-                ep, updated = Episode.objects.update_or_create(season=season, const=ep['imdbID'], number=ep['Episode'],
-                                                               name=ep['Title'], release_date=ep['Released'],
-                                                               rate_imdb=ep['imdbRating'])
-        else:
-            print('season {} {}'.format(i, api))
-# add to getEntry
+# def get_seasons_info(entry, totalSeasons):
+#     # collects for given entry (tv-show) info about episodes and seasons
+#     for i in range(1, totalSeasons + 1):
+#         api = 'http://www.omdbapi.com/?i={}&Season='.format(entry.const) + str(i)
+#         json = getOMDb(entry.const, api)
+#         if json and json['Response'] and 'Season' in json:
+#             # if Season.objects.filter(entr=entry, number=i).exists():
+#             #     print('{} season already exists'.format(api))
+#             #     continue
+#             season, updated = Season.objects.update_or_create(entry=entry, number=i)
+#             if updated:     # DO NOT UPDATE SEASONS FOR NOW AT LEAST
+#                 continue
+#             for ep in json['Episodes']:
+#                 # if Episode.objects.filter(const=ep['imdbID']).exists():
+#                 #     print('{} {} already exists'.format(api, ep['imdbID']))
+#                 #     continue
+#                 ep, updated = Episode.objects.update_or_create(season=season, const=ep['imdbID'], number=ep['Episode'],
+#                                                                name=ep['Title'], release_date=ep['Released'],
+#                                                                rate_imdb=ep['imdbRating'])
+#         else:
+#             print('season {} {}'.format(i, api))
+# # add to getEntry
 
 
-def getTV(single_update=False, const='not_single'):
-    if not single_update:
-        entry_series = Entry.objects.filter(type=Type.objects.get(name='series').id)
-    else:
-        entry_series = Entry.objects.filter(const=const)
-    for e in entry_series:
-        json = getOMDb(e.const)
-        if not (json and json['Response']):
-            print('\t\t\tgetTV json error')
-            return
-        try:
-            totals = int(json['totalSeasons'])
-        except ValueError:
-            print('\t\t\tvalue error', json['totalSeasons'])
-            continue
-        print('\t {} seasons {}'.format(totals, e.name))
-        getSeasonsInfo(e, totals)
-    if not entry_series:
-        print('not found any tvshows', const)
+# def get_tv(single_update=False, const='not_single'):
+#     if not single_update:
+#         entry_series = Entry.objects.filter(type=Type.objects.get(name='series').id)
+#     else:
+#         entry_series = Entry.objects.filter(const=const)
+#     for e in entry_series:
+#         json = getOMDb(e.const)
+#         if not (json and json['Response']):
+#             print('\t\t\tget_tv json error')
+#             return
+#         try:
+#             totals = int(json['totalSeasons'])
+#         except ValueError:
+#             print('\t\t\tvalue error', json['totalSeasons'])
+#             continue
+#         print('\t {} seasons {}'.format(totals, e.name))
+#         get_seasons_info(e, totals)
+#     if not entry_series:
+#         print('not found any tvshows', const)
+#
+#
+# # get_tv()
 
 
-# getTV()
-
-
-def getEntryInfo(const, rate, rate_date, log, is_updated=False, exists=False):
+def get_entry_info(const, rate, rate_date, log, is_updated=False, exists=False):
     json = getOMDb(const)
     if not (json and json['Response']):
         return
@@ -90,10 +90,10 @@ def getEntryInfo(const, rate, rate_date, log, is_updated=False, exists=False):
     log.save()
 
     # if json['Type'] == 'series':
-    #     getTV(single_update=True, const=const)
+    #     get_tv(single_update=True, const=const)
 
 
-def csvToDatabase():  # fname.isfile()
+def csv_to_database():  # fname.isfile()
     fname = 'ratings.csv'
     log = Log.objects.create()
     with open(fname, 'r') as f:
@@ -102,12 +102,12 @@ def csvToDatabase():  # fname.isfile()
             if Entry.objects.filter(const=row['const']).exists():
                 print('exists ' + row['Title'])
                 continue
-            rate_date = prepare_date_csv(row['created'])
+            rate_date = convert_to_datetime(row['created'])
             print(row['Title'])
-            getEntryInfo(row['const'], row['You rated'], rate_date, log)
+            get_entry_info(row['const'], row['You rated'], rate_date, log)
 
 
-# csvToDatabase()
+# csv_to_database()
 
 
 def update():
@@ -123,7 +123,7 @@ def update():
             return
         const = obj.find('link').text[-10:-1]
         rate = obj.find('description').text.strip()[-2:-1]
-        rate_date = prepare_date_xml(obj.find('pubDate').text)
+        rate_date = convert_to_datetime(obj.find('pubDate').text)
         if Entry.objects.filter(const=const).exists():
             if Archive.objects.filter(const=const, rate_date=rate_date).exists():
                 print('wont update because its already Archived')
@@ -133,18 +133,18 @@ def update():
                 print('wont update because its the same entry')
                 i += 1
                 continue
-            getEntryInfo(const, rate, rate_date, log, is_updated=True, exists=True)
+            get_entry_info(const, rate, rate_date, log, is_updated=True, exists=True)
             continue
         else:
             print('updater. ' + obj.find('title').text)
-            getEntryInfo(const, rate, rate_date, log, is_updated=True)
+            get_entry_info(const, rate, rate_date, log, is_updated=True)
             # time.sleep( 5 )
 
 if len(sys.argv) > 1:
     if sys.argv[1] == 'fromCSV':
-        csvToDatabase()
+        csv_to_database()
     if sys.argv[1] == 'seasons':
-        getTV()
+        get_tv()
     if sys.argv[1] == 'posters':
         downloadPosters()
     if sys.argv[1] == 'update':
@@ -194,27 +194,46 @@ if len(sys.argv) > 1:
 # for a, b, c in context['episodes']:
 #     print(a, b)
 
-l = []
-for g in Genre.objects.all():
-    l.append((g.name, Entry.objects.filter(genre=g).count()))
-    # print(g.get_absolute_url())
-    # print(<a href="{}">here</a>)
-
-l = sorted(l, key=lambda x: x[1], reverse=True)
-
-for genre, value in l:
-    # print('{} {}'.format(value, genre), value)
-    print('{:<4} {}'.format(value, genre))
-
-
+# l = []
+# for g in Genre.objects.all():
+#     l.append((g.name, Entry.objects.filter(genre=g).count()))
+#     # print(g.get_absolute_url())
+#     # print(<a href="{}">here</a>)
+#
+# l = sorted(l, key=lambda x: x[1], reverse=True)
+#
+# for genre, value in l:
+#     # print('{} {}'.format(value, genre), value)
+#     print('{:<4} {}'.format(value, genre))
+#
+#
 from django.db.models import Count
-genres = Genre.objects.all().annotate(num=Count('entry')).order_by('-num')
-for g in genres:
-    print(g.name, g.entry_set.count(), g.get_absolute_url())
+# genres = Genre.objects.all().annotate(num=Count('entry')).order_by('-num')
+# for g in genres:
+#     print(g.name, g.entry_set.count(), g.get_absolute_url())
+#
+# # entries = Entry.objects.values('rate').distinct().annotate(num=Count('rate')).order_by('rate')
+# entries = Entry.objects.extra(select={'rate_int': 'CAST(rate as INTEGER)'}).annotate(num=Count('rate'))
+# ent = Entry.objects.values('rate').annotate(the_count=Count('rate')).order_by('rate')
+# print(sorted(ent, key=lambda x: int(x['rate'])))
+# # for e in entries:
+# #     print(e.rate)
 
-# entries = Entry.objects.values('rate').distinct().annotate(num=Count('rate')).order_by('rate')
-entries = Entry.objects.extra(select={'rate_int': 'CAST(rate as INTEGER)'}).annotate(num=Count('rate'))
-ent = Entry.objects.values('rate').annotate(the_count=Count('rate')).order_by('rate')
-print(sorted(ent, key=lambda x: int(x['rate'])))
-# for e in entries:
-#     print(e.rate)
+
+# date_object = datetime.strptime(e.rate_date, '%Y-%m-%d')
+
+# entr = Entry.objects.filter(rate_date__icontains='2016-07')
+# for e in entr:
+#     print(e.name)
+#     print(e.rate_date)
+#     date_object = datetime.strptime(e.rate_date, '%Y-%m-%d')
+#     print(date_object)
+
+year_counter = []
+for y in Entry.objects.order_by('-year').values('year').distinct():
+    year_counter.append((y['year'], Entry.objects.filter(year=y['year']).count()))
+
+print(year_counter)
+
+ent = Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year')
+print(ent)

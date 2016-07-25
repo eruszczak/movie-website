@@ -9,6 +9,9 @@ class Genre(models.Model):
     def get_absolute_url(self):
         return reverse('entry_show_from_genre', kwargs={'genre': self.name})
 
+    def __str__(self):
+        return self.name
+
 
 class Director(models.Model):
     name = models.CharField(max_length=150, unique=True)
@@ -26,7 +29,7 @@ class Entry(models.Model):
     name = models.TextField(blank=True, null=True)
     rate = models.CharField(max_length=30, blank=True, null=True)
     rate_imdb = models.CharField(max_length=30, blank=True, null=True)
-    rate_date = models.CharField(blank=True, null=True, max_length=30)
+    rate_date = models.DateField(blank=True, null=True)
     runtime = models.CharField(max_length=30, blank=True, null=True)
     year = models.CharField(max_length=30, blank=True, null=True)
     release_date = models.CharField(blank=True, null=True, max_length=30)
