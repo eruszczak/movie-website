@@ -14,4 +14,6 @@ urlpatterns = [
 
     url(r'^genre/$', views.entry_groupby_genre, name='entry_groupby_genre'),
     url(r'^genre/(?P<genre>\S+)/$', views.entry_show_from_genre, name='entry_show_from_genre'),
+
+    url(r'^rated/(?P<rate>\d+)/$', views.entry_show_from_rate, name='entry_show_from_rate'),
 ]

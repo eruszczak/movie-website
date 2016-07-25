@@ -51,7 +51,7 @@ def entry_details(request, const):
     context = {
         'entry': get_object_or_404(Entry, const=const),
         'archive': Archive.objects.filter(const=const).order_by('-rate_date'),
-        'current_month': str(timezone.now().today().month),
+        'current_month': str(timezone.now().today().month),                         # FOR CHANGE
         'current_year': str(timezone.now().today().year),
     }
     if context['entry'].type.name == 'series':
@@ -61,23 +61,16 @@ def entry_details(request, const):
 
 
 def entry_groupby_year(request):
-    year_counter = []
-    for y in Entry.objects.order_by('-year').values('year').distinct():
-        year_counter.append((y['year'], Entry.objects.filter(year=y['year']).count()))
+    from django.db.models import Count
     context = {
-        'year_counter': year_counter,
-        'counter': len(year_counter),
-        'max': max(year_counter, key=lambda x: x[0])[0],
-        'min': min(year_counter, key=lambda x: x[0])[0],
+        'year_count': Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
     }
-    context['diff'] = int(context['max']) - int(context['min'])
     return render(request, 'entry_groupby_year.html', context)
 
 
 def entry_show_from_year(request, year):
     context = {
         'year': Entry.objects.order_by('-rate').filter(year=year),
-        'counter': Entry.objects.order_by().filter(year=year).count(),
         'what_year': year,
     }
     return render(request, 'entry_show_from_year.html', context)
@@ -86,7 +79,6 @@ def entry_show_from_year(request, year):
 def entry_groupby_genre(request):
     context = {
         'genre': Genre.objects.all(),
-        'counter': Genre.objects.all().count()
     }
     return render(request, 'entry_groupby_genre.html', context)
 
@@ -94,7 +86,14 @@ def entry_groupby_genre(request):
 def entry_show_from_genre(request, genre):
     context = {
         'genre': Genre.objects.get(name=genre).entry_set.all(),
-        'counter': Genre.objects.get(name=genre).entry_set.all().count(),
         'genre_name': genre,
     }
     return render(request, 'entry_show_from_genre.html', context)
+
+
+def entry_show_from_rate(request, rate):
+    context = {
+        'entry': Entry.objects.filter(rate=rate).order_by('-rate_date'),
+        'rate': rate,
+    }
+    return render(request, 'entry_show_from_rate.html', context)
