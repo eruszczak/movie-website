@@ -7,5 +7,5 @@ class Recommendation(models.Model):
     note = models.CharField(blank=True, null=True, max_length=120)
     name = models.TextField(blank=True, null=True)
     year = models.CharField(blank=True, null=True, max_length=5)
-    date = models.DateTimeField(auto_now=False, auto_now_add=True)
+    date = models.DateField(auto_now=False, auto_now_add=True)
     date_insert = models.DateTimeField(auto_now=False, auto_now_add=True)

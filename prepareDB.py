@@ -6,6 +6,10 @@ import csv
 from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log
 from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb, downloadPosters, \
     downloadPoster, convert_to_datetime
+from recommend.models import Recommendation
+from django.utils import timezone
+from django.db.models import Count
+from datetime import datetime
 
 
 # def get_seasons_info(entry, totalSeasons):
@@ -267,3 +271,6 @@ from django.db.models import Count
 # cursor.execute(query, [str('2015')])
 # # total_rows = cursor.fetchone()
 # print(list(cursor.fetchall()))
+print(Recommendation.objects.filter(date=datetime.now()).count())
+print(timezone.now().today())
+print(datetime.today())

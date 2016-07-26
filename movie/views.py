@@ -60,11 +60,14 @@ def entry_details(request, const):
     context = {
         'entry': get_object_or_404(Entry, const=const),
         'archive': Archive.objects.filter(const=const).order_by('-rate_date'),
-        'current_month': str(timezone.now().today().month),                         # FOR CHANGE
-        'current_year': str(timezone.now().today().year),
+        'now': {
+            'day': str(timezone.now().day),
+            'month': str(timezone.now().month),
+            'year': str(timezone.now().year),
+        }
     }
-    if context['entry'].type.name == 'series':
-        context['episodes'] = get_seasons(const)
+    # if context['entry'].type.name == 'series':
+    #     context['episodes'] = get_seasons(const)
 
     return render(request, 'entry_details.html', context)
 
