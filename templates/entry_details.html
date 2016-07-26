@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% static "" as baseUrl %}
-{% load get_month %}
 
 {% block content %}
 		<div class="container" style="">
@@ -17,9 +16,11 @@
 							<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}<br></a>
 							{% endfor %}</li>
 						  <li class="list-group-item">{{ entry.votes }} votes</li>
-						  <li class="list-group-item">rated: {{ entry.rate }}</li>
+						  <li class="list-group-item">current rating: {{ entry.rate }}</li>
 						<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>
-						<li class="list-group-item">rated: {{ entry.rate_date }}{% if entry.rate_date|get_month == current_month and entry.rate_date|slice:":4" == current_year %}<span class="label label-info">this month</span>{% endif %}</li>
+						<li class="list-group-item">rated on: {{ entry.rate_date|date:"d.m.Y" }}
+							{% if entry.rate_date|date:"d" == now.day and entry.rate_date|date:"n" == now.month and entry.rate_date|date:"Y" == now.year %}<span class="label label-warning">today</span>
+							{% elif entry.rate_date|date:"n" == now.month and entry.rate_date|date:"Y" == now.year %}<span class="label label-info">this month</span>{% endif %}</li>
 					</ul>
 				</div>
 			</div>

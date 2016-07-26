@@ -67,3 +67,7 @@ thead tr {
 textarea {
    resize: none;
 }
+
+#submit-id-submit {
+    margin-left: 20px;
+}
