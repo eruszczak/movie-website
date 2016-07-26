@@ -100,10 +100,10 @@ def csv_to_database():  # fname.isfile()
         reader = csv.DictReader(f)
         for num, row in enumerate(reader):
             if Entry.objects.filter(const=row['const']).exists():
-                print('exists ' + row['Title'])
+                print('exists ' + row['const'])
                 continue
             rate_date = convert_to_datetime(row['created'])
-            print(row['Title'])
+            # print(row['Title'])
             get_entry_info(row['const'], row['You rated'], rate_date, log)
 
 
@@ -229,11 +229,41 @@ from django.db.models import Count
 #     date_object = datetime.strptime(e.rate_date, '%Y-%m-%d')
 #     print(date_object)
 
-year_counter = []
-for y in Entry.objects.order_by('-year').values('year').distinct():
-    year_counter.append((y['year'], Entry.objects.filter(year=y['year']).count()))
+# year_counter = []
+# for y in Entry.objects.order_by('-year').values('year').distinct():
+#     year_counter.append((y['year'], Entry.objects.filter(year=y['year']).count()))
+#
+# print(year_counter)
+#
+# ent = Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year')
+# print(ent)
 
-print(year_counter)
+# ent = Entry.objects.filter(rate_date__year=2015).values_list('rate_date__month')
+# print(ent)
+# e = Entry.objects.filter(rate_date__year=2015).extra({'month': "MONTH(rate_date)"}).values_list('month').annotate(total_item=Count('item'))
+# print(e)
+# e = Entry.objects.extra(select={'month': 'extract( MONTH FROM rate_date )'}).values('month').annotate(dcount=Count('rate_date'))
+# e = Entry.objects.filter(rate_date__year=2015).extra(select={'month': 'strftime("%m", rate_date)'}).values('month').annotate(dcount=Count('rate_date'))
+# obj = Entry.objects.filter(rate_date__year=2015)
+# obj = Entry.objects.all()
+# e = obj.extra(select={'year_': 'strftime("%Y", rate_date)', 'month': 'strftime("%m", rate_date)'}, where=['year=2015']).values('month').annotate(dcount=Count('rate_date'))
+# # print(e)
+# for x in e:
+#     print(x)
+# print(sum(a['dcount'] for a in e))
 
-ent = Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year')
-print(ent)
+# query = """SELECT COUNT(*) AS 'the_count', strftime("%%m", rate_date) as 'month'
+# FROM movie_entry
+# WHERE strftime("%%Y", rate_date) = %s
+# GROUP BY month"""
+#
+# # print(e.columns)
+#
+# # for p in Entry.objects.raw('SELECT * FROM movie_entry WHERE name="Die Hard"'):
+# #     print(p.name)
+#
+# from django.db import connection
+# cursor = connection.cursor()
+# cursor.execute(query, [str('2015')])
+# # total_rows = cursor.fetchone()
+# print(list(cursor.fetchall()))
