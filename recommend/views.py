@@ -6,6 +6,7 @@ from .models import Recommendation
 
 from prepareDB_utils import getOMDb
 from django.contrib import messages
+from django.utils import timezone
 
 
 def recommend(request):
@@ -16,11 +17,13 @@ def recommend(request):
         json = getOMDb(const)
         if json:
             instance.name = json['Title']
+            instance.year = json['Year']
         instance.save()
         messages.success(request, 'added recommendation', extra_tags='alert-success')
         return redirect(reverse("recommend"))
     context = {
         'obj_list': Recommendation.objects.all().order_by('-date_insert'),
         'form': form,
+        'todays_count': Recommendation.objects.filter(date=timezone.now()).count() * 2
     }
     return render(request, 'recommend/home.html', context)
