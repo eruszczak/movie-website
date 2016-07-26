@@ -1,9 +1,11 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
+from django.core.urlresolvers import reverse
 
 from .forms import RecommendForm
 from .models import Recommendation
 
 from prepareDB_utils import getOMDb
+from django.contrib import messages
 
 
 def recommend(request):
@@ -12,10 +14,13 @@ def recommend(request):
         instance = form.save(commit=False)
         const = form.cleaned_data.get('const')
         json = getOMDb(const)
-        instance.name = json['Title']
+        if json:
+            instance.name = json['Title']
         instance.save()
+        messages.success(request, 'added recommendation', extra_tags='alert-success')
+        return redirect(reverse("recommend"))
     context = {
-        'obj_list': Recommendation.objects.all().order_by('-date'),
+        'obj_list': Recommendation.objects.all().order_by('-date_insert'),
         'form': form,
     }
     return render(request, 'recommend/home.html', context)

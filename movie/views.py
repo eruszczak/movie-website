@@ -5,6 +5,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
 from django.db.models import Q
 
+
 def home(request):
     context = {
         'ratings': Entry.objects.all().order_by('-rate_date')[:20]
