@@ -2,9 +2,17 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+{% if messages %}
+    {% for message in messages %}
+    <div{% if message.tags %} class="alert {{ message.tags }}"{% endif %}>
+      <strong>{% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}success!{% endif %}</strong> {{ message }}
+    </div>
+    {% endfor %}
+    <hr>
+{% endif %}
 <form method="POST" action="">{% csrf_token %}
     {{ form|crispy }}
-    <input type="submit" class="btn btn-success" value="Send" />
+    <input type="submit" class="btn btn-success" value="send" />
 </form>
 
 <hr>
@@ -34,6 +42,5 @@
         {% endfor %}
     </tbody>
 </table>
-<button type="button" class="btn btn-lg btn-danger" data-toggle="popover" title="Popover title" data-content="And here's some amazing content. It's very engaging. Right?">Click to toggle popover</button>
 
 {% endblock %}
