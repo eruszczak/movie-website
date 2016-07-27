@@ -2,6 +2,7 @@ from django.shortcuts import render
 import pygal
 from movie.models import Genre, Entry
 from django.db.models import Count
+from django.core.urlresolvers import reverse
 
 
 def chart_genres():
@@ -26,7 +27,6 @@ def chart_genres():
 
 
 def chart_ratings():
-    from django.core.urlresolvers import reverse
     line_chart = pygal.Bar()
     line_chart.title = 'Rating distribution'
     rate_count = Entry.objects.values('rate').annotate(the_count=Count('rate')).order_by('rate')
@@ -34,7 +34,6 @@ def chart_ratings():
     # line_chart.x_labels = [x['rate'] for x in rate_count]
 
     for obj in rate_count:
-        # line_chart.add('{} ({})'.format(obj['rate'], obj['the_count']), obj['the_count'])
         link = reverse('entry_show_from_rate', kwargs={'rate': obj['rate']})
         line_chart.add({
             'title': '{} ({})'.format(obj['rate'], obj['the_count']),
@@ -69,10 +68,45 @@ def chart_last_year_ratings(year=2015):
     year = datetime.now().year - 1
     line_chart = pygal.Bar()
     line_chart.title = 'Total count of watched titles for each month in {}'.format(year)
-    # line_chart.x_labels = map(str, range(2002, 2013))
     get_data = count_for_month_lists(year)
-    line_chart.x_labels = [calendar.month_abbr[int(str(month).lstrip('0'))] for count, month in get_data]
-    line_chart.add('Firefox', [count for count, month in get_data])
+
+    for count, month in get_data:
+        link = reverse('entry_show_rated_in_month', kwargs={'year': year, 'month': month})
+        line_chart.add({
+            'title': '{} {}'.format(count, calendar.month_name[int(month)]),
+            'xlink': {
+                'href': link,
+                'target': '_blank',
+            }
+        }, [{
+            'value': count,
+            'xlink': {
+                'href': link,
+                'target': '_blank',
+            }
+        }])
+    return line_chart.render()
+
+
+def sparklines_for_years():
+    data = Entry.objects.values('year').annotate(the_count=Count('year')).order_by('year')
+    line_chart = pygal.Bar(show_legend=False)
+    line_chart.title = 'Rating distribution by year'
+    for obj in data:
+        link = reverse('entry_show_from_year', kwargs={'year': obj['year']})
+        line_chart.add({
+            'title': '{} ({})'.format(obj['year'], obj['the_count']),
+            'xlink': {
+                'href': link,
+                'target': '_blank',
+            }
+        }, [{
+            'value': obj['the_count'],
+            'xlink': {
+                'href': link,
+                'target': '_blank',
+            }
+        }])
     return line_chart.render()
 
 
@@ -80,10 +114,12 @@ def home(request):
     chart_g = chart_genres()
     chart_r = chart_ratings()
     chart_l = chart_last_year_ratings()
+    chart_sparks = sparklines_for_years()
 
     context = {
         'chart_genres': chart_g,
         'chart_ratings': chart_r,
         'chart_last_year_ratings': chart_l,
+        'chart_sparks': chart_sparks,
     }
     return render(request, 'chart/index.html', context)

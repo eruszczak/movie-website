@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^', include('movie.urls')),
     url(r'^recommend/', include('recommend.urls')),
     url(r'^charts/', include('chart.urls')),
+    url(r'^watchlist/', include('watchlist.urls')),
 ]
 
 if settings.DEBUG:

@@ -8,7 +8,7 @@ from django.db.models import Q
 
 def home(request):
     context = {
-        'ratings': Entry.objects.all().order_by('-rate_date')[:20]
+        'ratings': Entry.objects.all().order_by('-rate_date')[:10]
     }
     return render(request, 'home.html', context)
 
@@ -82,10 +82,19 @@ def entry_groupby_year(request):
 
 def entry_show_from_year(request, year):
     context = {
-        'year': Entry.objects.order_by('-rate').filter(year=year),
+        'year': Entry.objects.filter(year=year).order_by('-rate', '-rate_imdb', '-votes'),
         'what_year': year,
     }
     return render(request, 'entry_show_from_year.html', context)
+
+
+def entry_show_rated_in_month(request, year, month):
+    import calendar
+    context = {
+        'year': Entry.objects.filter(rate_date__year=year, rate_date__month=month),
+        'what_month_year': '{} {}'.format(calendar.month_name[int(month)], year),
+    }
+    return render(request, 'entry_show_rated_in_month.html', context)
 
 
 def entry_groupby_genre(request):
