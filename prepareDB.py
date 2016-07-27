@@ -74,12 +74,15 @@ def get_entry_info(const, rate, rate_date, log, is_updated=False, exists=False):
     typ_e, created = Type.objects.get_or_create(name=json['Type'].lower())
     url_imdb = 'http://www.imdb.com/title/{}/'.format(const)
     rel_date = prepare_date_json(json['Released']) if json['Released'] != "N/A" else 'N/A'
-    entry = Entry(const=const, name=json['Title'], type=typ_e, rate=rate, rate_imdb=json['imdbRating'],
-                  rate_date=rate_date, runtime=json['Runtime'][:-4], year=json['Year'][:4], votes=json['imdbVotes'],
-                  release_date=rel_date, url_imdb=url_imdb,
-                  url_poster=json['Poster'], tomato_user_meter=json['tomatoUserMeter'],
-                  tomato_user_rate=json['tomatoUserRating'], tomato_user_reviews=json['tomatoUserReviews'],
-                  tomatoConsensus=json['tomatoConsensus'], url_tomato=json['tomatoURL'], plot=json['Plot'],
+    rate_imdb = 0 if json['imdbRating'] == 'N/A' else float(json['imdbRating'])
+    entry = Entry(const=const, name=json['Title'], type=typ_e,
+                  rate=rate, rate_imdb=rate_imdb,
+                  runtime=json['Runtime'][:-4], year=json['Year'][:4], votes=json['imdbVotes'],
+                  release_date=rel_date, rate_date=rate_date,
+                  url_imdb=url_imdb, url_poster=json['Poster'], url_tomato=json['tomatoURL'],
+                  tomato_user_meter=json['tomatoUserMeter'], tomato_user_rate=json['tomatoUserRating'],
+                  tomato_user_reviews=json['tomatoUserReviews'], tomatoConsensus=json['tomatoConsensus'],
+                  plot=json['Plot'],
                   inserted_by_updater=is_updated
                   )
     entry.save()

@@ -31,7 +31,8 @@ INSTALLED_APPS = [
 
     'movie',
     'recommend',
-    'chart'
+    'chart',
+    'watchlist',
 ]
 
 MIDDLEWARE_CLASSES = [
