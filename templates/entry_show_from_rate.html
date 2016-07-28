@@ -5,7 +5,7 @@
         <div class="col-xs-12">
             <p class="lead text-center">{{ entry|length }} titles rated {{ rate }}</p>
             {% for obj in entry %}
-                <p><a href="{% url 'entry_details' const=obj.const %}">{{ obj.name }}</a></p>
+                <p><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }}</a></p>
             {% endfor %}
         </div>
     </div>

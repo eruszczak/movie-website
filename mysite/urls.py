@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^recommend/', include('recommend.urls')),
     url(r'^charts/', include('chart.urls')),
     url(r'^watchlist/', include('watchlist.urls')),
+    url(r'^book/', include('book.urls')),
 ]
 
 if settings.DEBUG:

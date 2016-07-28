@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.core.urlresolvers import reverse
+from django.utils.text import slugify
 
 
 class Genre(models.Model):
@@ -44,9 +45,16 @@ class Entry(models.Model):
     plot = models.TextField(blank=True, null=True)
     inserted_by_updater = models.BooleanField(default=False)
     inserted_date = models.DateTimeField(default=timezone.now, blank=True)
+    slug = models.SlugField(unique=True)
 
     def get_absolute_url(self):
         return reverse('entry_details', kwargs={'const': self.const})
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.slug = slugify('{} {}'.format(self.name, self.year))
+
+        super(Entry, self).save(*args, **kwargs)
 
 
 class Archive(models.Model):

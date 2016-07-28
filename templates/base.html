@@ -14,10 +14,15 @@
 	<!--<link href="navbar-fixed-top.css" rel="stylesheet">-->
 
 	<link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+	<script src="https://use.fontawesome.com/c6367378ff.js"></script>
 	<script src="{% static 'js/scripts.js' %}"></script>
 	<script type="text/javascript" src="http://kozea.github.com/pygal.js/latest/pygal-tooltips.min.js"></script>
 	<link rel="stylesheet" href="{% static 'css/styles.css' %}">
-
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
 </head>
 
 <body>
@@ -49,7 +54,7 @@
             <li><a href="{% url 'about' %}">about</a></li>
           </ul>
         </li>
-					<li><a href="{% url 'charts:home' %}">charts</a></li>
+					<li><a href="{% url 'charts:home' %}"><i class="fa fa-bar-chart" aria-hidden="true"></i>charts</a></li>
 					<!--<li><a href="{% url 'about' %}">about</a></li>-->
 				</ul>
 				<form class="navbar-form navbar-right" role="search">

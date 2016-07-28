@@ -20,11 +20,10 @@
                         {% for obj in year %}
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                            <td><a href="{% url 'entry_details' const=obj.const %}">{{ obj.name }}</a></td>
+                            <td><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }}</a></td>
                             <td>{{ obj.rate }}</td>
                             <td>{{ obj.rate_imdb }}</td>
                             <td>{{ obj.votes }}</td>
-                            <!--<td><a href="{% url 'entry_details' const=obj.const %}">link</a></td>-->
                         </tr>
                         {% endfor %}
                     </tbody>

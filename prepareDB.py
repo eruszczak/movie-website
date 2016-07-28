@@ -145,13 +145,18 @@ def update():
         else:
             print('updater. ' + obj.find('title').text)
             get_entry_info(const, rate, rate_date, log, is_updated=True)
+            if Recommendation.objects.filter(const=const):
+                recommended_has_been_rated = Recommendation.objects.get(const=const)
+                recommended_has_been_rated.is_rated = True
+                recommended_has_been_rated.save()
+                print('recommended has been rated TRUE')
             # time.sleep( 5 )
 
 if len(sys.argv) > 1:
     if sys.argv[1] == 'fromCSV':
         csv_to_database()
-    if sys.argv[1] == 'seasons':
-        get_tv()
+    # if sys.argv[1] == 'seasons':
+    #     get_tv()
     if sys.argv[1] == 'posters':
         downloadPosters()
     if sys.argv[1] == 'update':
@@ -274,6 +279,46 @@ from django.db.models import Count
 # cursor.execute(query, [str('2015')])
 # # total_rows = cursor.fetchone()
 # print(list(cursor.fetchall()))
-print(Recommendation.objects.filter(date=datetime.now()).count())
-print(timezone.now().today())
-print(datetime.today())
+# print(Recommendation.objects.filter(date=datetime.now()).count())
+# print(timezone.now().today())
+# print(datetime.today())
+
+#
+# from django.utils.text import slugify
+# for e in Entry.objects.all():
+#     e.slug = slugify('{} {}'.format(e.name, e.year))
+#     e.save()
+
+e = Entry.objects.filter(type=Type.objects.get(name='movie').id).order_by('-rate_date')[0]
+print('last seen:', e.name)
+
+e = Entry.objects.filter(type=Type.objects.get(name='series').id).order_by('-rate_date')[0]
+print('last tv show:', e.name)
+
+e = Entry.objects.filter(type=Type.objects.get(name='movie').id, rate__gte=9).order_by('-rate_date')[0]
+print('last movie rated 9-10:', e.name)
+
+# years = Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year')
+# # print(years)
+#
+# li = []
+# l = []
+# for y in years:
+#     print(y)
+#     print()
+#     print()
+#     l.append(y)
+#     if int(y['year']) % 10 == 0:
+#         li.append(l)
+#         l = []
+# # print(li)
+# # print(years[::-1])
+# # years = sorted(li[0], key=lambda x: x['year'])
+# new = []
+# for y in li:
+#     a = sorted(y, key=lambda x: x['year'])
+#     new.append(a)
+# print(new)
+
+# print((lambda x, f: [y for y in years in f(x))(years,)]))
+

@@ -46,20 +46,20 @@ def about(request):
     return render(request, 'about.html', {'archive': Archive.objects.all()})
 
 
-def entry_details(request, const):
+def entry_details(request, slug):
     # MyModel.objects.extra(select={'length':'Length(name)'}).order_by('length')
-    def get_seasons(imdb_id):
-        entry = Entry.objects.get(const=imdb_id)
-        seasons = Season.objects.filter(entry=entry)
-        season_episodes = []
-        for s in seasons:
-            episodes = Episode.objects.filter(season=s)
-            season_episodes.append([s.number, episodes])
-        return season_episodes
-
+    # def get_seasons(imdb_id):
+    #     entry = Entry.objects.get(const=imdb_id)
+    #     seasons = Season.objects.filter(entry=entry)
+    #     season_episodes = []
+    #     for s in seasons:
+    #         episodes = Episode.objects.filter(season=s)
+    #         season_episodes.append([s.number, episodes])
+    #     return season_episodes
+    requested_obj = get_object_or_404(Entry, slug=slug)
     context = {
-        'entry': get_object_or_404(Entry, const=const),
-        'archive': Archive.objects.filter(const=const).order_by('-rate_date'),
+        'entry': requested_obj,
+        'archive': Archive.objects.filter(const=requested_obj.const).order_by('-rate_date'),
         'now': {
             'day': str(timezone.now().day),
             'month': str(timezone.now().month),
