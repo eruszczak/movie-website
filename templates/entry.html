@@ -1,35 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="text-center">
-                    <a href="{% url 'entry_groupby_year' %}" class="btn btn-info" role="button">All years</a>
-                    <a href="{% url 'entry_groupby_genre' %}" class="btn btn-info" role="button">All genres</a>
-                </div>
-                <p class="lead text-center">{{ ratings.paginator.count }} ratings</p>
-                {% include 'paginator.html' %}
-                <table class="table table-hover table-bordered table-condensed">
-		            <thead>
-                        <tr>
-                            <th class="text-center"></th>
-                            <th class="text-center">title</th>
-                            <th class="text-center">rating</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for obj in ratings %}
-                        <tr>
-                            <th scope="row" class="col-md-1 text-center">{{ forloop.counter0|add:ratings.start_index }}</th>
-                            <td class="col-md-9" style="padding-left: 20px"><a href="{% url 'entry_details' const=obj.const %}">{{ obj.name }}</a></td>
-                            <td class="text-center">{{ obj.rate }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% include 'paginator.html' %}
-            </div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="text-center">
+            <a href="{% url 'entry_groupby_year' %}" class="btn btn-info" role="button">All years</a>
+            <a href="{% url 'entry_groupby_genre' %}" class="btn btn-info" role="button">All genres</a>
         </div>
+        <p class="lead text-center">{{ ratings.paginator.count }} ratings</p>
+        {% include 'paginator.html' %}
+        <table class="table table-hover table-bordered table-condensed">
+            <thead>
+                <tr>
+                    <th class="text-center"></th>
+                    <th class="text-center">title</th>
+                    <th class="text-center">rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for obj in ratings %}
+                <tr>
+                    <th scope="row" class="col-md-1 text-center">{{ forloop.counter0|add:ratings.start_index }}</th>
+                    <td class="col-md-9" style="padding-left: 20px"><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }}</a></td>
+                    <td class="text-center">{{ obj.rate }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% include 'paginator.html' %}
     </div>
+</div>
 {% endblock %}

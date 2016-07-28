@@ -5,9 +5,9 @@ urlpatterns = [
     url(r'^$', views.home, name='home'),
     url(r'^explore/$', views.explore, name='explore'),
     url(r'^about/$', views.about, name='about'),
-    url(r'^book/$', views.book, name='book'),
 
-    url(r'^entry/(?P<const>tt\d{7})/$', views.entry_details, name='entry_details'),
+    # url(r'^(?P<const>tt\d{7})/$', views.entry_details, name='entry_details'),
+    url(r'^title/(?P<slug>[\w-]+)/$', views.entry_details, name='entry_details'),
 
     url(r'^year/$', views.entry_groupby_year, name='entry_groupby_year'),
     url(r'^year/(?P<year>\d{4})/$', views.entry_show_from_year, name='entry_show_from_year'),

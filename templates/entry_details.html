@@ -3,81 +3,84 @@
 {% static "" as baseUrl %}
 
 {% block content %}
-		<div class="container" style="">
-			<h1 class="page-header text-center">{{ entry.name }}</h1>
-			<div class="row">
-				<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
-					<img class="img-responsive img-thumbnail" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="...">
-				</div>
-				<div class="col-xs-6 col-sm-3 col-md-3">
-					<ul class="list-group" style="margin-left: -10px">
-						<li class="list-group-item"><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></li>
-						<li class="list-group-item">{% for genre in entry.genre.all %}
-							<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}<br></a>
-							{% endfor %}</li>
-						  <li class="list-group-item">{{ entry.votes }} votes</li>
-						  <li class="list-group-item">current rating: {{ entry.rate }}</li>
-						<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>
-						<li class="list-group-item">rated on: {{ entry.rate_date|date:"d.m.Y" }}
-							{% if entry.rate_date|date:"d" == now.day and entry.rate_date|date:"n" == now.month and entry.rate_date|date:"Y" == now.year %}<span class="label label-warning">today</span>
-							{% elif entry.rate_date|date:"n" == now.month and entry.rate_date|date:"Y" == now.year %}<span class="label label-info">this month</span>{% endif %}</li>
-					</ul>
-				</div>
+<div class="row">
+	<div class="col-md-12">
+
+<h1 class="page-header text-center">{{ entry.name }}</h1>
+<div class="row">
+	<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
+		<img class="img-responsive img-thumbnail" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="...">
+	</div>
+	<div class="col-xs-6 col-sm-3 col-md-3">
+		<ul class="list-group" style="margin-left: -10px">
+			<li class="list-group-item"><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></li>
+			<li class="list-group-item">{% for genre in entry.genre.all %}
+				<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}<br></a>
+				{% endfor %}</li>
+			  <li class="list-group-item">{{ entry.votes }} votes</li>
+			  <li class="list-group-item">current rating: {{ entry.rate }}</li>
+			<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>
+			<li class="list-group-item">rated on: {{ entry.rate_date|date:"d.m.Y" }}
+				{% if entry.rate_date|date:"d" == now.day and entry.rate_date|date:"n" == now.month and entry.rate_date|date:"Y" == now.year %}<span class="label label-warning">today</span>
+				{% elif entry.rate_date|date:"n" == now.month and entry.rate_date|date:"Y" == now.year %}<span class="label label-info">this month</span>{% endif %}</li>
+		</ul>
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-10 col-xs-offset-1"><br>
+		<div class="progress">
+
+			<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ entry.rate }}0%">
+			{{ entry.rate }}/10<span class="sr-only">40% Complete (success)</span>
+		  </div></div>
+		{{ entry.plot }}
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-4 col-xs-offset-1">
+	{% if archive %}
+		<div class="history">
+			<p class="lead"><br>History of ratings:</p>
+			<table class="table-bordered table-condensed">
+			{% for a in archive %}
+				<tr>
+					<td class="">{{ a.rate_date }}</td>
+					<td class="col-md-4 text-center">{{ a.rate }}</td>
+				</tr>
+			{% endfor %}
+			</table>
 			</div>
-			<div class="row">
-				<div class="col-xs-10 col-xs-offset-1"><br>
-					<div class="progress">
+	{% endif %}
+	</div>
+</div>
 
-						<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ entry.rate }}0%">
-						{{ entry.rate }}/10<span class="sr-only">40% Complete (success)</span>
-					  </div></div>
-					{{ entry.plot }}
+
+
+<br>
+{% if episodes %}
+	<div class="row">
+		<div class="col-xs-7">
+			{% for season, eps in episodes %}
+			<div id="accordion" role="tablist" aria-multiselectable="true">
+			  <div class="panel panel-default">
+				<div class="panel-heading" role="tab" id="heading{{season}}">
+				  <h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{season}}" aria-expanded="true" aria-controls="collapse{{season}}">
+					  season {{ season }}
+					</a>
+				  </h4>
 				</div>
+				<div id="collapse{{season}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{season}}">
+					{% for e in eps %}
+					{{ e.number }} {{ e.name }} <br>
+					{% endfor %}
 				</div>
-			<div class="row">
-				<div class="col-xs-4 col-xs-offset-1">
-				{% if archive %}
-					<div class="history">
-						<p class="lead"><br>History of ratings:</p>
-						<table class="table-bordered table-condensed">
-						{% for a in archive %}
-							<tr>
-								<td class="">{{ a.rate_date }}</td>
-								<td class="col-md-4 text-center">{{ a.rate }}</td>
-							</tr>
-						{% endfor %}
-						</table>
-						</div>
-				{% endif %}
-				</div>
+			  </div>
 			</div>
-
-
-
-			<br>
-			{% if episodes %}
-				<div class="row">
-					<div class="col-xs-7">
-						{% for season, eps in episodes %}
-						<div id="accordion" role="tablist" aria-multiselectable="true">
-						  <div class="panel panel-default">
-							<div class="panel-heading" role="tab" id="heading{{season}}">
-							  <h4 class="panel-title">
-								<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{season}}" aria-expanded="true" aria-controls="collapse{{season}}">
-								  season {{ season }}
-								</a>
-							  </h4>
-							</div>
-							<div id="collapse{{season}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{season}}">
-								{% for e in eps %}
-								{{ e.number }} {{ e.name }} <br>
-								{% endfor %}
-							</div>
-						  </div>
-						</div>
-							{% endfor %}
-					</div>
-				</div>
-			{% endif %}
-
+				{% endfor %}
+		</div>
+	</div>
+{% endif %}
+</div>
+	</div>
 {% endblock %}

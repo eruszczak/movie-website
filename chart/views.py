@@ -14,13 +14,13 @@ def chart_genres():
             'title': '{1} {0}'.format(g.name, g.entry_set.count()),
             'xlink': {
                 'href': g.get_absolute_url(),
-                'target': '_blank',
+                # 'target': '_blank',
             }
         }, [{
             'value': g.entry_set.count(),
             'xlink': {
                 'href': g.get_absolute_url(),
-                'target': '_blank',
+                # 'target': '_blank',
             }
         }])
     return line_chart.render()
@@ -39,13 +39,13 @@ def chart_ratings():
             'title': '{} ({})'.format(obj['rate'], obj['the_count']),
             'xlink': {
                 'href': link,
-                'target': '_blank',
+                # 'target': '_blank',
             }
         }, [{
             'value': obj['the_count'],
             'xlink': {
                 'href': link,
-                'target': '_blank',
+                # 'target': '_blank',
             }
         }])
     return line_chart.render()
@@ -76,13 +76,13 @@ def chart_last_year_ratings(year=2015):
             'title': '{} {}'.format(count, calendar.month_name[int(month)]),
             'xlink': {
                 'href': link,
-                'target': '_blank',
+                # 'target': '_blank',
             }
         }, [{
             'value': count,
             'xlink': {
                 'href': link,
-                'target': '_blank',
+                # 'target': '_blank',
             }
         }])
     return line_chart.render()
@@ -98,13 +98,13 @@ def sparklines_for_years():
             'title': '{} ({})'.format(obj['year'], obj['the_count']),
             'xlink': {
                 'href': link,
-                'target': '_blank',
+                # 'target': '_blank',
             }
         }, [{
             'value': obj['the_count'],
             'xlink': {
                 'href': link,
-                'target': '_blank',
+                # 'target': '_blank',
             }
         }])
     return line_chart.render()

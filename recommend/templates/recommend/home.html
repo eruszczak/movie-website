@@ -26,6 +26,8 @@
           <div class="panel-body">
               <ul>
                   <li>5 recommendations per day allowed</li>
+                  <li>can't insert titles already rated</li>
+                  <li>if recommended title will is rated it will be shown</li>
                   <li></li>
               </ul>
           </div>
@@ -47,7 +49,7 @@
 {% if obj_list %}
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
-        <div class="alert alert-warning text-center" role="alert">{{ obj_list|length }} found</div>
+        <div class="alert alert-warning text-center" role="alert">{{ obj_list|length }} recommendation{{ obj_list|pluralize }} found</div>
     </div>
 </div>
 <table class="table table-hover table-bordered table-condensed">
@@ -64,10 +66,12 @@
     </thead>
     <tbody>
         {% for obj in obj_list %}
-        <tr>
+        {{ obj.is_rated }}
+        <tr class="{% if obj.is_rated %}recommended_is_rated{% endif %}">
             <th scope="row" class="col-md-1 text-center">{{ forloop.counter }}</th>
             <td class="" style="padding-left: 20px"><a href="http://www.imdb.com/title/{{ obj.const }}/" target="_blank">{{ obj.name }} </a>({{ obj.year }})</td>
             <td class="">{{ obj.date }}</td>
+            {% if obj.is_rated %}<td class="">rated</td>{% endif %}
             {% if request.user.is_staff %}
             <td class="">{{ obj.nick }}</td>
             <td class="">{{ obj.note }}</td>

@@ -9,3 +9,4 @@ class Recommendation(models.Model):
     year = models.CharField(blank=True, null=True, max_length=5)
     date = models.DateField(auto_now=False, auto_now_add=True)
     date_insert = models.DateTimeField(auto_now=False, auto_now_add=True)
+    is_rated = models.BooleanField(default=False)

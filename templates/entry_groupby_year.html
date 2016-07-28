@@ -4,11 +4,11 @@
     <div class="container">
         <div class="row">
             <p class="lead text-center">found ratings from {{ year_count|length }} different years</p>
-            <div class="col-md-2">
-                {% for dict in year_count %}
-                <p><a href="{% url 'entry_show_from_year' year=dict.year %}">{{ dict.year }} ({{ dict.the_count }})</a></p>
-                {% endfor %}
-            </div>
+            {% for dict in year_count %}
+                <div class="col-md-1">
+                    <p><a href="{% url 'entry_show_from_year' year=dict.year %}" data-toggle="tooltip" title="{{ dict.the_count }} title{{ dict.the_count|pluralize }}">{{ dict.year }}</a></p>
+                </div>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}

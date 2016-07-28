@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'recommend',
     'chart',
     'watchlist',
+    'book',
 ]
 
 MIDDLEWARE_CLASSES = [
