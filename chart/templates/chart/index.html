@@ -1,13 +1,21 @@
 {% extends "base.html" %}
-
+{% load crispy_forms_tags %}
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="col-xs-9">
+        <div class="col-md-9">
+            <form method='post'>
+                {% csrf_token %}
+                {{ form }}
+                <input type='submit' value='submit'>
+            </form>
+            {{ chart|safe }}
+            {% comment %}
             {{ chart_genres|safe }}
             {{ chart_ratings|safe }}
             {{ chart_sparks|safe }}
             {{ chart_last_year_ratings|safe }}
+            {% endcomment %}
         </div>
     </div>
 </div>

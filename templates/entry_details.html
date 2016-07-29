@@ -17,6 +17,9 @@
 			<li class="list-group-item">{% for genre in entry.genre.all %}
 				<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}<br></a>
 				{% endfor %}</li>
+			<li class="list-group-item">{% for director in entry.director.all %}
+				<a href="{% url 'entry_show_from_director' id=director.id %}">{{ director.name }}<br></a>
+				{% endfor %}</li>
 			  <li class="list-group-item">{{ entry.votes }} votes</li>
 			  <li class="list-group-item">current rating: {{ entry.rate }}</li>
 			<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>
@@ -42,10 +45,14 @@
 		<div class="history">
 			<p class="lead"><br>History of ratings:</p>
 			<table class="table-bordered table-condensed">
+				<tr class="text-primary" style="font-weight: bold">
+					<td class="">{{ entry.rate_date|date:"Y-m-d" }}</td>
+					<td class="col-md-4 text-center">{{ entry.rate }}</td>
+				</tr>
 			{% for a in archive %}
 				<tr>
 					<td class="">{{ a.rate_date }}</td>
-					<td class="col-md-4 text-center">{{ a.rate }}</td>
+					<td class="text-center">{{ a.rate }}</td>
 				</tr>
 			{% endfor %}
 			</table>
