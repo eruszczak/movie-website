@@ -84,7 +84,7 @@ def entry_details(request, slug):
 
 def entry_groupby_year(request):
     from django.db.models import Count
-    from chart.views import distribution_by_year
+    from chart.charts import distribution_by_year
     context = {
         'year_count': Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
         'chart': distribution_by_year()
@@ -145,7 +145,7 @@ def entry_groupby_director(request):
 
 def entry_show_from_director(request, id):
     context = {
-        'titles_from_director': Director.objects.get(id=id).entry_set.all(),
+        'titles_from_director': Director.objects.get(id=id).entry_set.all().order_by('-rate_date'),
         'director_name': Director.objects.get(id=id).name,
     }
     return render(request, 'entry_show_from_director.html', context)
