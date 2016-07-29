@@ -41,20 +41,22 @@ $(document).ready(function(){
 				<ul class="nav navbar-nav">
 					<li class="/"><a href="{% url 'home' %}">home</a></li>
 					<li><a href="{% url 'explore' %}">explore</a></li>
-					<!--<li><a href="{% url 'book' %}">book</a></li>-->
-					<!--<li><a href="{% url 'recommend' %}">recommend</a></li>-->
 					       <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">more <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="{% url 'watchlist' %}">watchlist</a></li>
             <li><a href="{% url 'recommend' %}">recommend</a></li>
             <li role="separator" class="divider"></li>
+			  <li><a href="{% url 'entry_groupby_year' %}">all years</a></li>
+			  <li><a href="{% url 'entry_groupby_genre' %}">all genres</a></li>
+			  <li><a href="{% url 'entry_groupby_director' %}">all directors</a></li>
+            <li role="separator" class="divider"></li>
             <li><a href="{% url 'book' %}">book</a></li>
             <li role="separator" class="divider"></li>
             <li><a href="{% url 'about' %}">about</a></li>
           </ul>
         </li>
-					<li><a href="{% url 'charts:home' %}"><i class="fa fa-bar-chart" aria-hidden="true"></i>charts</a></li>
+					<li><a href="{% url 'charts:home' %}">charts</a></li>
 					<!--<li><a href="{% url 'about' %}">about</a></li>-->
 				</ul>
 				<form class="navbar-form navbar-right" role="search">

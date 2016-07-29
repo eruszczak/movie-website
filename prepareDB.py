@@ -322,3 +322,8 @@ print('last movie rated 9-10:', e.name)
 
 # print((lambda x, f: [y for y in years in f(x))(years,)]))
 
+from django.db.models import Avg
+top_rated_years = Entry.objects.values('year').annotate(avg_year=Avg('rate'), the_count=Count('year')
+                                            ).filter(the_count__gte=10).order_by('-avg_year')[:5]
+for r in top_rated_years:
+    print(r)

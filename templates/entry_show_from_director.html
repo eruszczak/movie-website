@@ -3,8 +3,8 @@
 {% block content %}
     <div class="container">
         <div class="col-xs-12">
-            <p class="lead text-center">{{ titles_from_genre|length }} found for {{ genre_name }}</p>
-            {% for obj in titles_from_genre %}
+            <p class="lead text-center">{{ titles_from_director|length }} found for {{ director_name }}</p>
+            {% for obj in titles_from_director %}
                 <p><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }}</a></p>
             {% endfor %}
         </div>

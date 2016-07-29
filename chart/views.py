@@ -88,7 +88,7 @@ def chart_last_year_ratings(year=2015):
     return line_chart.render()
 
 
-def sparklines_for_years():
+def distribution_by_year():
     data = Entry.objects.values('year').annotate(the_count=Count('year')).order_by('year')
     line_chart = pygal.Bar(show_legend=False)
     line_chart.title = 'Rating distribution by year'
@@ -114,7 +114,7 @@ def home(request):
     chart_g = chart_genres()
     chart_r = chart_ratings()
     chart_l = chart_last_year_ratings()
-    chart_sparks = sparklines_for_years()
+    chart_sparks = distribution_by_year()
 
     context = {
         'chart_genres': chart_g,
