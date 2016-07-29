@@ -1,14 +1,24 @@
 from django.shortcuts import render, get_object_or_404
 
-from .models import Entry, Genre, Archive, Season, Episode, Type
+from .models import Entry, Genre, Archive, Season, Episode, Type, Director
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
 from django.db.models import Q
+from django.db.models import Count
 
 
 def home(request):
+    all_movies = Entry.objects.filter(type=Type.objects.get(name='movie').id)
+    all_series = Entry.objects.filter(type=Type.objects.get(name='series').id)
     context = {
-        'ratings': Entry.objects.all().order_by('-rate_date')[:10]
+        'ratings': Entry.objects.all().order_by('-rate_date')[:10],
+        'info': {
+            'last_movie': all_movies.order_by('-rate_date')[0],
+            'last_series': all_series.order_by('-rate_date')[0],
+            'last_good': all_movies.filter(rate__gte=9).order_by('-rate_date')[0],
+            'movie_count': all_movies.count(),
+            'series_count': all_series.count(),
+        }
     }
     return render(request, 'home.html', context)
 
@@ -74,8 +84,10 @@ def entry_details(request, slug):
 
 def entry_groupby_year(request):
     from django.db.models import Count
+    from chart.views import distribution_by_year
     context = {
         'year_count': Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
+        'chart': distribution_by_year()
     }
     return render(request, 'entry_groupby_year.html', context)
 
@@ -98,15 +110,17 @@ def entry_show_rated_in_month(request, year, month):
 
 
 def entry_groupby_genre(request):
+    # from chart.views import chart_genres
     context = {
-        'genre': Genre.objects.all(),
+        'genre': Genre.objects.all().annotate(num=Count('entry')).order_by('-num'),
+        # 'chart': chart_genres(),
     }
     return render(request, 'entry_groupby_genre.html', context)
 
 
 def entry_show_from_genre(request, genre):
     context = {
-        'genre': Genre.objects.get(name=genre).entry_set.all(),
+        'titles_from_genre': Genre.objects.get(name=genre).entry_set.all(),
         'genre_name': genre,
     }
     return render(request, 'entry_show_from_genre.html', context)
@@ -118,3 +132,20 @@ def entry_show_from_rate(request, rate):
         'rate': rate,
     }
     return render(request, 'entry_show_from_rate.html', context)
+
+
+def entry_groupby_director(request):
+    context = {
+        # directors of movies with counter of titles, top50 most watched
+        'director': Director.objects.filter(entry__type=Type.objects.get(name='movie')
+                                            ).annotate(num=Count('entry')).order_by('-num')[:50],
+    }
+    return render(request, 'entry_groupby_director.html', context)
+
+
+def entry_show_from_director(request, id):
+    context = {
+        'titles_from_director': Director.objects.get(id=id).entry_set.all(),
+        'director_name': Director.objects.get(id=id).name,
+    }
+    return render(request, 'entry_show_from_director.html', context)

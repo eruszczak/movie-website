@@ -3,8 +3,15 @@
 {% block content %}
 
 <div class="row">
-    <div class="alert alert-success" role="alert">10 last ratings</div>
-    <h3 class="page-header text-center">recently seen <small>(see <a href="{% url 'explore' %}">more</a>)</small></h3>
+    <div class="alert alert-success" role="alert">{{ info.last_movie.name }}</div>
+    <div class="well well-sm">
+        Last movie: {{ info.last_movie.name }}<br>
+        Last tv-show: {{ info.last_series.name }}<br>
+        Last movie rated 9-10: {{ info.last_good.name }}<br>
+        Watched movies: {{ info.movie_count }}<br>
+        Watched series: {{ info.series_count }}<br>
+    </div>
+    <h3 class="page-header text-center">recently seen <small>(<a href="{% url 'explore' %}">see more</a>)</small></h3>
     {% for entry in ratings %}
     <div class="col-md-6">
         {% comment %}
