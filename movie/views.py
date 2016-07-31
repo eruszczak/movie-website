@@ -28,8 +28,8 @@ def explore(request):
     query = request.GET.get('q')
     if query:
         entries = entries.filter(
-            Q(name__icontains=query) |
-            Q(year__icontains=query)
+            Q(name__startswith=query) |
+            Q(year__startswith=query)
             ).distinct()
             # https://docs.djangoproject.com/en/1.9/topics/db/queries/#complex-lookups-with-q-objects
 

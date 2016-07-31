@@ -15,63 +15,26 @@
 
 	<link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
 	<script src="https://use.fontawesome.com/c6367378ff.js"></script>
-	<script src="{% static 'js/scripts.js' %}"></script>
 	<script type="text/javascript" src="http://kozea.github.com/pygal.js/latest/pygal-tooltips.min.js"></script>
 	<link rel="stylesheet" href="{% static 'css/styles.css' %}">
-<script>
-$(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip();
-});
+	<link rel="stylesheet" href="{% static 'css/animate.css' %}">
+	<link rel="stylesheet" href="{% static 'css/morphext.css' %}">
+	<script src="{% static 'js/scripts.js' %}"></script>
+	<script src="{% static 'js/morphext.min.js' %}"></script>
+
+	<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+	<script>
+
 </script>
 </head>
 
 <body>
-	<nav class="navbar navbar-default navbar-fixed-top">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<!--<a class="navbar-brand" href="{% url 'home' %}">Project name</a>-->
-			</div>
-			<div id="navbar" class="navbar-collapse collapse">
-				<ul class="nav navbar-nav">
-					<li class="/"><a href="{% url 'home' %}">home</a></li>
-					<li><a href="{% url 'explore' %}">explore</a></li>
-					       <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">more <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="{% url 'watchlist' %}">watchlist</a></li>
-            <li><a href="{% url 'recommend' %}">recommend</a></li>
-            <li role="separator" class="divider"></li>
-			  <li><a href="{% url 'entry_groupby_year' %}">all years</a></li>
-			  <li><a href="{% url 'entry_groupby_genre' %}">all genres</a></li>
-			  <li><a href="{% url 'entry_groupby_director' %}">all directors</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="{% url 'book' %}">book</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="{% url 'about' %}">about</a></li>
-          </ul>
-        </li>
-					<li><a href="{% url 'charts:home' %}">charts</a></li>
-					<!--<li><a href="{% url 'about' %}">about</a></li>-->
-				</ul>
-				<form class="navbar-form navbar-right" role="search">
-					<div class="form-group">
-					  <input type="text" name='q' class="form-control"  placeholder="Search"><!--value='{{ request.GET.q }}'-->
-					</div>
-					<button type="submit" class="btn btn-default">Submit</button>
-				  </form>
-				<!-- <ul class="nav navbar-nav navbar-right"> -->
-				<!-- <li><a href="../navbar-static-top/">Static top</a></li> -->
-				<!-- <li><a href="../navbar-fixed-top/">Fixed top</a></li> -->
-				<!-- </ul> -->
-			</div>
-		</div>
-	</nav>
+	{% block navbar %}
+		{% include 'navbar.html' %}
+	{% endblock %}
+	{% block image %}
+	{% endblock %}
 <!-- 		<div class="col-sm-12">
 			<div class="header">
 				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
