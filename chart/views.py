@@ -32,3 +32,13 @@ def home(request):
         # 'chart_sparks': chart_sparks,
     }
     return render(request, 'chart/index.html', context)
+
+from django.http import JsonResponse
+import calendar
+def test(request):
+    x = count_for_month_lists(year=2015)
+    d = {
+        'months': [calendar.month_abbr[int(str(a[1]).lstrip('0'))] for a in x],
+        'values': [a[0] for a in x],
+    }
+    return JsonResponse(d)

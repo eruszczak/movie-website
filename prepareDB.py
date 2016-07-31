@@ -322,8 +322,25 @@ print('last movie rated 9-10:', e.name)
 
 # print((lambda x, f: [y for y in years in f(x))(years,)]))
 
-from django.db.models import Avg
-top_rated_years = Entry.objects.values('year').annotate(avg_year=Avg('rate'), the_count=Count('year')
-                                            ).filter(the_count__gte=10).order_by('-avg_year')[:5]
-for r in top_rated_years:
-    print(r)
+# from django.db.models import Avg
+# top_rated_years = Entry.objects.values('year').annotate(avg_year=Avg('rate'), the_count=Count('year')
+#                                             ).filter(the_count__gte=10).order_by('-avg_year')[:5]
+# for r in top_rated_years:
+#     print(r)
+
+
+def count_for_month_lists(year=2015):
+    from django.db import connection
+    query = """SELECT COUNT(*) AS 'the_count', strftime("%%m", rate_date) as 'month'
+    FROM movie_entry
+    WHERE strftime("%%Y", rate_date) = %s
+    GROUP BY month"""
+    cursor = connection.cursor()
+    cursor.execute(query, [str(year)])
+    return list(cursor.fetchall())
+
+x = count_for_month_lists()
+d = {
+    'months': [a[1] for a in x],
+    'values': [a[0] for a in x],
+}

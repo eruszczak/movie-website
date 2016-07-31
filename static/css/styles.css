@@ -106,3 +106,17 @@ textarea {
 .recommended_is_rated {
     color: red;
 }
+
+.wrapper {
+  min-height: 180px;
+  background-image:url('http://i.imgur.com/yx5LjH9.png');
+  background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+   // margin-top: -25px;
+}
+
+.last10 {
+    background-color: white;
+    border: 1px solid #e4e4e4;
+}

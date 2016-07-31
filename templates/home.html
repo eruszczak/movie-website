@@ -1,10 +1,25 @@
 {% extends "base.html" %}
+	{% block navbar %}
+	{% endblock %}
+{% block image %}
+	<div class="container-fluid wrapper">
+  <div class="">
+  <h1 class="text-center"></h1>
+  </div>
+</div>
+{% endblock %}
+
 
 {% block content %}
-
+I am a <span id="js-rotating">So Simple, Very Doge, Much Wow, Such Cool</span> Text Rotator
+<div id="anim">ahhahahah</div>
+<button id="clickme">
+  Click here
+</button>
+<div id="book">dsadas</div>
 <div class="row">
     <div class="alert alert-success" role="alert">{{ info.last_movie.name }}</div>
-    <div class="well well-sm">
+    <div id="summary" class="well well-sm">
         Last movie: {{ info.last_movie.name }}<br>
         Last tv-show: {{ info.last_series.name }}<br>
         Last movie rated 9-10: {{ info.last_good.name }}<br>
@@ -25,7 +40,7 @@
           <!--</div>-->
         <!--</div>-->
         {% endcomment %}
-    <div class="well well-sm {% cycle '' '' %}">
+    <div class="last10 well well-sm {% cycle 'odd' 'even' %}">
         <div class="pull-left num">{{ forloop.counter }}</div>
         <a href="{% url 'entry_details' slug=entry.slug %}"><img class="img-thumbnail pull-left" src="{{ baseUrl }}/static/img/posters/{{ entry.const }}.jpg" alt="..." style=""></a>
         <div class="content">
