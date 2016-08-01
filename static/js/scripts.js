@@ -1,7 +1,7 @@
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
 
-    $("#summary").addClass('animated zoomIn');
+    $("#summary").addClass('animated pulse');
 
     $( "#clickme" ).click(function() {
       $( "#book" ).fadeOut( "slow", function() {
