@@ -1,6 +1,4 @@
 {% extends "base.html" %}
-	{% block navbar %}
-	{% endblock %}
 {% block image %}
 	<div class="container-fluid wrapper">
   <div class="">
@@ -11,21 +9,18 @@
 
 
 {% block content %}
-I am a <span id="js-rotating">So Simple, Very Doge, Much Wow, Such Cool</span> Text Rotator
-<div id="anim">ahhahahah</div>
-<button id="clickme">
-  Click here
-</button>
-<div id="book">dsadas</div>
 <div class="row">
-    <div class="alert alert-success" role="alert">{{ info.last_movie.name }}</div>
-    <div id="summary" class="well well-sm">
-        Last movie: {{ info.last_movie.name }}<br>
-        Last tv-show: {{ info.last_series.name }}<br>
-        Last movie rated 9-10: {{ info.last_good.name }}<br>
-        Watched movies: {{ info.movie_count }}<br>
-        Watched series: {{ info.series_count }}<br>
+    <br>
+    <div class="alert alert-success" role="alert">
+        <ul>
+            <li>Last movie: {{ info.last_movie.name }}</li>
+            <li>Last tv-show: {{ info.last_series.name }}</li>
+            <li>Last movie rated 9-10: {{ info.last_good.name }}</li>
+            <li>Watched movies: {{ info.movie_count }}</li>
+            <li>Watched series: {{ info.series_count }}</li>
+        </ul>
     </div>
+
     <h3 class="page-header text-center">recently seen <small>(<a href="{% url 'explore' %}">see more</a>)</small></h3>
     {% for entry in ratings %}
     <div class="col-md-6">
