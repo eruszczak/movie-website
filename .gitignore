@@ -7,5 +7,5 @@ env/
 todo
 info.py
 posters/
-migrations/
+#migrations/
 mysite/static/
