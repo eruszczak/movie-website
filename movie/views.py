@@ -44,6 +44,7 @@ def explore(request):
     context = {
         'ratings': ratings,
         'archive': Archive.objects.all(),
+        'query': query,
     }
     return render(request, 'entry.html', context)
 
