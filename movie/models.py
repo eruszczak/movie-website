@@ -48,7 +48,7 @@ class Entry(models.Model):
     slug = models.SlugField(unique=True)
 
     def get_absolute_url(self):
-        return reverse('entry_details', kwargs={'const': self.const})
+        return reverse('entry_details', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
         if not self.id:

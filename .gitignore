@@ -9,3 +9,4 @@ info.py
 posters/
 #migrations/
 mysite/static/
+*.zip

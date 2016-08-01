@@ -30,7 +30,7 @@ body {
 .navbar-default .navbar-nav .open .dropdown-menu>li>a:link,
 .navbar-default .navbar-nav .open .dropdown-menu>li>a:visited,
 .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover {
-    color: #dcdcdc;
+    color: #000000;
 }
 
 .navbar-default .navbar-nav>li>a:hover
