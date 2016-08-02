@@ -8,7 +8,8 @@
             <a href="{% url 'entry_groupby_year' %}" class="btn btn-info" role="button">All years</a>
             <a href="{% url 'entry_groupby_genre' %}" class="btn btn-info" role="button">All genres</a>
         </div>
-        <p class="lead text-center">{{ ratings.paginator.count }} {% if query %}results for '{{ query }}' {% else %}ratings{% endif %}</p>
+        <p class="lead text-center search_summary">{{ ratings.paginator.count }}{% if query %} results for '{{ query }}' {% else %} ratings{% endif %}
+        {% if selected_type %} ({{ selected_type }}){% endif %}</p>
         {% if ratings.paginator.num_pages > 1 %}
             {% include 'paginator.html' %}
         {% endif %}

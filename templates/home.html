@@ -11,14 +11,26 @@
 {% block content %}
 <div class="row">
     <br>
-    <div class="alert alert-success" role="alert">
-        <ul>
-            <li>Last movie: {{ info.last_movie.name }}</li>
-            <li>Last tv-show: {{ info.last_series.name }}</li>
-            <li>Last movie rated 9-10: {{ info.last_good.name }}</li>
-            <li>Watched movies: {{ info.movie_count }}</li>
-            <li>Watched series: {{ info.series_count }}</li>
-        </ul>
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="alert alert-success" role="alert">
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul>
+                            <li>Last movie: <a href="{% url 'entry_details' slug=info.last_movie.slug %}">{{ info.last_movie.name }}</a></li>
+                            <li>Last tv-show: <a href="{% url 'entry_details' slug=info.last_series.slug %}">{{ info.last_series.name }}</a></li>
+                            <li>Last movie rated 9-10: <a href="{% url 'entry_details' slug=info.last_good.slug %}">{{ info.last_good.name }}</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul>
+                            <li>Watched series: <a href="explore/?select_type=series&q=">{{ info.series_count }}</a></li>
+                            <li>Watched movies: <a href="{{ info.search_movies }}">{{ info.movie_count }}</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <h3 class="page-header text-center">recently seen <small>(<a href="{% url 'explore' %}">see more</a>)</small></h3>
