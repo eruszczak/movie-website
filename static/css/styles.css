@@ -113,7 +113,7 @@ textarea {
   background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
-   // margin-top: -25px;
+   margin-top: -28px;
 }
 
 .last10 {
@@ -123,4 +123,12 @@ textarea {
 
 .search_summary {
     font-family: Arial;
+}
+
+.subheader {
+    width: 100%;
+    height: 30px;
+    background-color: #4CAF50;
+    margin-top: -28px;
+    overflow: hidden;
 }
