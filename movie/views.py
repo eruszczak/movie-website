@@ -5,6 +5,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
 from django.db.models import Q
 from django.db.models import Count
+from django.core.urlresolvers import reverse
 
 
 def home(request):
@@ -18,6 +19,8 @@ def home(request):
             'last_good': all_movies.filter(rate__gte=9).order_by('-rate_date')[0],
             'movie_count': all_movies.count(),
             'series_count': all_series.count(),
+            'search_movies': reverse('explore') + '?select_type=movie&q=',
+            'search_series': reverse('explore') + '?select_type=series&q=',
         }
     }
     return render(request, 'home.html', context)
@@ -26,12 +29,18 @@ def home(request):
 def explore(request):
     entries = Entry.objects.all().order_by('-rate_date', '-inserted_date')
     query = request.GET.get('q')
+    selected_type = request.GET.get('select_type')
+    if selected_type in 'movie series'.split():
+        entries = entries.filter(Q(type_id=Type.objects.get(name=selected_type).id))
     if query:
-        entries = entries.filter(
-            Q(name__startswith=query) |
-            Q(year__startswith=query)
+        if len(query) > 2:
+            entries = entries.filter(
+                Q(name__icontains=query) | Q(year=query)
             ).distinct()
-            # https://docs.djangoproject.com/en/1.9/topics/db/queries/#complex-lookups-with-q-objects
+        else:
+            entries = entries.filter(
+                Q(name__startswith=query) | Q(year=query)
+            ).distinct()
 
     paginator = Paginator(entries, 50)
     page = request.GET.get('page')
@@ -45,6 +54,7 @@ def explore(request):
         'ratings': ratings,
         'archive': Archive.objects.all(),
         'query': query,
+        'selected_type': selected_type,
     }
     return render(request, 'entry.html', context)
 
