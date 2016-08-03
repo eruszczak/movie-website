@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db.models import Q
 from django.db.models import Count
 from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 
 
 def home(request):
@@ -85,12 +86,18 @@ def entry_details(request, slug):
             'day': str(timezone.now().day),
             'month': str(timezone.now().month),
             'year': str(timezone.now().year),
-        }
+        },
     }
     # if context['entry'].type.name == 'series':
     #     context['episodes'] = get_seasons(const)
 
     return render(request, 'entry_details.html', context)
+
+
+def entry_details_redirect(request, const):
+    requested_obj = get_object_or_404(Entry, const=const)
+    if requested_obj:
+        return redirect(requested_obj)
 
 
 def entry_groupby_year(request):

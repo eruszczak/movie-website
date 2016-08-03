@@ -3,6 +3,10 @@ $(document).ready(function(){
 
     $("#summary").addClass('animated pulse');
 
+    $(function () {
+      $('[data-toggle="popover"]').popover()
+    })
+
     $( "#clickme" ).click(function() {
       $( "#book" ).fadeOut( "slow", function() {
         // Animation complete
