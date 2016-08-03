@@ -103,13 +103,22 @@ textarea {
     line-height:150px;
 }
 
-.recommended_is_rated {
+.fa-check {
+    color: green;
+}
+
+.fa-times {
     color: red;
+}
+
+#submit-id-submit {
+    margin-left: 15px;
 }
 
 .wrapper {
   min-height: 180px;
-  background-image:url('http://i.imgur.com/yx5LjH9.png');
+  /*background-image:url('http://i.imgur.com/yx5LjH9.png');*/
+  background-image:url('../img/odyssey.png');
   background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -131,4 +140,8 @@ textarea {
     background-color: #4CAF50;
     margin-top: -28px;
     overflow: hidden;
+}
+
+.fa-star {
+    color: orange;
 }

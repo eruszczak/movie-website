@@ -18,7 +18,7 @@
     <div class="col-md-6">
         {% crispy form %}
     </div>
-    <div class="col-md-6 hidden-xs">
+    <div class="col-md-6">
         <div class="panel panel-success">
           <div class="panel-heading">
             <h3 class="panel-title text-center">Rules</h3>
@@ -27,23 +27,17 @@
               <ul>
                   <li>5 recommendations per day allowed</li>
                   <li>can't insert titles already rated</li>
-                  <li>if recommended title is rated it will be shown</li>
-                  <li></li>
               </ul>
           </div>
         </div>
-    </div>
-</div>
-<hr>
-<div class="row">
-    <div class="col-md-8 col-md-offset-2">
-<h5 class="text-center">Progress bar for today's recommendations limit</h5>
-<div class="progress">
+        <hr>
+        <h5 class="text-center">Progress bar for today's recommendations limit</h5>
+        <div class="progress">
   <div class="progress-bar progress-bar-{% if todays_count == 5 %}danger{% elif todays_count == 4 %}warning{% else %}info{% endif %}" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {{ count.today2 }}0%">
     <span class="sr-only"></span>{{ count.today }} / 5
   </div>
+</div>
     </div>
-        </div>
 </div>
 <hr>
 {% if obj_list %}
@@ -57,29 +51,24 @@
         <tr>
             <th class="text-center"></th>
             <th class="text-center">title</th>
-            <th class="text-center">date</th>
-            {% if request.user.is_staff %}
-            <th class="text-center">nick</th>
-            <th class="text-center">note</th>
-            {% endif %}
+            <th class="text-center">when</th>
+            <th class="text-center">watched</th>
+            <th class="text-center">author</th>
         </tr>
     </thead>
     <tbody>
         {% for obj in obj_list %}
-        {{ obj.is_rated }}
-        <tr class="{% if obj.is_rated %}recommended_is_rated{% endif %}">
+        <tr class="">
             <th scope="row" class="col-md-1 text-center">{{ forloop.counter }}</th>
-            <td class="" style="padding-left: 20px"><a href="http://www.imdb.com/title/{{ obj.const }}/" target="_blank">{{ obj.name }} </a>({{ obj.year }})</td>
-            <td class="">{{ obj.date }}</td>
-            {% if obj.is_rated %}<td class="">rated</td>{% endif %}
-            {% if request.user.is_staff %}
-            <td class="">{{ obj.nick }}</td>
-            <td class="">{{ obj.note }}</td>
-            {% endif %}
+            <td class=""><a href="{% if not obj.is_rated %}http://www.imdb.com/title/{{ obj.const }}/{% else %}{% url 'entry_details_redirect' const=obj.const %}{% endif %}" target="_blank">{{ obj.name }} </a>({{ obj.year }})</td>
+            <td class="col-md-2 text-center">{{ obj.date }}</td>
+            <td class="col-md-1 text-center">{% if obj.is_rated %}<i class="fa fa-check" aria-hidden="true"></i>{% else %}<i class="fa fa-times" aria-hidden="true"></i>{% endif %}</td>
+            <td class="col-md-2 text-center" data-toggle="tooltip" data-placement="left" title="{{ obj.note }}">{{ obj.nick }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
 {% else %}
 <div class="row">
     <div class="col-md-6 col-md-offset-3">

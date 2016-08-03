@@ -6,7 +6,7 @@ urlpatterns = [
     url(r'^explore/$', views.explore, name='explore'),
     url(r'^about/$', views.about, name='about'),
 
-    # url(r'^(?P<const>tt\d{7})/$', views.entry_details, name='entry_details'),
+    url(r'^id/(?P<const>tt\d{7})/$', views.entry_details_redirect, name='entry_details_redirect'),
     url(r'^title/(?P<slug>[\w-]+)/$', views.entry_details, name='entry_details'),
 
     url(r'^year/$', views.entry_groupby_year, name='entry_groupby_year'),
