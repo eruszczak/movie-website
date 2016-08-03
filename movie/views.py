@@ -128,10 +128,10 @@ def entry_show_rated_in_month(request, year, month):
 
 
 def entry_groupby_genre(request):
-    # from chart.views import chart_genres
+    from chart.charts import chart_genres
     context = {
         'genre': Genre.objects.all().annotate(num=Count('entry')).order_by('-num'),
-        # 'chart': chart_genres(),
+        'chart': chart_genres(),
     }
     return render(request, 'entry_groupby_genre.html', context)
 
