@@ -54,7 +54,7 @@
         <div class="content">
             <h5><a href="{% url 'entry_details' slug=entry.slug %}">{{ entry.name }} ({{ entry.year }})</a></h5>
             {% for i in 'xxxxxxxxxx' %}
-                <i class="fa {% if forloop.counter0 < entry.rate %}fa-star{% else %}fa-star-o{% endif %}" aria-hidden="true"></i>
+                <i class="fa {% if forloop.counter <= entry.rate %}fa-star{% else %}fa-star-o{% endif %}" aria-hidden="true"></i>
             {% endfor %}
             <h5>{{ entry.rate_date|date:"F d" }}</h5>
         </div>

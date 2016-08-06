@@ -129,7 +129,7 @@ def update():
         if i > 10:
             return
         const = obj.find('link').text[-10:-1]
-        rate = obj.find('description').text.strip()[-2:-1]
+        rate = obj.find('description').text.strip()[-3:-1].lstrip()
         rate_date = convert_to_datetime(obj.find('pubDate').text)
         if Entry.objects.filter(const=const).exists():
             if Archive.objects.filter(const=const, rate_date=rate_date).exists():
