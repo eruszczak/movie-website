@@ -17,11 +17,11 @@
 				<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}<br></a>
 				{% endfor %}</li>
 			<li class="list-group-item">{% for director in entry.director.all %}
-				<a href="{% url 'entry_show_from_director' id=director.id %}">{{ director.name }}<br></a>
+				<a href="{% url 'entry_show_from_director' id=director.id %}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>
 				{% endfor %}</li>
-			  <li class="list-group-item">{{ entry.votes }} votes</li>
+			  {% if entry.votes != 'N/A' %}<li class="list-group-item">{{ entry.votes }} votes</li>{% endif %}
 			  <li class="list-group-item">current rating: {{ entry.rate }}</li>
-			<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>
+			{% if entry.rate_imdb >= 1  %}<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>{% endif %}
 			<li class="list-group-item">rated on: {{ entry.rate_date|date:"d.m.Y" }}
 				{% if entry.rate_date|date:"d" == now.day and entry.rate_date|date:"n" == now.month and entry.rate_date|date:"Y" == now.year %}<span class="label label-warning">today</span>
 				{% elif entry.rate_date|date:"n" == now.month and entry.rate_date|date:"Y" == now.year %}<span class="label label-info">this month</span>{% endif %}</li>
