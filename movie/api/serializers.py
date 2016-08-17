@@ -34,11 +34,11 @@ class EntryDetailSerializer(serializers.ModelSerializer):
 
 
 class GenreListSerializer(serializers.ModelSerializer):
-    genre_count = serializers.IntegerField(source='entry_set.count')
+    the_count = serializers.IntegerField(source='entry_set.count')
 
     class Meta:
         model = Genre
-        fields = ['name', 'genre_count']
+        fields = ['name', 'the_count']
 
 
 # class RateListSerializer(serializers.Serializer):
