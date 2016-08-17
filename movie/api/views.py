@@ -6,7 +6,7 @@ from ..models import Entry, Genre
 from .pagination import SetPagination
 from django.shortcuts import get_object_or_404
 from rest_framework.reverse import reverse
-
+from utils.utils import build_url
 
 class EntryListView(ListAPIView):
     serializer_class = EntryListSerializer
@@ -53,17 +53,19 @@ class GenreListView(ListAPIView):
 class RateListView(ListAPIView):
     # no serializer because rate don't have a model unlike genre
     def get(self, request, *args, **kwargs):
+        abs_url = request.build_absolute_uri(reverse('api-movie:entry_list'))
         rate_count = Entry.objects.values('rate').annotate(the_count=Count('rate')).order_by('rate')
         for obj in rate_count:
-            obj['details'] = 'http://127.0.0.1:8000/api/?rated={}'.format(obj['rate']) #reverse('api-movie:entry_list')
+            obj['details'] = build_url(abs_url, get={'rated': obj['rate']})
         response = Response(rate_count)
         return response
 
 
 class YearListView(ListAPIView):
     def get(self, request, *args, **kwargs):
+        abs_url = request.build_absolute_uri(reverse('api-movie:entry_list'))
         year_count = Entry.objects.values('year').annotate(the_count=Count('year')).order_by('year')
         for obj in year_count:
-            obj['details'] = 'http://127.0.0.1:8000/api/?year={}'.format(obj['year'])
+            obj['details'] = build_url(abs_url, get={'year': obj['year']})
         response = Response(year_count)
         return response
