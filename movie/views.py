@@ -64,6 +64,10 @@ def book(request):
     return render(request, 'book.html')
 
 
+def search(request):
+    return render(request, 'search.html')
+
+
 def about(request):
     return render(request, 'about.html', {'archive': Archive.objects.all()})
 

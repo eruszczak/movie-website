@@ -10,6 +10,10 @@ urlpatterns = [
     url(r'^charts/', include('chart.urls')),
     url(r'^watchlist/', include('watchlist.urls')),
     url(r'^book/', include('book.urls')),
+    url(r'^search/', include('haystack.urls')),
+
+    url(r'^api/', include('movie.api.urls', namespace='api-movie')),
+    # url(r'^api/', include('movie.api.urls', namespace='entry-api')),
 ]
 
 if settings.DEBUG:

@@ -3,7 +3,7 @@
 <html>
 <head>
 	<!-- <link rel='shortcut icon' type='image/x-icon' href='img/movie.png'/> -->
-	<title>Film</title>
+	<title>{% block title %}film{% endblock %}</title>
     <meta charset="utf-8">
 	<link rel='shortcut icon' type='image/x-icon' href='{% static "img/favicon.png" %}'/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -48,5 +48,7 @@
 
 		{% endblock %}
 	</div>
+	<script src="{% static 'js/search.js' %}"></script>
+
 </body>
 </html>
