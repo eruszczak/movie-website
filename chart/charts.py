@@ -107,3 +107,4 @@ def distribution_by_year():
             }
         }])
     return line_chart.render()
+
