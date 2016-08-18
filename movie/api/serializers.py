@@ -35,20 +35,9 @@ class EntryDetailSerializer(serializers.ModelSerializer):
 
 class GenreListSerializer(serializers.ModelSerializer):
     the_count = serializers.IntegerField(source='entry_set.count')
+    # detail_url = serializers.HyperlinkedIdentityField(view_name='api-movie:entry_detail', lookup_field='slug')
     # build url
 
     class Meta:
         model = Genre
         fields = ['name', 'the_count']
-
-
-# class RateListSerializer(serializers.Serializer):
-#     rate_count = serializers.DictField()
-
-    # class Meta:
-    #     fields = ['name']
-    #     # fields = '__all__'
-
-    # def get_rate_count(self, obj):
-    #     rate_count = Entry.objects.values('rate').annotate(the_count=Count('rate')).order_by('rate')
-    #     return rate_count
