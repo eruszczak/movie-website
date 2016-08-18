@@ -1,12 +1,19 @@
+import calendar
+from collections import OrderedDict
+from chart.charts import count_for_month_lists
+from datetime import datetime
+
 from django.db.models import Q, Count
+
 from .serializers import EntryListSerializer, GenreListSerializer#, RateListSerializer
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from ..models import Entry, Genre
 from .pagination import SetPagination
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404    in kwargs i can get details
 from rest_framework.reverse import reverse
 from utils.utils import build_url
+
 
 class EntryListView(ListAPIView):
     serializer_class = EntryListSerializer
@@ -16,13 +23,12 @@ class EntryListView(ListAPIView):
     def get_queryset(self):
         queryset = Entry.objects.all()
         year = self.request.GET.get('year')
-        title = self.request.GET.get('title')
         query = self.request.GET.get('q')
-        rate = self.request.GET.get('rate')
         genre = self.request.GET.get('genre')
         rated = self.request.GET.get('rated')
-        # if year:
-        #     queryset = queryset.filter(year=year)
+        rated_year = self.request.GET.get('rated_year')
+        rated_month = self.request.GET.get('rated_month')
+        # title = self.request.GET.get('title')
         # if title:
         #     queryset = queryset.filter(name__icontains=title) if len(title) > 2\
         #         else queryset.filter(name__startswith=title)
@@ -35,6 +41,9 @@ class EntryListView(ListAPIView):
             queryset = queryset.filter(rate=rated)
         if year:
             queryset = queryset.filter(year=year)
+        if rated_year and rated_month:
+            # queryset = queryset.filter(rate_date__year=rated_year),
+            queryset = Entry.objects.filter(rate_date__year=rated_year, rate_date__month=rated_month)
         return queryset
 
 
@@ -68,4 +77,22 @@ class YearListView(ListAPIView):
         for obj in year_count:
             obj['details'] = build_url(abs_url, get={'year': obj['year']})
         response = Response(year_count)
+        return response
+
+
+class MonthListView(ListAPIView):
+    # links for details
+    # choose year (ratings since 2013, default current year or last)
+    def get(self, request, *args, **kwargs):
+        abs_url = request.build_absolute_uri(reverse('api-movie:entry_list'))
+        d = {}
+        for i in range(2014, datetime.now().year + 1):
+            count_per_month = count_for_month_lists(year=i)
+            d[i] = OrderedDict(
+                (calendar.month_abbr[int(month.lstrip('0'))], {
+                    'count': value,
+                    'link': build_url(abs_url, get={'rated_year': i, 'rated_month': month})})
+                for value, month in count_per_month
+            )
+        response = Response(d)
         return response
