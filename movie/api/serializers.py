@@ -35,6 +35,7 @@ class EntryDetailSerializer(serializers.ModelSerializer):
 
 class GenreListSerializer(serializers.ModelSerializer):
     the_count = serializers.IntegerField(source='entry_set.count')
+    # build url
 
     class Meta:
         model = Genre

@@ -7,5 +7,6 @@ urlpatterns = [
     url(r'^genre/$', views.GenreListView.as_view(), name='genre_list'),
     url(r'^rated/$', views.RateListView.as_view(), name='rate_list'),
     url(r'^year/$', views.YearListView.as_view(), name='year_list'),
+    url(r'^month/$', views.MonthListView.as_view(), name='month_list'),
     # url(r'^rated/(?P<rate>\d+)/$', views.RateListView.as_view(), name='rate_detail'),
 ]
