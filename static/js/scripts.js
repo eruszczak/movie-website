@@ -11,7 +11,7 @@ $(document).ready(function(){
       $( "#book" ).fadeOut( "slow", function() {
         // Animation complete
       });
-      });
+    });
 
     $("#sendQuery").on("click", function () {
         getResults();
@@ -28,7 +28,6 @@ function getResults() {
             xAxis: {
                 categories: data.months
             },
-
             series: [{
 
                 data: data.values
@@ -36,3 +35,4 @@ function getResults() {
         });
     });
 };
+
