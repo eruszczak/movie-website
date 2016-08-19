@@ -26,9 +26,9 @@ function graph_genres() {
 
 function initialize_years(data) {
     var years = $.map(data, function(dict, year) { return year });
+      years = years.sort(function(a, b){return b-a});
     $("#select_year").append(
       $.map(years, function(v, k) {
-      console.log(v)
          return $("<option>").val(k).text(v);
       })
     );

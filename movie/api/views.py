@@ -18,8 +18,7 @@ from utils.utils import build_url
 # abs_url repeats
 # let change paginations
 # views no serialized are almost the same..
-# let multiple parameters at one
-# add graphs
+# let multiple parameters at once
 # search, ordering fields
 class EntryListView(ListAPIView):
     serializer_class = EntryListSerializer
@@ -99,10 +98,9 @@ class YearListView(ListAPIView):
 
 
 class MonthListView(ListAPIView):
-    # choose year (ratings since 2013, default current year or last)
     def get(self, request, *args, **kwargs):
         abs_url = request.build_absolute_uri(reverse('api-movie:entry_list'))
-        d = OrderedDict()
+        d = {}  # OrderedDict()
         for year in range(2014, datetime.now().year + 1):
             count_per_month = count_for_month_lists(year=year)
             d[year] = OrderedDict(
@@ -111,5 +109,5 @@ class MonthListView(ListAPIView):
                     'details': build_url(abs_url, get={'rated_year': year, 'rated_month': month})})
                 for value, month in count_per_month
             )
-        response = Response(OrderedDict(reversed(d.items())))
+        response = Response(d)  # OrderedDict(reversed(d.items())))
         return response
