@@ -14,14 +14,14 @@ function graph_genres() {
             console.log(names)
             console.log(values)
             $('#graph').highcharts({
-            xAxis: {
-                categories: names
-            },
-            series: [{
-                data: values
-            }]
+                xAxis: {
+                    categories: names
+                },
+                series: [{
+                    data: values
+                }]
+            });
         });
-    });
 };
 
 function initialize_years(data) {
@@ -47,12 +47,49 @@ function graph_months() {
             var months = $.map(data[selected_year], function(dict, month) { return month });
             var values = $.map(data[selected_year], function(dict, month) { return dict.count });
             $('#graph').highcharts({
+                xAxis: {
+                    categories: months
+                },
+                series: [{
+                    data: values
+                }]
+            });
+    });
+};
+
+
+function graph_rated() {
+    link = '/api/rated/'
+    $.getJSON(link, {
+        format: "json"
+    }).done(function(data) {
+        var values = $.map(data, function(dict) { return dict.the_count });
+        var rates = $.map(data, function(dict) { return dict.rate });
+        $('#graph').highcharts({
             xAxis: {
-                categories: months
+                categories: rates
             },
             series: [{
                 data: values
             }]
         });
-    });
-};
+    })
+}
+
+function graph_year() {
+    link = '/api/year/'
+    $.getJSON(link, {
+        format: "json"
+    }).done(function(data) {
+        var values = $.map(data, function(dict) { return dict.the_count });
+        var years = $.map(data, function(dict) { return dict.year });
+        $('#graph').highcharts({
+            xAxis: {
+                categories: years
+            },
+            series: [{
+                data: values
+            }]
+        });
+    })
+}

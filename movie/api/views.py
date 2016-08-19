@@ -16,7 +16,6 @@ from utils.utils import build_url
 
 # links to directors
 # abs_url repeats
-# let change paginations
 # views no serialized are almost the same..
 # let multiple parameters at once
 # search, ordering fields

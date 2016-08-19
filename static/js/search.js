@@ -67,10 +67,11 @@ function call_api(link) {
                 $('.next').show()
             }
         }
-        // get page size so user can chagne it ?per_page=10
         // custom ordering
         // search more options
         // allow only get
+
+        // can change type of graph
         $("a.previous").attr("href", data.previous);
         $("a.next").attr("href", data.next);
         $('.content').append(data.count)
