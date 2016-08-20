@@ -24,16 +24,17 @@ function graph_genres() {
         });
 };
 
-function initialize_years(data) {
-    var years = $.map(data, function(dict, year) { return year });
-      years = years.sort(function(a, b){return b-a});
-    $("#select_year").append(
-      $.map(years, function(v, k) {
-         return $("<option>").val(k).text(v);
-      })
-    );
-    initialize_years = function(){}
-}
+        function initialize_years(data) {
+            var years = $.map(data, function(dict, year) { return year });
+              years = years.sort(function(a, b){return b-a});
+              years.unshift('all')
+            $("#select_year").append(
+              $.map(years, function(v, k) {
+                 return $("<option>").val(k).text(v);
+              })
+            );
+            initialize_years = function(){}
+        }
 
 function graph_months() {
     $('#select_year').show()
@@ -41,20 +42,46 @@ function graph_months() {
      $.getJSON(link, {
           format: "json"
         }).done(function(data) {
-        console.log(data)
             initialize_years(data)
             var selected_year = $("#select_year option:selected").text().toString();
-            var months = $.map(data[selected_year], function(dict, month) { return month });
+            var months = $.map(data['2014'], function(dict, month) { return month });
             var values = $.map(data[selected_year], function(dict, month) { return dict.count });
+            var series = []
+            if (selected_year === 'all') {
+                $('#select_year option').each(function() {
+                    year = $(this).text()
+                    if (year === 'all') { return true }
+                    var values = $.map(data[year], function(dict, month) { return dict.count });
+                    series.push({name: year, data: values})
+                })
+            } else {
+                series.push({name: selected_year, data: values})
+            }
             $('#graph').highcharts({
+                title: {
+                    text: 'Watched movies per month',
+                    x: -20 //center
+                },
                 xAxis: {
                     categories: months
                 },
-                series: [{
-                    data: values
-                }]
+                yAxis: {
+                    title: {
+                        text: 'Ratings'
+                    },
+                },
+                tooltip: {
+                    valueSuffix: ' ratings'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: series
             });
-    });
+        });
 };
 
 
@@ -93,3 +120,5 @@ function graph_year() {
         });
     })
 }
+
+

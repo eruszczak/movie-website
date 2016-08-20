@@ -10,7 +10,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from ..models import Entry, Genre
 from .pagination import SetPagination
-# from django.shortcuts import get_object_or_404    in kwargs i can get details
+# from django.shortcuts import get_object_or_404                                    in kwargs i can get details
 from rest_framework.reverse import reverse
 from utils.utils import build_url
 
