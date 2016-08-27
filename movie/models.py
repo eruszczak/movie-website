@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+import datetime
 from django.core.urlresolvers import reverse
 from django.utils.text import slugify
 
@@ -46,6 +47,7 @@ class Entry(models.Model):
     inserted_by_updater = models.BooleanField(default=False)
     inserted_date = models.DateTimeField(default=timezone.now, blank=True)
     slug = models.SlugField(unique=True)
+    img = models.ImageField(null=True, blank=True)
 
     def get_absolute_url(self):
         return reverse('entry_details', kwargs={'slug': self.slug})
@@ -53,8 +55,20 @@ class Entry(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             self.slug = slugify('{} {}'.format(self.name, self.year))
-
         super(Entry, self).save(*args, **kwargs)
+
+    @property
+    def yesterday_today_month(self):
+        today = datetime.datetime.today()
+        yesterday = today - datetime.timedelta(1)
+        rate_date = str(self.rate_date)
+        if rate_date == today.strftime('%Y-%m-%d'):
+            return 'today'
+        elif rate_date == yesterday.strftime('%Y-%m-%d'):
+            return 'yesterday'
+        elif self.rate_date.strftime('%Y-%m') == today.strftime('%Y-%m'):
+            return 'this month'
+        return False
 
 
 class Archive(models.Model):

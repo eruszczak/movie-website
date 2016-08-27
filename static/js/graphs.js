@@ -17,7 +17,15 @@ function graph_genres() {
                 xAxis: {
                     categories: names
                 },
-                series: [{
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
+            series: [{
                     data: values
                 }]
             });
@@ -70,6 +78,14 @@ function graph_months() {
                         text: 'Ratings'
                     },
                 },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
                 tooltip: {
                     valueSuffix: ' ratings'
                 },
@@ -96,6 +112,14 @@ function graph_rated() {
             xAxis: {
                 categories: rates
             },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
             series: [{
                 data: values
             }]
@@ -114,6 +138,14 @@ function graph_year() {
             xAxis: {
                 categories: years
             },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        }
+    },
             series: [{
                 data: values
             }]

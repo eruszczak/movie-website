@@ -5,7 +5,7 @@ django.setup()
 import csv
 from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log
 from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb, downloadPosters, \
-    downloadPoster, convert_to_datetime
+    downloadPoster, convert_to_datetime, download_and_save_img
 from recommend.models import Recommendation
 from django.utils import timezone
 from django.db.models import Count
@@ -86,7 +86,7 @@ def get_entry_info(const, rate, rate_date, log, is_updated=False, exists=False):
                   inserted_by_updater=is_updated
                   )
     entry.save()
-    downloadPoster(entry.const, entry.url_poster)
+    download_and_save_img(entry)    # downloadPoster(entry.const, entry.url_poster)
     for g in json['Genre'].split(', '):
         genre, created = Genre.objects.get_or_create(name=g.lower())
         entry.genre.add(genre)
@@ -125,7 +125,6 @@ def update():
         return
     i = 0
     for num, obj in enumerate(itemlist):
-        i += 1
         if i > 10:
             return
         const = obj.find('link').text[-10:-1]
@@ -288,15 +287,20 @@ from django.db.models import Count
 # for e in Entry.objects.all():
 #     e.slug = slugify('{} {}'.format(e.name, e.year))
 #     e.save()
+# import datetime
+# e = Entry.objects.filter(type=Type.objects.get(name='movie').id).order_by('-rate_date')[0]
+# print('last seen:', e.rate_date)
+# today = datetime.datetime.today()
+# yesterday = today - datetime.timedelta(22)
+# print(yesterday.strftime('%Y-%m-%d'))
+# print(yesterday.strftime('%Y-%m-%d') == str(e.rate_date))
 
-e = Entry.objects.filter(type=Type.objects.get(name='movie').id).order_by('-rate_date')[0]
-print('last seen:', e.name)
-
-e = Entry.objects.filter(type=Type.objects.get(name='series').id).order_by('-rate_date')[0]
-print('last tv show:', e.name)
-
-e = Entry.objects.filter(type=Type.objects.get(name='movie').id, rate__gte=9).order_by('-rate_date')[0]
-print('last movie rated 9-10:', e.name)
+#
+# e = Entry.objects.filter(type=Type.objects.get(name='series').id).order_by('-rate_date')[0]
+# print('last tv show:', e.name)
+#
+# e = Entry.objects.filter(type=Type.objects.get(name='movie').id, rate__gte=9).order_by('-rate_date')[0]
+# print('last movie rated 9-10:', e.name)
 
 # years = Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year')
 # # print(years)
@@ -329,18 +333,25 @@ print('last movie rated 9-10:', e.name)
 #     print(r)
 
 
-def count_for_month_lists(year=2015):
-    from django.db import connection
-    query = """SELECT COUNT(*) AS 'the_count', strftime("%%m", rate_date) as 'month'
-    FROM movie_entry
-    WHERE strftime("%%Y", rate_date) = %s
-    GROUP BY month"""
-    cursor = connection.cursor()
-    cursor.execute(query, [str(year)])
-    return list(cursor.fetchall())
+# def count_for_month_lists(year=2015):
+#     from django.db import connection
+#     query = """SELECT COUNT(*) AS 'the_count', strftime("%%m", rate_date) as 'month'
+#     FROM movie_entry
+#     WHERE strftime("%%Y", rate_date) = %s
+#     GROUP BY month"""
+#     cursor = connection.cursor()
+#     cursor.execute(query, [str(year)])
+#     return list(cursor.fetchall())
+#
+# x = count_for_month_lists()
+# d = {
+#     'months': [a[1] for a in x],
+#     'values': [a[0] for a in x],
+# }
 
-x = count_for_month_lists()
-d = {
-    'months': [a[1] for a in x],
-    'values': [a[0] for a in x],
-}
+# for e in Entry.objects.all():
+#     download_and_save_img(e)
+
+
+
+
