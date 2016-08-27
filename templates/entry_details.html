@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% static "" as baseUrl %}
 {% block title %}{{ entry.name }}{% endblock %}
 {% block content %}
 <div class="row" style="margin-top:-35px;">
@@ -8,7 +7,7 @@
 <h1 class="page-header text-center">{{ entry.name }}</h1>
 <div class="row">
 	<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
-		<img class="img-responsive img-thumbnail" src="{{ entry.img.url }}" alt="...">
+		<img class="img-responsive img-thumbnail" src="{% if entry.img %}{{ entry.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
 	</div>
 	<div class="col-xs-6 col-sm-3 col-md-3">
 		<ul class="list-group" style="margin-left: -10px">
@@ -22,9 +21,6 @@
 			  {% if entry.votes != 'N/A' %}<li class="list-group-item">{{ entry.votes }} votes</li>{% endif %}
 			  <li class="list-group-item">current rating: {{ entry.rate }}</li>
 			{% if entry.rate_imdb >= 1  %}<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>{% endif %}
-			<li class="list-group-item">rated on: {{ entry.rate_date|date:"d.m.Y" }}
-				{% if entry.rate_date|date:"d" == now.day and entry.rate_date|date:"n" == now.month and entry.rate_date|date:"Y" == now.year %}<span class="label label-warning">today</span>
-				{% elif entry.rate_date|date:"n" == now.month and entry.rate_date|date:"Y" == now.year %}<span class="label label-info">this month</span>{% endif %}</li>
 			<li class="list-group-item">rated on: {{ entry.rate_date|date:"d.m.Y" }}
 				{% if entry.yesterday_today_month %}
 					<span class="label {% if entry.yesterday_today_month == 'this month' %}label-info{% else %}label-warning{% endif %}">

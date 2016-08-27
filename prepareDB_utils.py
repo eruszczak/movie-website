@@ -96,11 +96,15 @@ def downloadPoster(const, url):
 
 
 def download_and_save_img(obj):
+    from mysite.settings import MEDIA_ROOT
     title = obj.slug + '.jpg'
-    print(title, 'downloading poster')
-    if obj.img:
+    save_location = os.path.join(MEDIA_ROOT, title)
+    print(save_location)
+    if obj.img and os.path.isfile(save_location):
+        print('poster exists')
         return
     try:
+        print(title, 'downloading poster')
         img = urllib.request.urlretrieve(obj.url_poster)[0]
         obj.img.save(title, File(open(img, 'rb')), save=True)
     except Exception as e:
