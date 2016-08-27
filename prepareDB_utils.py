@@ -3,6 +3,8 @@ import urllib.request
 from time import strptime
 import xml.etree.ElementTree as ET
 import os
+from django.core.files import File
+
 
 def prepare_date_csv(d):
     'Sat Nov 12 00:00:00 1993 -> 1993-11-12'
@@ -91,3 +93,16 @@ def downloadPoster(const, url):
         except:
             print('cant download poster', const)
             pass
+
+
+def download_and_save_img(obj):
+    title = obj.slug + '.jpg'
+    print(title, 'downloading poster')
+    if obj.img:
+        return
+    try:
+        img = urllib.request.urlretrieve(obj.url_poster)[0]
+        obj.img.save(title, File(open(img, 'rb')), save=True)
+    except Exception as e:
+        print(e, type(e))
+        pass
