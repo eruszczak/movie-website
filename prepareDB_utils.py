@@ -101,7 +101,8 @@ def download_and_save_img(obj):
     save_location = os.path.join(MEDIA_ROOT, title)
     print(save_location)
     if obj.img:
-        print('poster exists')
+        print('poster exists. trying to just assign it')
+        assign_existing_posters(obj)
         return
     if os.path.isfile(save_location):
         obj.img = save_location
@@ -109,14 +110,17 @@ def download_and_save_img(obj):
     try:
         print(title, 'downloading poster')
         img = urllib.request.urlretrieve(obj.url_poster)[0]
-        obj.img.save(title, File(open(img, 'rb')), save=True)
     except Exception as e:
         print(e, type(e))
-        pass
+    else:
+        obj.img.save(title, File(open(img, 'rb')), save=True)
 
 
-def assign_existing_posters():
-    objs = Entry.objects.filter(img='')
+def assign_existing_posters(obj=None):
+    if not obj:
+        objs = Entry.objects.filter(img='')
+    else:
+        objs = [obj]
     for obj in objs:
         print(obj.name)
         title = obj.slug + '.jpg'
