@@ -86,7 +86,9 @@ def get_entry_info(const, rate, rate_date, log, is_updated=False, exists=False):
                   inserted_by_updater=is_updated
                   )
     entry.save()
+    print('before:', entry.img)
     download_and_save_img(entry)    # downloadPoster(entry.const, entry.url_poster)
+    print('after:', entry.img)
     for g in json['Genre'].split(', '):
         genre, created = Genre.objects.get_or_create(name=g.lower())
         entry.genre.add(genre)
