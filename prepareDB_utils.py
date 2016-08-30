@@ -4,7 +4,8 @@ from time import strptime
 import xml.etree.ElementTree as ET
 import os
 from django.core.files import File
-
+from mysite.settings import MEDIA_ROOT
+from movie.models import Entry
 
 def prepare_date_csv(d):
     'Sat Nov 12 00:00:00 1993 -> 1993-11-12'
@@ -96,7 +97,6 @@ def downloadPoster(const, url):
 
 
 def download_and_save_img(obj):
-    from mysite.settings import MEDIA_ROOT
     title = obj.slug + '.jpg'
     save_location = os.path.join(MEDIA_ROOT, title)
     print(save_location)
@@ -113,3 +113,16 @@ def download_and_save_img(obj):
     except Exception as e:
         print(e, type(e))
         pass
+
+
+def assign_existing_posters():
+    objs = Entry.objects.filter(img='')
+    for obj in objs:
+        print(obj.name)
+        title = obj.slug + '.jpg'
+        save_location = os.path.join(MEDIA_ROOT, title)
+        if os.path.isfile(save_location):
+            obj.img = './' + title
+            obj.save()
+            print('assigned missing poster:', title)
+

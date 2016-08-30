@@ -5,7 +5,7 @@ django.setup()
 import csv
 from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log
 from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb, downloadPosters, \
-    downloadPoster, convert_to_datetime, download_and_save_img
+    downloadPoster, convert_to_datetime, download_and_save_img, assign_existing_posters
 from recommend.models import Recommendation
 from django.utils import timezone
 from django.db.models import Count
@@ -160,6 +160,8 @@ if len(sys.argv) > 1:
         downloadPosters()
     if sys.argv[1] == 'update':
         update()
+    if sys.argv[1] == 'assign':
+        assign_existing_posters()
     sys.exit(0)
 
 # downloadPoster('tt2975590', u)
@@ -353,5 +355,7 @@ from django.db.models import Count
 #     download_and_save_img(e)
 
 
-
-
+# assign_existing_posters()
+# e = Entry.objects.get(name='Trainspotting')
+# print()
+# print(e.img)
