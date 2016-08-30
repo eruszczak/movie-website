@@ -100,9 +100,12 @@ def download_and_save_img(obj):
     title = obj.slug + '.jpg'
     save_location = os.path.join(MEDIA_ROOT, title)
     print(save_location)
-    if obj.img and os.path.isfile(save_location):
+    if obj.img:
         print('poster exists')
         return
+    if os.path.isfile(save_location):
+        obj.img = save_location
+        obj.save()
     try:
         print(title, 'downloading poster')
         img = urllib.request.urlretrieve(obj.url_poster)[0]
