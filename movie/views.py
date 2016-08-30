@@ -31,6 +31,7 @@ def explore(request):
     entries = Entry.objects.all().order_by('-rate_date', '-inserted_date')
     query = request.GET.get('q')
     selected_type = request.GET.get('select_type')
+
     if selected_type in 'movie series'.split():
         entries = entries.filter(Q(type_id=Type.objects.get(name=selected_type).id))
     if query:
@@ -51,11 +52,18 @@ def explore(request):
         ratings = paginator.page(1)
     except EmptyPage:
         ratings = paginator.page(paginator.num_pages)
+
+    query_string = ''
+    if query or selected_type:
+        select_type = '?select_type={}'.format(selected_type)
+        q = '&q={}'.format(query)
+        query_string = select_type + q + '&page='
     context = {
         'ratings': ratings,
         'archive': Archive.objects.all(),
         'query': query,
         'selected_type': selected_type,
+        'query_string': query_string,
     }
     return render(request, 'entry.html', context)
 
