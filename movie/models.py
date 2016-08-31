@@ -3,6 +3,7 @@ from django.utils import timezone
 import datetime
 from django.core.urlresolvers import reverse
 from django.utils.text import slugify
+from django.shortcuts import get_object_or_404
 
 
 class Genre(models.Model):
@@ -49,6 +50,7 @@ class Entry(models.Model):
     slug = models.SlugField(unique=True)
     img = models.ImageField(null=True, blank=True)
     watch_again = models.BooleanField(default=False)
+    watch_again_date = models.DateField(blank=True, null=True)
 
     def get_absolute_url(self):
         return reverse('entry_details', kwargs={'slug': self.slug})
@@ -76,6 +78,27 @@ class Archive(models.Model):
     const = models.CharField(max_length=30, blank=True, null=True)
     rate = models.CharField(max_length=30, blank=True, null=True)
     rate_date = models.CharField(blank=True, null=True, max_length=30)
+    watch_again_date = models.DateField(blank=True, null=True)
+
+    @property
+    def days_since_added_to_watchlist(self):
+        current_rating_date = self.calculate_current_rating_date()
+        added = datetime.datetime(self.watch_again_date.year, self.watch_again_date.month, self.watch_again_date.day)
+        days_diff = (current_rating_date - added).days
+        return days_diff
+
+    @property
+    def days_since_previous_rating(self):
+        current_rating_date = self.calculate_current_rating_date()
+        year, month, day = [int(x) for x in self.rate_date.split('-')]
+        archived_rating_date = datetime.datetime(year, month, day)
+        days_diff = (current_rating_date - archived_rating_date).days
+        return days_diff
+
+    def calculate_current_rating_date(self):
+        entry = get_object_or_404(Entry, const=self.const)
+        current_date = datetime.datetime(entry.rate_date.year, entry.rate_date.month, entry.rate_date.day)
+        return current_date
 
 
 class Season(models.Model):

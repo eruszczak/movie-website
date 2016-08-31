@@ -1,5 +1,4 @@
-from django.shortcuts import render, get_object_or_404
-
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Entry, Genre, Archive, Season, Episode, Type, Director
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
@@ -7,7 +6,7 @@ from django.db.models import Q
 from django.db.models import Count
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-
+import datetime
 
 def home(request):
     all_movies = Entry.objects.filter(type=Type.objects.get(name='movie').id)
@@ -99,12 +98,17 @@ def entry_details(request, slug):
         if request.POST.get('unwatch'):
             watch_again = False
         requested_obj.watch_again = watch_again
+        if watch_again:
+            requested_obj.watch_again_date = datetime.datetime.now()
+        else:
+            requested_obj.watch_again_date = None
         requested_obj.save()
+        return redirect(reverse('entry_details', kwargs={'slug': slug}))
+        # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     context = {
         'entry': requested_obj,
         'archive': Archive.objects.filter(const=requested_obj.const).order_by('-rate_date'),
     }
-
     return render(request, 'entry_details.html', context)
 
 
@@ -186,5 +190,6 @@ def entry_show_from_director(request, id):
 def watchlist(request):
     context = {
         'ratings': Entry.objects.filter(watch_again=True).order_by('-rate_date'),
+        'history': Archive.objects.filter(watch_again_date__isnull=False)#.order_by('-watch_again_date'),
     }
     return render(request, 'watchlist.html', context)
