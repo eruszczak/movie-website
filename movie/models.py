@@ -48,6 +48,7 @@ class Entry(models.Model):
     inserted_date = models.DateTimeField(default=timezone.now, blank=True)
     slug = models.SlugField(unique=True)
     img = models.ImageField(null=True, blank=True)
+    watch_again = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse('entry_details', kwargs={'slug': self.slug})

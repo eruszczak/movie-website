@@ -90,18 +90,20 @@ def entry_details(request, slug):
     #         episodes = Episode.objects.filter(season=s)
     #         season_episodes.append([s.number, episodes])
     #     return season_episodes
+    # if context['entry'].type.name == 'series':
+    #     context['episodes'] = get_seasons(const)
+
     requested_obj = get_object_or_404(Entry, slug=slug)
+    if request.POST:
+        watch_again = True
+        if request.POST.get('unwatch'):
+            watch_again = False
+        requested_obj.watch_again = watch_again
+        requested_obj.save()
     context = {
         'entry': requested_obj,
         'archive': Archive.objects.filter(const=requested_obj.const).order_by('-rate_date'),
-        'now': {
-            'day': str(timezone.now().day),
-            'month': str(timezone.now().month),
-            'year': str(timezone.now().year),
-        },
     }
-    # if context['entry'].type.name == 'series':
-    #     context['episodes'] = get_seasons(const)
 
     return render(request, 'entry_details.html', context)
 
@@ -179,3 +181,10 @@ def entry_show_from_director(request, id):
         'director_name': Director.objects.get(id=id).name,
     }
     return render(request, 'entry_show_from_director.html', context)
+
+
+def watchlist(request):
+    context = {
+        'ratings': Entry.objects.filter(watch_again=True).order_by('-rate_date'),
+    }
+    return render(request, 'watchlist.html', context)

@@ -8,7 +8,19 @@
 <div class="row">
 	<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
 		<img class="img-responsive img-thumbnail" src="{% if entry.img %}{{ entry.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
+			<form action="#" method="post">
+				{% csrf_token %}
+				{% if entry.watch_again %}
+				<input class="btn btn-default btn-sm see-again-btn see-again-btn-active" type="submit" name="unwatch"
+					   value="don't want to see again" />
+				{% else %}
+				<input class="btn btn-default btn-sm see-again-btn" type="submit" name="watch"
+					   value="want to see again" />
+				{% endif %}
+			</form>
+		<a href="{% url 'watchlist' %}">see watchlist</a>
 	</div>
+
 	<div class="col-xs-6 col-sm-3 col-md-3">
 		<ul class="list-group" style="margin-left: -10px">
 			<li class="list-group-item"><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></li>
@@ -41,7 +53,8 @@
 	</div>
 </div>
 <div class="row">
-	<div class="col-xs-5 col-xs-offset-1">
+	<div class="col-xs-2"></div>
+	<div class="col-xs-5 1">
 	{% if archive %}
 		<div class="history">
 			<p class="lead"><br>History of ratings:</p>
@@ -57,7 +70,7 @@
 				</tr>
 			{% endfor %}
 			</table>
-			</div>
+		</div>
 	{% endif %}
 	</div>
 	<div class="col-xs-5">
@@ -65,12 +78,14 @@
 		<ul>
 			<li><a href="{{ entry.url_imdb }}">imdb</a></li>
 			<li><a href="{{ entry.url_tomato }}">rotten tomatoes</a></li>
+			<li><a href="{% url 'entry_details_redirect' const=entry.const %}">shorter link</a></li>
 		</ul>
+
 	</div>
 </div>
 
 
-
+{% comment %}
 <br>
 {% if episodes %}
 	<div class="row">
@@ -96,6 +111,7 @@
 		</div>
 	</div>
 {% endif %}
+{% endcomment %}
 </div>
 	</div>
 {% endblock %}
