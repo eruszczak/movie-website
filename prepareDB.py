@@ -363,3 +363,4 @@ from django.db.models import Count
 # e = Entry.objects.get(name='Trainspotting')
 # print()
 # print(e.img)
+
