@@ -3,7 +3,7 @@ from django.utils import timezone
 import datetime
 from django.core.urlresolvers import reverse
 from django.utils.text import slugify
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 
 
 class Genre(models.Model):
@@ -77,7 +77,7 @@ class Entry(models.Model):
 class Archive(models.Model):
     const = models.CharField(max_length=30, blank=True, null=True)
     rate = models.CharField(max_length=30, blank=True, null=True)
-    rate_date = models.CharField(blank=True, null=True, max_length=30)
+    rate_date = models.DateField(blank=True, null=True)
     watch_again_date = models.DateField(blank=True, null=True)
 
     @property
@@ -89,14 +89,27 @@ class Archive(models.Model):
 
     @property
     def days_since_previous_rating(self):
+        # year, month, day = [int(x) for x in self.rate_date.split('-')]
         current_rating_date = self.calculate_current_rating_date()
-        year, month, day = [int(x) for x in self.rate_date.split('-')]
-        archived_rating_date = datetime.datetime(year, month, day)
+        archived_rating_date = datetime.datetime(self.rate_date.year, self.rate_date.month, self.rate_date.day)
+        x = Archive.objects.filter(const=self.const, rate_date__gt=self.rate_date)
+        if x:
+            obj = x[0].rate_date  # assume [0] is the first possible
+            current_rating_date = datetime.datetime(obj.year, obj.month, obj.day)   # maybe because i edited date.
+        # it should be done in function below. FOR watchlist it'll be different, bcs watch_again_date
+        print(current_rating_date)
         days_diff = (current_rating_date - archived_rating_date).days
         return days_diff
 
     def calculate_current_rating_date(self):
         entry = get_object_or_404(Entry, const=self.const)
+        # entries_archived = get_list_or_404(Archive, const=self.const, watch_again_date__isnull=False)
+        # entries_archived = Archive.objects.filter(const=self.const, watch_again_date__isnull=False)
+        # if len(entries_archived) > 1:
+        #     entries_archived = entries_archived.filter(rate_date__gt=self.watch_again_date)#.order_by('-rate_date')
+        #     print(entries_archived)
+        #     if len(entries_archived) > 0:
+        #         print('x', entries_archived[0].rate_date)
         current_date = datetime.datetime(entry.rate_date.year, entry.rate_date.month, entry.rate_date.day)
         return current_date
 
