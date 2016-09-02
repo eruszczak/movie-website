@@ -2,23 +2,24 @@
 {% load staticfiles %}
 {% block title %}{{ entry.name }}{% endblock %}
 {% block content %}
+
 <div class="row" style="margin-top:-35px;">
 	<div class="col-md-12">
 <h1 class="page-header text-center">{{ entry.name }}</h1>
 <div class="row">
 	<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
 		<img class="img-responsive img-thumbnail" src="{% if entry.img %}{{ entry.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-			<form action="#" method="post">
-				{% csrf_token %}
-				{% if entry.watch_again %}
-				<input class="btn btn-default btn-sm see-again-btn see-again-btn-active" type="submit" name="unwatch"
-					   value="don't want to see again" />
-				{% else %}
-				<input class="btn btn-default btn-sm see-again-btn" type="submit" name="watch"
-					   value="want to see again" />
-				{% endif %}
-			</form>
-		<a href="{% url 'watchlist' %}">see watchlist</a>
+		<form action="#" method="post">
+			{% csrf_token %}
+			{% if entry.watch_again %}
+			<input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
+				   value="don't want to see again" />
+			{% else %}
+			<input id="watch" class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch"
+				   value="want to see again" />
+			{% endif %}
+		</form>
+		<a id="watchlist-link" href="{% url 'watchlist' %}">see watchlist</a>
 	</div>
 
 	<div class="col-xs-6 col-sm-3 col-md-3">
@@ -66,9 +67,9 @@
 				</tr>
 			{% for a in archive %}
 				<tr>
-					<td class="">{{ a.rate_date }}</td>
+					<td class="">{{ a.rate_date|date:"Y-m-d" }}</td>
 					<td class="text-center">{{ a.rate }}</td>
-					<td class="text-center">{{ a.days_since_previous_rating }} days</td>
+					<td class="text-center">duration: {{ a.days_since_previous_rating }} days</td>
 				</tr>
 			{% endfor %}
 			</table>
@@ -104,7 +105,7 @@
 				</div>
 				<div id="collapse{{season}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{season}}">
 					{% for e in eps %}
-					{{ e.number }} {{ e.name }} <br>
+						{{ e.number }} {{ e.name }} <br>
 					{% endfor %}
 				</div>
 			  </div>

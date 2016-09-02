@@ -148,11 +148,34 @@ textarea {
 }
 
 .see-again-btn {
-    padding: 1px;
-    margin: 15px 0 0 50px;
-    background-color: green;
+    border: 0;
+    padding: 1px 5px;
+    color: white;
 }
 
-.see-again-btn-active {
-    background-color: red;
+.watch-btn {
+    margin: 15px 0 8px 50px;
+    background-color: #2196F3;
+}
+
+.unwatch-btn {
+    margin: 15px 0 8px 33px;
+    background-color: #E65100;
+}
+
+.unwatch-btn:hover, .watch-btn:hover {
+    color: white;
+  /*  background-color: #2196F3;*/
+}
+/*
+.watch-btn:hover {
+    color: white;
+    background-color: #E65100;
+}*/
+
+
+#watchlist-link {
+    text-decoration: underline;
+    cursor: default;
+    margin: 0 0 0 60px;
 }

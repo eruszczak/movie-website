@@ -4,6 +4,7 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.utils.text import slugify
 from django.shortcuts import get_object_or_404, get_list_or_404
+import sys
 
 
 class Genre(models.Model):
@@ -82,35 +83,35 @@ class Archive(models.Model):
 
     @property
     def days_since_added_to_watchlist(self):
-        current_rating_date = self.calculate_current_rating_date()
+        current_rating_date = self.calculate_next_rating()
         added = datetime.datetime(self.watch_again_date.year, self.watch_again_date.month, self.watch_again_date.day)
         days_diff = (current_rating_date - added).days
         return days_diff
 
     @property
     def days_since_previous_rating(self):
-        # year, month, day = [int(x) for x in self.rate_date.split('-')]
-        current_rating_date = self.calculate_current_rating_date()
+        current_rating_date = self.calculate_next_rating()
         archived_rating_date = datetime.datetime(self.rate_date.year, self.rate_date.month, self.rate_date.day)
-        x = Archive.objects.filter(const=self.const, rate_date__gt=self.rate_date)
-        if x:
-            obj = x[0].rate_date  # assume [0] is the first possible
-            current_rating_date = datetime.datetime(obj.year, obj.month, obj.day)   # maybe because i edited date.
-        # it should be done in function below. FOR watchlist it'll be different, bcs watch_again_date
-        print(current_rating_date)
         days_diff = (current_rating_date - archived_rating_date).days
         return days_diff
 
-    def calculate_current_rating_date(self):
-        entry = get_object_or_404(Entry, const=self.const)
-        # entries_archived = get_list_or_404(Archive, const=self.const, watch_again_date__isnull=False)
-        # entries_archived = Archive.objects.filter(const=self.const, watch_again_date__isnull=False)
-        # if len(entries_archived) > 1:
-        #     entries_archived = entries_archived.filter(rate_date__gt=self.watch_again_date)#.order_by('-rate_date')
-        #     print(entries_archived)
-        #     if len(entries_archived) > 0:
-        #         print('x', entries_archived[0].rate_date)
-        current_date = datetime.datetime(entry.rate_date.year, entry.rate_date.month, entry.rate_date.day)
+    @property
+    def get_entry(self):
+        return get_object_or_404(Entry, const=self.const)
+
+    def calculate_next_rating(self):
+        find_objs = None
+        called_by = sys._getframe(1).f_code.co_name
+        if called_by == 'days_since_added_to_watchlist':
+            find_objs = Archive.objects.filter(const=self.const, rate_date__gt=self.watch_again_date)
+        elif called_by == 'days_since_previous_rating':
+            find_objs = Archive.objects.filter(const=self.const, rate_date__gt=self.rate_date)
+        if find_objs:
+            obj = find_objs[0].rate_date  # assume [0] is the first possible
+            current_date = datetime.datetime(obj.year, obj.month, obj.day)   # maybe because i edited date.
+        else:
+            entry = get_object_or_404(Entry, const=self.const)
+            current_date = datetime.datetime(entry.rate_date.year, entry.rate_date.month, entry.rate_date.day)
         return current_date
 
 
