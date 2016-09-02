@@ -80,27 +80,11 @@ def about(request):
 
 
 def entry_details(request, slug):
-    # MyModel.objects.extra(select={'length':'Length(name)'}).order_by('length')
-    # def get_seasons(imdb_id):
-    #     entry = Entry.objects.get(const=imdb_id)
-    #     seasons = Season.objects.filter(entry=entry)
-    #     season_episodes = []
-    #     for s in seasons:
-    #         episodes = Episode.objects.filter(season=s)
-    #         season_episodes.append([s.number, episodes])
-    #     return season_episodes
-    # if context['entry'].type.name == 'series':
-    #     context['episodes'] = get_seasons(const)
-
     requested_obj = get_object_or_404(Entry, slug=slug)
     if request.POST:
-        watch_again = True
-        if request.POST.get('unwatch'):
-            watch_again = False
-        requested_obj.watch_again = watch_again
-        if watch_again:
+        if request.POST.get('watch'):
             requested_obj.watch_again_date = datetime.datetime.now()
-        else:
+        elif request.POST.get('unwatch'):
             requested_obj.watch_again_date = None
         requested_obj.save()
         return redirect(reverse('entry_details', kwargs={'slug': slug}))
@@ -189,7 +173,7 @@ def entry_show_from_director(request, id):
 
 def watchlist(request):
     context = {
-        'ratings': Entry.objects.filter(watch_again=True).order_by('-rate_date'),
-        'history': Archive.objects.filter(watch_again_date__isnull=False)#.order_by('-watch_again_date'),
+        'ratings': Entry.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),
+        'history': Archive.objects.filter(watch_again_date__isnull=False)  # .order_by('-watch_again_date'),
     }
     return render(request, 'watchlist.html', context)

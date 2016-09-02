@@ -66,11 +66,8 @@ def get_entry_info(const, rate, rate_date, log, is_updated=False, exists=False):
         return
     elif is_updated and exists:  # if entry exists, updater must be sure that can delete and archive it
         entry = Entry.objects.get(const=const)
-        watch_again = entry.watch_again
-        archive = Archive(const=entry.const, rate=entry.rate, rate_date=entry.rate_date)
-        if watch_again:
-            archive.watch_again_date = entry.watch_again_date
-        archive.save()
+        Archive.objects.create(const=entry.const, rate=entry.rate,
+                               rate_date=entry.rate_date, watch_again_date=entry.watch_again_date)
         print('updater. exists ' + entry.name, '\t...and deleted')
         entry.delete()
         log.updated_archived += 1
@@ -87,8 +84,7 @@ def get_entry_info(const, rate, rate_date, log, is_updated=False, exists=False):
                   tomato_user_meter=json['tomatoUserMeter'], tomato_user_rate=json['tomatoUserRating'],
                   tomato_user_reviews=json['tomatoUserReviews'], tomatoConsensus=json['tomatoConsensus'],
                   plot=json['Plot'],
-                  inserted_by_updater=is_updated
-                  )
+                  inserted_by_updater=is_updated)
     entry.save()
     download_and_save_img(entry)    # downloadPoster(entry.const, entry.url_poster)
     for g in json['Genre'].split(', '):
