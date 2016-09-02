@@ -11,7 +11,7 @@
 		<img class="img-responsive img-thumbnail" src="{% if entry.img %}{{ entry.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
 		<form action="#" method="post">
 			{% csrf_token %}
-			{% if entry.watch_again %}
+			{% if entry.watch_again_date %}
 			<input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
 				   value="don't want to see again" />
 			{% else %}
@@ -64,6 +64,7 @@
 				<tr class="text-primary" style="font-weight: bold">
 					<td class="">{{ entry.rate_date|date:"Y-m-d" }}</td>
 					<td class="col-md-4 text-center">{{ entry.rate }}</td>
+					<td class="col-md-4 text-center">{{ entry.rate_date|timesince }}</td>
 				</tr>
 			{% for a in archive %}
 				<tr>

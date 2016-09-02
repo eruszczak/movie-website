@@ -173,7 +173,8 @@ def entry_show_from_director(request, id):
 
 def watchlist(request):
     context = {
-        'ratings': Entry.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),
-        'history': Archive.objects.filter(watch_again_date__isnull=False)  # .order_by('-watch_again_date'),
+        # 'ratings': Entry.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),
+        'ratings': [e for e in Entry.objects.all() if e.watch_again_date],
+        'history': Archive.objects.filter(watch_again_date__isnull=False)
     }
     return render(request, 'watchlist.html', context)
