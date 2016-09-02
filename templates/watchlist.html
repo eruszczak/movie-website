@@ -33,11 +33,33 @@
         </div>
     </div>
 
-{% for obj in history %}
-    {{ obj.const }}<br>
-    new rate: {{ obj.rate_date }}<br>
-    added to watchlist: {{ obj.watch_again_date }}<br>
-    since_added_to_watchlist: {{ obj.days_since_added_to_watchlist }}<br>
-{% endfor %}
-
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <p class="lead text-center">History watchlist</p>
+                <table class="table table-hover table-bordered table-condensed">
+		            <thead>
+                        <tr>
+                            <th class="text-center"></th>
+                            <th class="text-center">title</th>
+                            <th class="text-center">rating</th>
+                            <th class="text-center">added</th>
+                            <th class="text-center">watched after</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in history %}
+                        <tr>
+                            <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                            <td><a href="{% url 'entry_details' slug=obj.get_entry.slug %}">{{ obj.get_entry.name }}</a></td>
+                            <td>{{ obj.rate }}</td>
+                            <td>{{ obj.watch_again_date }}</td>
+                            <td>{{ obj.days_since_added_to_watchlist }} days</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 {% endblock %}

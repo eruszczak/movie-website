@@ -36,3 +36,27 @@ function getResults() {
     });
 };
 
+
+
+
+
+
+$(document).ready(function() {
+    $('#unwatch').mouseover(function() {
+        $(this).val("want to see again").removeClass('unwatch-btn').addClass('watch-btn');
+    }).mouseout(function() {
+        $(this).val("don't want to see again").removeClass('watch-btn').addClass('unwatch-btn');
+    });
+
+    $('#watch').mouseover(function() {
+        $(this).val("don't want to see again").removeClass('watch-btn').addClass('unwatch-btn');
+    }).mouseout(function() {
+        $(this).val("want to see again").removeClass('unwatch-btn').addClass('watch-btn');
+    });
+
+//    $('#watch').mouseover(function() {
+//        $(this).val("dont want to see again");
+//    }).mouseout(function() {
+//        $(this).val("want to see again");
+//    });
+});
