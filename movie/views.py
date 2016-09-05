@@ -57,6 +57,17 @@ def explore(request):
         select_type = '?select_type={}'.format(selected_type)
         q = '&q={}'.format(query)
         query_string = select_type + q + '&page='
+
+    if request.POST:
+        print(request.POST)
+        choosen_obj = get_object_or_404(Entry, const=request.POST.get('const'))
+        if request.POST.get('watch'):
+            choosen_obj.watch_again_date = datetime.datetime.now()
+        elif request.POST.get('unwatch'):
+            choosen_obj.watch_again_date = None
+        choosen_obj.save()
+        return redirect(reverse('explore'))
+
     context = {
         'ratings': ratings,
         'archive': Archive.objects.all(),
@@ -103,7 +114,6 @@ def entry_details_redirect(request, const):
 
 
 def entry_groupby_year(request):
-    from django.db.models import Count
     from chart.charts import distribution_by_year
     context = {
         'year_count': Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
@@ -172,6 +182,12 @@ def entry_show_from_director(request, id):
 
 
 def watchlist(request):
+    if request.POST:
+        choosen_obj = get_object_or_404(Entry, const=request.POST.get('const'))
+        if request.POST.get('unwatch'):
+            choosen_obj.watch_again_date = None
+        choosen_obj.save()
+        return redirect(reverse('watchlist'))
     context = {
         # 'ratings': Entry.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),
         'ratings': [e for e in Entry.objects.all() if e.watch_again_date],

@@ -356,11 +356,11 @@ from django.db.models import Count
 
 
 # assign_existing_posters()
-e = Entry.objects.get(name='Gangs of New York')
-# print()
-print(e.watch_again_date)
-
-a = Entry.objects.filter(watch_again_date__isnull=False)
-
-print(len(a))
-print([e.rate_date for e in Entry.objects.all() if e.watch_again_date])
+# e = Entry.objects.get(name='Gangs of New York')
+# # print()
+# print(e.watch_again_date)
+#
+# a = Entry.objects.filter(watch_again_date__isnull=False)
+#
+# print(len(a))
+# print([e.rate_date for e in Entry.objects.all() if e.watch_again_date])

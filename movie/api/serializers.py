@@ -6,13 +6,13 @@ from rest_framework import serializers
 class EntryListSerializer(serializers.ModelSerializer):
     genre = serializers.SerializerMethodField()
     director = serializers.SerializerMethodField()
-    # detail_page = serializers.URLField(source='get_absolute_url')
     detail_url = serializers.HyperlinkedIdentityField(view_name='api-movie:entry_detail', lookup_field='slug')
+    # detail_page = serializers.URLField(source='get_absolute_url')
     # filter_backends = [SearchFilter, OrderingFilter]        # /?search=, &ordering=-date
     # search_fields = ['title', 'content']                    # different way, built-in search
     class Meta:
         model = Entry
-        fields = 'name year genre director detail_url'.split()
+        fields = 'name year genre director detail_url rate const watch_again_date'.split()
         # fields = '__all__'
 
     def get_genre(self, obj):
@@ -40,3 +40,9 @@ class GenreListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         fields = ['name', 'the_count']
+
+
+class EntryWatchListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Entry
+        fields = ['watch_again_date']
