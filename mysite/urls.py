@@ -13,6 +13,9 @@ urlpatterns = [
     url(r'^search/', include('haystack.urls')),
 
     url(r'^api/', include('movie.api.urls', namespace='api-movie')),
+
+    url(r'^school/', include('school.urls')),
+    url(r'^api-school/', include('school.api.urls', namespace='api-school')),
     # url(r'^api/', include('movie.api.urls', namespace='entry-api')),
 ]
 

@@ -53,10 +53,7 @@ $(document).ready(function() {
     }).mouseout(function() {
         $(this).val("want to see again").removeClass('unwatch-btn').addClass('watch-btn');
     });
-
-//    $('#watch').mouseover(function() {
-//        $(this).val("dont want to see again");
-//    }).mouseout(function() {
-//        $(this).val("want to see again");
-//    });
 });
+
+
+// todo animation

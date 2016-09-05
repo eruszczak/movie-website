@@ -38,7 +38,7 @@ function getResults(new_link = null, selected_per_page = false) {
 }
 
 function call_api(link) {
-    $(".content").empty();
+    $("#content table").empty();
     var get_page = /(?:\?page=)(\d+)/.exec(link)
     if (get_page) { get_page = get_page[1] - 1 } else { get_page = 0 }
 
@@ -50,7 +50,21 @@ function call_api(link) {
     }).done(function(data) {
         $.each(data.results, function(count, item) {
 //            console.log(get_page, get_page_size, get_page*get_page_size, count)
-            $('.content').append(get_page * get_page_size + count + 1, item.name + '<br>')
+//            $('.content table tbody').append('<tr>' + '<td>' + get_page * get_page_size + count + 1 + '</td><td>' + item.name + '</td><td>' +
+//            item.rate + '</td></tr>')
+            if (!item.watch_again_date) {
+                var btn = 'w'
+                var type = 'watch'
+                var value = "don't want to see again"
+            } else {
+                var btn = 'un'
+                var type = 'unwatch'
+                var value = 'want to see again'
+            }
+            // <input type="button" id="buttonId" name="_mail" value="Enviar Mail">
+             var input = '<button id="' + btn + '" class="btn btn-sm see-again-btn ' + type + '-btn" type="button">Go!</button>'
+//            var input = '<input id="' + btn + '" class="btn btn-sm see-again-btn ' + type + '-btn" type="button" value="' + value + '" />'
+            $('#content table').append('<tr><td>' + item.name + '</td><td>' + input + '</td></tr>')
         });
         if (data.previous === null && data.next === null) {
             $('#pagination').hide()
@@ -77,6 +91,22 @@ function call_api(link) {
         $('.content').append(data.count)
     });
 }
+
+
+//$('#content').on('click', '#w', function() {
+//    $.ajax({
+////        url: your_url,
+//        method: 'POST', // or another (GET), whatever you need
+//        data: {
+//            name: 'xx', // data you need to pass to your function
+//            click: True
+//        }
+//        success: function (data) {
+//            // success callback
+//            // you can process data returned by function from views.py
+//        }
+//    });
+//});
 
 
 

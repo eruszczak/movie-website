@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'chart',
     'watchlist',
     'book',
+
+    'school',
 ]
 
 MIDDLEWARE_CLASSES = [
