@@ -59,7 +59,7 @@ def get_date(dateformat="%d-%m-%Y", adddays=0):
 
 def is_leap(varx):
     # if przestepny or czy
-    match = re.search(r'(\d\d\d\d)[^0-9]*(\d\d\d\d)*', varx)        # todo {4}
+    match = re.search(r'(\d{4})[^0-9]*(\d{4})*', varx)        # todo {4}
     # kiedy najblizszy przestepny
     if 'nastep' in varx or 'kolej' in varx:
         for r in range(now.year + 1, 2050):         # todo bad
@@ -80,35 +80,24 @@ def is_leap(varx):
                 li.append(y)
         li = ', '.join(map(str, li))
         return 'lata przestepne miedzy {}-{}: {} ({})'.format(rok, rok2, calendar.leapdays(rok, rok2 + 1), li)
-    return str(rok) + 'jest przestepny' if calendar.isleap(rok) else 'nie jest przestepny'
+    return str(rok) + ' jest przestepny' if calendar.isleap(rok) else 'nie jest przestepny'
 
 
 def world_time(txt):
-    try:
-        import pytz
-        from geopy import geocoders
-    except ImportError:
-        return 'error, cant find geopy, pytz modules'        # todo d
+    import pytz
+    from geopy import geocoders
+
     g = geocoders.GoogleV3()
-
-    txt2 = txt.split()
-    miasto = ''
-    if txt2:
+    if txt:
         miasto = txt
-
-    try:
-        g.geocode(miasto)
-    except:
-        return 'mozliwy blad polaczenia z siecia'       # todo not needed here
-    if g.geocode(miasto):
-        place, (lat, lng) = g.geocode(miasto)
-        timezone = g.timezone((lat, lng))
-        # znak = u"\u00B0"
-        # s = 'znaleziono: {} {}{}N {}{}E'.format(place, round(lat, 1), znak, abs(round(lng, 1)), znak)
-        # s += '\nstrefa:' + timezone.zone.replace('/', ', ').replace('_', ' ')
-        local_time = datetime.datetime.now(pytz.timezone(timezone.zone))
-        return {'lat': lat, 'lng': lng, 'place': place, 'time': local_time.strftime('%Y-%m-%d %A %H:%M:%S')}
-    else:
-        teraz = datetime.datetime.now()
-        s = teraz.strftime('%H:%M:%S')
-    return s
+        try:
+            geocode = g.geocode(miasto)
+        except:
+            return 'mozliwy blad polaczenia z siecia'
+        if geocode:
+            place, (lat, lng) = g.geocode(miasto)
+            timezone = g.timezone((lat, lng))
+            local_time = datetime.datetime.now(pytz.timezone(timezone.zone))
+            return {'lat': lat, 'lng': lng, 'place': place, 'time': local_time.strftime('%Y-%m-%d %A %H:%M:%S')}
+    teraz = datetime.datetime.now()
+    return teraz.strftime('aktualnie jest: %H:%M:%S')
