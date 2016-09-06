@@ -14,18 +14,22 @@ function graph_genres() {
             console.log(names)
             console.log(values)
             $('#graph').highcharts({
+                title: {
+                    text: 'Rating Distribution By Genre',
+                    x: -20 //center
+                },
                 xAxis: {
                     categories: names
                 },
-    plotOptions: {
-        line: {
-            dataLabels: {
-                enabled: true
-            },
-            enableMouseTracking: false
-        }
-    },
-            series: [{
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: true
+                        },
+                        enableMouseTracking: false
+                    }
+                },
+                series: [{
                     data: values
                 }]
             });
@@ -67,7 +71,7 @@ function graph_months() {
             }
             $('#graph').highcharts({
                 title: {
-                    text: 'Watched movies per month',
+                    text: 'Watched per month',
                     x: -20 //center
                 },
                 xAxis: {
@@ -78,14 +82,14 @@ function graph_months() {
                         text: 'Ratings'
                     },
                 },
-    plotOptions: {
-        line: {
-            dataLabels: {
-                enabled: true
-            },
-            enableMouseTracking: false
-        }
-    },
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: true
+                        },
+                        enableMouseTracking: false
+                    }
+                },
                 tooltip: {
                     valueSuffix: ' ratings'
                 },
@@ -109,17 +113,21 @@ function graph_rated() {
         var values = $.map(data, function(dict) { return dict.the_count });
         var rates = $.map(data, function(dict) { return dict.rate });
         $('#graph').highcharts({
+            title: {
+                text: 'Rating Distribution',
+                x: -20 //center
+            },
             xAxis: {
                 categories: rates
             },
-    plotOptions: {
-        line: {
-            dataLabels: {
-                enabled: true
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true
+                    },
+                    enableMouseTracking: false
+                }
             },
-            enableMouseTracking: false
-        }
-    },
             series: [{
                 data: values
             }]
@@ -135,17 +143,21 @@ function graph_year() {
         var values = $.map(data, function(dict) { return dict.the_count });
         var years = $.map(data, function(dict) { return dict.year });
         $('#graph').highcharts({
+            title: {
+                text: 'Rating Distribution By Year',
+                x: -20 //center
+            },
             xAxis: {
                 categories: years
             },
-    plotOptions: {
-        line: {
-            dataLabels: {
-                enabled: true
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true
+                    },
+                    enableMouseTracking: false
+                }
             },
-            enableMouseTracking: false
-        }
-    },
             series: [{
                 data: values
             }]

@@ -1,7 +1,7 @@
 function school(link) {
      var question = document.getElementsByName("q")[0].value
      $('#question').html(question)
-     $('#map').hide()
+//     $('#map').hide()
 
      $.getJSON(link, {
           format: "json"
@@ -9,14 +9,14 @@ function school(link) {
         if (typeof data === 'object') {
             initMap(data)
             $('#map').show()
-//            data =
+            data =  data.time
         }
         $('#answer').html(data)
         var item = $('<ul><li>' + question + '</li><li>' + data + '</li></ul>').hide().fadeIn(1500)
         $('#history').prepend(item)
      });
      $('input[type=text]').animate({ color: "red" }, 2000);
-//     document.getElementsByName("q")[0].value = ''
+     document.getElementsByName("q")[0].value = ''
 };
 
 function get_link() {

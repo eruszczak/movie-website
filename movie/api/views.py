@@ -117,21 +117,15 @@ class WatchAgainUpdateView(UpdateAPIView):
     serializer_class = EntryWatchListSerializer
     lookup_field = 'slug'
 
-    # def get(self, request, *args, **kwargs):
-    #     return Response(self.get_object())
+    def get(self, request, *args, **kwargs):
+        return Response(self.get_object().watch_again_date)
 
     def update(self, request, *args, **kwargs):
-        # here toggle -> dateOn, None
         # it doesnt show date at all. for titles on watchlist and rest
-        # Cannot call `.is_valid()` as no `data=` keyword argument was passed when instantiating the serializer instance.
         instance = self.get_object()
         if not instance.watch_again_date:
             instance.watch_again_date = datetime.now()
         else:
             instance.watch_again_date = None
-        # instance.watch_again_date = request.data.get('watch_again_date')
-        print(instance.watch_again_date)
-        serializer = self.get_serializer(instance)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
+        instance.save()
+        return Response(instance.watch_again_date)

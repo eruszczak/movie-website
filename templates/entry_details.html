@@ -12,12 +12,13 @@
 		<form action="" method="post">
 			{% csrf_token %}
 			{% if entry.watch_again_date %}
-			<input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
-				   value="don't want to see again" />
+				<input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
+					   value="don't want to see again" />
 			{% else %}
-			<input id="watch" class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch"
-				   value="want to see again" />
+				<input id="watch" class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch"
+					   value="want to see again" />
 			{% endif %}
+			<button id="test_put" type="button" class="btn btn-default">Default</button>
 		</form>
 		<a id="watchlist-link" href="{% url 'watchlist' %}">see watchlist</a>
 	</div>
