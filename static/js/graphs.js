@@ -70,6 +70,9 @@ function graph_months() {
                 series.push({name: selected_year, data: values})
             }
             $('#graph').highcharts({
+                chart: {
+                    type: 'column'
+                },
                 title: {
                     text: 'Watched per month',
                     x: -20 //center

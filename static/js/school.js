@@ -1,21 +1,33 @@
 function school(link) {
+     $('#result-panel, .result-panel-heading, #inputQuery:focus').css('border-color', getRandomColor())
+//     $('#inputQuery:focus').css('border-color', getRandomColor())
      var question = document.getElementsByName("q")[0].value
+     if (!question) { return }
      $('#question').html(question)
-//     $('#map').hide()
+
+     if ($('#map').is(":visible")) {
+        $('#map').hide()
+     }
+     if ($('#query_info').is(":visible")) {
+        $('#query_info').hide()
+     }
 
      $.getJSON(link, {
           format: "json"
      }).done(function(data) {
+        if (!data) {
+            $('#query_info').show().html('An error occurred. Try again')
+            return
+        }
         if (typeof data === 'object') {
             initMap(data)
             $('#map').show()
             data =  data.time
         }
         $('#answer').html(data)
-        var item = $('<ul><li>' + question + '</li><li>' + data + '</li></ul>').hide().fadeIn(1500)
+        var item = $('<ul><li>' + question + '</li><li>' + data + '</li></ul>').hide().fadeIn(1000)
         $('#history').prepend(item)
      });
-     $('input[type=text]').animate({ color: "red" }, 2000);
      document.getElementsByName("q")[0].value = ''
 };
 
@@ -38,18 +50,8 @@ $('#inputQuery').keypress(function(e) {
     }
 })
 
-
-//function initMap() {
-//    var mapDiv = document.getElementById('map');
-//    var map = new google.maps.Map(mapDiv, {
-//        center: {lat: 44.540, lng: -78.546},
-//        zoom: 8
-//    });
-//}
 function initMap(data) {
     var myLatLng = {lat: data.lat, lng: data.lng};
-//    $('#map').show()
-// hide after
     var map = new google.maps.Map(document.getElementById('map'), {
       zoom: 6,
       center: myLatLng
@@ -58,6 +60,45 @@ function initMap(data) {
     var marker = new google.maps.Marker({
       position: myLatLng,
       map: map,
-      title: data.place             /////
+      title: data.place
     });
 }
+
+
+document.getElementsByName("q")[0].value = 'time new york'  // todo
+
+
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getRandomColor() {
+    var r = getRandomInt(0, 255);
+    var g = getRandomInt(0, 255);
+    var b = getRandomInt(0, 255);
+    return "rgb(" + r + "," + g + "," + b + ")"
+}
+
+
+
+
+
+
+
+$(".functionality").click(function () {
+    $header = $(this);
+    //getting the next element
+    $content = $header.next();
+    console.log($header, $content)
+    //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+    $content.slideToggle(500, function () {
+        //execute this after slideToggle is done
+        //change text of header based on visibility of content div
+//        $header.text(function () {
+//            //change text based on condition
+//            return $content.is(":visible") ? "Collapse" : "Expand";
+//        });
+    });
+
+});

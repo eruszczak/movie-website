@@ -139,6 +139,8 @@ def get_answer(text=None):
         return kalendarz(text)
     elif 'time' in text:
         return f.world_time(text.replace('time', ''))
+    else:
+        return ''
     # if text in ('koniec', 'end', '0', 'stop'):
     #     print('koniec programu')
     #     break
