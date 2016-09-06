@@ -4,7 +4,6 @@
 {% block title %}charts{% endblock %}
 
 {% block content %}
-<div class="container">
     <div class="row">
         <div class="col-md-9">
             <form method='post'>
@@ -21,9 +20,15 @@
             {% endcomment %}
         </div>
     </div>
+<div id="highcharts" style="min-width: 310px; height: 400px; margin: 0 auto">x</div>
+<button type="submit" value="click" OnClick="graph_genres()" id="graph_genres">show gra</button>
+<button type="submit" value="click" OnClick="graph_months()" id="graph_months">show gra</button>
+<button type="submit" value="click" OnClick="graph_rated()">show graph rated</button>
+<button type="submit" value="click" OnClick="graph_year()">show graph year</button>
+<div id="graph"></div>
 
-                            <button type="submit" value="click" OnClick="" id="sendQuery">test</button>
-    <div id="highcharts" style="min-width: 310px; height: 400px; margin: 0 auto">x</div>
 
-</div>
+<select id="select_year" onchange="graph_months()" style="display: none">
+<!--<option>all</option>-->
+</select>
 {% endblock %}

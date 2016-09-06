@@ -5,24 +5,24 @@
 <div class="row">
   <div class="col-lg-6">
     <div class="input-group">
-      <input id="inputBox" type="text" class="form-control" placeholder="q" name='q'>
+      <input id="inputBox_search" type="text" class="form-control" placeholder="q" name='q'>
       <!--<input id="inputBox" type="text" class="form-control" placeholder="title" name='title'>-->
       <input id="target" type="text" class="form-control" placeholder="year" name="year">
       <span class="input-group-btn">
-        <button id="go" class="btn btn-default" type="button">Go!</button>
+        <button id="go_search" class="btn btn-default" type="button">Go!</button>
       </span>
     </div><!-- /input-group -->
   </div><!-- /.col-lg-6 -->
 </div><!-- /.row -->
 <div class="row">
   <div class="col-md-6 col-md-offset-3">
-      <nav id="pagination" aria-label="..." style="display:none;">
+      <nav id="pagination" style="display:none;">
         <ul class="pager">
           <li><a href="#" class="previous">Previous</a></li>
           <li><a href="#" class="next">Next</a></li>
         </ul>
       </nav>
-      <div id="loader" style="">
+      <div id="loader">
         <!--<div id="top"></div>-->
         <!--<div id="bottom"></div>-->
         <!--<div id="line"></div>-->
@@ -30,26 +30,15 @@
       </div>
   </div>
 </div>
-<div class="content">
-  <table id="search_results">
+<div class="search_content">  </div>
 
-  </table>
-</div>
-<button type="submit" value="click" OnClick="graph_genres()" id="graph_genres">show graph genres</button>
-<button type="submit" value="click" OnClick="graph_months()" id="graph_months">show graph months</button>
-<button type="submit" value="click" OnClick="graph_rated()">show graph rated</button>
-<button type="submit" value="click" OnClick="graph_year()">show graph year</button>
-<!--<select name="select_genre">-->
-  <!--<option value="volvo">Volvo</option>-->
-<!--</select>-->
-<div id="graph"></div>
+
+
 <select id="select_per_page" onchange="per_page()">
   <option>20 (default)</option>
   <option>10</option>
   <option>50</option>
   <option>100</option>
 </select>
-<select id="select_year" onchange="graph_months()" style="display: none">
-  <!--<option>all</option>-->
-</select>
+
 {% endblock %}

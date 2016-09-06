@@ -102,13 +102,12 @@ def world_time(txt):
         return 'mozliwy blad polaczenia z siecia'       # todo not needed here
     if g.geocode(miasto):
         place, (lat, lng) = g.geocode(miasto)
-        return {'lat': lat, 'lng': lng, 'place': place}
         timezone = g.timezone((lat, lng))
-        znak = u"\u00B0"
-        s = 'znaleziono: {} {}{}N {}{}E'.format(place, round(lat, 1), znak, abs(round(lng, 1)), znak)
-        s += '\nstrefa:' + timezone.zone.replace('/', ', ').replace('_', ' ')
-        now = datetime.datetime.now(pytz.timezone(timezone.zone))
-        s += now.strftime('%Y-%M-%d %A %H:%M:%S')
+        # znak = u"\u00B0"
+        # s = 'znaleziono: {} {}{}N {}{}E'.format(place, round(lat, 1), znak, abs(round(lng, 1)), znak)
+        # s += '\nstrefa:' + timezone.zone.replace('/', ', ').replace('_', ' ')
+        local_time = datetime.datetime.now(pytz.timezone(timezone.zone))
+        return {'lat': lat, 'lng': lng, 'place': place, 'time': local_time.strftime('%Y-%m-%d %A %H:%M:%S')}
     else:
         teraz = datetime.datetime.now()
         s = teraz.strftime('%H:%M:%S')

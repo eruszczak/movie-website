@@ -46,3 +46,4 @@ class EntryWatchListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Entry
         fields = ['watch_again_date']
+        # read_only_fields = ('watch_again_date', )
