@@ -33,9 +33,9 @@
 				<a href="{% url 'entry_show_from_director' id=director.id %}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>
 				{% endfor %}</li>
 			  {% if entry.votes != 'N/A' %}<li class="list-group-item">{{ entry.votes }} votes</li>{% endif %}
-			  <li class="list-group-item">current rating: {{ entry.rate }}</li>
+			  <li class="list-group-item">current rating: <a href="{% url 'entry_show_from_rate' rate=entry.rate %}">{{ entry.rate }}</a></li>
 			{% if entry.rate_imdb >= 1  %}<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>{% endif %}
-			<li class="list-group-item">rated on: {{ entry.rate_date|date:"d.m.Y" }}
+			<li class="list-group-item">rated on: <a href="{{ link_month }}">{{ entry.rate_date|date:"d.m.Y" }}</a>
 				{% if entry.yesterday_today_month %}
 					<span class="label {% if entry.yesterday_today_month == 'this month' %}label-info{% else %}label-warning{% endif %}">
 						{{ entry.yesterday_today_month }}

@@ -1,10 +1,11 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Entry, Genre, Archive, Season, Episode, Type, Director
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q
-from django.db.models import Count
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
+from django.db.models import Q, Count
+from chart.charts import distribution_by_year, chart_genres
+from .models import Entry, Genre, Archive, Type, Director
 import datetime
+import calendar
 
 
 def home(request):
@@ -73,7 +74,7 @@ def explore(request):
         elif request.POST.get('unwatch'):
             choosen_obj.watch_again_date = None
         choosen_obj.save()
-        return redirect(reverse('explore'))
+        return redirect(request.META.get('HTTP_REFERER'))
 
 
 def book(request):
@@ -85,7 +86,7 @@ def search(request):
 
 
 def about(request):
-    return render(request, 'about.html', {'archive': Archive.objects.all()})
+    return render(request, 'about.html')
 
 
 def entry_details(request, slug):
@@ -95,6 +96,8 @@ def entry_details(request, slug):
         context = {
             'entry': requested_obj,
             'archive': Archive.objects.filter(const=requested_obj.const).order_by('-rate_date'),
+            'link_month': reverse('entry_show_rated_in_month',
+                                  kwargs={'year': requested_obj.rate_date.year, 'month': requested_obj.rate_date.month})
         }
         return render(request, 'entry_details.html', context)
 
@@ -114,7 +117,6 @@ def entry_details_redirect(request, const):
 
 
 def entry_groupby_year(request):
-    from chart.charts import distribution_by_year
     context = {
         'year_count': Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
         'chart': distribution_by_year()
@@ -122,46 +124,12 @@ def entry_groupby_year(request):
     return render(request, 'entry_groupby_year.html', context)
 
 
-def entry_show_from_year(request, year):
-    context = {
-        'year': Entry.objects.filter(year=year).order_by('-rate', '-rate_imdb', '-votes'),
-        'what_year': year,
-    }
-    return render(request, 'entry_show_from_year.html', context)
-
-
-def entry_show_rated_in_month(request, year, month):
-    import calendar
-    context = {
-        'year': Entry.objects.filter(rate_date__year=year, rate_date__month=month),
-        'what_month_year': '{} {}'.format(calendar.month_name[int(month)], year),
-    }
-    return render(request, 'entry_show_rated_in_month.html', context)
-
-
 def entry_groupby_genre(request):
-    from chart.charts import chart_genres
     context = {
         'genre': Genre.objects.all().annotate(num=Count('entry')).order_by('-num'),
         'chart': chart_genres(),
     }
     return render(request, 'entry_groupby_genre.html', context)
-
-
-def entry_show_from_genre(request, genre):
-    context = {
-        'titles_from_genre': Genre.objects.get(name=genre).entry_set.all(),
-        'genre_name': genre,
-    }
-    return render(request, 'entry_show_from_genre.html', context)
-
-
-def entry_show_from_rate(request, rate):
-    context = {
-        'entry': Entry.objects.filter(rate=rate).order_by('-rate_date'),
-        'rate': rate,
-    }
-    return render(request, 'entry_show_from_rate.html', context)
 
 
 def entry_groupby_director(request):
@@ -172,12 +140,44 @@ def entry_groupby_director(request):
     return render(request, 'entry_groupby_director.html', context)
 
 
+def entry_show_from_year(request, year):
+    context = {
+        'ratings': Entry.objects.filter(year=year).order_by('-rate', '-rate_imdb', '-votes'),
+        'title': year,
+    }
+    return render(request, 'entry_show_from.html', context)
+
+
+def entry_show_rated_in_month(request, year, month):
+    context = {
+        'ratings': Entry.objects.filter(rate_date__year=year, rate_date__month=month),
+        'title': '{} {}'.format(calendar.month_name[int(month)], year),
+    }
+    return render(request, 'entry_show_from.html', context)
+
+
+def entry_show_from_genre(request, genre):
+    context = {
+        'ratings': Genre.objects.get(name=genre).entry_set.all(),
+        'title': genre,
+    }
+    return render(request, 'entry_show_from.html', context)
+
+
+def entry_show_from_rate(request, rate):
+    context = {
+        'ratings': Entry.objects.filter(rate=rate).order_by('-rate_date'),
+        'title': rate,
+    }
+    return render(request, 'entry_show_from.html', context)
+
+
 def entry_show_from_director(request, id):
     context = {
-        'titles_from_director': Director.objects.get(id=id).entry_set.all().order_by('-rate_date'),
-        'director_name': Director.objects.get(id=id).name,
+        'ratings': Director.objects.get(id=id).entry_set.all().order_by('-rate_date'),
+        'title': Director.objects.get(id=id).name,
     }
-    return render(request, 'entry_show_from_director.html', context)
+    return render(request, 'entry_show_from.html', context)
 
 
 def watchlist(request):
