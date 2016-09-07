@@ -58,15 +58,12 @@ def get_date(dateformat="%d-%m-%Y", adddays=0):
 
 
 def is_leap(varx):
-    # if przestepny or czy
-    match = re.search(r'(\d{4})[^0-9]*(\d{4})*', varx)        # todo {4}
-    # kiedy najblizszy przestepny
+    match = re.search(r'(\d{4})[^0-9]*(\d{4})*', varx)
+    rok = now.year
     if 'nastep' in varx or 'kolej' in varx:
-        for r in range(now.year + 1, 2050):         # todo bad
+        for r in range(now.year + 1, 2050):
             if calendar.isleap(r):
                 return 'nastepny rok przestepny jest w ' + str(r)
-    elif not match:
-        rok = now.year
     elif not match.group(2):
         rok = int(match.group(1))
     elif match.group(2):
@@ -80,7 +77,7 @@ def is_leap(varx):
                 li.append(y)
         li = ', '.join(map(str, li))
         return 'lata przestepne miedzy {}-{}: {} ({})'.format(rok, rok2, calendar.leapdays(rok, rok2 + 1), li)
-    return str(rok) + ' jest przestepny' if calendar.isleap(rok) else 'nie jest przestepny'
+    return str(rok) + ' jest przestepny' if calendar.isleap(rok) else str(rok) + ' nie jest przestepny'
 
 
 def world_time(txt):
@@ -90,10 +87,7 @@ def world_time(txt):
     g = geocoders.GoogleV3()
     if txt:
         miasto = txt
-        try:
-            geocode = g.geocode(miasto)
-        except:
-            return 'mozliwy blad polaczenia z siecia'
+        geocode = g.geocode(miasto)
         if geocode:
             place, (lat, lng) = g.geocode(miasto)
             timezone = g.timezone((lat, lng))
