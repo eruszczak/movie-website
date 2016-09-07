@@ -3,6 +3,7 @@ django-crispy-forms==1.6.0
 django-filter==0.14.0
 django-haystack==2.5.0
 djangorestframework==3.4.4
+djangorestframework-jsonp==1.0.2
 geopy==1.11.0
 Markdown==2.6.6
 Pillow==3.3.1

@@ -1,7 +1,7 @@
 $question = document.getElementsByName("q")[0]
 
 function school(link) {
-     $('#result-panel, .result-panel-heading, #inputQuery:focus').css('border-color', getRandomColor())
+     $('#result-panel, .result-panel-heading, #inputQuery:focus, .functionality').css('border-color', getRandomColor())
 
      var question = $question.value
      if (!question) { return }

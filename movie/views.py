@@ -35,13 +35,9 @@ def explore(request):
             entries = entries.filter(Q(type_id=Type.objects.get(name=selected_type).id))
         if query:
             if len(query) > 2:
-                entries = entries.filter(
-                    Q(name__icontains=query) | Q(year=query)
-                ).distinct()
+                entries = entries.filter(Q(name__icontains=query) | Q(year=query)).distinct()
             else:
-                entries = entries.filter(
-                    Q(name__startswith=query) | Q(year=query)
-                ).distinct()
+                entries = entries.filter(Q(name__startswith=query) | Q(year=query)).distinct()
 
         paginator = Paginator(entries, 50)
         page = request.GET.get('page')
@@ -53,7 +49,7 @@ def explore(request):
             ratings = paginator.page(paginator.num_pages)
 
         query_string = ''
-        if query or selected_type:
+        if query and selected_type:
             select_type = '?select_type={}'.format(selected_type)
             q = '&q={}'.format(query)
             query_string = select_type + q + '&page='
