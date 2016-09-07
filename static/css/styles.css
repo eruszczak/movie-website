@@ -209,3 +209,7 @@ textarea {
 .functionality-list {
     display: none;
 }
+
+.functionality {
+    margin-bottom: 5px;
+}

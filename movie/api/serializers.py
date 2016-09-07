@@ -12,7 +12,7 @@ class EntryListSerializer(serializers.ModelSerializer):
     # search_fields = ['title', 'content']                    # different way, built-in search
     class Meta:
         model = Entry
-        fields = 'name year genre director detail_url rate const watch_again_date'.split()
+        fields = 'name year genre director detail_url rate const watch_again_date rate_date'.split()
         # fields = '__all__'
 
     def get_genre(self, obj):
