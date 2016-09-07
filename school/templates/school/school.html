@@ -2,12 +2,11 @@
 {% block title %}school assignment{% endblock %}
 {% block content %}
 <div class="row">
-    <div id="query_info" class="alert alert-warning" role="alert"></div>
     <div class="col-md-8">
         <div class="row">
             <div class="col-md-12">
                 <div class="input-group">
-                  <input id="inputQuery" type="text" class="form-control" placeholder="ask question..." name='q' autofocus>
+                  <input id="inputQuery" type="text" class="form-control" placeholder="ask a question..." name='q' autofocus>
                   <span class="input-group-btn">
                     <button id="school" class="btn btn-default" type="button">Go!</button>
                   </span>
@@ -20,11 +19,9 @@
                   </div>
                 </div>
             </div>
-        <!--<div class="well well-sm">-->
-            <!--<span id="question"></span>-->
-            <!--<p id="answer"></p>-->
-        <!--</div>-->
-                <div class="col-md-12"><div id="map"></div></div>
+
+            <div class="col-md-12"><div id="map"></div></div>
+
     <div class="col-md-8">
         <p class="functionality text-center btn btn-default">Zapytania o czas</p>
         <ul class="list-group functionality-list">
@@ -102,6 +99,7 @@
     </div>
 
     <div class="col-md-4">
+        <div id="query_info" class="alert alert-warning" role="alert"></div>
         <div id="history" class=""></div>
     </div>
 </div>

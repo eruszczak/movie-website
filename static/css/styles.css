@@ -202,7 +202,9 @@ textarea {
     margin-top: 5px;
 }
 
-
+#answer {
+    display: none;
+}
 
 .functionality-list {
     display: none;

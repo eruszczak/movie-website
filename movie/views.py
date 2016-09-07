@@ -1,12 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Entry, Genre, Archive, Season, Episode, Type, Director
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.utils import timezone
 from django.db.models import Q
 from django.db.models import Count
 from django.core.urlresolvers import reverse
-from django.shortcuts import redirect
 import datetime
+
 
 def home(request):
     all_movies = Entry.objects.filter(type=Type.objects.get(name='movie').id)
@@ -27,39 +26,47 @@ def home(request):
 
 
 def explore(request):
-    entries = Entry.objects.all().order_by('-rate_date', '-inserted_date')
-    query = request.GET.get('q')
-    selected_type = request.GET.get('select_type')
+    if request.method == 'GET':
+        entries = Entry.objects.all().order_by('-rate_date', '-inserted_date')
+        query = request.GET.get('q')
+        selected_type = request.GET.get('select_type')
+        if selected_type in 'movie series'.split():
+            entries = entries.filter(Q(type_id=Type.objects.get(name=selected_type).id))
+        if query:
+            if len(query) > 2:
+                entries = entries.filter(
+                    Q(name__icontains=query) | Q(year=query)
+                ).distinct()
+            else:
+                entries = entries.filter(
+                    Q(name__startswith=query) | Q(year=query)
+                ).distinct()
 
-    if selected_type in 'movie series'.split():
-        entries = entries.filter(Q(type_id=Type.objects.get(name=selected_type).id))
-    if query:
-        if len(query) > 2:
-            entries = entries.filter(
-                Q(name__icontains=query) | Q(year=query)
-            ).distinct()
-        else:
-            entries = entries.filter(
-                Q(name__startswith=query) | Q(year=query)
-            ).distinct()
+        paginator = Paginator(entries, 50)
+        page = request.GET.get('page')
+        try:
+            ratings = paginator.page(page)
+        except PageNotAnInteger:
+            ratings = paginator.page(1)
+        except EmptyPage:
+            ratings = paginator.page(paginator.num_pages)
 
-    paginator = Paginator(entries, 50)
-    page = request.GET.get('page')
-    try:
-        ratings = paginator.page(page)
-    except PageNotAnInteger:
-        ratings = paginator.page(1)
-    except EmptyPage:
-        ratings = paginator.page(paginator.num_pages)
+        query_string = ''
+        if query or selected_type:
+            select_type = '?select_type={}'.format(selected_type)
+            q = '&q={}'.format(query)
+            query_string = select_type + q + '&page='
 
-    query_string = ''
-    if query or selected_type:
-        select_type = '?select_type={}'.format(selected_type)
-        q = '&q={}'.format(query)
-        query_string = select_type + q + '&page='
+        context = {
+            'ratings': ratings,
+            'archive': Archive.objects.all(),
+            'query': query,
+            'selected_type': selected_type,
+            'query_string': query_string,
+        }
+        return render(request, 'entry.html', context)
 
-    if request.POST:
-        print(request.POST)
+    if request.method == 'POST':
         choosen_obj = get_object_or_404(Entry, const=request.POST.get('const'))
         if request.POST.get('watch'):
             choosen_obj.watch_again_date = datetime.datetime.now()
@@ -67,15 +74,6 @@ def explore(request):
             choosen_obj.watch_again_date = None
         choosen_obj.save()
         return redirect(reverse('explore'))
-
-    context = {
-        'ratings': ratings,
-        'archive': Archive.objects.all(),
-        'query': query,
-        'selected_type': selected_type,
-        'query_string': query_string,
-    }
-    return render(request, 'entry.html', context)
 
 
 def book(request):
@@ -92,19 +90,21 @@ def about(request):
 
 def entry_details(request, slug):
     requested_obj = get_object_or_404(Entry, slug=slug)
-    if request.POST:
+
+    if request.method == 'GET':
+        context = {
+            'entry': requested_obj,
+            'archive': Archive.objects.filter(const=requested_obj.const).order_by('-rate_date'),
+        }
+        return render(request, 'entry_details.html', context)
+
+    if request.method == 'POST':
         if request.POST.get('watch'):
             requested_obj.watch_again_date = datetime.datetime.now()
         elif request.POST.get('unwatch'):
             requested_obj.watch_again_date = None
         requested_obj.save()
         return redirect(reverse('entry_details', kwargs={'slug': slug}))
-        # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    context = {
-        'entry': requested_obj,
-        'archive': Archive.objects.filter(const=requested_obj.const).order_by('-rate_date'),
-    }
-    return render(request, 'entry_details.html', context)
 
 
 def entry_details_redirect(request, const):
@@ -166,7 +166,6 @@ def entry_show_from_rate(request, rate):
 
 def entry_groupby_director(request):
     context = {
-        # directors of movies with counter of titles, top50 most watched
         'director': Director.objects.filter(entry__type=Type.objects.get(name='movie')
                                             ).annotate(num=Count('entry')).order_by('-num')[:50],
     }
@@ -182,15 +181,18 @@ def entry_show_from_director(request, id):
 
 
 def watchlist(request):
-    if request.POST:
+    if request.method == 'GET':
+        context = {
+            # 'ratings': Entry.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),todo isnull problem
+            'ratings': [e for e in Entry.objects.all() if e.watch_again_date],
+            'history': Archive.objects.filter(watch_again_date__isnull=False)
+        }
+        return render(request, 'watchlist.html', context)
+
+    if request.method == 'POST':
         choosen_obj = get_object_or_404(Entry, const=request.POST.get('const'))
         if request.POST.get('unwatch'):
             choosen_obj.watch_again_date = None
         choosen_obj.save()
         return redirect(reverse('watchlist'))
-    context = {
-        # 'ratings': Entry.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),
-        'ratings': [e for e in Entry.objects.all() if e.watch_again_date],
-        'history': Archive.objects.filter(watch_again_date__isnull=False)
-    }
-    return render(request, 'watchlist.html', context)
+

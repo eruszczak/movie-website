@@ -1,16 +1,13 @@
+$question = document.getElementsByName("q")[0]
+
 function school(link) {
      $('#result-panel, .result-panel-heading, #inputQuery:focus').css('border-color', getRandomColor())
-//     $('#inputQuery:focus').css('border-color', getRandomColor())
-     var question = document.getElementsByName("q")[0].value
+
+     var question = $question.value
      if (!question) { return }
      $('#question').html(question)
 
-     if ($('#map').is(":visible")) {
-        $('#map').hide()
-     }
-     if ($('#query_info').is(":visible")) {
-        $('#query_info').hide()
-     }
+    change_display()
 
      $.getJSON(link, {
           format: "json"
@@ -20,15 +17,15 @@ function school(link) {
             return
         }
         if (typeof data === 'object') {
-            initMap(data)
             $('#map').show()
+            initMap(data)
             data =  data.time
         }
         $('#answer').html(data)
         var item = $('<ul><li>' + question + '</li><li>' + data + '</li></ul>').hide().fadeIn(1000)
         $('#history').prepend(item)
      });
-     document.getElementsByName("q")[0].value = ''
+     $question.value = ''
 };
 
 function get_link() {
@@ -65,10 +62,6 @@ function initMap(data) {
 }
 
 
-document.getElementsByName("q")[0].value = 'time new york'  // todo
-
-
-
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -82,23 +75,23 @@ function getRandomColor() {
 
 
 
-
-
-
-
 $(".functionality").click(function () {
     $header = $(this);
-    //getting the next element
     $content = $header.next();
     console.log($header, $content)
-    //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
     $content.slideToggle(500, function () {
-        //execute this after slideToggle is done
-        //change text of header based on visibility of content div
-//        $header.text(function () {
-//            //change text based on condition
-//            return $content.is(":visible") ? "Collapse" : "Expand";
-//        });
     });
-
 });
+
+
+function change_display() {
+     if ($('#map').is(":visible")) {
+        $('#map').hide()
+     }
+     if ($('#query_info').is(":visible")) {
+        $('#query_info').hide()
+     }
+     if ($('#answer').is(":hidden")) {
+        $('#answer').fadeIn(1000)
+     }
+}
