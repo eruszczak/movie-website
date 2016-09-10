@@ -26,7 +26,18 @@ function graph_genres() {
                         dataLabels: {
                             enabled: true
                         },
-                        enableMouseTracking: false
+                        enableMouseTracking: true
+                    },
+                    series: {
+                        cursor: 'pointer',
+                        point: {
+                            events: {
+                                click: function () {
+                                    var url = '/genre/' + this.category
+                                    window.open(url, '_blank')
+                                }
+                            }
+                        }
                     }
                 },
                 series: [{
@@ -90,7 +101,19 @@ function graph_months() {
                         dataLabels: {
                             enabled: true
                         },
-                        enableMouseTracking: false
+                        enableMouseTracking: true
+                    },
+                    series: {
+                        cursor: 'pointer',
+                        point: {
+                            events: {
+                                click: function () {
+                                    var month_num = parseInt(this.index) + 1
+                                    var url = '/' + this.series.name + '/' + month_num
+                                    window.open(url, '_blank')
+                                }
+                            }
+                        }
                     }
                 },
                 tooltip: {
@@ -128,7 +151,18 @@ function graph_rated() {
                     dataLabels: {
                         enabled: true
                     },
-                    enableMouseTracking: false
+                    enableMouseTracking: true
+                },
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function () {
+                                var url = '/rated/' + this.category
+                                window.open(url, '_blank')
+                            }
+                        }
+                    }
                 }
             },
             series: [{
@@ -158,7 +192,18 @@ function graph_year() {
                     dataLabels: {
                         enabled: true
                     },
-                    enableMouseTracking: false
+                    enableMouseTracking: true
+                },
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function () {
+                                var url = '/year/' + this.category
+                                window.open(url, '_blank')
+                            }
+                        }
+                    }
                 }
             },
             series: [{
