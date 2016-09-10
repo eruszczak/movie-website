@@ -1,18 +1,17 @@
 import calendar
-from collections import OrderedDict
-from chart.charts import count_for_month_lists
 from datetime import datetime
+from collections import OrderedDict
+from utils.utils import build_url
+from chart.charts import count_for_month_lists
 
+from ..models import Entry, Genre
 from django.db.models import Q, Count
 
-from .serializers import EntryListSerializer, GenreListSerializer, EntryWatchListSerializer
-from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView
-from rest_framework.response import Response
-from ..models import Entry, Genre
-from .pagination import SetPagination
-# from django.shortcuts import get_object_or_404                                    in kwargs i can get details
 from rest_framework.reverse import reverse
-from utils.utils import build_url
+from rest_framework.response import Response
+from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView
+from .pagination import SetPagination
+from .serializers import EntryListSerializer, GenreListSerializer, EntryWatchListSerializer
 
 # links to directors
 # abs_url repeats
@@ -76,7 +75,6 @@ class Genre2(ListAPIView):
         return response
 
 class RateListView(ListAPIView):
-    # no serializer because rate don't have a model unlike genre
     def get(self, request, *args, **kwargs):
         abs_url = request.build_absolute_uri(reverse('api-movie:entry_list'))
         rate_count = Entry.objects.values('rate').annotate(the_count=Count('rate')).order_by('rate')
@@ -105,7 +103,9 @@ class MonthListView(ListAPIView):
             d[year] = OrderedDict(
                 (calendar.month_abbr[int(month.lstrip('0'))], {
                     'count': value,
-                    'details': build_url(abs_url, get={'rated_year': year, 'rated_month': month})})
+                    'details': build_url(abs_url, get={'rated_year': year, 'rated_month': month}),
+                    # 'link': reverse('entry_show_rated_in_month', kwargs={'year': year, 'month': month})
+                })
                 for value, month in count_per_month
             )
         response = Response(d)  # OrderedDict(reversed(d.items())))
