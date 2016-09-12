@@ -1,22 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-        <div class="row">
-            <p class="lead text-center">{{ genre|length }} genres found</p>
-            <hr>
-            {% for obj in genre %}
-                <div class="col-xs-4 col-md-2">
-                    <!--<p><a href="{% url 'entry_show_from_genre' genre=obj.name %}">{{ obj.name }} {{ obj.entry_set.count }}</a></p>-->
-<p><a href="{% url 'entry_show_from_genre' genre=obj.name %}" data-toggle="tooltip" data-placement="right" title="{{ obj.entry_set.count }} title{{ obj.entry_set.count|pluralize }}">
-    {{ obj.name }}</a><span class="visible-xs-inline"><small> ({{ obj.entry_set.count }})</small></span></p>
-                </div>
-            {% endfor %}
-        </div>
+<div class="row">
+    <p class="lead text-center">{{ genre|length }} genres found</p>
     <hr>
-        <div class="row">
-            <div class="col-md-8 col-md-offset-2">
-                <div class="visible-xs text-center">Rating distribution by year</div>
-                    {{ chart|safe }}
-                </div>
+    {% for obj in genre %}
+        <div class="col-xs-4 col-md-2">
+            <p><a href="{% url 'entry_show_from_genre' genre=obj.name %}"
+                  data-toggle="tooltip" data-placement="right"
+                  title="{{ obj.entry_set.count }} title{{ obj.entry_set.count|pluralize }}">{{ obj.name }}</a>
+                <span class="visible-xs-inline"><small> ({{ obj.entry_set.count }})</small></span>
+            </p>
         </div>
+    {% endfor %}
+</div>
+<hr>
+<div class="row">
+    <div class="col-md-12">
+        <div class="visible-xs text-center">Rating distribution by year</div>
+        <div id="include_graph_genre"></div>
+    </div>
+</div>
 {% endblock %}

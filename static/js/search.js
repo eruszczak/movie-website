@@ -33,37 +33,7 @@ function getResults(new_link = null, selected_per_page = false) {
     call_api(link);
 }
 
-//function call_api(link) {
-//    $(".search_content, #content table").empty()
-//    var data = get_api_data(link)
-//    $.each(data.results, function(count, item) {
-////            console.log(get_page, get_page_size, get_page*get_page_size, count)
-////            $('.search_content table tbody').append('<tr>' + '<td>' + get_page * get_page_size + count + 1 + '</td><td>' + item.name + '</td><td>' +
-////            item.rate + '</td></tr>')
-//        if (!item.watch_again_date) {
-//            var btn = 'w'
-//            var type = 'watch'
-//            var value = "don't want to see again"
-//        } else {
-//            var btn = 'un'
-//            var type = 'unwatch'
-//            var value = 'want to see again'
-//        }
-//        // <input type="button" id="buttonId" name="_mail" value="Enviar Mail">
-//         var input = '<button id="' + btn + '" class="btn btn-sm see-again-btn ' + type + '-btn" type="button">Go!</button>'
-////            var input = '<input id="' + btn + '" class="btn btn-sm see-again-btn ' + type + '-btn" type="button" value="' + value + '" />'
-//        $('#content table').append('<tr><td>' + item.name + '</td><td>' + input + '</td></tr>')
-//    });
-//    pagination(data)
-//    // custom ordering
-//    // search more options
-//    // allow only get
-//
-//    // can change type of graph
-//    $("a.previous").attr("href", data.previous);
-//    $("a.next").attr("href", data.next);
-//    $('.search_content').append(data.count)
-//}
+
 function call_api(link) {
     $(".search_content").empty();
     var get_page = /(?:\?page=)(\d+)/.exec(link)
@@ -79,18 +49,18 @@ function call_api(link) {
 //            console.log(get_page, get_page_size, get_page*get_page_size, count)
             var counter = get_page * get_page_size + count + 1
             var link = ' <a href="' + item.detail + '">' + item.name + '</a>'
-            if (item.watch_again_date) {
-                var btn = '<button type="button" class="test_put2 btn btn-sm see-again-btn unwatch-btn">dont want to see again</button>'
-            } else {
-                var btn = '<buttontype="button" class="test_put2 btn btn-sm see-again-btn watch-btn">want to see again</button>'
-            }
-            $('.search_content').append(counter, link + '<br>', btn)
+//            if (item.watch_again_date) {
+//                var btn = '<button type="button" class="test_put2 btn btn-sm see-again-btn unwatch-btn">dont want to see again</button>'
+//            } else {
+//                var btn = '<buttontype="button" class="test_put2 btn btn-sm see-again-btn watch-btn">want to see again</button>'
+//            }
+            $('.search_content').append(counter, link + '<br>')
         });
         pagination(data)
         // custom ordering
         // search more options
 
-        $('.search_content').append(data.count)
+        $('.search_content').append(data.count, ' results')
     });
 }
 

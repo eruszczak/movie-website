@@ -1,10 +1,4 @@
-function graph_genres() {
-    selectValues = { "1": "test 1", "2": "test 2" };
-    $("#mySelect").append(
-      $.map(selectValues, function(v,k) {
-         return $("<option>").val(k).text(v);
-      })
-    );
+function graph_genres(place='#graph') {
     link = '/api/g/'
      $.getJSON(link, {
           format: "json"
@@ -13,13 +7,16 @@ function graph_genres() {
             var values = $.map(data, function(dict) { return dict.the_count; });
             console.log(names)
             console.log(values)
-            $('#graph').highcharts({
+            $(place).highcharts({
                 title: {
                     text: 'Rating Distribution By Genre',
                     x: -20 //center
                 },
                 xAxis: {
                     categories: names
+                },
+                legend: {
+                    enabled: false
                 },
                 plotOptions: {
                     line: {
@@ -59,7 +56,7 @@ function graph_genres() {
             initialize_years = function(){}
         }
 
-function graph_months() {
+function graph_months(place='#graph') {
     $('#select_year').show()
     link = '/api/month/'
      $.getJSON(link, {
@@ -73,7 +70,7 @@ function graph_months() {
                 var values = $.map(data[years[i]], function(dict, month) { return dict.count });
                 series.push({name: years[i], data: values})
             }
-            $('#graph').highcharts({
+            $(place).highcharts({
                 chart: {
                     type: 'column'
                 },
@@ -112,32 +109,35 @@ function graph_months() {
                 tooltip: {
                     valueSuffix: ' ratings'
                 },
-                legend: {
-                    layout: 'vertical',
-                    align: 'right',
-                    verticalAlign: 'middle',
-                    borderWidth: 0
-                },
+//                legend: {
+//                    layout: 'vertical',
+//                    align: 'right',
+//                    verticalAlign: 'middle',
+//                    borderWidth: 0
+//                },
                 series: series
             });
         });
 };
 
 
-function graph_rated() {
+function graph_rated(place='#graph') {
     link = '/api/rated/'
     $.getJSON(link, {
         format: "json"
     }).done(function(data) {
         var values = $.map(data, function(dict) { return dict.the_count });
         var rates = $.map(data, function(dict) { return dict.rate });
-        $('#graph').highcharts({
+        $(place).highcharts({
             title: {
                 text: 'Rating Distribution',
                 x: -20 //center
             },
             xAxis: {
                 categories: rates
+            },
+            legend: {
+                enabled: false
             },
             plotOptions: {
                 line: {
@@ -165,20 +165,23 @@ function graph_rated() {
     })
 }
 
-function graph_year() {
+function graph_year(place='#graph') {
     link = '/api/year/'
     $.getJSON(link, {
         format: "json"
     }).done(function(data) {
         var values = $.map(data, function(dict) { return dict.the_count });
         var years = $.map(data, function(dict) { return dict.year });
-        $('#graph').highcharts({
+        $(place).highcharts({
             title: {
                 text: 'Rating Distribution By Year',
                 x: -20 //center
             },
             xAxis: {
                 categories: years
+            },
+            legend: {
+                enabled: false
             },
             plotOptions: {
                 line: {
@@ -207,3 +210,25 @@ function graph_year() {
 }
 
 
+$('#graph_rated').click(function() {
+    graph_rated()
+})
+$('#graph_year').click(function() {
+    graph_year()
+})
+$('#graph_months').click(function() {
+    graph_months()
+})
+$('#graph_genres').click(function() {
+    graph_genres()
+})
+
+/* display graphs for AllYears and AllGenres pages */
+$(function(){
+    if ($('div').is('#include_graph_genre')) {
+        graph_genres('#include_graph_genre')
+    }
+    if ($('div').is('#include_graph_year')) {
+        graph_year('#include_graph_year')
+    }
+});

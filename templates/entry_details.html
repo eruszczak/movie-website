@@ -14,11 +14,11 @@
 			{% if entry.watch_again_date %}
 				<input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
 					   value="don't want to see again" />
-				<button id="test_put" type="button" class="btn btn-sm see-again-btn unwatch-btn">don't want to see again</button>
+				<!--<button id="test_put" type="button" class="btn btn-sm see-again-btn unwatch-btn">don't want to see again</button>-->
 			{% else %}
 				<input id="watch" class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch"
 					   value="want to see again" />
-				<button id="test_put" type="button" class="btn btn-sm see-again-btn watch-btn">want to see again</button>
+				<!--<button id="test_put" type="button" class="btn btn-sm see-again-btn watch-btn">want to see again</button>-->
 			{% endif %}
 		</form>
 		<a id="watchlist-link" href="{% url 'watchlist' %}">see watchlist</a>

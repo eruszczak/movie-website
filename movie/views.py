@@ -5,7 +5,6 @@ from django.db.models import Q, Count
 from .models import Entry, Genre, Archive, Type, Director
 import datetime
 import calendar
-from chart.charts import distribution_by_year, chart_genres
 
 
 def paginate(query_set, page, page_size=50):
@@ -119,7 +118,6 @@ def entry_details_redirect(request, const):
 def entry_groupby_year(request):
     context = {
         'year_count': Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
-        'chart': distribution_by_year()
     }
     return render(request, 'entry_groupby_year.html', context)
 
@@ -127,7 +125,6 @@ def entry_groupby_year(request):
 def entry_groupby_genre(request):
     context = {
         'genre': Genre.objects.all().annotate(num=Count('entry')).order_by('-num'),
-        'chart': chart_genres(),
     }
     return render(request, 'entry_groupby_genre.html', context)
 
