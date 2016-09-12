@@ -66,19 +66,12 @@ function graph_months() {
           format: "json"
         }).done(function(data) {
             initialize_years(data)
-            var selected_year = $("#select_year option:selected").text().toString();
-            var months = $.map(data['2014'], function(dict, month) { return month });
-            var values = $.map(data[selected_year], function(dict, month) { return dict.count });
             var series = []
-            if (selected_year === 'all') {
-                $('#select_year option').each(function() {
-                    year = $(this).text()
-                    if (year === 'all') { return true }
-                    var values = $.map(data[year], function(dict, month) { return dict.count });
-                    series.push({name: year, data: values})
-                })
-            } else {
-                series.push({name: selected_year, data: values})
+            var months = $.map(data['2014'], function(dict, month) { return month });
+            var years = $.map(data, function(dict, year) { return year });
+            for (var i = 0; i < years.length; i += 1) {
+                var values = $.map(data[years[i]], function(dict, month) { return dict.count });
+                series.push({name: years[i], data: values})
             }
             $('#graph').highcharts({
                 chart: {

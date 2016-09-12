@@ -98,8 +98,18 @@ class MonthListView(ListAPIView):
     def get(self, request, *args, **kwargs):
         abs_url = request.build_absolute_uri(reverse('api-movie:entry_list'))
         d = {}  # OrderedDict()
+        t = {}
         for year in range(2014, datetime.now().year + 1):
             count_per_month = count_for_month_lists(year=year)
+            # for value, month in count_per_month:
+            #     t[month] = {
+            #         year: {
+            #             'count': value,
+            #             'link': build_url(abs_url, get={'rated_year': year, 'rated_month': month}),
+            #         },
+            #     }
+            # print(t[month])
+            # print(count_per_month)
             d[year] = OrderedDict(
                 (calendar.month_abbr[int(month.lstrip('0'))], {
                     'count': value,
@@ -128,4 +138,4 @@ class WatchAgainUpdateView(UpdateAPIView):
         else:
             instance.watch_again_date = None
         instance.save()
-        return Response(instance.watch_again_date)
+        return Response(instance)

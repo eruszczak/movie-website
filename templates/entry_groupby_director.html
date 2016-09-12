@@ -6,7 +6,7 @@
             <!--<p class="lead text-center">{{ director|length }} directors found</p>-->
             <p class="lead text-center">top50 directors</p>
             {% for obj in director %}
-                <p><a href="{% url 'entry_show_from_director' id=obj.id %}">{{ obj.name }} {{ obj.entry_set.count }}</a></p>
+                <p><a href="{% url 'entry_show_from_director' pk=obj.id %}">{{ obj.name }} {{ obj.entry_set.count }}</a></p>
             {% endfor %}
         </div>
     </div>

@@ -2,10 +2,21 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from django.db.models import Q, Count
-from chart.charts import distribution_by_year, chart_genres
 from .models import Entry, Genre, Archive, Type, Director
 import datetime
 import calendar
+from chart.charts import distribution_by_year, chart_genres
+
+
+def paginate(query_set, page, page_size=50):
+    paginator = Paginator(query_set, page_size)
+    try:
+        ratings = paginator.page(page)
+    except PageNotAnInteger:
+        ratings = paginator.page(1)
+    except EmptyPage:
+        ratings = paginator.page(paginator.num_pages)
+    return ratings
 
 
 def home(request):
@@ -39,14 +50,8 @@ def explore(request):
             else:
                 entries = entries.filter(Q(name__startswith=query) | Q(year=query)).distinct()
 
-        paginator = Paginator(entries, 50)
         page = request.GET.get('page')
-        try:
-            ratings = paginator.page(page)
-        except PageNotAnInteger:
-            ratings = paginator.page(1)
-        except EmptyPage:
-            ratings = paginator.page(paginator.num_pages)
+        ratings = paginate(entries, page)
 
         query_string = ''
         if query and selected_type:
@@ -87,7 +92,6 @@ def about(request):
 
 def entry_details(request, slug):
     requested_obj = get_object_or_404(Entry, slug=slug)
-
     if request.method == 'GET':
         context = {
             'entry': requested_obj,
@@ -130,48 +134,62 @@ def entry_groupby_genre(request):
 
 def entry_groupby_director(request):
     context = {
-        'director': Director.objects.filter(entry__type=Type.objects.get(name='movie')
-                                            ).annotate(num=Count('entry')).order_by('-num')[:50],
+        'director': Director.objects.filter(entry__type=Type.objects.get(name='movie')).annotate(num=Count('entry')).order_by('-num')[:50],
     }
     return render(request, 'entry_groupby_director.html', context)
 
 
 def entry_show_from_year(request, year):
+    entries = Entry.objects.filter(year=year).order_by('-rate', '-rate_imdb', '-votes')
+    page = request.GET.get('page')
+    ratings = paginate(entries, page)
     context = {
-        'ratings': Entry.objects.filter(year=year).order_by('-rate', '-rate_imdb', '-votes'),
+        'ratings': ratings,
         'title': year,
     }
     return render(request, 'entry_show_from.html', context)
 
 
 def entry_show_rated_in_month(request, year, month):
+    entries = Entry.objects.filter(rate_date__year=year, rate_date__month=month)
+    page = request.GET.get('page')
+    ratings = paginate(entries, page)
     context = {
-        'ratings': Entry.objects.filter(rate_date__year=year, rate_date__month=month),
+        'ratings': ratings,
         'title': '{} {}'.format(calendar.month_name[int(month)], year),
     }
     return render(request, 'entry_show_from.html', context)
 
 
 def entry_show_from_genre(request, genre):
+    entries = Genre.objects.get(name=genre).entry_set.all()
+    page = request.GET.get('page')
+    ratings = paginate(entries, page)
     context = {
-        'ratings': Genre.objects.get(name=genre).entry_set.all(),
+        'ratings': ratings,
         'title': genre,
     }
     return render(request, 'entry_show_from.html', context)
 
 
 def entry_show_from_rate(request, rate):
+    entries = Entry.objects.filter(rate=rate).order_by('-rate_date')
+    page = request.GET.get('page')
+    ratings = paginate(entries, page)
     context = {
-        'ratings': Entry.objects.filter(rate=rate).order_by('-rate_date'),
+        'ratings': ratings,
         'title': rate,
     }
     return render(request, 'entry_show_from.html', context)
 
 
-def entry_show_from_director(request, id):
+def entry_show_from_director(request, pk):
+    entries = Director.objects.get(id=pk).entry_set.all().order_by('-rate_date')
+    page = request.GET.get('page')
+    ratings = paginate(entries, page)
     context = {
-        'ratings': Director.objects.get(id=id).entry_set.all().order_by('-rate_date'),
-        'title': Director.objects.get(id=id).name,
+        'ratings': ratings,
+        'title': Director.objects.get(id=pk).name,
     }
     return render(request, 'entry_show_from.html', context)
 

@@ -56,15 +56,28 @@ $(document).ready(function() {
 //    });
 
     $('#test_put').click(function() {
-        console.log('xx')
+        var resource_name = $(location).attr('pathname').split('/')[2];
         $.ajax({
-            url : '/api/update/cro-minion-2015/',
             type: "PUT",
-//            dataType : "json",
-            success: function( data ){
+            url : '/api/update/' + resource_name + '/',
+            dataType : "json",
+            success: function( data ) {
             }
         });
         window.location.reload(true);
+    })
+
+    $('.test_put2').click(function() {
+        console.log('x')
+//        var resource_name = $(location).attr('pathname').split('/')[2];
+//        $.ajax({
+//            type: "PUT",
+//            url : '/api/update/' + resource_name + '/',
+//            dataType : "json",
+//            success: function( data ) {
+//            }
+//        });
+//        window.location.reload(true);
     })
 });
 
