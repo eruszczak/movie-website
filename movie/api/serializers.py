@@ -7,12 +7,13 @@ class EntryListSerializer(serializers.ModelSerializer):
     genre = serializers.SerializerMethodField()
     director = serializers.SerializerMethodField()
     detail_url = serializers.HyperlinkedIdentityField(view_name='api-movie:entry_detail', lookup_field='slug')
+    detail = serializers.HyperlinkedIdentityField(view_name='entry_details', lookup_field='slug')
     # detail_page = serializers.URLField(source='get_absolute_url')
     # filter_backends = [SearchFilter, OrderingFilter]        # /?search=, &ordering=-date
     # search_fields = ['title', 'content']                    # different way, built-in search
     class Meta:
         model = Entry
-        fields = 'name year genre director detail_url rate const watch_again_date rate_date'.split()
+        fields = 'name year genre director detail_url rate const watch_again_date rate_date detail'.split()
         # fields = '__all__'
 
     def get_genre(self, obj):
@@ -43,6 +44,7 @@ class GenreListSerializer(serializers.ModelSerializer):
 
 
 class EntryWatchListSerializer(serializers.ModelSerializer):
+    watch_again_date = serializers.ReadOnlyField()
     class Meta:
         model = Entry
         fields = ['watch_again_date']

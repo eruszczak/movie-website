@@ -77,29 +77,19 @@ function call_api(link) {
     }).done(function(data) {
         $.each(data.results, function(count, item) {
 //            console.log(get_page, get_page_size, get_page*get_page_size, count)
-            $('.search_content').append(get_page * get_page_size + count + 1, item.name + '<br>')
-        });
-        if (data.previous === null && data.next === null) {
-            $('#pagination').hide()
-        } else {
-            $('#pagination').show()
-            if (data.previous === null) {
-                $('.previous').hide()
+            var counter = get_page * get_page_size + count + 1
+            var link = ' <a href="' + item.detail + '">' + item.name + '</a>'
+            if (item.watch_again_date) {
+                var btn = '<button type="button" class="test_put2 btn btn-sm see-again-btn unwatch-btn">dont want to see again</button>'
             } else {
-                $('.previous').show()
+                var btn = '<buttontype="button" class="test_put2 btn btn-sm see-again-btn watch-btn">want to see again</button>'
             }
-            if (data.next === null) {
-                $('.next').hide()
-            } else if (data.next) {
-                $('.next').show()
-            }
-        }
-        // get page size so user can chagne it ?per_page=10
+            $('.search_content').append(counter, link + '<br>', btn)
+        });
+        pagination(data)
         // custom ordering
         // search more options
-        // allow only get
-        $("a.previous").attr("href", data.previous);
-        $("a.next").attr("href", data.next);
+
         $('.search_content').append(data.count)
     });
 }
@@ -137,6 +127,8 @@ function pagination(data) {
             $('.next').show()
         }
     }
+    $("a.previous").attr("href", data.previous);
+    $("a.next").attr("href", data.next);
 }
 
 $("a.next, a.previous").on('click', function() {

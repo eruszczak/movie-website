@@ -146,7 +146,7 @@ textarea {
     overflow: hidden;
 }
 
-.fa-star {
+.fa-star, .fa-star-o {
     color: orange;
 }
 
@@ -157,12 +157,12 @@ textarea {
 }
 
 .watch-btn {
-    margin: 15px 0 8px 50px;
+    /*margin: 15px 0 8px 50px;*/
     background-color: #2196F3;
 }
 
 .unwatch-btn {
-    margin: 15px 0 8px 33px;
+    /*margin: 15px 0 8px 33px;*/
     background-color: #E65100;
 }
 
