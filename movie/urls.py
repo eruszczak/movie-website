@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^watchlist/$', views.watchlist, name='watchlist'),
 
     url(r'^title/(?P<slug>[\w-]+)/$', views.entry_details, name='entry_details'),
+    url(r'^title/(?P<slug>[\w-]+)/edit/$', views.entry_edit, name='entry_edit'),
     url(r'^id/(?P<const>tt\d{7})/$', views.entry_details_redirect, name='entry_details_redirect'),
 
     url(r'^year/$', views.entry_groupby_year, name='entry_groupby_year'),

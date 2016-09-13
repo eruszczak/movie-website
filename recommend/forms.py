@@ -1,11 +1,11 @@
 from django import forms
-
-from .models import Recommendation
-from movie.models import Entry
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from django.utils import timezone
-# from django.utils.translation import ugettext_lazy as _
+
+import re
+from movie.models import Entry
+from .models import Recommendation
 from prepareDB_utils import getOMDb
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Div, Field
@@ -46,7 +46,6 @@ class RecommendForm(forms.ModelForm):
         fields = ['const', 'nick', 'note']
 
     def clean_const(self):
-        import re
         if Recommendation.objects.filter(date=timezone.now()).count() >= 5:
             raise forms.ValidationError('Today has been already recommended more than 5 titles')
 
