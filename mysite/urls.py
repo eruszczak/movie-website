@@ -12,10 +12,10 @@ urlpatterns = [
     url(r'^book/', include('book.urls')),
     url(r'^search/', include('haystack.urls')),
 
-    url(r'^api/', include('movie.api.urls')),
+    url(r'^api/', include('movie.api.urls', namespace='api-movie')),
 
     url(r'^school/', include('school.urls')),
-    url(r'^api-school/', include('school.api.urls')),
+    url(r'^api-school/', include('school.api.urls', namespace='api-school')),
 
     # url(r'^login/', '', name='login'),
     # url(r'^register/', '', name='register'),
