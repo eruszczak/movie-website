@@ -157,6 +157,5 @@ REST_FRAMEWORK = {
 
 CORS_ORIGIN_WHITELIST = (
     'google.com',
-    'github.io',
-    'codepen.io',
+    'kierrez.github.io',
 )
