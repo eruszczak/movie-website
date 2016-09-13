@@ -13,15 +13,10 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView
 from .pagination import SetPagination
 from .serializers import EntryListSerializer, GenreListSerializer, EntryWatchListSerializer
 
-# links to directors
-# abs_url repeats
-# views no serialized are almost the same..
-# let multiple parameters at once
-# search, ordering fields
+
 class EntryListView(ListAPIView):
     serializer_class = EntryListSerializer
-    # queryset = Entry.objects.all()
-    pagination_class = SetPagination    # http://127.0.0.1:8000/api/?per_page=10
+    pagination_class = SetPagination
 
     def get_queryset(self):
         queryset = Entry.objects.all().order_by('-rate_date', '-inserted_date')
@@ -56,7 +51,6 @@ class EntryDetailView(RetrieveAPIView):
     queryset = Entry.objects.all()
     serializer_class = EntryListSerializer
     lookup_field = 'slug'
-    # print(self.kwargs)
 
 
 class GenreListView(ListAPIView):
@@ -73,6 +67,7 @@ class Genre2(ListAPIView):
             obj['details'] = build_url(abs_url, get={'genre': obj['name']})
         response = Response(genre_count)
         return response
+
 
 class RateListView(ListAPIView):
     def get(self, request, *args, **kwargs):
@@ -98,7 +93,7 @@ class MonthListView(ListAPIView):
     def get(self, request, *args, **kwargs):
         abs_url = request.build_absolute_uri(reverse('api-movie:entry_list'))
         d = {}  # OrderedDict()
-        t = {}
+        # t = {} todo
         for year in range(2014, datetime.now().year + 1):
             count_per_month = count_for_month_lists(year=year)
             # for value, month in count_per_month:
@@ -131,7 +126,6 @@ class WatchAgainUpdateView(UpdateAPIView):
         return Response(self.get_object().watch_again_date)
 
     def update(self, request, *args, **kwargs):
-        # it doesnt show date at all. for titles on watchlist and rest
         instance = self.get_object()
         if not instance.watch_again_date:
             instance.watch_again_date = datetime.now()

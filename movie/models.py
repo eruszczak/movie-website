@@ -52,6 +52,9 @@ class Entry(models.Model):
     img = models.ImageField(null=True, blank=True)
     watch_again_date = models.DateField(blank=True, null=True)
 
+    def __str__(self):
+        return '{} {}'.format(self.name, self.year)
+
     def get_absolute_url(self):
         return reverse('entry_details', kwargs={'slug': self.slug})
 

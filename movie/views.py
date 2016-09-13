@@ -2,7 +2,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from django.db.models import Q, Count
+from django.contrib import messages
 from .models import Entry, Genre, Archive, Type, Director
+from .forms import EditEntry
 import datetime
 import calendar
 
@@ -109,10 +111,38 @@ def entry_details(request, slug):
         return redirect(reverse('entry_details', kwargs={'slug': slug}))
 
 
+def entry_edit(request, slug):
+    requested_obj = get_object_or_404(Entry, slug=slug)
+    form = EditEntry(instance=requested_obj)
+    if request.method == 'POST':
+        form = EditEntry(request.POST)
+        if form.is_valid():
+            new_rate = form.cleaned_data.get('rate')
+            new_date = form.cleaned_data.get('rate_date')
+            message = ''
+            if requested_obj.rate != int(new_rate):
+                message += 'rating: {} changed for {}'.format(requested_obj.rate, new_rate)
+                requested_obj.rate = new_rate
+            if requested_obj.rate_date != new_date:
+                message += ', ' if message else ''
+                message += 'date: {} changed for {}'.format(requested_obj.rate_date, new_date)
+                requested_obj.rate_date = new_date
+            if message:
+                messages.success(request, message, extra_tags='alert-success')
+            else:
+                messages.info(request, 'nothing changed', extra_tags='alert-info')
+            requested_obj.save(update_fields=['rate', 'rate_date'])
+            return redirect(requested_obj)
+    context = {
+        'form': form,
+        'entry': requested_obj,
+    }
+    return render(request, 'entry_edit.html', context)
+
+
 def entry_details_redirect(request, const):
     requested_obj = get_object_or_404(Entry, const=const)
-    if requested_obj:
-        return redirect(requested_obj)
+    return redirect(requested_obj)
 
 
 def entry_groupby_year(request):

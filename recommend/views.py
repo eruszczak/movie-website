@@ -21,12 +21,13 @@ def recommend(request):
         instance.save()
         messages.success(request, 'added recommendation', extra_tags='alert-success')
         return redirect(reverse("recommend"))
+    recommended_today = Recommendation.objects.filter(date=timezone.now()).count()
     context = {
         'obj_list': Recommendation.objects.all().order_by('-date_insert'),
         'form': form,
         'count': {
-            'today': Recommendation.objects.filter(date=timezone.now()).count(),
-            'today2': Recommendation.objects.filter(date=timezone.now()).count() * 2
+            'today': recommended_today,
+            'today2': recommended_today * 2
         },
     }
     return render(request, 'recommend/home.html', context)
