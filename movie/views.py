@@ -1,23 +1,12 @@
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from django.db.models import Q, Count
 from django.contrib import messages
 from .models import Entry, Genre, Archive, Type, Director
 from .forms import EditEntry
+from utils.utils import paginate
 import datetime
 import calendar
-
-
-def paginate(query_set, page, page_size=50):
-    paginator = Paginator(query_set, page_size)
-    try:
-        ratings = paginator.page(page)
-    except PageNotAnInteger:
-        ratings = paginator.page(1)
-    except EmptyPage:
-        ratings = paginator.page(paginator.num_pages)
-    return ratings
 
 
 def home(request):
@@ -114,6 +103,7 @@ def entry_details(request, slug):
 def entry_edit(request, slug):
     requested_obj = get_object_or_404(Entry, slug=slug)
     form = EditEntry(instance=requested_obj)
+    print(request.user)
     if request.method == 'POST':
         form = EditEntry(request.POST)
         if form.is_valid():
