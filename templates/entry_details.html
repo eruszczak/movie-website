@@ -66,7 +66,7 @@
 				<tr class="text-primary" style="font-weight: bold">
 					<td class="">{{ entry.rate_date|date:"Y-m-d" }}</td>
 					<td class="col-md-4 text-center">{{ entry.rate }}</td>
-					<td class="col-md-4 text-center">{{ entry.rate_date|timesince }}</td>
+					<td class="col-md-4 text-center">{{ entry.timesince_rating }}</td>
 				</tr>
 			{% for a in archive %}
 				<tr>

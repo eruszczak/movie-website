@@ -33,6 +33,9 @@
                 </tbody>
                 {{ list_dicts }}
             </table>
+            {% if ratings.paginator.num_pages > 1 %}
+                {% include 'paginator.html' %}
+            {% endif %}
         </div>
     </div>
 {% endblock %}

@@ -12,7 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'k2r@=*7hx$v!+pnk3v**x^j52p82!t_v%nr2kt!)o99d(98l_x'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'kierrez.pythonanywhere.com']
 
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'chart',
     'watchlist',
     'book',
+    'users',
 
     'school',
 ]
