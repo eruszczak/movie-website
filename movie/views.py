@@ -59,6 +59,10 @@ def explore(request):
         return render(request, 'entry.html', context)
 
     if request.method == 'POST':
+        if not request.user.is_superuser:
+            messages.info(request, 'Only admin can do this', extra_tags='alert-info')
+            return redirect(reverse('explore'))
+
         choosen_obj = get_object_or_404(Entry, const=request.POST.get('const'))
         if request.POST.get('watch'):
             choosen_obj.watch_again_date = datetime.datetime.now()
@@ -92,6 +96,10 @@ def entry_details(request, slug):
         return render(request, 'entry_details.html', context)
 
     if request.method == 'POST':
+        if not request.user.is_superuser:
+            messages.info(request, 'Only admin can edit', extra_tags='alert-info')
+            return redirect(requested_obj)
+
         if request.POST.get('watch'):
             requested_obj.watch_again_date = datetime.datetime.now()
         elif request.POST.get('unwatch'):
@@ -102,8 +110,11 @@ def entry_details(request, slug):
 
 def entry_edit(request, slug):
     requested_obj = get_object_or_404(Entry, slug=slug)
+    if not request.user.is_superuser:
+        messages.info(request, 'Only admin can edit', extra_tags='alert-info')
+        return redirect(requested_obj)
+
     form = EditEntry(instance=requested_obj)
-    print(request.user)
     if request.method == 'POST':
         form = EditEntry(request.POST)
         if form.is_valid():
