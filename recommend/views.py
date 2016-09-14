@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
-
 from .forms import RecommendForm
 from .models import Recommendation
 
@@ -10,17 +9,18 @@ from django.utils import timezone
 
 
 def recommend(request):
-    form = RecommendForm(request.POST or None)
-    if form.is_valid():
-        instance = form.save(commit=False)
-        const = form.cleaned_data.get('const')
-        json = getOMDb(const)
-        if json:
-            instance.name = json['Title']
-            instance.year = json['Year'][:4]
-        instance.save()
-        messages.success(request, 'added recommendation', extra_tags='alert-success')
-        return redirect(reverse("recommend"))
+    form = RecommendForm(initial={'nick': request.user.username})
+    if request.method == 'POST':
+        form = RecommendForm(request.POST)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            json = getOMDb(instance.const)
+            if json:
+                instance.name = json['Title']
+                instance.year = json['Year'][:4]
+            instance.save()
+            messages.success(request, 'added recommendation', extra_tags='alert-success')
+            return redirect(reverse("recommend"))
     recommended_today = Recommendation.objects.filter(date=timezone.now()).count()
     context = {
         'obj_list': Recommendation.objects.all().order_by('-date_insert'),

@@ -9,18 +9,20 @@
 <div class="row">
 	<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
 		<img class="img-responsive img-thumbnail" src="{% if entry.img %}{{ entry.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-		<form action="" method="post">
-			{% csrf_token %}
-			{% if entry.watch_again_date %}
-				<input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
-					   value="don't want to see again" />
-				<!--<button id="test_put" type="button" class="btn btn-sm see-again-btn unwatch-btn">don't want to see again</button>-->
-			{% else %}
-				<input id="watch" class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch"
-					   value="want to see again" />
-				<!--<button id="test_put" type="button" class="btn btn-sm see-again-btn watch-btn">want to see again</button>-->
-			{% endif %}
-		</form>
+		{% if user.is_superuser %}
+			<form action="" method="post">
+				{% csrf_token %}
+				{% if entry.watch_again_date %}
+					<input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
+						   value="don't want to see again" />
+					<!--<button id="test_put" type="button" class="btn btn-sm see-again-btn unwatch-btn">don't want to see again</button>-->
+				{% else %}
+					<input id="watch" class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch"
+						   value="want to see again" />
+					<!--<button id="test_put" type="button" class="btn btn-sm see-again-btn watch-btn">want to see again</button>-->
+				{% endif %}
+			</form>
+		{% endif %}
 		<a id="watchlist-link" href="{% url 'watchlist' %}">see watchlist</a>
 	</div>
 
