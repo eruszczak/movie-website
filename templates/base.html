@@ -15,32 +15,17 @@
 	<link rel="stylesheet" href="{% static 'css/styles.css' %}">
 	<link rel="stylesheet" href="{% static 'css/animate.css' %}">
 	<link rel="stylesheet" href="{% static 'css/morphext.css' %}">
-
-
-
-
-
 </head>
 
 <body>
-	<!--{% block navbar %}-->
-		{% include 'navbar.html' %}
-	<!--{% endblock %}-->
+	{% include 'navbar.html' %}
 	{% block image %}
 	{% endblock %}
-<!-- 		<div class="col-sm-12">
-			<div class="header">
-				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam<p id="author">heh</p></p><cite>Marilyn Monroe</cite>
-				</div>
-			</div>
-		</div>
-	-->
 	<div class="container">
 	{% if messages %}
 		{% for message in messages %}
-		<div{% if message.tags %} class="alert {{ message.tags }}"{% endif %}>
-		  <strong>{% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}success!{% endif %}</strong> {{ message }}
+		<div{% if message.tags %} class="alert {{ message.tags }}"{% endif %} style="margin-top: 10px;">
+		  {{ message }}
 		</div>
 		{% endfor %}
 		<hr>
