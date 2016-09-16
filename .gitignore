@@ -5,8 +5,9 @@ env/
 
 *.sqlite3
 todo
-info.py
+mysite/settings/info.py
 posters/
 #migrations/
 mysite/static/
 *.zip
+/mysite/settings/__init__.py
