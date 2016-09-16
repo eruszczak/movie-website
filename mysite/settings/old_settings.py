@@ -18,20 +18,23 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'kierrez.pythonanywhere.com']
 
 
 # Application definition
-
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+]
 
+EXTERNAL_APPS = [
     'crispy_forms',
     'haystack',
     'rest_framework',
     'corsheaders',
+]
 
+LOCAL_APPS = [
     'movie',
     'recommend',
     'chart',
@@ -41,6 +44,8 @@ INSTALLED_APPS = [
 
     'school',
 ]
+
+INSTALLED_APPS = DJANGO_APPS + EXTERNAL_APPS + LOCAL_APPS
 
 MIDDLEWARE_CLASSES = [
     'corsheaders.middleware.CorsMiddleware',
@@ -61,7 +66,7 @@ ROOT_URLCONF = 'mysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, '../../templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -83,7 +88,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, '../../db.sqlite3'),
     },
     # 'default': {
     #     'NAME': 'app_data',
@@ -132,12 +137,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "../../static"),
 ]
-STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static_cdn')
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), '../../../static_cdn')
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media_cdn")
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "../../../media_cdn")
 
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'

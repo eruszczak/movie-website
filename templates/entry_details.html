@@ -5,121 +5,127 @@
 
 <div class="row" style="margin-top:-35px;">
 	<div class="col-md-12">
-<h1 class="page-header text-center">{{ entry.name }}</h1>
-<div class="row">
-	<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
-		<img class="img-responsive img-thumbnail" src="{% if entry.img %}{{ entry.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-		{% if user.is_superuser %}
-			<form action="" method="post">
-				{% csrf_token %}
-				{% if entry.watch_again_date %}
-					<input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
-						   value="don't want to see again" />
-					<!--<button id="test_put" type="button" class="btn btn-sm see-again-btn unwatch-btn">don't want to see again</button>-->
-				{% else %}
-					<input id="watch" class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch"
-						   value="want to see again" />
-					<!--<button id="test_put" type="button" class="btn btn-sm see-again-btn watch-btn">want to see again</button>-->
-				{% endif %}
-			</form>
-		{% endif %}
-		<a id="watchlist-link" href="{% url 'watchlist' %}">see watchlist</a>
-	</div>
-
-	<div class="col-xs-6 col-sm-3 col-md-3">
-		<ul class="list-group" style="margin-left: -10px">
-			<li class="list-group-item"><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></li>
-			<li class="list-group-item">{% for genre in entry.genre.all %}
-				<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}<br></a>
-				{% endfor %}</li>
-			<li class="list-group-item">{% for director in entry.director.all %}
-				<a href="{% url 'entry_show_from_director' pk=director.id %}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>
-				{% endfor %}</li>
-			  {% if entry.votes != 'N/A' %}<li class="list-group-item">{{ entry.votes }} votes</li>{% endif %}
-			  <li class="list-group-item">current rating: <a href="{% url 'entry_show_from_rate' rate=entry.rate %}">{{ entry.rate }}</a></li>
-			{% if entry.rate_imdb >= 1  %}<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>{% endif %}
-			<li class="list-group-item">rated on: <a href="{{ link_month }}">{{ entry.rate_date|date:"d.m.Y" }}</a>
-				{% if entry.yesterday_today_month %}
-					<span class="label {% if entry.yesterday_today_month == 'this month' %}label-info{% else %}label-warning{% endif %}">
-						{{ entry.yesterday_today_month }}
-					</span>
-				{% endif %}
-			</li>
-		</ul>
-	</div>
-</div>
-<div class="row">
-	<div class="col-xs-10 col-xs-offset-1"><br>
-		<div class="progress">
-			<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ entry.rate }}0%">
-			{{ entry.rate }}/10<span class="sr-only">40% Complete (success)</span>
-		  </div></div>
-		{{ entry.plot }}
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-xs-2"></div>
-	<div class="col-xs-5 1">
-	{% if archive %}
-		<div class="history">
-			<p class="lead"><br>History of ratings:</p>
-			<table class="table-bordered table-condensed">
-				<tr class="text-primary" style="font-weight: bold">
-					<td class="">{{ entry.rate_date|date:"Y-m-d" }}</td>
-					<td class="col-md-4 text-center">{{ entry.rate }}</td>
-					<td class="col-md-4 text-center">{{ entry.timesince_rating }}</td>
-				</tr>
-			{% for a in archive %}
-				<tr>
-					<td class="">{{ a.rate_date|date:"Y-m-d" }}</td>
-					<td class="text-center">{{ a.rate }}</td>
-					<td class="text-center">duration: {{ a.days_since_previous_rating }} days</td>
-				</tr>
-			{% endfor %}
-			</table>
+		<div class="page-header">
+			<h1 class="text-center">{{ entry.name }}</h1>
 		</div>
-	{% endif %}
-	</div>
-	<div class="col-xs-5">
-		<p class="lead"><br>Find out more:</p>
-		<ul>
-			<li><a href="{{ entry.url_imdb }}">imdb</a></li>
-			<li><a href="{{ entry.url_tomato }}">rotten tomatoes</a></li>
-			<li><a href="{% url 'entry_details_redirect' const=entry.const %}">shorter link</a></li>
-		</ul>
-
-	</div>
-</div>
-
-
-{% comment %}
-<br>
-{% if episodes %}
-	<div class="row">
-		<div class="col-xs-7">
-			{% for season, eps in episodes %}
-			<div id="accordion" role="tablist" aria-multiselectable="true">
-			  <div class="panel panel-default">
-				<div class="panel-heading" role="tab" id="heading{{season}}">
-				  <h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{season}}" aria-expanded="true" aria-controls="collapse{{season}}">
-					  season {{ season }}
-					</a>
-				  </h4>
-				</div>
-				<div id="collapse{{season}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{season}}">
-					{% for e in eps %}
-						{{ e.number }} {{ e.name }} <br>
-					{% endfor %}
-				</div>
-			  </div>
+		<div class="row">
+			<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
+				<img class="img-responsive img-thumbnail" src="{% if entry.img %}{{ entry.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
 			</div>
-				{% endfor %}
+
+			<div class="col-xs-6 col-sm-3 col-md-3">
+				<ul class="list-group" style="margin-left: -10px">
+					<li class="list-group-item"><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></li>
+					<li class="list-group-item">{% for genre in entry.genre.all %}
+						<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}<br></a>
+						{% endfor %}</li>
+					<li class="list-group-item">{% for director in entry.director.all %}
+						<a href="{% url 'entry_show_from_director' pk=director.id %}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>
+						{% endfor %}</li>
+					  {% if entry.votes != 'N/A' %}<li class="list-group-item">{{ entry.votes }} votes</li>{% endif %}
+					  <li class="list-group-item">current rating: <a href="{% url 'entry_show_from_rate' rate=entry.rate %}">{{ entry.rate }}</a></li>
+					{% if entry.rate_imdb >= 1  %}<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>{% endif %}
+					<li class="list-group-item">rated on: <a href="{{ link_month }}">{{ entry.rate_date|date:"d.m.Y" }}</a>
+						{% if entry.yesterday_today_month %}
+							<span class="label {% if entry.yesterday_today_month == 'this month' %}label-info{% else %}label-warning{% endif %}">
+								{{ entry.yesterday_today_month }}
+							</span>
+						{% endif %}
+					</li>
+					{% if user.is_superuser %}
+					<li class="list-group-item">
+						<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>
+						<form action="" method="post">
+							{% csrf_token %}
+							{% if entry.watch_again_date %}
+							<input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
+									   value="don't want to see again" />
+							<!--<button id="test_put" type="button" class="btn btn-sm see-again-btn unwatch-btn">don't want to see again</button>-->
+							{% else %}
+							<input id="watch" class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch"
+									   value="want to see again" />
+							<!--<button id="test_put" type="button" class="btn btn-sm see-again-btn watch-btn">want to see again</button>-->
+							{% endif %}
+						</form>
+					</li>
+					{% endif %}
+				</ul>
+			</div>
 		</div>
-	</div>
-{% endif %}
-{% endcomment %}
+		<div class="row">
+			<div class="col-xs-10 col-xs-offset-1"><br>
+				<div class="progress">
+					<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ entry.rate }}0%">
+					{{ entry.rate }}/10<span class="sr-only">40% Complete (success)</span>
+				  </div></div>
+				{{ entry.plot }}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-2 hidden-xs"></div>
+			<div class="col-xs-2 visible-xs"></div>
+			<div class="col-xs-10 col-md-5">
+			{% if archive %}
+				<div class="history">
+					<p class="lead"><br>History of ratings:</p>
+					<table class="table-bordered table-condensed">
+						<tr class="text-primary" style="font-weight: bold">
+							<td class="">{{ entry.rate_date|date:"Y-m-d" }}</td>
+							<td class="">{{ entry.rate }}</td>
+							<td class="text-center">{{ entry.timesince_rating }}</td>
+						</tr>
+					{% for a in archive %}
+						<tr>
+							<td class="">{{ a.rate_date|date:"Y-m-d" }}</td>
+							<td class="">{{ a.rate }}</td>
+							<td class="text-center">duration: {{ a.days_since_previous_rating }} days</td>
+						</tr>
+					{% endfor %}
+					</table>
+				</div>
+			{% endif %}
+			</div>
+			<div class="col-xs-2 visible-xs"></div>
+			<div class="col-xs-10 col-md-5">
+				<p class="lead"><br>Find out more:</p>
+				<ul>
+					<li><a href="{{ entry.url_imdb }}">imdb</a></li>
+					<li><a href="{{ entry.url_tomato }}">rotten tomatoes</a></li>
+					<li><a href="{% url 'entry_details_redirect' const=entry.const %}">shorter link</a></li>
+					<li><a id="watchlist-link" href="{% url 'watchlist' %}">see watchlist</a></li>
+				</ul>
+			</div>
+		</div>
+
+
+		{% comment %}
+		<br>
+		{% if episodes %}
+			<div class="row">
+				<div class="col-xs-7">
+					{% for season, eps in episodes %}
+					<div id="accordion" role="tablist" aria-multiselectable="true">
+					  <div class="panel panel-default">
+						<div class="panel-heading" role="tab" id="heading{{season}}">
+						  <h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{season}}" aria-expanded="true" aria-controls="collapse{{season}}">
+							  season {{ season }}
+							</a>
+						  </h4>
+						</div>
+						<div id="collapse{{season}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{season}}">
+							{% for e in eps %}
+								{{ e.number }} {{ e.name }} <br>
+							{% endfor %}
+						</div>
+					  </div>
+					</div>
+						{% endfor %}
+				</div>
+			</div>
+		{% endif %}
+		{% endcomment %}
 </div>
 	</div>
 {% endblock %}

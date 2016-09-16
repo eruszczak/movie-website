@@ -72,20 +72,23 @@ class Entry(models.Model):
 
     @property
     def yesterday_today_month(self):
-        today = datetime.datetime.today()
-        yesterday = today - datetime.timedelta(1)
-        rate_date = str(self.rate_date)
-        if rate_date == today.strftime('%Y-%m-%d'):
-            return 'today'
-        elif rate_date == yesterday.strftime('%Y-%m-%d'):
-            return 'yesterday'
-        elif self.rate_date.strftime('%Y-%m') == today.strftime('%Y-%m'):
+        result = self.calculate_timedelta()
+        if result in ('today', 'yesterday'):
+            return result
+        elif self.rate_date.strftime('%Y-%m') == datetime.datetime.today().strftime('%Y-%m'):
             return 'this month'
         return False
 
     @property
     def timesince_rating(self):
-        return '{} days ago'.format((datetime.datetime.now() - build_datetime_obj(self.rate_date)).days)
+        result = self.calculate_timedelta()
+        if result in ('today', 'yesterday'):
+            return result
+        return '{} days ago'.format(result)
+
+    def calculate_timedelta(self):
+        timedelta = (datetime.datetime.now() - build_datetime_obj(self.rate_date)).days
+        return 'today' if timedelta == 0 else 'yesterday' if timedelta == 1 else timedelta
 
 
 class Archive(models.Model):
