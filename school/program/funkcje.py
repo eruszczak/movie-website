@@ -1,7 +1,11 @@
-import datetime
-now = datetime.datetime.now()
-import calendar
 import re
+import datetime
+import calendar
+import pytz
+from geopy import geocoders
+from mysite.settings import GOOGLE_API_KEY
+now = datetime.datetime.now()
+
 
 def strip_accents(s):
     """
@@ -36,6 +40,7 @@ def check_for_month_name(napis):
         if pol[:4] in napis or ang[:4] in napis:
             return i
 
+
 def matches_to_int(match):
     """
     Znalezione przez re.search cyfry zamienic ze stringa na int albo None
@@ -44,6 +49,7 @@ def matches_to_int(match):
     for match_group in match.groups():
         match_group_int.append(int(match_group) if match_group else None)
     return match_group_int
+
 
 def get_date(dateformat="%d-%m-%Y", adddays=0):
     # import locale
@@ -80,18 +86,13 @@ def is_leap(varx):
     return str(rok) + ' jest przestepny' if calendar.isleap(rok) else str(rok) + ' nie jest przestepny'
 
 
-def world_time(txt):
-    import pytz
-    from geopy import geocoders
-
-    g = geocoders.GoogleV3()
-    if txt:
-        miasto = txt
-        geocode = g.geocode(miasto)
-        if geocode:
-            place, (lat, lng) = g.geocode(miasto)
-            timezone = g.timezone((lat, lng))
-            local_time = datetime.datetime.now(pytz.timezone(timezone.zone))
-            return {'lat': lat, 'lng': lng, 'place': place, 'time': local_time.strftime('%Y-%m-%d %A %H:%M:%S')}
-    teraz = datetime.datetime.now()
-    return teraz.strftime('aktualnie jest: %H:%M:%S')
+def world_time(city):
+    g = geocoders.GoogleV3(api_key=GOOGLE_API_KEY)
+    geocode = g.geocode(city)
+    if geocode:
+        place, (lat, lng) = geocode
+        timezone = g.timezone((lat, lng))
+        local_time = datetime.datetime.now(pytz.timezone(timezone.zone))
+        return {'lat': lat, 'lng': lng, 'place': place, 'time': local_time.strftime('%A %H:%M:%S')}
+    current_time = datetime.datetime.now()
+    return current_time.strftime('current time: %H:%M:%S')

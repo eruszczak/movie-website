@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 import re
 from movie.models import Entry
 from .models import Recommendation
-from prepareDB_utils import getOMDb
+from prepareDB_utils import get_omdb
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Div, Field
 
@@ -53,7 +53,7 @@ class RecommendForm(forms.ModelForm):
         find = re.search(r'tt\d{7}', const)
         if find:
             const = find.group(0)
-            json = getOMDb(const)
+            json = get_omdb(const)
             if not json:
                 raise forms.ValidationError('Cant get data')
             elif json['Response'] == 'False':

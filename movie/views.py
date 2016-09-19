@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from django.db.models import Q, Count
 from django.contrib import messages
-from .models import Entry, Genre, Archive, Type, Director
+from .models import Entry, Genre, Archive, Type, Director, Watchlist
 from .forms import EditEntry
 from utils.utils import paginate
 import datetime
@@ -222,19 +222,30 @@ def entry_show_from_director(request, pk):
     return render(request, 'entry_show_from.html', context)
 
 
-def watchlist(request):
+def watch_again(request):
     if request.method == 'GET':
         context = {
             # 'ratings': Entry.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),todo isnull problem
             'ratings': [e for e in Entry.objects.all() if e.watch_again_date],
             'history': Archive.objects.filter(watch_again_date__isnull=False)
         }
-        return render(request, 'watchlist.html', context)
+        return render(request, 'watch_again.html', context)
 
     if request.method == 'POST':
+        if not request.user.is_superuser:
+            messages.info(request, 'Only admin can do this', extra_tags='alert-info')
+            return redirect(reverse('watchlist'))
         choosen_obj = get_object_or_404(Entry, const=request.POST.get('const'))
         if request.POST.get('unwatch'):
             choosen_obj.watch_again_date = None
         choosen_obj.save()
         return redirect(reverse('watchlist'))
+
+
+def watchlist(request):
+    context = {
+        'ratings': Watchlist.objects.filter(active=True),
+        'title': 'IMDb Watchlist'
+    }
+    return render(request, 'watchlist.html', context)
 

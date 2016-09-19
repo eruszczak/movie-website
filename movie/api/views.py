@@ -19,7 +19,7 @@ class EntryListView(ListAPIView):
     pagination_class = SetPagination
 
     def get_queryset(self):
-        queryset = Entry.objects.all().order_by('-rate_date', '-inserted_date')
+        queryset = Entry.objects.all().order_by('-rate_date')
         query = self.request.GET.get('q')
         year = self.request.GET.get('year')
         genre = self.request.GET.get('genre')

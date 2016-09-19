@@ -152,3 +152,17 @@ class Log(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True)
     new_inserted = models.IntegerField(blank=True, null=True, default=0)
     updated_archived = models.IntegerField(blank=True, null=True, default=0)
+
+
+class Watchlist(models.Model):
+    const = models.CharField(max_length=30)
+    name = models.TextField()
+    added_date = models.DateField()
+    active = models.BooleanField(default=True)
+    deleted_after_watched = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('const', 'added_date')
+
+
+

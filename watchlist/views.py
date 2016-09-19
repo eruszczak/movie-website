@@ -1,8 +1,6 @@
-from django.shortcuts import render
-
+from django.shortcuts import render, redirect
+from django.core.urlresolvers import reverse
+from django.contrib import messages
 
 def index(request):
-    context = {
-
-    }
-    return render(request, 'watchlist/index.html', context)
+    return render(request, 'watchlist/index.html')

@@ -46,19 +46,21 @@ $('#inputQuery').keypress(function(e) {
         return false;
     }
 })
-
+var map;
 function initMap(data) {
-    var myLatLng = {lat: data.lat, lng: data.lng};
-    var map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 6,
-      center: myLatLng
-    });
+    if (data) {
+        var myLatLng = {lat: data.lat, lng: data.lng};
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 6,
+            center: myLatLng
+        });
 
-    var marker = new google.maps.Marker({
-      position: myLatLng,
-      map: map,
-      title: data.place
-    });
+        var marker = new google.maps.Marker({
+            position: myLatLng,
+            map: map,
+            title: data.place
+        });
+    }
 }
 
 

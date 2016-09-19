@@ -4,11 +4,11 @@ from rest_framework import status
 from school.program.main import get_answer
 
 
-class test(generics.ListAPIView):
+class GetResponse(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         query = request.query_params.get('q')
-        res = ''
+        response = ''
         if query:
-            res = get_answer(query)
-        response = Response(res, status=status.HTTP_200_OK)
+            response = get_answer(query)
+        response = Response(response, status=status.HTTP_200_OK)
         return response

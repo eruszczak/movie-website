@@ -3,13 +3,134 @@ import django, os, sys
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 import csv
-from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log
-from prepareDB_utils import prepare_date_csv, prepare_date_xml, prepare_date_json, getRSS, getOMDb, downloadPosters, \
-    downloadPoster, convert_to_datetime, download_and_save_img, assign_existing_posters
 from recommend.models import Recommendation
-from django.utils import timezone
-from django.db.models import Count
-from datetime import datetime
+from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log, Watchlist
+from prepareDB_utils import prepare_date_json, get_rss, get_omdb, download_posters, convert_to_datetime,\
+    download_and_save_img, assign_existing_posters, extract_values_from_rss_item
+
+
+def get_watchlist():
+    itemlist = get_rss(source='watchlist')
+    if itemlist:
+        for obj in itemlist:
+            const, name, date = extract_values_from_rss_item(obj, for_watchlist=True)
+            if not Watchlist.objects.filter(const=const, added_date=date).exists():
+                print('adding', name)
+                Watchlist.objects.create(const=const, name=name, added_date=date)
+                continue
+            already_watched = Watchlist.objects.filter(const=const, added_date=date,
+                                                       active=False, deleted_after_watched=False)
+            if already_watched:
+                already_watched[0].deleted_after_watched = True
+                already_watched[0].save()
+
+
+def get_entry_info(const, rate, rate_date, log, is_updated=False, exists=False):
+    json = get_omdb(const)
+    if not (json and json['Response']):
+        return
+    elif is_updated and exists:  # if entry exists, updater must be sure that can delete and archive it
+        entry = Entry.objects.get(const=const)
+        Archive.objects.create(const=entry.const, rate=entry.rate,
+                               rate_date=entry.rate_date, watch_again_date=entry.watch_again_date)
+        print('updater. exists ' + entry.name, '\t...and deleted')
+        entry.delete()
+        log.updated_archived += 1
+        log.save()
+
+    is_in_watchlist = Watchlist.objects.filter(const=const, active=True)
+    if is_in_watchlist:
+        is_in_watchlist[0].active = False
+        is_in_watchlist[0].save()
+        print(const, 'was in watchlist. changed active to false')
+
+    title_type, created = Type.objects.get_or_create(name=json['Type'].lower())
+    url_imdb = 'http://www.imdb.com/title/{}/'.format(const)
+    rel_date = prepare_date_json(json['Released']) if json['Released'] != "N/A" else 'N/A'
+    rate_imdb = 0 if json['imdbRating'] == 'N/A' else float(json['imdbRating'])
+    entry = Entry(const=const, name=json['Title'], type=title_type,
+                  rate=rate, rate_imdb=rate_imdb,
+                  runtime=json['Runtime'][:-4], year=json['Year'][:4], votes=json['imdbVotes'],
+                  release_date=rel_date, rate_date=rate_date,
+                  url_imdb=url_imdb, url_poster=json['Poster'], url_tomato=json['tomatoURL'],
+                  tomato_user_meter=json['tomatoUserMeter'], tomato_user_rate=json['tomatoUserRating'],
+                  tomato_user_reviews=json['tomatoUserReviews'], tomatoConsensus=json['tomatoConsensus'],
+                  plot=json['Plot'],
+                  inserted_by_updater=is_updated)
+    entry.save()
+    download_and_save_img(entry)    # downloadPoster(entry.const, entry.url_poster)
+    for g in json['Genre'].split(', '):
+        genre, created = Genre.objects.get_or_create(name=g.lower())
+        entry.genre.add(genre)
+    for d in json['Director'].split(', '):
+        director, created = Director.objects.get_or_create(name=d)
+        entry.director.add(director)
+    log.new_inserted += 1
+    log.save()
+
+    # if json['Type'] == 'series':
+    #     get_tv(single_update=True, const=const)
+
+
+def csv_to_database():
+    fname = 'ratings.csv'
+    log = Log.objects.create()
+    with open(fname, 'r') as f:
+        reader = csv.DictReader(f)
+        for num, row in enumerate(reader):
+            if Entry.objects.filter(const=row['const']).exists():
+                print('exists ' + row['const'])
+                continue
+            rate_date = convert_to_datetime(row['created'])
+            # print(row['Title'])
+            get_entry_info(row['const'], row['You rated'], rate_date, log)
+
+
+def update():
+    # from rss xml: const, rate and rate_date. Then use const to get info from omdbapi json
+    itemlist = get_rss()
+    log = Log.objects.create()
+    if not itemlist:
+        return
+    i = 0
+    for num, obj in enumerate(itemlist):
+        if i > 10:
+            return
+        const, rate, rate_date = extract_values_from_rss_item(obj)
+        if Entry.objects.filter(const=const).exists():
+            if Archive.objects.filter(const=const, rate_date=rate_date).exists():
+                print('wont update because its already Archived')
+                i += 1
+                continue
+            elif Entry.objects.filter(const=const, rate_date=rate_date).exists():
+                print('wont update because its the same entry')
+                i += 1
+                continue
+            get_entry_info(const, rate, rate_date, log, is_updated=True, exists=True)
+            continue
+        else:
+            print('updater. ' + obj.find('title').text)
+            get_entry_info(const, rate, rate_date, log, is_updated=True)
+            if Recommendation.objects.filter(const=const):
+                recommended_has_been_rated = Recommendation.objects.get(const=const)
+                recommended_has_been_rated.is_rated = True
+                recommended_has_been_rated.save()
+                print('recommended has been rated TRUE')
+            # time.sleep( 5 )
+
+if len(sys.argv) > 1:
+    if sys.argv[1] == 'fromCSV':
+        csv_to_database()
+    if sys.argv[1] == 'posters':
+        download_posters()
+    if sys.argv[1] == 'update':
+        get_watchlist()
+        update()
+    if sys.argv[1] == 'assign':
+        assign_existing_posters()
+    # if sys.argv[1] == 'seasons':
+    #     get_tv()
+    sys.exit(0)
 
 
 # def get_seasons_info(entry, totalSeasons):
@@ -60,109 +181,6 @@ from datetime import datetime
 # # get_tv()
 
 
-def get_entry_info(const, rate, rate_date, log, is_updated=False, exists=False):
-    json = getOMDb(const)
-    if not (json and json['Response']):
-        return
-    elif is_updated and exists:  # if entry exists, updater must be sure that can delete and archive it
-        entry = Entry.objects.get(const=const)
-        Archive.objects.create(const=entry.const, rate=entry.rate,
-                               rate_date=entry.rate_date, watch_again_date=entry.watch_again_date)
-        print('updater. exists ' + entry.name, '\t...and deleted')
-        entry.delete()
-        log.updated_archived += 1
-        log.save()
-    typ_e, created = Type.objects.get_or_create(name=json['Type'].lower())
-    url_imdb = 'http://www.imdb.com/title/{}/'.format(const)
-    rel_date = prepare_date_json(json['Released']) if json['Released'] != "N/A" else 'N/A'
-    rate_imdb = 0 if json['imdbRating'] == 'N/A' else float(json['imdbRating'])
-    entry = Entry(const=const, name=json['Title'], type=typ_e,
-                  rate=rate, rate_imdb=rate_imdb,
-                  runtime=json['Runtime'][:-4], year=json['Year'][:4], votes=json['imdbVotes'],
-                  release_date=rel_date, rate_date=rate_date,
-                  url_imdb=url_imdb, url_poster=json['Poster'], url_tomato=json['tomatoURL'],
-                  tomato_user_meter=json['tomatoUserMeter'], tomato_user_rate=json['tomatoUserRating'],
-                  tomato_user_reviews=json['tomatoUserReviews'], tomatoConsensus=json['tomatoConsensus'],
-                  plot=json['Plot'],
-                  inserted_by_updater=is_updated)
-    entry.save()
-    download_and_save_img(entry)    # downloadPoster(entry.const, entry.url_poster)
-    for g in json['Genre'].split(', '):
-        genre, created = Genre.objects.get_or_create(name=g.lower())
-        entry.genre.add(genre)
-    for d in json['Director'].split(', '):
-        director, created = Director.objects.get_or_create(name=d)
-        entry.director.add(director)
-    log.new_inserted += 1
-    log.save()
-
-    # if json['Type'] == 'series':
-    #     get_tv(single_update=True, const=const)
-
-
-def csv_to_database():  # fname.isfile()
-    fname = 'ratings.csv'
-    log = Log.objects.create()
-    with open(fname, 'r') as f:
-        reader = csv.DictReader(f)
-        for num, row in enumerate(reader):
-            if Entry.objects.filter(const=row['const']).exists():
-                print('exists ' + row['const'])
-                continue
-            rate_date = convert_to_datetime(row['created'])
-            # print(row['Title'])
-            get_entry_info(row['const'], row['You rated'], rate_date, log)
-
-
-# csv_to_database()
-
-
-def update():
-    # from rss xml: const, rate and rate_date. Then use const to get info from omdbapi json
-    itemlist = getRSS()
-    log = Log.objects.create()
-    if not itemlist:
-        return
-    i = 0
-    for num, obj in enumerate(itemlist):
-        if i > 10:
-            return
-        const = obj.find('link').text[-10:-1]
-        rate = obj.find('description').text.strip()[-3:-1].lstrip()
-        rate_date = convert_to_datetime(obj.find('pubDate').text)
-        if Entry.objects.filter(const=const).exists():
-            if Archive.objects.filter(const=const, rate_date=rate_date).exists():
-                print('wont update because its already Archived')
-                i += 1
-                continue
-            elif Entry.objects.filter(const=const, rate_date=rate_date).exists():
-                print('wont update because its the same entry')
-                i += 1
-                continue
-            get_entry_info(const, rate, rate_date, log, is_updated=True, exists=True)
-            continue
-        else:
-            print('updater. ' + obj.find('title').text)
-            get_entry_info(const, rate, rate_date, log, is_updated=True)
-            if Recommendation.objects.filter(const=const):
-                recommended_has_been_rated = Recommendation.objects.get(const=const)
-                recommended_has_been_rated.is_rated = True
-                recommended_has_been_rated.save()
-                print('recommended has been rated TRUE')
-            # time.sleep( 5 )
-
-if len(sys.argv) > 1:
-    if sys.argv[1] == 'fromCSV':
-        csv_to_database()
-    # if sys.argv[1] == 'seasons':
-    #     get_tv()
-    if sys.argv[1] == 'posters':
-        downloadPosters()
-    if sys.argv[1] == 'update':
-        update()
-    if sys.argv[1] == 'assign':
-        assign_existing_posters()
-    sys.exit(0)
 
 # downloadPoster('tt2975590', u)
 # update()
@@ -364,3 +382,4 @@ from django.db.models import Count
 #
 # print(len(a))
 # print([e.rate_date for e in Entry.objects.all() if e.watch_again_date])
+

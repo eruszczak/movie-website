@@ -6,7 +6,8 @@ urlpatterns = [
     url(r'^explore/$', views.explore, name='explore'),
     url(r'^about/$', views.about, name='about'),
     url(r'^search/$', views.search, name='search'),
-    url(r'^watchlist/$', views.watchlist, name='watchlist'),
+    url(r'^watchlist/$', views.watch_again, name='watch_again'),
+    url(r'^watch/$', views.watchlist, name='watch'),
 
     url(r'^title/(?P<slug>[\w-]+)/$', views.entry_details, name='entry_details'),
     url(r'^title/(?P<slug>[\w-]+)/edit/$', views.entry_edit, name='entry_edit'),
