@@ -227,7 +227,8 @@ def watch_again(request):
         context = {
             # 'ratings': Entry.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),todo isnull problem
             'ratings': [e for e in Entry.objects.all() if e.watch_again_date],
-            'history': Archive.objects.filter(watch_again_date__isnull=False)
+            'history': Archive.objects.filter(watch_again_date__isnull=False),
+            'title': 'See again'
         }
         return render(request, 'watch_again.html', context)
 
@@ -244,7 +245,7 @@ def watch_again(request):
 
 def watchlist(request):
     context = {
-        'ratings': Watchlist.objects.filter(active=True),
+        'watchlist': Watchlist.objects.filter().order_by('active', '-deleted_after_watched'),
         'title': 'IMDb Watchlist'
     }
     return render(request, 'watchlist.html', context)
