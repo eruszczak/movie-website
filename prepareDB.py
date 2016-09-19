@@ -12,18 +12,24 @@ from prepareDB_utils import prepare_date_json, get_rss, get_omdb, download_poste
 def get_watchlist():
     itemlist = get_rss(source='watchlist')
     if itemlist:
+        current_watchlist = []
         for obj in itemlist:
             const, name, date = extract_values_from_rss_item(obj, for_watchlist=True)
+            current_watchlist.append(const)
             if not Watchlist.objects.filter(const=const, added_date=date).exists():
-                print('adding', name)
                 Watchlist.objects.create(const=const, name=name, added_date=date)
+                print(name, 'adding to watchlist')
                 continue
             already_watched = Watchlist.objects.filter(const=const, added_date=date,
                                                        active=False, deleted_after_watched=False)
             if already_watched:
                 already_watched[0].deleted_after_watched = True
                 already_watched[0].save()
-
+                print(name, 'is NOT active. marked as deleted')
+        to_delete = Watchlist.objects.exclude(const__in=current_watchlist)
+        if to_delete:
+            print(to_delete.values_list('name', flat=True), 'are no longer in Watchlist so deleting')
+            to_delete.delete()
 
 def get_entry_info(const, rate, rate_date, log, is_updated=False, exists=False):
     json = get_omdb(const)
@@ -119,14 +125,17 @@ def update():
             # time.sleep( 5 )
 
 if len(sys.argv) > 1:
-    if sys.argv[1] == 'fromCSV':
+    command = sys.argv[1]
+    if command == 'fromCSV':
         csv_to_database()
-    if sys.argv[1] == 'posters':
+    elif command == 'posters':
         download_posters()
-    if sys.argv[1] == 'update':
+    elif command == 'update':
         get_watchlist()
         update()
-    if sys.argv[1] == 'assign':
+    elif command == 'watchlist':
+        get_watchlist()
+    elif command == 'assign':
         assign_existing_posters()
     # if sys.argv[1] == 'seasons':
     #     get_tv()
