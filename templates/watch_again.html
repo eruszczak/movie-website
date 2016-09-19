@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Watchlist{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-md-12">
+                <p class="lead text-center">I want to see again {{ ratings|length }} title{{ ratings|pluralize }}</p>
+                <table class="table table-hover table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="text-center"></th>
+                            <th class="text-center">title</th>
+                            <th class="text-center">rating</th>
+                            <th class="text-center">rated</th>
+                            {% if user.is_superuser %}
+                                <th class="text-center">delete</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in ratings %}
+                        <tr>
+                            <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                            <td><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }}</a></td>
+                            <td>{{ obj.rate }}</td>
+                            <td>{{ obj.rate_date }}</td>
+                            {% if user.is_superuser %}
+                                <td class="text-center">
+                                    <form action="" method="post">{% csrf_token %}
+                                        <input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
+                                               value="don't want to see again" />
+                                        <input id="choosen_object" name="const" value="{{ obj.const }}" hidden>
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-12">
+                    <p class="lead text-center">History watchlist</p>
+                    <table class="table table-hover table-bordered table-condensed">
+                        <thead>
+                            <tr>
+                                <th class="text-center"></th>
+                                <th class="text-center">title</th>
+                                <th class="text-center">rating</th>
+                                <th class="text-center">added</th>
+                                <th class="text-center">watched after</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for obj in history %}
+                            <tr>
+                                <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                                <td><a href="{% url 'entry_details' slug=obj.get_entry.slug %}">{{ obj.get_entry.name }}</a></td>
+                                <td>{{ obj.rate }}</td>
+                                <td>{{ obj.watch_again_date }}</td>
+                                <td>{{ obj.days_since_added_to_watchlist }} days</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="input-group">
+            <input id="inputBox_search" type="text" class="form-control" placeholder="q" name='q'>
+            <span class="input-group-btn">
+                <button id="go_search" class="btn btn-default" type="button">Go!</button>
+            </span>
+        </div>
+        <nav id="pagination" style="display:none;">
+            <ul class="pager">
+                <li><a href="#" class="previous">Previous</a></li>
+                <li><a href="#" class="next">Next</a></li>
+            </ul>
+        </nav>
+      <div id="loader">
+          <img src="{% static 'img/ring.svg' %}">
+      </div>
+    </div>
+    <!--<table class="table table-hover table-bordered table-condensed"></table>-->
+    <div class="search_content"></div>
+</div>
+{% endblock %}

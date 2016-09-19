@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from .forms import RecommendForm
 from .models import Recommendation
 
-from prepareDB_utils import getOMDb
+from prepareDB_utils import get_omdb
 from django.contrib import messages
 from django.utils import timezone
 
@@ -14,7 +14,7 @@ def recommend(request):
         form = RecommendForm(request.POST)
         if form.is_valid():
             instance = form.save(commit=False)
-            json = getOMDb(instance.const)
+            json = get_omdb(instance.const)
             if json:
                 instance.name = json['Title']
                 instance.year = json['Year'][:4]

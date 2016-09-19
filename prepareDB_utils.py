@@ -1,18 +1,20 @@
+import os
 import json
 import urllib.request
 from time import strptime
+from datetime import datetime
 import xml.etree.ElementTree as ET
-import os
-from django.core.files import File
-from mysite.settings import MEDIA_ROOT
 from movie.models import Entry
+from django.core.files import File
+from mysite.settings import MEDIA_ROOT, BASE_DIR
+
 
 def prepare_date_csv(d):
     'Sat Nov 12 00:00:00 1993 -> 1993-11-12'
-    monthNum_to_name = str(strptime(d[4:7], '%b').tm_mon)
-    if len(monthNum_to_name) == 1:
-        monthNum_to_name = '0' + monthNum_to_name
-    new_d = '{}-{}-{}'.format(d[-4:], monthNum_to_name, d[8:10].replace(' ', '0'))
+    num_to_month_name = str(strptime(d[4:7], '%b').tm_mon)
+    if len(num_to_month_name) == 1:
+        num_to_month_name = '0' + num_to_month_name
+    new_d = '{}-{}-{}'.format(d[-4:], num_to_month_name, d[8:10].replace(' ', '0'))
     return new_d
 
 
@@ -31,39 +33,46 @@ def prepare_date_json(date):
     new_date = '{}-{}-{}'.format(date[-4:], month, date[:2])
     return new_date
 
+
 def convert_to_datetime(date):
-    from datetime import datetime
     try:
         # for xml (updating)
-        return datetime.strptime(date, '%a, %d %b %Y 00:00:00 GMT')
-    except:
+        return datetime.strptime(date, '%a, %d %b %Y %H:%M:%S GMT')
+    except ValueError:
         # for csv (initial)
         return datetime.strptime(date, '%a %b %d 00:00:00 %Y')
 
-def getRSS(user='ur44264813'):
+
+def get_rss(user='ur44264813', source='ratings'):
     try:
-        req = urllib.request.urlopen('http://rss.imdb.com/user/{}/ratings'.format(user))
+        req = urllib.request.urlopen('http://rss.imdb.com/user/{}/{}'.format(user, source))
     except:
         print('rss error')
         return False
     return ET.fromstring(req.read()).findall('channel/item')
 
 
-def getOMDb(imdbID, api='http://www.omdbapi.com/?i={}&plot=full&type=true&tomatoes=true&r=json'):
+def extract_values_from_rss_item(obj, for_watchlist=False):
+    const = obj.find('link').text[-10:-1]
+    date = convert_to_datetime(obj.find('pubDate').text)
+    if for_watchlist:
+        name = obj.find('title').text
+        return const, name, date
+    rate = obj.find('description').text.strip()[-3:-1].lstrip()
+    return const, rate, date
+
+
+def get_omdb(const, api='http://www.omdbapi.com/?i={}&plot=full&type=true&tomatoes=true&r=json'):
     try:
-        req = urllib.request.urlopen(api.format(imdbID))
+        req = urllib.request.urlopen(api.format(const))
     except:
         print('omdb error')
         return False
     return json.loads(req.read().decode('utf-8'))
 
 
-def downloadPosters():
-    from movie.models import Entry
-    from mysite.settings import STATIC_ROOT, BASE_DIR
-    # folder = os.path.join(STATIC_ROOT, 'img', 'posters')
+def download_posters():
     folder = os.path.join(BASE_DIR, 'movie', 'static', 'img', 'posters')
-    # os.makedirs(folder, exist_ok=True)
     for obj in Entry.objects.all():
         title = obj.const + '.jpg'
         img_path = os.path.join(folder, title)
@@ -80,8 +89,7 @@ def downloadPosters():
                 pass
 
 
-def downloadPoster(const, url):
-    from mysite.settings import STATIC_ROOT, BASE_DIR
+def download_poster(const, url):
     folder = os.path.join(BASE_DIR, 'static', 'img', 'posters')
     title = const + '.jpg'
     img_path = os.path.join(folder, title)
