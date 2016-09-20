@@ -164,5 +164,16 @@ class Watchlist(models.Model):
     class Meta:
         unique_together = ('const', 'added_date')
 
+    def __str__(self):
+        return self.name
+
+    @property
+    def get_entry(self):
+        return get_object_or_404(Entry, const=self.const)
+
+    @property
+    def was_added_after_rate(self):
+        return self.get_entry.rate_date <= self.added_date
+
 
 

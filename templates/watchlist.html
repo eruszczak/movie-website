@@ -7,30 +7,51 @@
     see on http://www.imdb.com/user/ur44264813/watchlist
     <div class="row">
         <div class="col-xs-10">
-
+            Already seen:
             <table class="table table-hover table-bordered table-condensed">
                 <thead>
                     <tr>
                         <th class="text-center"></th>
                         <th class="text-center">title</th>
                         <th class="text-center">added</th>
-                        <th class="text-center">active</th>
-                        <th class="text-center">deleted</th>
+                        <th class="text-center">last seeing</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for obj in watchlist %}
-                    <tr>
-                        <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                        <td><a href='http://www.imdb.com/title/{{ obj.const }}'>{{ obj.name }}</a></td>
-                        <td>{{ obj.added_date }}</td>
-                        <td>{{ obj.active }}</td>
-                        <td>{{ obj.deleted_after_watched }}</td>
-                    </tr>
+                    {% for obj in seen %}
+                        {% if obj.was_added_after_rate %}
+                            <tr>
+                                <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                                <td><a href='{% url 'entry_details_redirect' const=obj.const %}'>{{ obj.name }}</a></td>
+                                <td>{{ obj.added_date }}</td>
+                                <td>{{ obj.get_entry.rate }} on {{ obj.get_entry.rate_date }}</td>
+                            </tr>
+                        {% endif %}
                     {% endfor %}
                 </tbody>
             </table>
 
+            Not seen:
+            <table class="table table-hover table-bordered table-condensed">
+                <thead>
+                    <tr>
+                        <th class="text-center"></th>
+                        <th class="text-center">title</th>
+                        <th class="text-center">added</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in not_seen %}
+                    <tr>
+                        <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                        <td><a href='http://www.imdb.com/title/{{ obj.const }}'>{{ obj.name }}</a></td>
+                        <td>{{ obj.added_date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            Need to be deleted:
+            {{ to_delete }}
         </div>
     </div>
 {% endblock %}

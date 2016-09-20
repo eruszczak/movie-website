@@ -25,7 +25,7 @@ def get_watchlist():
             if already_watched:
                 already_watched[0].deleted_after_watched = True
                 already_watched[0].save()
-                print(name, 'is NOT active. marked as deleted')
+                print(name, 'is not active. marked as deleted')
         to_delete = Watchlist.objects.exclude(const__in=current_watchlist)
         if to_delete:
             print(to_delete.values_list('name', flat=True), 'are no longer in Watchlist so deleting')
@@ -131,8 +131,8 @@ if len(sys.argv) > 1:
     elif command == 'posters':
         download_posters()
     elif command == 'update':
-        get_watchlist()
         update()
+        get_watchlist()
     elif command == 'watchlist':
         get_watchlist()
     elif command == 'assign':
