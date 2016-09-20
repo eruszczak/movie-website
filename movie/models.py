@@ -169,11 +169,13 @@ class Watchlist(models.Model):
 
     @property
     def get_entry(self):
-        return get_object_or_404(Entry, const=self.const)
+        obj = Entry.objects.filter(const=self.const)
+        return obj[0] if obj else False
 
     @property
     def was_added_after_rate(self):
-        return self.get_entry.rate_date <= self.added_date
+        obj = self.get_entry
+        return obj.rate_date <= self.added_date if obj else False
 
 
 

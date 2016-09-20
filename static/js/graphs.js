@@ -5,8 +5,6 @@ function graph_genres(place='#graph') {
         }).done(function(data) {
             var names = $.map(data, function(dict) { return dict.name; });
             var values = $.map(data, function(dict) { return dict.the_count; });
-            console.log(names)
-            console.log(values)
             $(place).highcharts({
                 title: {
                     text: 'Rating Distribution By Genre',
@@ -208,20 +206,20 @@ function graph_year(place='#graph') {
         });
     })
 }
-
+graph_months()
 
 $('#graph_rated').click(function() {
     graph_rated()
-})
+});
 $('#graph_year').click(function() {
     graph_year()
-})
+});
 $('#graph_months').click(function() {
     graph_months()
-})
+});
 $('#graph_genres').click(function() {
     graph_genres()
-})
+});
 
 /* display graphs for AllYears and AllGenres pages */
 $(function(){

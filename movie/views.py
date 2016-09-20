@@ -244,12 +244,11 @@ def watch_again(request):
 
 
 def watchlist(request):
-    seen_titles = Entry.objects.all().values_list('const', flat=True)
-    watchlist_titles = Watchlist.objects.filter(active=True).order_by('-added_date')
+    seen_titles = Entry.objects.all().values_list('const', flat=True)   # todo
     context = {
-        'seen': watchlist_titles.filter(const__in=seen_titles),
-        'not_seen': watchlist_titles.exclude(const__in=seen_titles),
-        'to_delete': Watchlist.objects.filter(deleted_after_watched=True).values_list('name', flat=True),
+        'seen': (x for x in Watchlist.objects.filter(const__in=seen_titles).order_by('-added_date') if x.was_added_after_rate),
+        'not_seen': (x for x in Watchlist.objects.exclude(const__in=seen_titles).order_by('-added_date') if not x.was_added_after_rate),
+        'delete': [x.name for x in Watchlist.objects.filter(const__in=seen_titles).order_by('-added_date') if not x.was_added_after_rate],
         'title': 'IMDb Watchlist'
     }
     return render(request, 'watchlist.html', context)

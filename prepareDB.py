@@ -20,20 +20,18 @@ def get_watchlist():
                 Watchlist.objects.create(const=const, name=name, added_date=date)
                 print(name, 'adding to watchlist')
                 continue
-            already_watched = Watchlist.objects.filter(const=const, added_date=date,
-                                                       active=False, deleted_after_watched=False)
-            if already_watched:
-                already_watched[0].deleted_after_watched = True
-                already_watched[0].save()
-                print(name, 'is not active. marked as deleted')
         to_delete = Watchlist.objects.exclude(const__in=current_watchlist)
         if to_delete:
             print(to_delete.values_list('name', flat=True), 'are no longer in Watchlist so deleting')
             to_delete.delete()
 
+
 def get_entry_info(const, rate, rate_date, log, is_updated=False, exists=False):
     json = get_omdb(const)
-    if not (json and json['Response']):
+    if not json:
+        return
+    elif json and json['Response'] == 'False':
+        print(json['Error'])
         return
     elif is_updated and exists:  # if entry exists, updater must be sure that can delete and archive it
         entry = Entry.objects.get(const=const)
@@ -43,12 +41,6 @@ def get_entry_info(const, rate, rate_date, log, is_updated=False, exists=False):
         entry.delete()
         log.updated_archived += 1
         log.save()
-
-    is_in_watchlist = Watchlist.objects.filter(const=const, active=True)
-    if is_in_watchlist:
-        is_in_watchlist[0].active = False
-        is_in_watchlist[0].save()
-        print(const, 'was in watchlist. changed active to false')
 
     title_type, created = Type.objects.get_or_create(name=json['Type'].lower())
     url_imdb = 'http://www.imdb.com/title/{}/'.format(const)
@@ -188,207 +180,3 @@ if len(sys.argv) > 1:
 #
 #
 # # get_tv()
-
-
-
-# downloadPoster('tt2975590', u)
-# update()
-# downloadPosters()
-# u = 'http://ia.media-imdb.com/images/M/MV5BNTE5NzU3MTYzOF5BMl5BanBnXkFtZTgwNTM5NjQxODE@._V1_SX300.jpg'
-
-# e = Entry.objects.get(const='tt0844441')
-# if e.type.id == Type.objects.get(name='series').id:
-#     s = Season.objects.filter(entry=e)
-#     print(s.count())
-#     for seas in s:
-#         print(seas.number)
-#         ep = Episode.objects.filter(season=seas)
-#         for epis in ep:
-#             print('\t', epis.number)
-#     print()
-
-
-# def get_seasons(imdb_id):
-#     entry = Entry.objects.get(const=imdb_id)
-#     seasons = Season.objects.filter(entry=entry)
-#     season_episodes = []
-#     for s in seasons:
-#         episodes = Episode.objects.filter(season=s)
-#         season_episodes.append([s.number, episodes])
-#     return season_episodes
-#
-# context = {'episodes': get_seasons('tt0112022')}
-
-
-# for i, (num, eps) in enumerate(context['episodes']):
-#     check = True
-#     for j in range(len(eps) - 1):
-#         if eps[0].number not in (0, 1):
-#             context['episodes'][i].insert(0, check)
-#             break
-#         num_current, num_next = int(eps[j].number), int(eps[j + 1].number)
-#         if num_current + 1 != num_next:
-#             check = False
-#     context['episodes'][i].insert(0, check)
-#
-# for a, b, c in context['episodes']:
-#     print(a, b)
-
-# l = []
-# for g in Genre.objects.all():
-#     l.append((g.name, Entry.objects.filter(genre=g).count()))
-#     # print(g.get_absolute_url())
-#     # print(<a href="{}">here</a>)
-#
-# l = sorted(l, key=lambda x: x[1], reverse=True)
-#
-# for genre, value in l:
-#     # print('{} {}'.format(value, genre), value)
-#     print('{:<4} {}'.format(value, genre))
-#
-#
-from django.db.models import Count
-# genres = Genre.objects.all().annotate(num=Count('entry')).order_by('-num')
-# for g in genres:
-#     print(g.name, g.entry_set.count(), g.get_absolute_url())
-#
-# # entries = Entry.objects.values('rate').distinct().annotate(num=Count('rate')).order_by('rate')
-# entries = Entry.objects.extra(select={'rate_int': 'CAST(rate as INTEGER)'}).annotate(num=Count('rate'))
-# ent = Entry.objects.values('rate').annotate(the_count=Count('rate')).order_by('rate')
-# print(sorted(ent, key=lambda x: int(x['rate'])))
-# # for e in entries:
-# #     print(e.rate)
-
-
-# date_object = datetime.strptime(e.rate_date, '%Y-%m-%d')
-
-# entr = Entry.objects.filter(rate_date__icontains='2016-07')
-# for e in entr:
-#     print(e.name)
-#     print(e.rate_date)
-#     date_object = datetime.strptime(e.rate_date, '%Y-%m-%d')
-#     print(date_object)
-
-# year_counter = []
-# for y in Entry.objects.order_by('-year').values('year').distinct():
-#     year_counter.append((y['year'], Entry.objects.filter(year=y['year']).count()))
-#
-# print(year_counter)
-#
-# ent = Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year')
-# print(ent)
-
-# ent = Entry.objects.filter(rate_date__year=2015).values_list('rate_date__month')
-# print(ent)
-# e = Entry.objects.filter(rate_date__year=2015).extra({'month': "MONTH(rate_date)"}).values_list('month').annotate(total_item=Count('item'))
-# print(e)
-# e = Entry.objects.extra(select={'month': 'extract( MONTH FROM rate_date )'}).values('month').annotate(dcount=Count('rate_date'))
-# e = Entry.objects.filter(rate_date__year=2015).extra(select={'month': 'strftime("%m", rate_date)'}).values('month').annotate(dcount=Count('rate_date'))
-# obj = Entry.objects.filter(rate_date__year=2015)
-# obj = Entry.objects.all()
-# e = obj.extra(select={'year_': 'strftime("%Y", rate_date)', 'month': 'strftime("%m", rate_date)'}, where=['year=2015']).values('month').annotate(dcount=Count('rate_date'))
-# # print(e)
-# for x in e:
-#     print(x)
-# print(sum(a['dcount'] for a in e))
-
-# query = """SELECT COUNT(*) AS 'the_count', strftime("%%m", rate_date) as 'month'
-# FROM movie_entry
-# WHERE strftime("%%Y", rate_date) = %s
-# GROUP BY month"""
-#
-# # print(e.columns)
-#
-# # for p in Entry.objects.raw('SELECT * FROM movie_entry WHERE name="Die Hard"'):
-# #     print(p.name)
-#
-# from django.db import connection
-# cursor = connection.cursor()
-# cursor.execute(query, [str('2015')])
-# # total_rows = cursor.fetchone()
-# print(list(cursor.fetchall()))
-# print(Recommendation.objects.filter(date=datetime.now()).count())
-# print(timezone.now().today())
-# print(datetime.today())
-
-#
-# from django.utils.text import slugify
-# for e in Entry.objects.all():
-#     e.slug = slugify('{} {}'.format(e.name, e.year))
-#     e.save()
-# import datetime
-# e = Entry.objects.filter(type=Type.objects.get(name='movie').id).order_by('-rate_date')[0]
-# print('last seen:', e.rate_date)
-# today = datetime.datetime.today()
-# yesterday = today - datetime.timedelta(22)
-# print(yesterday.strftime('%Y-%m-%d'))
-# print(yesterday.strftime('%Y-%m-%d') == str(e.rate_date))
-
-#
-# e = Entry.objects.filter(type=Type.objects.get(name='series').id).order_by('-rate_date')[0]
-# print('last tv show:', e.name)
-#
-# e = Entry.objects.filter(type=Type.objects.get(name='movie').id, rate__gte=9).order_by('-rate_date')[0]
-# print('last movie rated 9-10:', e.name)
-
-# years = Entry.objects.values('year').annotate(the_count=Count('year')).order_by('-year')
-# # print(years)
-#
-# li = []
-# l = []
-# for y in years:
-#     print(y)
-#     print()
-#     print()
-#     l.append(y)
-#     if int(y['year']) % 10 == 0:
-#         li.append(l)
-#         l = []
-# # print(li)
-# # print(years[::-1])
-# # years = sorted(li[0], key=lambda x: x['year'])
-# new = []
-# for y in li:
-#     a = sorted(y, key=lambda x: x['year'])
-#     new.append(a)
-# print(new)
-
-# print((lambda x, f: [y for y in years in f(x))(years,)]))
-
-# from django.db.models import Avg
-# top_rated_years = Entry.objects.values('year').annotate(avg_year=Avg('rate'), the_count=Count('year')
-#                                             ).filter(the_count__gte=10).order_by('-avg_year')[:5]
-# for r in top_rated_years:
-#     print(r)
-
-
-# def count_for_month_lists(year=2015):
-#     from django.db import connection
-#     query = """SELECT COUNT(*) AS 'the_count', strftime("%%m", rate_date) as 'month'
-#     FROM movie_entry
-#     WHERE strftime("%%Y", rate_date) = %s
-#     GROUP BY month"""
-#     cursor = connection.cursor()
-#     cursor.execute(query, [str(year)])
-#     return list(cursor.fetchall())
-#
-# x = count_for_month_lists()
-# d = {
-#     'months': [a[1] for a in x],
-#     'values': [a[0] for a in x],
-# }
-
-# for e in Entry.objects.all():
-#     download_and_save_img(e)
-
-
-# assign_existing_posters()
-# e = Entry.objects.get(name='Gangs of New York')
-# # print()
-# print(e.watch_again_date)
-#
-# a = Entry.objects.filter(watch_again_date__isnull=False)
-#
-# print(len(a))
-# print([e.rate_date for e in Entry.objects.all() if e.watch_again_date])
-
