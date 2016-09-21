@@ -244,7 +244,7 @@ def watch_again(request):
 
 
 def watchlist(request):
-    seen_titles = Entry.objects.all().values_list('const', flat=True)   # todo
+    seen_titles = Entry.objects.all().values_list('const', flat=True)
     context = {
         'seen': (x for x in Watchlist.objects.filter(const__in=seen_titles).order_by('-added_date') if x.was_added_after_rate),
         'not_seen': (x for x in Watchlist.objects.exclude(const__in=seen_titles).order_by('-added_date') if not x.was_added_after_rate),
