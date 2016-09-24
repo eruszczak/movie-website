@@ -12,11 +12,12 @@ def register(request):
         password = form.cleaned_data.get('password')
         user.set_password(password)
         user.save()
-
-        created_user = auth.authenticate(username=user.username, password=password)
-        auth.login(request, created_user)
-        messages.success(request, 'Successful registration. You have been logged in, ' + user.username,
-                         extra_tags='alert-success')
+        message = 'Successful registration'
+        if request.POST.get('login_after') == 'on':
+            created_user = auth.authenticate(username=user.username, password=password)
+            auth.login(request, created_user)
+            message += '. You have been logged in'
+        messages.success(request, '{}, {}'.format(message, user.username), extra_tags='alert-success')
         return redirect(reverse('home'))
     return render(request, 'users/register.html', {'form': form})
 

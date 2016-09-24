@@ -206,7 +206,10 @@ function graph_year(place='#graph') {
         });
     })
 }
-graph_months()
+graph_months();
+// $( document ).ready(function() {
+//     $("#graph_months").click();
+// });
 
 $('#graph_rated').click(function() {
     graph_rated()

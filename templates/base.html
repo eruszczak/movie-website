@@ -38,7 +38,6 @@
 	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 	<script src="https://use.fontawesome.com/c6367378ff.js"></script>
 	<script type="text/javascript" src="http://kozea.github.com/pygal.js/latest/pygal-tooltips.min.js"></script>
-	<script src="{% static 'js/morphext.min.js' %}"></script>
 	<script src="https://code.highcharts.com/highcharts.js"></script>
 	<script src="https://code.highcharts.com/modules/exporting.js"></script>
 
@@ -46,8 +45,8 @@
 	<script src="{% static 'js/search.js' %}"></script>
 	<script src="{% static 'js/graphs.js' %}"></script>
 	<script src="{% static 'js/school.js' %}"></script>
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDtmWk9G0ChsRaU54SpGvWMoAePwua3gqY&callback=initMap">
-    </script>
+    {% block scripts %}
+
+    {% endblock %}
 </body>
 </html>

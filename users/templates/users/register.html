@@ -11,6 +11,9 @@
 			{% csrf_token %}
 			{{ form|crispy }}
 			<input type="submit" value="Submit" class="btn btn-info"/>
+            <div class="checkbox">
+              <label><input type="checkbox" name="login_after">login after?</label>
+            </div>
 		</form>
     </div>
 </div>
