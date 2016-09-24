@@ -46,6 +46,7 @@ $('#inputQuery').keypress(function(e) {
         return false;
     }
 })
+
 var map;
 function initMap(data) {
     if (data) {
@@ -80,7 +81,6 @@ function getRandomColor() {
 $(".functionality").click(function () {
     $header = $(this);
     $content = $header.next();
-    console.log($header, $content)
     $content.slideToggle(500, function () {
     });
 });

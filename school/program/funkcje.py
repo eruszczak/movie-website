@@ -87,7 +87,7 @@ def is_leap(varx):
 
 
 def world_time(city):
-    g = geocoders.GoogleV3(api_key=GOOGLE_API_KEY)
+    g = geocoders.GoogleV3()  # api_key=GOOGLE_API_KEY)
     geocode = g.geocode(city)
     if geocode:
         place, (lat, lng) = geocode
