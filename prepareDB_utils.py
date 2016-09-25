@@ -46,8 +46,8 @@ def convert_to_datetime(date):
 def get_rss(user='ur44264813', source='ratings'):
     try:
         req = urllib.request.urlopen('http://rss.imdb.com/user/{}/{}'.format(user, source))
-    except:
-        print('rss error')
+    except Exception as e:
+        print('rss error', e, type(e))
         return False
     return ET.fromstring(req.read()).findall('channel/item')
 
@@ -65,8 +65,8 @@ def extract_values_from_rss_item(obj, for_watchlist=False):
 def get_omdb(const, api='http://www.omdbapi.com/?i={}&plot=full&type=true&tomatoes=true&r=json'):
     try:
         req = urllib.request.urlopen(api.format(const))
-    except:
-        print('omdb error')
+    except Exception as e:
+        print('omdb error', e, type(e))
         return False
     return json.loads(req.read().decode('utf-8'))
 
@@ -84,8 +84,8 @@ def download_posters():
             try:
                 urllib.request.urlretrieve(url, img_path)
                 print('downloading', obj.name, title)
-            except:
-                print('cant download poster', obj.name)
+            except Exception as e:
+                print('cant download poster', obj.name, e, type(e))
                 pass
 
 
@@ -99,8 +99,8 @@ def download_poster(const, url):
         try:
             urllib.request.urlretrieve(url, img_path)
             print('downloading', const, title)
-        except:
-            print('cant download poster', const)
+        except Exception as e:
+            print('cant download poster', const, e, type(e))
             pass
 
 

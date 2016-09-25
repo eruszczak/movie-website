@@ -21,7 +21,7 @@
                     <th class="text-center">title</th>
                     <th class="text-center">rating</th>
                     {% if user.is_superuser %}
-                        <th class="text-center"><a id="watchlist-link" href="{% url 'watch_again' %}">watchlist</a></th>
+                        <th class="text-center"><a id="watchlist-link" href="{% url 'watchlist' %}">watchlist</a></th>
                     {% endif %}
                 </tr>
             </thead>
@@ -35,13 +35,11 @@
                         <td class="text-center">
                             <form action="" method="post">{% csrf_token %}
                                 {% if obj.watch_again_date %}
-                                <input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
-                                       value="don't want to see again" />
+                                    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch">Don't want to see again</button>
                                 {% else %}
-                                <input id="watch" class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch"
-                                       value="want to see again" />
+                                    <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch">Want to see again</button>
                                 {% endif %}
-                                <input id="choosen_object" name="const" value="{{ obj.const }}" hidden>
+                                <input name="const" value="{{ obj.const }}" type="hidden">
                             </form>
                         </td>
                     {% endif %}

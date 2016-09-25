@@ -158,9 +158,11 @@ class Watchlist(models.Model):
     const = models.CharField(max_length=30)
     name = models.TextField()
     added_date = models.DateField()
+    set_to_delete = models.BooleanField(default=0)
 
     class Meta:
         unique_together = ('const', 'added_date')
+        ordering = ['-added_date']
 
     def __str__(self):
         return self.name
