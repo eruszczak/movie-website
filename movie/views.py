@@ -64,11 +64,11 @@ def explore(request):
             return redirect(reverse('explore'))
 
         choosen_obj = get_object_or_404(Entry, const=request.POST.get('const'))
-        if request.POST.get('watch'):
+        if 'watch' in request.POST.keys():
             choosen_obj.watch_again_date = datetime.datetime.now()
-        elif request.POST.get('unwatch'):
+        elif 'unwatch' in request.POST.keys():
             choosen_obj.watch_again_date = None
-        choosen_obj.save()
+        choosen_obj.save(update_fields=['watch_again_date'])
         return redirect(request.META.get('HTTP_REFERER'))
 
 
@@ -222,7 +222,7 @@ def entry_show_from_director(request, pk):
     return render(request, 'entry_show_from.html', context)
 
 
-def watch_again(request):
+def watchlist(request):
     if request.method == 'GET':
         context = {
             # 'ratings': Entry.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),todo isnull problem
@@ -230,7 +230,7 @@ def watch_again(request):
             'history': Archive.objects.filter(watch_again_date__isnull=False),
             'title': 'See again'
         }
-        return render(request, 'watch_again.html', context)
+        return render(request, 'watchlist.html', context)
 
     if request.method == 'POST':
         if not request.user.is_superuser:
@@ -243,13 +243,28 @@ def watch_again(request):
         return redirect(reverse('watchlist'))
 
 
-def watchlist(request):
-    seen_titles = Entry.objects.all().values_list('const', flat=True)
-    context = {
-        'seen': (x for x in Watchlist.objects.filter(const__in=seen_titles).order_by('-added_date') if x.was_added_after_rate),
-        'not_seen': (x for x in Watchlist.objects.exclude(const__in=seen_titles).order_by('-added_date') if not x.was_added_after_rate),
-        'delete': [x.name for x in Watchlist.objects.filter(const__in=seen_titles).order_by('-added_date') if not x.was_added_after_rate],
-        'title': 'IMDb Watchlist'
-    }
-    return render(request, 'watchlist.html', context)
+def imdb_watchlist(request):
+    if request.method == 'GET':
+        seen_titles = Entry.objects.all().values_list('const', flat=True)
+        context = {
+            'seen': (x for x in Watchlist.objects.filter(const__in=seen_titles) if x.was_added_after_rate),
+            'not_seen': (x for x in Watchlist.objects.exclude(Q(const__in=seen_titles) | Q(set_to_delete=True)) if not x.was_added_after_rate),
+            'delete': [x for x in Watchlist.objects.filter(Q(const__in=seen_titles) | Q(set_to_delete=True)) if not x.was_added_after_rate],
+            'title': 'IMDb Watchlist'
+        }
+        return render(request, 'imdb_watchlist.html', context)
 
+    if request.method == 'POST':
+        if not request.user.is_superuser:
+            messages.info(request, 'Only admin can do this', extra_tags='alert-info')
+            return redirect(reverse('imdb_watchlist'))
+        readd, delete = request.POST.get('watchlist_readd'), request.POST.get('watchlist_del')
+        choosen_obj = get_object_or_404(Watchlist, const=readd or delete)
+        if delete:
+            choosen_obj.set_to_delete = True
+            messages.info(request, '{} has been deleted from the watchlist'.format(choosen_obj.name))
+        elif readd:
+            choosen_obj.set_to_delete = False
+            messages.info(request, '{} has been restored to the watchlist'.format(choosen_obj.name))
+        choosen_obj.save(update_fields=['set_to_delete'])
+        return redirect(reverse('imdb_watchlist'))

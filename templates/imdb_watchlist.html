@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+
+{% block content %}
+    see on http://www.imdb.com/user/ur44264813/watchlist
+    <div class="row">
+        <div class="col-md-10">
+            Already seen:
+            <table class="table table-hover table-bordered table-condensed">
+                <thead>
+                    <tr>
+                        <th class="text-center"></th>
+                        <th class="text-center">title</th>
+                        <th class="text-center">added</th>
+                        <th class="text-center">last seeing</th>
+                        {% if user.is_superuser %}
+                            <th class="text-center">delete</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in seen %}
+                        {% if obj.was_added_after_rate %}
+                            <tr>
+                                <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                                <td><a href='{% url 'entry_details_redirect' const=obj.const %}'>{{ obj.name }}</a></td>
+                                <td>{{ obj.added_date }}</td>
+                                <td>{{ obj.get_entry.rate }} on {{ obj.get_entry.rate_date }}</td>
+                                {% if user.is_superuser %}
+                                    <td class="text-center">
+                                        <form action="" method="post">{% csrf_token %}
+                                            <button class="btn btn-sm see-again-btn unwatch-btn"
+                                                    type="submit" name="watchlist_del" value="{{ obj.const }}">delete</button>
+                                        </form>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            Not seen:
+            <table class="table table-hover table-bordered table-condensed">
+                <thead>
+                    <tr>
+                        <th class="text-center"></th>
+                        <th class="text-center">title</th>
+                        <th class="text-center">added</th>
+                        {% if user.is_superuser %}
+                            <th class="text-center">delete</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in not_seen %}
+                    <tr>
+                        <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                        <td><a href='http://www.imdb.com/title/{{ obj.const }}'>{{ obj.name }}</a></td>
+                        <td>{{ obj.added_date }}</td>
+                        {% if user.is_superuser %}
+                            <td class="text-center">
+                                <form action="" method="post">{% csrf_token %}
+                                    <button class="btn btn-sm see-again-btn unwatch-btn"
+                                            type="submit" name="watchlist_del" value="{{ obj.const }}">delete</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            Need to be deleted from IMDb's Watchlist:
+            <table class="table table-hover table-bordered table-condensed">
+                <thead>
+                    <tr>
+                        <th class="text-center"></th>
+                        <th class="text-center">title</th>
+                        <th class="text-center">added</th>
+                        {% if user.is_superuser %}
+                            <th class="text-center">add again</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in delete %}
+                    <tr>
+                        <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                        <td><a href='http://www.imdb.com/title/{{ obj.const }}'>{{ obj.name }}</a></td>
+                        <td>{{ obj.added_date }}</td>
+                        {% if user.is_superuser and obj.set_to_delete %}
+                            <td class="text-center">
+                                <form action="" method="post">{% csrf_token %}
+                                    <button class="btn btn-sm see-again-btn watch-btn"
+                                            type="submit" name="watchlist_readd" value="{{ obj.const }}">Re-add</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
