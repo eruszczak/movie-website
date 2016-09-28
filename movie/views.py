@@ -245,11 +245,10 @@ def watchlist(request):
 
 def imdb_watchlist(request):
     if request.method == 'GET':
-        seen_titles = Entry.objects.all().values_list('const', flat=True)
         context = {
-            'seen': (x for x in Watchlist.objects.filter(const__in=seen_titles) if x.was_added_after_rate),
-            'not_seen': (x for x in Watchlist.objects.exclude(Q(const__in=seen_titles) | Q(set_to_delete=True)) if not x.was_added_after_rate),
-            'delete': [x for x in Watchlist.objects.filter(Q(const__in=seen_titles) | Q(set_to_delete=True)) if not x.was_added_after_rate],
+            'seen': Watchlist.objects.seen(),
+            'not_seen': Watchlist.objects.not_seen(),
+            'delete': Watchlist.objects.to_delete(),
             'title': 'IMDb Watchlist'
         }
         return render(request, 'imdb_watchlist.html', context)

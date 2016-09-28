@@ -4,18 +4,29 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 import csv
 from recommend.models import Recommendation
-from movie.models import Genre, Director, Type, Entry, Archive, Season, Episode, Log, Watchlist
+from movie.models import Genre, Director, Type, Entry, Archive, Log, Watchlist
 from prepareDB_utils import prepare_date_json, get_rss, get_omdb, download_posters, convert_to_datetime,\
     download_and_save_img, assign_existing_posters, extract_values_from_rss_item
+from utils.utils import email_watchlist
 
 
 def get_watchlist():
     itemlist = get_rss(source='watchlist')
+    without_to_delete = Watchlist.objects.exclude(
+        const__in=Watchlist.objects.to_delete().values_list('const', flat=True)
+    )
     if itemlist:
         current_watchlist = []
         for obj in itemlist:
             const, name, date = extract_values_from_rss_item(obj, for_watchlist=True)
             current_watchlist.append(const)
+            same_with_later_date = without_to_delete.filter(const=const, added_date__lt=date)
+            if same_with_later_date:
+                obj = same_with_later_date[0]
+                print(obj.name, 'changed date', obj.added_date, date)
+                obj.added_date = date
+                obj.save(update_fields=['added_date'])
+                continue
             if not Watchlist.objects.filter(const=const, added_date=date).exists():
                 Watchlist.objects.create(const=const, name=name, added_date=date)
                 print(name, 'adding to watchlist')
@@ -129,10 +140,14 @@ if len(sys.argv) > 1:
         get_watchlist()
     elif command == 'assign':
         assign_existing_posters()
+    elif command == 'email':
+        email_watchlist()
     # if sys.argv[1] == 'seasons':
     #     get_tv()
     sys.exit(0)
 
+
+print(Watchlist.show.to_delete())
 
 # def get_seasons_info(entry, totalSeasons):
 #     # collects for given entry (tv-show) info about episodes and seasons
