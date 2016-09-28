@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.utils.text import slugify
 from django.utils import timezone
 from django.db import models
+from django.db.models import Q
 from utils.utils import build_datetime_obj
 import datetime
 import sys
@@ -154,11 +155,36 @@ class Log(models.Model):
     updated_archived = models.IntegerField(blank=True, null=True, default=0)
 
 
+class WatchlistManager(models.Manager):
+    seen_titles = Entry.objects.all().values_list('const', flat=True)
+
+    def added_after_rate(self):
+        added_after_rate = [x.const for x in super().get_queryset() if x.was_added_after_rate]
+        return super().get_queryset().filter(const__in=added_after_rate)
+
+    def not_added_after_rate(self):
+        not_added_after_rate = [x.const for x in super().get_queryset() if not x.was_added_after_rate]
+        return super().get_queryset().filter(const__in=not_added_after_rate)
+
+    def to_delete(self):
+        return self.not_added_after_rate().filter(Q(const__in=self.seen_titles) | Q(set_to_delete=True))
+
+    def seen(self):
+        return self.added_after_rate().filter(const__in=self.seen_titles)
+
+    def not_seen(self):
+        return self.not_added_after_rate().exclude(Q(const__in=self.seen_titles) | Q(set_to_delete=True))
+
+
 class Watchlist(models.Model):
     const = models.CharField(max_length=30)
     name = models.TextField()
     added_date = models.DateField()
     set_to_delete = models.BooleanField(default=0)
+
+    # objects = models.Manager()
+    objects = WatchlistManager()
+    # show = WatchlistManager()
 
     class Meta:
         unique_together = ('const', 'added_date')
