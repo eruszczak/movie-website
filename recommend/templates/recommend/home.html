@@ -33,7 +33,7 @@
 {% if obj_list %}
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
-        <div class="alert alert-warning text-center" role="alert">{{ obj_list|length }} recommendation{{ obj_list|pluralize }} found</div>
+        <div class="alert alert-warning text-center" role="alert">{{ obj_list|length }} recommendation{{ obj_list|pluralize }} found. {{ count.active_recommendations }} left to watch</div>
     </div>
 </div>
 <table class="table table-hover table-bordered table-condensed">
@@ -50,7 +50,7 @@
         {% for obj in obj_list %}
         <tr class="">
             <th scope="row" class="col-md-1 text-center">{{ forloop.counter }}</th>
-            <td class=""><a href="{% if not obj.is_rated %}http://www.imdb.com/title/{{ obj.const }}/{% else %}{% url 'entry_details_redirect' const=obj.const %}{% endif %}" target="_blank">{{ obj.name }} </a>({{ obj.year }})</td>
+            <td class=""><a href="{% if not obj.is_rated %}http://www.imdb.com/title/{{ obj.const }}/{% else %}{% url 'entry_details_redirect' const=obj.const %}{% endif %}" target="_blank">{{ obj.name }}</a> ({{ obj.year }})</td>
             <td class="col-md-2 text-center">{{ obj.date }}</td>
             <td class="col-md-1 text-center">{% if obj.is_rated %}<i class="fa fa-check" aria-hidden="true"></i>{% else %}<i class="fa fa-times" aria-hidden="true"></i>{% endif %}</td>
             <td class="col-md-2 text-center" data-toggle="tooltip" data-placement="left" title="{{ obj.note }}">{{ obj.nick }}</td>

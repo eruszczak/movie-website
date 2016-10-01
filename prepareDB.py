@@ -147,7 +147,6 @@ if len(sys.argv) > 1:
     sys.exit(0)
 
 
-print(Watchlist.show.to_delete())
 
 # def get_seasons_info(entry, totalSeasons):
 #     # collects for given entry (tv-show) info about episodes and seasons

@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^charts/', include('chart.urls')),
     url(r'^book/', include('book.urls')),
     url(r'^search/', include('haystack.urls')),
+    url(r'^contact/', include('contact.urls')),
 
     url(r'^api/', include('movie.api.urls', namespace='api-movie')),
 

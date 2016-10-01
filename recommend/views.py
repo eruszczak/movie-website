@@ -23,11 +23,12 @@ def recommend(request):
             return redirect(reverse("recommend"))
     recommended_today = Recommendation.objects.filter(date=timezone.now()).count()
     context = {
-        'obj_list': Recommendation.objects.all().order_by('-date_insert'),
+        'obj_list': Recommendation.objects.all().order_by('is_rated', '-date_insert'),
         'form': form,
         'count': {
             'today': recommended_today,
-            'today2': recommended_today * 2
+            'today2': recommended_today * 2,
+            'active_recommendations': Recommendation.objects.filter(is_rated=False).count(),
         },
     }
     return render(request, 'recommend/home.html', context)

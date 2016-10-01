@@ -182,9 +182,7 @@ class Watchlist(models.Model):
     added_date = models.DateField()
     set_to_delete = models.BooleanField(default=0)
 
-    # objects = models.Manager()
     objects = WatchlistManager()
-    # show = WatchlistManager()
 
     class Meta:
         unique_together = ('const', 'added_date')
