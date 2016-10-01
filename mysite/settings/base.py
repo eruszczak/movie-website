@@ -31,6 +31,7 @@ LOCAL_APPS = [
     'chart',
     'book',
     'users',
+    'contact',
 
     'school',
 ]

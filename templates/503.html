@@ -1,0 +1,34 @@
+{% extends 'base_error.html' %}
+
+{% block content %}
+<div class="sign-container">
+    <div class="nob"></div>
+    <div class="post left"></div>
+    <div class="post right"></div>
+    <div class="pane">
+        <div class="headline sign-text-color">
+            503
+        </div>
+        <div class="context sign-text-color">
+            Looks like we're having<br>
+            some server issues.
+        </div>
+    </div>
+</div>
+<div class="text-container">
+    <div class="headline secondary-text-color">
+        503
+    </div>
+  <div class="context primary-text-color">
+
+    <p>
+      Go back to the previous page and try again.
+      If you think something is broken, report a problem.
+    </p>
+
+
+  </div>
+    <div class="buttons-container">
+        <a class="border-button" href="mailto:#" target="_blank"><span class="fa fa-warning"></span> Report Problem</a>
+    </div>
+{% endblock %}
