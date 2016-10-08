@@ -35,17 +35,18 @@
 					{% if user.is_superuser %}
 					<li class="list-group-item">
 						<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>
-						<form action="" method="post">
-							{% csrf_token %}
+						<form action="" method="post">{% csrf_token %}
 							{% if entry.watch_again_date %}
-							<input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
-									   value="don't want to see again" />
-							<!--<button id="test_put" type="button" class="btn btn-sm see-again-btn unwatch-btn">don't want to see again</button>-->
+                                <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch">Don't want to see again</button>
 							{% else %}
-							<input id="watch" class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch"
-									   value="want to see again" />
-							<!--<button id="test_put" type="button" class="btn btn-sm see-again-btn watch-btn">want to see again</button>-->
+                                <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch">Want to see again</button>
 							{% endif %}
+
+                            {% if not entry.get_favourite %}
+                                <button class="btn btn-sm" type="submit" name="fav_add">Best movie</button>
+                            {% else %}
+                                <button class="btn btn-sm" type="submit" name="fav_remove">Not Best movie</button>
+                            {% endif %}
 						</form>
 					</li>
 					{% endif %}
@@ -55,9 +56,8 @@
 		<div class="row">
 			<div class="col-xs-10 col-xs-offset-1"><br>
 				<div class="progress">
-					<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ entry.rate }}0%">
-					{{ entry.rate }}/10<span class="sr-only">40% Complete (success)</span>
-				  </div></div>
+					<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ entry.rate }}0%">{{ entry.rate }}/10</div>
+                </div>
 				{{ entry.plot }}
 			</div>
 		</div>

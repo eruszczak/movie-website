@@ -2,11 +2,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from django.db.models import Q, Count
 from django.contrib import messages
-from .models import Entry, Genre, Archive, Type, Director, Watchlist
+from .models import Entry, Genre, Archive, Type, Director, Watchlist, Favourite
 from .forms import EditEntry
 from utils.utils import paginate
 import datetime
 import calendar
+import re
 
 
 def home(request):
@@ -100,11 +101,16 @@ def entry_details(request, slug):
             messages.info(request, 'Only admin can edit', extra_tags='alert-info')
             return redirect(requested_obj)
 
-        if request.POST.get('watch'):
+        if 'watch' in request.POST.keys():
             requested_obj.watch_again_date = datetime.datetime.now()
-        elif request.POST.get('unwatch'):
+        elif 'unwatch' in request.POST.keys():
             requested_obj.watch_again_date = None
-        requested_obj.save()
+        requested_obj.save(update_fields=['watch_again_date'])
+
+        if 'fav_add' in request.POST.keys():
+            obj, created = Favourite.objects.update_or_create(entry=requested_obj)
+        elif 'fav_remove' in request.POST.keys():
+            Favourite.objects.filter(entry=requested_obj).delete()
         return redirect(reverse('entry_details', kwargs={'slug': slug}))
 
 
@@ -267,3 +273,24 @@ def imdb_watchlist(request):
             messages.info(request, '{} has been restored to the watchlist'.format(choosen_obj.name))
         choosen_obj.save(update_fields=['set_to_delete'])
         return redirect(reverse('imdb_watchlist'))
+
+
+def best(request):
+    if request.method == 'POST':
+        item_order = request.POST.get('item_order')
+        if item_order:
+            item_order = re.findall('tt\d{7}', item_order)
+            print(item_order)
+            for new_position, item in enumerate(item_order):
+                x = Favourite.objects.filter(entry__const=item).first()
+                print(x.entry.name, x.order)
+                x.order = new_position
+                x.save()
+                print(x.entry.name, x.order)
+                # Favourite.objects.filter(entry__const=item).update(order=new_position)
+    context = {
+        # 'ratings': Entry.objects.all().order_by('-rate_date')[:10],
+        # 'ratings': Entry.objects.filter(const__in=Favourite.objects.all().values_list('const', flat=True)),
+        'ratings': Favourite.objects.all().order_by('-order'),
+    }
+    return render(request, 'best.html', context)

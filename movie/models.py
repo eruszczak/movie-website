@@ -72,6 +72,11 @@ class Entry(models.Model):
         super(Entry, self).save(*args, **kwargs)
 
     @property
+    def get_favourite(self):
+        fav = Favourite.objects.filter(entry=self)
+        return fav.first() if fav else False
+
+    @property
     def yesterday_today_month(self):
         result = self.calculate_timedelta()
         if result in ('today', 'yesterday'):
@@ -202,4 +207,14 @@ class Watchlist(models.Model):
         return obj.rate_date <= self.added_date if obj else False
 
 
+class Favourite(models.Model):
+    entry = models.OneToOneField(Entry)
+    order = models.PositiveIntegerField(blank=True, null=True)
 
+    class Meta:
+        ordering = ['-order']
+
+    @property
+    def get_entry(self):
+        obj = Entry.objects.filter(const=self.const)
+        return obj[0] if obj else False
