@@ -34,3 +34,4 @@ for getting details about title [OMDb API](http://www.omdbapi.com/)
 ## Problems
 - [ ] Free pythonanywhere account doesn't allow to download stuff (so new titles don't have a posters)
 - [ ] API doesn't provide complete info about seasons and episodes, which is why I don't want to use it at all
+- [ ] I am not allowed there to send emails too

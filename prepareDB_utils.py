@@ -1,5 +1,5 @@
 import os
-import json
+import requests
 import urllib.request
 from time import strptime
 from datetime import datetime
@@ -36,20 +36,21 @@ def prepare_date_json(date):
 
 def convert_to_datetime(date):
     try:
-        # for xml (updating)
-        return datetime.strptime(date, '%a, %d %b %Y %H:%M:%S GMT')
+        return datetime.strptime(date, '%a, %d %b %Y %H:%M:%S GMT')  # for xml (updating)
     except ValueError:
-        # for csv (initial)
-        return datetime.strptime(date, '%a %b %d 00:00:00 %Y')
+        return datetime.strptime(date, '%a %b %d 00:00:00 %Y')  # for csv (initial) todo
 
 
 def get_rss(user='ur44264813', source='ratings'):
-    try:
-        req = urllib.request.urlopen('http://rss.imdb.com/user/{}/{}'.format(user, source))
-    except Exception as e:
-        print('rss error', e, type(e))
-        return False
-    return ET.fromstring(req.read()).findall('channel/item')
+    r = requests.get('http://rss.imdb.com/user/{}/{}'.format(user, source))
+    return ET.fromstring(r.text).findall('channel/item') if r.status_code == requests.codes.ok else False
+
+
+def get_omdb(const):
+    params = {'i': const, 'plot': 'full', 'type': 'true', 'tomatoes': 'true', 'r': 'json'}
+    r = requests.get('http://www.omdbapi.com/', params=params)
+    data_json = r.json()
+    return data_json if data_json.get('Response') == 'True' and r.status_code == requests.codes.ok else False
 
 
 def extract_values_from_rss_item(obj, for_watchlist=False):
@@ -60,15 +61,6 @@ def extract_values_from_rss_item(obj, for_watchlist=False):
         return const, name, date
     rate = obj.find('description').text.strip()[-3:-1].lstrip()
     return const, rate, date
-
-
-def get_omdb(const, api='http://www.omdbapi.com/?i={}&plot=full&type=true&tomatoes=true&r=json'):
-    try:
-        req = urllib.request.urlopen(api.format(const))
-    except Exception as e:
-        print('omdb error', e, type(e))
-        return False
-    return json.loads(req.read().decode('utf-8'))
 
 
 def download_posters():

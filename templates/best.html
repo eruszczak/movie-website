@@ -1,0 +1,64 @@
+{% comment %}
+{% extends "base.html" %}
+{% block title %}best{% endblock %}
+
+{% block content %}
+<div class="row">
+    <ul id="sortable">
+    {% for entry in ratings %}
+        <li class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s"></span>{{ entry.name }}</li>
+    {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+{% endcomment %}
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>jQuery UI Sortable - Default functionality</title>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <style>
+  #sortable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+  #sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; }
+  #sortable li span { position: absolute; margin-left: -1.3em; }
+  </style>
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+  $( function() {
+    $('ul').sortable({
+        placeholder: "ui-state-highlight",
+        axis: 'y',
+        update: function (event, ui) {
+	        var data = $(this).sortable('serialize');
+            $('span').html(data);
+            $.ajax({
+                data: {
+                    'item_order': data,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                type: 'POST',
+                url: '/best/'
+            });
+	    }
+    });
+    $( "#sortable" ).disableSelection();
+  } );
+  </script>
+</head>
+<body>
+
+<ul id="sortable">
+    {% for r in ratings %}
+    <li id="item-{{ r.entry.const }}" class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s"></span>{{ r.entry.name }}</li>
+    {% endfor %}
+</ul>
+Query string: <span></span>
+
+</body>
+</html>
