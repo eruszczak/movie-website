@@ -73,7 +73,7 @@ class Entry(models.Model):
 
     @property
     def get_favourite(self):
-        fav = Favourite.objects.filter(entry=self)
+        fav = Favourite.objects.filter(const=self.const)
         return fav.first() if fav else False
 
     @property
@@ -208,11 +208,14 @@ class Watchlist(models.Model):
 
 
 class Favourite(models.Model):
-    entry = models.OneToOneField(Entry)
     order = models.PositiveIntegerField(blank=True, null=True)
+    const = models.CharField(max_length=30)
 
-    class Meta:
-        ordering = ['-order']
+    # class Meta:
+    #     ordering = ['-order']
+
+    def __str__(self):
+        return self.entry.name
 
     @property
     def get_entry(self):

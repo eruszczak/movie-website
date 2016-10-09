@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
-from django.db.models import Q, Count
+from django.db.models import Q, Count, F
 from django.contrib import messages
 from .models import Entry, Genre, Archive, Type, Director, Watchlist, Favourite
 from .forms import EditEntry
@@ -8,6 +8,7 @@ from utils.utils import paginate
 import datetime
 import calendar
 import re
+from django.views.generic import View
 
 
 def home(request):
@@ -101,16 +102,20 @@ def entry_details(request, slug):
             messages.info(request, 'Only admin can edit', extra_tags='alert-info')
             return redirect(requested_obj)
 
-        if 'watch' in request.POST.keys():
-            requested_obj.watch_again_date = datetime.datetime.now()
-        elif 'unwatch' in request.POST.keys():
-            requested_obj.watch_again_date = None
-        requested_obj.save(update_fields=['watch_again_date'])
-
-        if 'fav_add' in request.POST.keys():
-            obj, created = Favourite.objects.update_or_create(entry=requested_obj)
-        elif 'fav_remove' in request.POST.keys():
-            Favourite.objects.filter(entry=requested_obj).delete()
+        keys = request.POST.keys()
+        if any(x in keys for x in ['watch', 'unwatch']):
+            if 'watch' in keys:
+                requested_obj.watch_again_date = datetime.datetime.now()
+            elif 'unwatch' in keys:
+                requested_obj.watch_again_date = None
+            requested_obj.save(update_fields=['watch_again_date'])
+        elif any(x in keys for x in ['fav_add', 'fav_remove']):
+            if 'fav_add' in keys:
+                Favourite.objects.create(const=requested_obj.const, order=Favourite.objects.all().count() + 1)
+            elif 'fav_remove' in keys:
+                to_delete = Favourite.objects.get(const=requested_obj.const)
+                Favourite.objects.filter(order__gt=to_delete.order).update(order=F('order') - 1)
+                to_delete.delete()
         return redirect(reverse('entry_details', kwargs={'slug': slug}))
 
 
@@ -275,22 +280,15 @@ def imdb_watchlist(request):
         return redirect(reverse('imdb_watchlist'))
 
 
-def best(request):
+def favourite(request):
     if request.method == 'POST':
         item_order = request.POST.get('item_order')
         if item_order:
             item_order = re.findall('tt\d{7}', item_order)
-            print(item_order)
-            for new_position, item in enumerate(item_order):
-                x = Favourite.objects.filter(entry__const=item).first()
-                print(x.entry.name, x.order)
-                x.order = new_position
-                x.save()
-                print(x.entry.name, x.order)
-                # Favourite.objects.filter(entry__const=item).update(order=new_position)
+            print('new_order', item_order)
+            for new_position, item in enumerate(item_order, 1):
+                Favourite.objects.filter(const=item).update(order=new_position)
     context = {
-        # 'ratings': Entry.objects.all().order_by('-rate_date')[:10],
-        # 'ratings': Entry.objects.filter(const__in=Favourite.objects.all().values_list('const', flat=True)),
-        'ratings': Favourite.objects.all().order_by('-order'),
+        'ratings': [(fav.order, fav.get_entry) for fav in Favourite.objects.all().order_by('order')],
     }
-    return render(request, 'best.html', context)
+    return render(request, 'favourite.html', context)

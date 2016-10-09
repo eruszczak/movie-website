@@ -83,3 +83,56 @@ $(document).ready(function() {
 
 
 // todo animation
+
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+
+function send_changed_order(data) {
+    $.ajax({
+    data: {
+        item_order: data,
+        csrfmiddlewaretoken: csrftoken
+    },
+    type: 'POST',
+    url: '/favourites/'
+    });
+}
+
+$( function() {
+    $('#sortable').sortable({
+        placeholder: 'sort-placeholder',
+        axis: 'y',
+        update: function (event, ui) {
+            $('#save-order').removeClass('disabled');
+            var data = $(this).sortable('serialize');
+            $(this).find('li').each(function(i){
+                $(this).find('p.item-order').text(i+1);
+            });
+            send_changed_order(data);
+        }
+    });
+    $( "#sortable" ).disableSelection();
+});
+
+$('#save-order').click(function() {
+    var data = $('#sortable').sortable('serialize');
+    send_changed_order(data);
+      // $(document).ajaxStop(function () {
+          window.location.reload(false);
+    // });
+});

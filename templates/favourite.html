@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <button id="save-order" type="button" class="btn btn-primary btn-xs disabled">save</button>
+    <ul id="sortable">
+        {% for order, entry in ratings %}
+        <li id="item-{{ entry.const }}" class="ui-state-default">
+            <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>{{ entry.name }} {{ entry.const }}<p class="item-order">{{ order }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    Query string: <span></span>
+{% endblock %}
