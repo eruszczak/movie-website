@@ -4,7 +4,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 import csv
 from recommend.models import Recommendation
-from movie.models import Genre, Director, Type, Entry, Archive, Log, Watchlist
+from movie.models import Genre, Director, Type, Entry, Archive, Log, Watchlist, Favourite
 from prepareDB_utils import prepare_date_json, get_rss, get_omdb, download_posters, convert_to_datetime,\
     download_and_save_img, assign_existing_posters, extract_values_from_rss_item
 from utils.utils import email_watchlist
@@ -140,7 +140,7 @@ if len(sys.argv) > 1:
 
 
 # print(sorted(Watchlist.objects.all(), key=lambda k: (k.added_date, k.get_entry)))
-
+print(Favourite.objects.all().order_by('-order'))
 # def get_seasons_info(entry, totalSeasons):
 #     # collects for given entry (tv-show) info about episodes and seasons
 #     for i in range(1, totalSeasons + 1):
