@@ -13,10 +13,10 @@ def build_url(url, **kwargs):
     return url
 
 
-def build_datetime_obj(obj):
-    if isinstance(obj, datetime.date):
-        return datetime.datetime(obj.year, obj.month, obj.day)
-    return None
+# def build_datetime_obj(obj):
+#     if isinstance(obj, datetime.date):
+#         return datetime.datetime(obj.year, obj.month, obj.day)
+#     return None
 
 
 def paginate(query_set, page, page_size=50):

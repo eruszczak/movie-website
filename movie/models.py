@@ -4,13 +4,12 @@ from django.utils.text import slugify
 from django.utils import timezone
 from django.db import models
 from django.db.models import Q
-from utils.utils import build_datetime_obj
 import datetime
 import sys
-
+from django.contrib.auth.models import User
 
 class Genre(models.Model):
-    name = models.CharField(max_length=30, unique=True)
+    name = models.CharField(max_length=50, unique=True)
 
     def get_absolute_url(self):
         return reverse('entry_show_from_genre', kwargs={'genre': self.name})
@@ -26,38 +25,53 @@ class Director(models.Model):
         return self.name
 
 
-class Type(models.Model):
-    name = models.CharField(max_length=30, unique=True)
+class Actor(models.Model):
+    name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return self.name
 
 
-class Entry(models.Model):
+class Type(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Title(models.Model):
+    actor = models.ManyToManyField(Actor)
     genre = models.ManyToManyField(Genre)
     director = models.ManyToManyField(Director)
     type = models.ForeignKey(Type, on_delete=models.CASCADE)
-    const = models.CharField(max_length=30, unique=True)
-    name = models.TextField(blank=True, null=True)
-    rate = models.IntegerField(blank=True, null=True)
+
+    const = models.CharField(unique=True, max_length=7)
+    name = models.TextField()
+
     rate_imdb = models.FloatField(blank=True, null=True)
-    rate_date = models.DateField(blank=True, null=True)
-    runtime = models.CharField(max_length=30, blank=True, null=True)
-    year = models.CharField(max_length=30, blank=True, null=True)
-    release_date = models.CharField(blank=True, null=True, max_length=30)
-    votes = models.CharField(max_length=30, blank=True, null=True)
-    url_imdb = models.URLField(blank=True, null=True)
-    url_poster = models.URLField(blank=True, null=True)
-    url_tomato = models.URLField(blank=True, null=True)
-    tomato_user_meter = models.CharField(max_length=30, blank=True, null=True)
-    tomato_user_rate = models.CharField(max_length=30, blank=True, null=True)
-    tomato_user_reviews = models.CharField(max_length=30, blank=True, null=True)
+    runtime = models.IntegerField(blank=True, null=True)
+    year = models.IntegerField(blank=True, null=True)
+    release_date = models.DateField(blank=True, null=True)
+    votes = models.IntegerField(blank=True, null=True)
+
+    url_imdb = models.URLField(blank=True, null=True, max_length=200)
+    url_tomato = models.URLField(blank=True, null=True, max_length=200)
+    tomato_meter = models.IntegerField(blank=True, null=True)
+    tomato_rating = models.FloatField(blank=True, null=True)
+    tomato_reviews = models.IntegerField(blank=True, null=True)
+    tomato_fresh = models.IntegerField(blank=True, null=True)
+    tomato_rotten = models.IntegerField(blank=True, null=True)
+    tomato_user_meter = models.IntegerField(blank=True, null=True)
+    tomato_user_rating = models.FloatField(blank=True, null=True)
+    tomato_user_reviews = models.IntegerField(blank=True, null=True)
     tomatoConsensus = models.TextField(blank=True, null=True)
+
+    inserted_date = models.DateTimeField(default=timezone.now)
+    last_updated = models.DateTimeField(auto_now=True)
+
     plot = models.TextField(blank=True, null=True)
-    inserted_by_updater = models.BooleanField(default=False)
-    inserted_date = models.DateTimeField(default=timezone.now, blank=True)
-    slug = models.SlugField(unique=True)
-    img = models.ImageField(null=True, blank=True)
+    slug = models.SlugField(unique=True, max_length=255)
+    img = models.ImageField(upload_to='poster', null=True, blank=True)  # changed path, need a fix
     watch_again_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
@@ -69,155 +83,45 @@ class Entry(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             self.slug = slugify('{} {}'.format(self.name, self.year))
-        super(Entry, self).save(*args, **kwargs)
-
-    @property
-    def get_favourite(self):
-        fav = Favourite.objects.filter(const=self.const)
-        return fav.first() if fav else False
-
-    @property
-    def yesterday_today_month(self):
-        result = self.calculate_timedelta()
-        if result in ('today', 'yesterday'):
-            return result
-        elif self.rate_date.strftime('%Y-%m') == datetime.datetime.today().strftime('%Y-%m'):
-            return 'this month'
-        return False
-
-    @property
-    def timesince_rating(self):
-        result = self.calculate_timedelta()
-        if result in ('today', 'yesterday'):
-            return result
-        return '{} days ago'.format(result)
-
-    def calculate_timedelta(self):
-        timedelta = (datetime.datetime.now() - build_datetime_obj(self.rate_date)).days
-        return 'today' if timedelta == 0 else 'yesterday' if timedelta == 1 else timedelta
+        if not self.url_imdb:
+            self.url_imdb = 'http://www.imdb.com/title/{}/'.format(self.const)
+        super(Title, self).save(*args, **kwargs)
 
 
-class Archive(models.Model):
-    const = models.CharField(max_length=30, blank=True, null=True)
-    rate = models.CharField(max_length=30, blank=True, null=True)
+class Rating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    rate = models.IntegerField(blank=True, null=True)
     rate_date = models.DateField(blank=True, null=True)
-    watch_again_date = models.DateField(blank=True, null=True)
 
-    def __str__(self):
-        return self.const
-
-    @property
-    def days_since_added_to_watchlist(self):
-        current_rating_date = self.calculate_next_rating()
-        added = build_datetime_obj(self.watch_again_date)
-        days_diff = (current_rating_date - added).days
-        return days_diff
-
-    @property
-    def days_since_previous_rating(self):
-        current_rating_date = self.calculate_next_rating()
-        archived_rating_date = build_datetime_obj(self.rate_date)
-        days_diff = (current_rating_date - archived_rating_date).days
-        return days_diff
-
-    @property
-    def get_entry(self):
-        return get_object_or_404(Entry, const=self.const)
-
-    def calculate_next_rating(self):
-        find_objs = None
-        called_by = sys._getframe(1).f_code.co_name
-        if called_by == 'days_since_added_to_watchlist':
-            find_objs = Archive.objects.filter(const=self.const, rate_date__gt=self.watch_again_date)
-        elif called_by == 'days_since_previous_rating':
-            find_objs = Archive.objects.filter(const=self.const, rate_date__gt=self.rate_date)
-        if find_objs:
-            obj = find_objs[0].rate_date  # assume [0] is the first possible
-            current_date = build_datetime_obj(obj)
-        else:
-            entry = get_object_or_404(Entry, const=self.const)
-            current_date = build_datetime_obj(entry.rate_date)
-        return current_date
+    class Meta:
+        unique_together = ('user', 'title', 'rate', 'rate_date')
 
 
-class Season(models.Model):
-    entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
-    number = models.IntegerField(blank=True, null=True)
 
-
-class Episode(models.Model):
-    season = models.ForeignKey(Season, on_delete=models.CASCADE)
-    const = models.CharField(max_length=30, unique=True)
-    number = models.FloatField(blank=True, null=True)
-    name = models.TextField(blank=True, null=True)
-    release_date = models.CharField(blank=True, null=True, max_length=30)
-    rate_imdb = models.CharField(max_length=30, blank=True, null=True)
-
-
-class Log(models.Model):
-    date = models.DateTimeField(default=timezone.now, blank=True)
-    new_inserted = models.IntegerField(blank=True, null=True, default=0)
-    updated_archived = models.IntegerField(blank=True, null=True, default=0)
-
-
-class WatchlistManager(models.Manager):
-    seen_titles = Entry.objects.all().values_list('const', flat=True)
-
-    def added_after_rate(self):
-        added_after_rate = [x.const for x in super().get_queryset() if x.was_added_after_rate]
-        return super().get_queryset().filter(const__in=added_after_rate)
-
-    def not_added_after_rate(self):
-        not_added_after_rate = [x.const for x in super().get_queryset() if not x.was_added_after_rate]
-        return super().get_queryset().filter(const__in=not_added_after_rate)
-
-    def to_delete(self):
-        return self.not_added_after_rate().filter(Q(const__in=self.seen_titles) | Q(set_to_delete=True))
-
-    def seen(self):
-        return self.added_after_rate().filter(const__in=self.seen_titles)
-
-    def not_seen(self):
-        return self.not_added_after_rate().exclude(Q(const__in=self.seen_titles) | Q(set_to_delete=True))
+# class Season(models.Model):
+#     entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
+#     number = models.IntegerField(blank=True, null=True)
+#
+#
+# class Episode(models.Model):
+#     season = models.ForeignKey(Season, on_delete=models.CASCADE)
+#     const = models.CharField(max_length=150, unique=True)
+#     number = models.FloatField(blank=True, null=True)
+#     name = models.TextField(blank=True, null=True)
+#     release_date = models.CharField(blank=True, null=True, max_length=150)
+#     rate_imdb = models.CharField(max_length=150, blank=True, null=True)
 
 
 class Watchlist(models.Model):
-    const = models.CharField(max_length=30)
-    name = models.TextField()
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
     added_date = models.DateField()
-    set_to_delete = models.BooleanField(default=0)
-
-    objects = WatchlistManager()
-
-    class Meta:
-        unique_together = ('const', 'added_date')
-        ordering = ['-added_date']
-
-    def __str__(self):
-        return self.name
-
-    @property
-    def get_entry(self):
-        obj = Entry.objects.filter(const=self.const)
-        return obj[0] if obj else False
-
-    @property
-    def was_added_after_rate(self):
-        obj = self.get_entry
-        return obj.rate_date <= self.added_date if obj else False
+    set_to_delete = models.BooleanField(default=False)
 
 
 class Favourite(models.Model):
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
     order = models.PositiveIntegerField(blank=True, null=True)
-    const = models.CharField(max_length=30)
-
-    # class Meta:
-    #     ordering = ['-order']
 
     def __str__(self):
         return self.entry.name
-
-    @property
-    def get_entry(self):
-        obj = Entry.objects.filter(const=self.const)
-        return obj[0] if obj else False

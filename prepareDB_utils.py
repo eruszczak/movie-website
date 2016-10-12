@@ -1,48 +1,24 @@
 import os
 import requests
 import urllib.request
-from time import strptime
 from datetime import datetime
 import xml.etree.ElementTree as ET
-from movie.models import Entry
+from movie.models import Title
 from django.core.files import File
 from mysite.settings import MEDIA_ROOT, BASE_DIR
 
 
-def prepare_date_csv(d):
-    'Sat Nov 12 00:00:00 1993 -> 1993-11-12'
-    num_to_month_name = str(strptime(d[4:7], '%b').tm_mon)
-    if len(num_to_month_name) == 1:
-        num_to_month_name = '0' + num_to_month_name
-    new_d = '{}-{}-{}'.format(d[-4:], num_to_month_name, d[8:10].replace(' ', '0'))
-    return new_d
+def convert_to_datetime(date_string, source):
+    if source == 'xml':
+        return datetime.strptime(date_string, '%a, %d %b %Y %H:%M:%S GMT')
+    elif source == 'csv':
+        return datetime.strptime(date_string, '%a %b %d 00:00:00 %Y')
+    elif source == 'json':
+        return datetime.strptime(date_string, '%d %b %Y')
 
 
-def prepare_date_xml(date):
-    'Sat, 30 Apr 2016 00:00:00 GMT -> 2016-04-30'
-    month = str(strptime(date[8:11], '%b').tm_mon)
-    month = '0' + month if len(month) == 1 else month
-    new_date = '{}-{}-{}'.format(date[12:16], month, date[5:7])
-    return new_date
-
-
-def prepare_date_json(date):
-    '07 Aug 2015 -> 2015-08-07'
-    month = str(strptime(date[3:6], '%b').tm_mon)
-    month = '0' + month if len(month) == 1 else month
-    new_date = '{}-{}-{}'.format(date[-4:], month, date[:2])
-    return new_date
-
-
-def convert_to_datetime(date):
-    try:
-        return datetime.strptime(date, '%a, %d %b %Y %H:%M:%S GMT')  # for xml (updating)
-    except ValueError:
-        return datetime.strptime(date, '%a %b %d 00:00:00 %Y')  # for csv (initial) todo
-
-
-def get_rss(user='ur44264813', source='ratings'):
-    r = requests.get('http://rss.imdb.com/user/{}/{}'.format(user, source))
+def get_rss(imdb_id='ur44264813', source='ratings'):
+    r = requests.get('http://rss.imdb.com/user/{}/{}'.format(imdb_id, source))
     return ET.fromstring(r.text).findall('channel/item') if r.status_code == requests.codes.ok else False
 
 
@@ -53,7 +29,7 @@ def get_omdb(const):
     return data_json if data_json.get('Response') == 'True' and r.status_code == requests.codes.ok else False
 
 
-def extract_values_from_rss_item(obj, for_watchlist=False):
+def unpack_from_rss_item(obj, for_watchlist=False):
     const = obj.find('link').text[-10:-1]
     date = convert_to_datetime(obj.find('pubDate').text)
     if for_watchlist:
@@ -65,7 +41,7 @@ def extract_values_from_rss_item(obj, for_watchlist=False):
 
 def download_posters():
     folder = os.path.join(BASE_DIR, 'movie', 'static', 'img', 'posters')
-    for obj in Entry.objects.all():
+    for obj in Title.objects.all():
         title = obj.const + '.jpg'
         img_path = os.path.join(folder, title)
         if obj.url_poster == 'N/A':
@@ -118,7 +94,7 @@ def download_and_save_img(obj):
 
 def assign_existing_posters(obj=None):
     if not obj:
-        objs = Entry.objects.filter(img='')
+        objs = Title.objects.filter(img='')
     else:
         objs = [obj]
     for obj in objs:
