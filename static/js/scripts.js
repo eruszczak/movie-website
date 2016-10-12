@@ -104,12 +104,12 @@ var csrftoken = getCookie('csrftoken');
 
 function send_changed_order(data) {
     $.ajax({
-    data: {
-        item_order: data,
-        csrfmiddlewaretoken: csrftoken
-    },
-    type: 'POST',
-    url: '/favourites/'
+        data: {
+            item_order: data,
+            csrfmiddlewaretoken: csrftoken
+        },
+        type: 'POST',
+        url: '/favourites/'
     });
 }
 
