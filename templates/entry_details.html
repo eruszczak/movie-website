@@ -23,7 +23,7 @@
 						<a href="{% url 'entry_show_from_director' pk=director.id %}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>
 						{% endfor %}</li>
 					  {% if entry.votes != 'N/A' %}<li class="list-group-item">{{ entry.votes }} votes</li>{% endif %}
-					  <li class="list-group-item">current rating: <a href="{% url 'entry_show_from_rate' rate=entry.rate %}">{{ entry.rate }}</a></li>
+{#					  <li class="list-group-item">current rating: <a href="{% url 'entry_show_from_rate' rate=entry.rate %}">{{ entry.rate }}</a></li>#}
 					{% if entry.rate_imdb >= 1  %}<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>{% endif %}
 					<li class="list-group-item">rated on: <a href="{{ link_month }}">{{ entry.rate_date|date:"d.m.Y" }}</a>
 						{% if entry.yesterday_today_month %}
@@ -34,7 +34,7 @@
 					</li>
 					{% if user.is_superuser %}
 					<li class="list-group-item">
-						<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>
+{#						<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>#}
 						<form action="" method="post">{% csrf_token %}
 							{% if entry.watch_again_date %}
                                 <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch">Don't want to see again</button>
@@ -93,7 +93,7 @@
 					<li><a href="{{ entry.url_imdb }}">imdb</a></li>
 					<li><a href="{{ entry.url_tomato }}">rotten tomatoes</a></li>
 					<li><a href="{% url 'entry_details_redirect' const=entry.const %}">shorter link</a></li>
-					<li><a id="watchlist-link" href="{% url 'watchlist' %}">see watchlist</a></li>
+{#					<li><a id="watchlist-link" href="{% url 'watchlist' %}">see watchlist</a></li>#}
 				</ul>
 			</div>
 		</div>

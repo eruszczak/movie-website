@@ -1,5 +1,5 @@
 import pygal
-from movie.models import Genre, Entry
+from movie.models import Genre, Title
 from django.db.models import Count
 from django.core.urlresolvers import reverse
 
@@ -28,7 +28,7 @@ def chart_genres():
 def chart_ratings():
     line_chart = pygal.Bar()
     line_chart.title = 'Rating distribution'
-    rate_count = Entry.objects.values('rate').annotate(the_count=Count('rate')).order_by('rate')
+    rate_count = Title.objects.values('rate').annotate(the_count=Count('rate')).order_by('rate')
     rate_count = sorted(rate_count, key=lambda x: int(x['rate']), reverse=True)
     # line_chart.x_labels = [x['rate'] for x in rate_count]
 
@@ -88,7 +88,7 @@ def chart_last_year_ratings(year=2015):
 
 
 def distribution_by_year():
-    data = Entry.objects.values('year').annotate(the_count=Count('year')).order_by('year')
+    data = Title.objects.values('year').annotate(the_count=Count('year')).order_by('year')
     line_chart = pygal.Bar(show_legend=False)
     line_chart.title = 'Rating distribution by year'
     for obj in data:

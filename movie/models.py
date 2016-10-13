@@ -45,7 +45,7 @@ class Title(models.Model):
     director = models.ManyToManyField(Director)
     type = models.ForeignKey(Type, on_delete=models.CASCADE)
 
-    const = models.CharField(unique=True, max_length=7)
+    const = models.CharField(unique=True, max_length=9)
     name = models.TextField()
 
     rate_imdb = models.FloatField(blank=True, null=True)
@@ -54,6 +54,7 @@ class Title(models.Model):
     release_date = models.DateField(blank=True, null=True)
     votes = models.IntegerField(blank=True, null=True)
 
+    url_poster = models.URLField(blank=True, null=True, max_length=200)
     url_imdb = models.URLField(blank=True, null=True, max_length=200)
     url_tomato = models.URLField(blank=True, null=True, max_length=200)
     tomato_meter = models.IntegerField(blank=True, null=True)
@@ -73,6 +74,9 @@ class Title(models.Model):
     slug = models.SlugField(unique=True, max_length=255)
     img = models.ImageField(upload_to='poster', null=True, blank=True)  # changed path, need a fix
     watch_again_date = models.DateField(blank=True, null=True)
+
+    class Meta:
+        ordering = ('-rating__rate_date', '-inserted_date')
 
     def __str__(self):
         return '{} {}'.format(self.name, self.year)
@@ -113,7 +117,7 @@ class Rating(models.Model):
 #     rate_imdb = models.CharField(max_length=150, blank=True, null=True)
 
 
-class Watchlist(models.Model):
+class ImdbWatchlist(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     added_date = models.DateField()
     set_to_delete = models.BooleanField(default=False)

@@ -4,22 +4,22 @@ from collections import OrderedDict
 from utils.utils import build_url
 from chart.charts import count_for_month_lists
 
-from ..models import Entry, Genre
+from ..models import Title, Genre
 from django.db.models import Q, Count
 
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView
 from .pagination import SetPagination
-from .serializers import EntryListSerializer, GenreListSerializer, EntryWatchListSerializer
+from .serializers import TitleListSerializer, GenreListSerializer, TitleWatchListSerializer
 
 
-class EntryListView(ListAPIView):
-    serializer_class = EntryListSerializer
+class TitleListView(ListAPIView):
+    serializer_class = TitleListSerializer
     pagination_class = SetPagination
 
     def get_queryset(self):
-        queryset = Entry.objects.all().order_by('-rate_date')
+        queryset = Title.objects.all().order_by('-rate_date')
         query = self.request.GET.get('q')
         year = self.request.GET.get('year')
         genre = self.request.GET.get('genre')
@@ -41,15 +41,15 @@ class EntryListView(ListAPIView):
             queryset = queryset.filter(year=year)
         if rated_year and rated_month:
             # queryset = queryset.filter(rate_date__year=rated_year),
-            queryset = Entry.objects.filter(rate_date__year=rated_year, rate_date__month=rated_month)
+            queryset = Title.objects.filter(rate_date__year=rated_year, rate_date__month=rated_month)
         if genre:
             queryset = Genre.objects.get(name=genre).entry_set.all()
         return queryset
 
 
-class EntryDetailView(RetrieveAPIView):
-    queryset = Entry.objects.all()
-    serializer_class = EntryListSerializer
+class TitleDetailView(RetrieveAPIView):
+    queryset = Title.objects.all()
+    serializer_class = TitleListSerializer
     lookup_field = 'slug'
 
 
@@ -72,7 +72,7 @@ class Genre2(ListAPIView):
 class RateListView(ListAPIView):
     def get(self, request, *args, **kwargs):
         abs_url = request.build_absolute_uri(reverse('api-movie:entry_list'))
-        rate_count = Entry.objects.values('rate').annotate(the_count=Count('rate')).order_by('rate')
+        rate_count = Title.objects.values('rate').annotate(the_count=Count('rate')).order_by('rate')
         for obj in rate_count:
             obj['details'] = build_url(abs_url, get={'rated': obj['rate']})
         response = Response(rate_count)
@@ -82,7 +82,7 @@ class RateListView(ListAPIView):
 class YearListView(ListAPIView):
     def get(self, request, *args, **kwargs):
         abs_url = request.build_absolute_uri(reverse('api-movie:entry_list'))
-        year_count = Entry.objects.values('year').annotate(the_count=Count('year')).order_by('year')
+        year_count = Title.objects.values('year').annotate(the_count=Count('year')).order_by('year')
         for obj in year_count:
             obj['details'] = build_url(abs_url, get={'year': obj['year']})
         response = Response(year_count)
@@ -118,8 +118,8 @@ class MonthListView(ListAPIView):
 
 
 class WatchAgainUpdateView(UpdateAPIView):
-    queryset = Entry.objects.all()
-    serializer_class = EntryWatchListSerializer
+    queryset = Title.objects.all()
+    serializer_class = TitleWatchListSerializer
     lookup_field = 'slug'
 
     def get(self, request, *args, **kwargs):

@@ -1,6 +1,6 @@
 import datetime
 from haystack import indexes
-from .models import Entry
+from .models import Title
 
 
 class EntryIndex(indexes.SearchIndex, indexes.Indexable):

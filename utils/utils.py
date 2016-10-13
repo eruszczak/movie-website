@@ -42,8 +42,8 @@ def send_email(subject, message):
 
 
 def email_watchlist():
-    from movie.models import Watchlist
-    delete = Watchlist.objects.to_delete()
+    from movie.models import ImdbWatchlist
+    delete = ImdbWatchlist.objects.to_delete()
     message = """
                 <table class="table table-hover table-bordered table-condensed">
                 <thead>

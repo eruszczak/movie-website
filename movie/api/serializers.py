@@ -1,9 +1,9 @@
-from ..models import Entry, Genre
+from ..models import Title, Genre
 from rest_framework import serializers
 # from rest_framework.filters import SearchFilter, OrderingFilter
 
 
-class EntryListSerializer(serializers.ModelSerializer):
+class TitleListSerializer(serializers.ModelSerializer):
     genre = serializers.SerializerMethodField()
     director = serializers.SerializerMethodField()
     detail_url = serializers.HyperlinkedIdentityField(view_name='api-movie:entry_detail', lookup_field='slug')
@@ -13,7 +13,7 @@ class EntryListSerializer(serializers.ModelSerializer):
     # filter_backends = [SearchFilter, OrderingFilter]        # /?search=, &ordering=-date
     # search_fields = ['title', 'content']                    # different way, built-in search
     class Meta:
-        model = Entry
+        model = Title
         fields = 'name year genre director detail_url rate const watch_again_date rate_date rate_date2 detail'.split()
         # fields = '__all__'
 
@@ -28,11 +28,11 @@ class EntryListSerializer(serializers.ModelSerializer):
         return obj.rate_date.strftime('%b %d, %A')
 
 
-class EntryDetailSerializer(serializers.ModelSerializer):
+class TitleDetailSerializer(serializers.ModelSerializer):
     # detail_url = serializers.HyperlinkedIdentityField(view_name='entry-api:detail')
 
     class Meta:
-        model = Entry
+        model = Title
         fields = ['name']
         # fields = '__all__'
 
@@ -47,9 +47,9 @@ class GenreListSerializer(serializers.ModelSerializer):
         fields = ['name', 'the_count']
 
 
-class EntryWatchListSerializer(serializers.ModelSerializer):
+class TitleWatchListSerializer(serializers.ModelSerializer):
     watch_again_date = serializers.ReadOnlyField()
     class Meta:
-        model = Entry
+        model = Title
         fields = ['watch_again_date']
         # read_only_fields = ('watch_again_date', )
