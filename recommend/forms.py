@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 import re
-from movie.models import Entry
+from movie.models import Title
 from .models import Recommendation
 from prepareDB_utils import get_omdb
 from crispy_forms.helper import FormHelper

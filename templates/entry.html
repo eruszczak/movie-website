@@ -21,7 +21,7 @@
                     <th class="text-center">title</th>
                     <th class="text-center">rating</th>
                     {% if user.is_superuser %}
-                        <th class="text-center"><a id="watchlist-link" href="{% url 'watchlist' %}">watchlist</a></th>
+{#                        <th class="text-center"><a id="watchlist-link" href="{% url 'watchlist' %}">watchlist</a></th>#}
                     {% endif %}
                 </tr>
             </thead>
@@ -29,7 +29,7 @@
                 {% for obj in ratings %}
                 <tr>
                     <th scope="row" class="col-md-1 text-center">{{ forloop.counter0|add:ratings.start_index }}</th>
-                    <td class="col-md-9" style="padding-left: 20px"><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a></td>
+{#                    <td class="col-md-9" style="padding-left: 20px"><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a></td>#}
                     <td class="text-center">{{ obj.rate }}</td>
                     {% if user.is_superuser %}
                         <td class="text-center">
