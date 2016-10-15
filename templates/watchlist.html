@@ -24,15 +24,14 @@
                         {% for obj in ratings %}
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
-{#                            <td><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }}</a></td>#}
-                            <td>{{ obj.rate }}</td>
-                            <td>{{ obj.rate_date }}</td>
-                            {% if user.is_superuser %}
+                            <td><a href="{% url 'entry_details' slug=obj.title.slug %}">{{ obj.title.name }}</a></td>
+{#                            <td>{{ obj.rate }}</td>#}
+{#                            <td>{{ obj.rate_date }}</td>#}
+                            {% if user.is_superuser and obj.imdb and not obj.deleted %}
                                 <td class="text-center">
                                     <form action="" method="post">{% csrf_token %}
-                                        <input id="unwatch" class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch"
-                                               value="don't want to see again" />
-                                        <input id="choosen_object" name="const" value="{{ obj.const }}" hidden>
+                                        <button class="btn btn-sm see-again-btn unwatch-btn" type="watchlist_imdb_delete" name="delete" value="delete">Don't want to see again</button>
+                                        <input id="choosen_object" name="const" value="{{ obj.title.const }}" hidden>
                                     </form>
                                 </td>
                             {% endif %}
@@ -42,35 +41,35 @@
                 </table>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="col-md-12">
-                    <p class="lead text-center">History watchlist</p>
-                    <table class="table table-hover table-bordered table-condensed">
-                        <thead>
-                            <tr>
-                                <th class="text-center"></th>
-                                <th class="text-center">title</th>
-                                <th class="text-center">rating</th>
-                                <th class="text-center">added</th>
-                                <th class="text-center">watched after</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for obj in history %}
-                            <tr>
-                                <th scope="row" class="text-center">{{ forloop.counter }}</th>
+{#        <div class="row">#}
+{#            <div class="col-md-12">#}
+{#                <div class="col-md-12">#}
+{#                    <p class="lead text-center">History watchlist</p>#}
+{#                    <table class="table table-hover table-bordered table-condensed">#}
+{#                        <thead>#}
+{#                            <tr>#}
+{#                                <th class="text-center"></th>#}
+{#                                <th class="text-center">title</th>#}
+{#                                <th class="text-center">rating</th>#}
+{#                                <th class="text-center">added</th>#}
+{#                                <th class="text-center">watched after</th>#}
+{#                            </tr>#}
+{#                        </thead>#}
+{#                        <tbody>#}
+{#                            {% for obj in history %}#}
+{#                            <tr>#}
+{#                                <th scope="row" class="text-center">{{ forloop.counter }}</th>#}
 {#                                <td><a href="{% url 'entry_details' slug=obj.get_entry.slug %}">{{ obj.get_entry.name }}</a></td>#}
-                                <td>{{ obj.rate }}</td>
-                                <td>{{ obj.watch_again_date }}</td>
-                                <td>{{ obj.days_since_added_to_watchlist }} days</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+{#                                <td>{{ obj.rate }}</td>#}
+{#                                <td>{{ obj.watch_again_date }}</td>#}
+{#                                <td>{{ obj.days_since_added_to_watchlist }} days</td>#}
+{#                            </tr>#}
+{#                            {% endfor %}#}
+{#                        </tbody>#}
+{#                    </table>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
     </div>
 
     <div class="col-md-4">
