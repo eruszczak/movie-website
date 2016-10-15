@@ -52,14 +52,14 @@ def get_watchlist(user):
             const, name, date = unpack_from_rss_item(obj, for_watchlist=True)
             title = get_title_or_create(const)
             current_watchlist.append(const)
-            Watchlist.objects.update_or_create(user=user, title=title, added_date=date, imdb=True)
-            # if not Watchlist.objects.filter(user=user).filter(title=title, added_date=date).exists():
-            #     Watchlist.objects.create(user=user, title=title, added_date=date, imdb=True)
+            # Watchlist.objects.update_or_create(user=user, title=title, added_date=date, imdb=True)
+            if not Watchlist.objects.filter(user=user).filter(title=title, added_date=date, imdb=True, deleted=True).exists():
+                Watchlist.objects.create(user=user, title=title, added_date=date, imdb=True)
 
         to_delete = [x for x in Watchlist.objects.filter(user=user, imdb=True).exclude(title__const__in=current_watchlist) if not x.is_rated_with_later_date]
         for obj in to_delete:
             print('deleting', obj.title, obj.added_date)
-            obj.delete()
+            # obj.delete()
 # this should be done only once per user! WHEN it has been uploaded
 # BOOLEAN FIELD if it has been successfull. it'd great if not using omdbapi... but fuck it
 
@@ -104,13 +104,15 @@ from users.models import UserProfile
 user = User.objects.filter(username='admin')[0]
 UserProfile.objects.filter(user=user).update(imdb_id='ur44264813')
 profile, created = UserProfile.objects.update_or_create(user=user)
+
 # user = profile
 # Title.objects.all().delete()
 # update_from_csv(user)
-print(get_watchlist(user))
-print(user)
-print(user.userprofile)
-print(user.userprofile.imdb_ratings)
+update_from_rss(user)
+# get_watchlist(user)
+# print(user)
+# print(user.userprofile)
+# print(user.userprofile.imdb_ratings)
 if len(sys.argv) > 1:
     command = sys.argv[1]
     if command == 'csv':

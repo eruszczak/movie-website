@@ -42,17 +42,17 @@ def explore(request):
     #         choosen_obj.watch_again_date = None
     #     choosen_obj.save(update_fields=['watch_again_date'])
     #     return redirect(request.META.get('HTTP_REFERER'))
-    entries = Title.objects.all()
+    entries = Rating.objects.filter(user=request.user)
     query = request.GET.get('q')
     selected_type = request.GET.get('select_type')
     if selected_type in 'movie series'.split():
         # entries = entries.filter(Q(type_id=Type.objects.get(name=selected_type).id))
-        entries = entries.filter(Q(type__name=selected_type))
+        entries = entries.filter(Q(title__type__name=selected_type))
     if query:
         if len(query) > 2:
-            entries = entries.filter(Q(name__icontains=query) | Q(year=query)).distinct()
+            entries = entries.filter(Q(title__name__icontains=query) | Q(title__year=query)).distinct()
         else:
-            entries = entries.filter(Q(name__startswith=query) | Q(year=query)).distinct()
+            entries = entries.filter(Q(title__name__startswith=query) | Q(title__year=query)).distinct()
 
     page = request.GET.get('page')
     ratings = paginate(entries, page)
@@ -170,28 +170,29 @@ def entry_details_redirect(request, const):
 
 def entry_groupby_year(request):
     context = {
-        'year_count': Title.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
+        'year_count': Title.objects.filter(rating__user=request.user).values('year').annotate(the_count=Count('year')).order_by('-year'),
     }
     return render(request, 'entry_groupby_year.html', context)
 
 
 def entry_groupby_genre(request):
     context = {
-        'genre': Genre.objects.all().annotate(num=Count('title')).order_by('-num'),  # todo, genre.set all?
+        'genre': Genre.objects.filter(title__rating__user=request.user).annotate(num=Count('title')).order_by('-num'),  # todo, genre.set all?
     }
     return render(request, 'entry_groupby_genre.html', context)
 
 
 def entry_groupby_director(request):
     context = {
-        'director': Director.objects.filter(title__type__name='movie').annotate(num=Count('title')).order_by('-num')[:50],
+        'director': Director.objects.filter(title__rating__user=request.user, title__type__name='movie'
+                                            ).annotate(num=Count('title')).order_by('-num')[:50],
     }
     return render(request, 'entry_groupby_director.html', context)
 
 
 def entry_show_from_year(request, year):
     # entries = Title.objects.filter(year=year).order_by('-rate', '-rate_imdb', '-votes')
-    entries = Title.objects.filter(year=year)
+    entries = Title.objects.filter(rating__user=request.user, year=year)
     page = request.GET.get('page')
     ratings = paginate(entries, page)
     context = {
@@ -213,7 +214,7 @@ def entry_show_rated_in_month(request, year, month):
 
 
 def entry_show_from_genre(request, genre):
-    entries = Genre.objects.get(name=genre).title_set.all()
+    entries = Genre.objects.get(name=genre).title_set.filter(rating__user=request.user)
     page = request.GET.get('page')
     ratings = paginate(entries, page)
     context = {
@@ -235,7 +236,7 @@ def entry_show_from_rate(request, rate):
 
 
 def entry_show_from_director(request, pk):
-    entries = Director.objects.get(id=pk).title_set.all()
+    entries = Director.objects.get(id=pk).title_set.filter(rating__user=request.user)
     page = request.GET.get('page')
     ratings = paginate(entries, page)
     context = {
@@ -247,20 +248,20 @@ def entry_show_from_director(request, pk):
 
 def watchlist(request):
     if request.method == 'POST':
-        if not request.user.is_superuser:
-            messages.info(request, 'Only admin can do this', extra_tags='alert-info')
-            return redirect(reverse('watchlist'))
-        choosen_obj = get_object_or_404(Title, const=request.POST.get('const'))
-        if request.POST.get('unwatch'):
-            choosen_obj.watch_again_date = None
-        choosen_obj.save()
+        # if not request.user.is_superuser:
+        #     messages.info(request, 'Only admin can do this', extra_tags='alert-info')
+        #     return redirect(reverse('watchlist'))
+        if request.POST.get('watchlist_imdb_delete'):
+            Watchlist.objects.filter(user=request.user, title__const=request.POST.get('const'),
+                                     imdb=True, deleted=False).update(deleted=True)
         return redirect(reverse('watchlist'))
 
     context = {
         # 'ratings': Title.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),todo isnull problem
         # 'ratings': [e for e in Watchlist.objects.all() if not e.is_rated_with_later_date],
-        'ratings': Watchlist.objects.all(),
-        'title': 'See again'
+        'ratings': Watchlist.objects.filter(user=request.user),
+        'title': 'See again',
+        'archive': [e for e in Watchlist.objects.filter(user=request.user) if e.is_rated_with_later_date],
     }
     return render(request, 'watchlist.html', context)
 

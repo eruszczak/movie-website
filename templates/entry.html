@@ -29,19 +29,19 @@
                 {% for obj in ratings %}
                 <tr>
                     <th scope="row" class="col-md-1 text-center">{{ forloop.counter0|add:ratings.start_index }}</th>
-{#                    <td class="col-md-9" style="padding-left: 20px"><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a></td>#}
+                    <td class="col-md-9" style="padding-left: 20px"><a href="{% url 'entry_details' slug=obj.title.slug %}">{{ obj.title.name }} ({{ obj.title.year }})</a></td>
                     <td class="text-center">{{ obj.rate }}</td>
                     {% if user.is_superuser %}
-                        <td class="text-center">
-                            <form action="" method="post">{% csrf_token %}
-                                {% if obj.watch_again_date %}
-                                    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch">Don't want to see again</button>
-                                {% else %}
-                                    <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch">Want to see again</button>
-                                {% endif %}
-                                <input name="const" value="{{ obj.const }}" type="hidden">
-                            </form>
-                        </td>
+{#                        <td class="text-center">#}
+{#                            <form action="" method="post">{% csrf_token %}#}
+{#                                {% if obj.watch_again_date %}#}
+{#                                    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch">Don't want to see again</button>#}
+{#                                {% else %}#}
+{#                                    <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch">Want to see again</button>#}
+{#                                {% endif %}#}
+{#                                <input name="const" value="{{ obj.const }}" type="hidden">#}
+{#                            </form>#}
+{#                        </td>#}
                     {% endif %}
                 </tr>
                 {% endfor %}

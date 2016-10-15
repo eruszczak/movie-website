@@ -122,6 +122,7 @@ class Watchlist(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     added_date = models.DateField(default=timezone.now)
     imdb = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return '{} {}'.format(self.title.name, self.title.year)
