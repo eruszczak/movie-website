@@ -24,7 +24,7 @@
                         {% for obj in ratings %}
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                            <td><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }}</a></td>
+{#                            <td><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }}</a></td>#}
                             <td>{{ obj.rate }}</td>
                             <td>{{ obj.rate_date }}</td>
                             {% if user.is_superuser %}
@@ -60,7 +60,7 @@
                             {% for obj in history %}
                             <tr>
                                 <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                                <td><a href="{% url 'entry_details' slug=obj.get_entry.slug %}">{{ obj.get_entry.name }}</a></td>
+{#                                <td><a href="{% url 'entry_details' slug=obj.get_entry.slug %}">{{ obj.get_entry.name }}</a></td>#}
                                 <td>{{ obj.rate }}</td>
                                 <td>{{ obj.watch_again_date }}</td>
                                 <td>{{ obj.days_since_added_to_watchlist }} days</td>

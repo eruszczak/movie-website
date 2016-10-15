@@ -13,10 +13,14 @@ def build_url(url, **kwargs):
     return url
 
 
-# def build_datetime_obj(obj):
-#     if isinstance(obj, datetime.date):
-#         return datetime.datetime(obj.year, obj.month, obj.day)
-#     return None
+def prepare_json(json):
+    json['imdbVotes'] = json['imdbVotes'].replace(',', '')
+    json['Runtime'] = json['Runtime'][:-4] if json['Runtime'] != 'N/A' else None
+    json['Year'] = json['Year'][:4] if json['Year'] != 'N/A' else None
+    for k, v in json.items():
+        if v == 'N/A' and k not in ['Genre', 'Director', 'Actors']:
+            json[k] = None
+    return json
 
 
 def paginate(query_set, page, page_size=50):

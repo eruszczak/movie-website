@@ -30,7 +30,7 @@ LOCAL_APPS = [
     # 'recommend',
     # 'chart',
     # 'book',
-    # 'users',
+    'users',
     # 'contact',
     #
     # 'school',

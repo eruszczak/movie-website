@@ -3,34 +3,30 @@ import django, os, sys
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 import csv
-from recommend.models import Recommendation
 from movie.models import *
 from prepareDB_utils import *
-from utils.utils import email_watchlist
+from utils.utils import email_watchlist, prepare_json
 
 
 def get_title_data(const):
     json = get_omdb(const)
     if json:
-        title_type, created = Type.objects.get_or_create(name=json['Type'].lower())
-        json['imdbVotes'] = json['imdbVotes'].replace(',', '')
-        for k, v in json.items():
-            if v == 'N/A' and k not in ['Genre', 'Director', 'Actors']:
-                json[k] = None
+        json = prepare_json(json)
         tomatoes = dict(
             tomato_meter=json['tomatoMeter'], tomato_rating=json['tomatoRating'], tomato_reviews=json['tomatoReviews'],
             tomato_fresh=json['tomatoFresh'], tomato_rotten=json['tomatoRotten'], url_tomato=json['tomatoURL'],
             tomato_user_meter=json['tomatoUserMeter'], tomato_user_rating=json['tomatoUserRating'],
             tomato_user_reviews=json['tomatoUserReviews'], tomatoConsensus=json['tomatoConsensus']
         )
+        title_type = Type.objects.get_or_create(name=json['Type'].lower())[0]
         title = Title(const=const, name=json['Title'], type=title_type, rate_imdb=json['imdbRating'],
-                      runtime=json['Runtime'][:-4], year=json['Year'][:4], url_poster=json['Poster'],
+                      runtime=json['Runtime'], year=json['Year'], url_poster=json['Poster'],
                       release_date=convert_to_datetime(json['Released'], 'json'),
                       votes=json['imdbVotes'], plot=json['Plot'], **tomatoes
         )
-        # print(title.__dict__)
         title.save()
-        download_and_save_img(title)
+        if title.url_poster:
+            get_and_assign_poster(title)
         for genre in json['Genre'].split(', '):
             genre, created = Genre.objects.get_or_create(name=genre.lower())
             title.genre.add(genre)
@@ -42,20 +38,38 @@ def get_title_data(const):
             title.actor.add(actor)
 
 
+def get_title_or_create(const):
+    if not Title.objects.filter(const=const).exists():
+        get_title_data(const)
+    return Title.objects.get(const=const)
 
 
+def get_watchlist(user):
+    itemlist = get_rss(user.userprofile.imdb_id, 'watchlist')
+    if itemlist:
+        current_watchlist = []
+        for obj in itemlist:
+            const, name, date = unpack_from_rss_item(obj, for_watchlist=True)
+            title = get_title_or_create(const)
+            current_watchlist.append(const)
+            Watchlist.objects.update_or_create(user=user, title=title, added_date=date, imdb=True)
+            # if not Watchlist.objects.filter(user=user).filter(title=title, added_date=date).exists():
+            #     Watchlist.objects.create(user=user, title=title, added_date=date, imdb=True)
+
+        to_delete = [x for x in Watchlist.objects.filter(user=user, imdb=True).exclude(title__const__in=current_watchlist) if not x.is_rated_with_later_date]
+        for obj in to_delete:
+            print('deleting', obj.title, obj.added_date)
+            obj.delete()
 # this should be done only once per user! WHEN it has been uploaded
 # BOOLEAN FIELD if it has been successfull. it'd great if not using omdbapi... but fuck it
 
 # there should be option to not include ratings.csv and only use RSS - so only provide your profil url / imdb id
 def update_from_csv(user):
-    # with open(user.imdb_id, 'r') as f:
+    # with open(user.userprofile.imdb_id, 'r') as f:
     with open('ratings.csv', 'r') as f:
         reader = csv.DictReader(f)
         for num, row in enumerate(reader):
-            if not Title.objects.filter(const=row['const']).exists():
-                get_title_data(row['const'])
-            title = Title.objects.get(const=row['const'])
+            title = get_title_or_create(row['const'])
             # this can be only done when there are no ratings
             rate_date = convert_to_datetime(row['created'], 'csv')
             Rating.objects.create(user=user, title=title, rate=row['You rated'], rate_date=rate_date)
@@ -63,14 +77,11 @@ def update_from_csv(user):
 
 # but there must be an option for updating every user and single user
 def update_from_rss(user):  # maybe default suer will be admin
-    itemlist = get_rss(imdb_id=user.userprofile.imdb_id, source='ratings')
+    itemlist = get_rss(user.userprofile.imdb_id, 'ratings')
     if itemlist:
         for num, obj in enumerate(itemlist):
             const, rate, rate_date = unpack_from_rss_item(obj)
-            if not Title.objects.filter(const=const).exists():
-                get_title_data(const)
-
-            title = Title.objects.get(const=const)
+            title = get_title_or_create(const)
             if not Rating.objects.filter(user=user, title=title, rate=rate, rate_date=rate_date).exists():
                 Rating.objects.create(user=user, title=title, rate=rate, rate_date=rate_date)
                 # else:
@@ -91,10 +102,12 @@ def update_users_ratings_from_rss():
 #         update_from_rss(user)
 from users.models import UserProfile
 user = User.objects.filter(username='admin')[0]
-# profile, created = UserProfile.objects.update_or_create(user=user, imdb_ratings='./ratings.csv')
+UserProfile.objects.filter(user=user).update(imdb_id='ur44264813')
+profile, created = UserProfile.objects.update_or_create(user=user)
 # user = profile
-Title.objects.all().delete()
-update_from_csv(user)
+# Title.objects.all().delete()
+# update_from_csv(user)
+print(get_watchlist(user))
 print(user)
 print(user.userprofile)
 print(user.userprofile.imdb_ratings)

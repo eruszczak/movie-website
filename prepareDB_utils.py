@@ -9,6 +9,8 @@ from mysite.settings import MEDIA_ROOT, BASE_DIR
 
 
 def convert_to_datetime(date_string, source):
+    if date_string is None:
+        return None
     if source == 'xml':
         return datetime.strptime(date_string, '%a, %d %b %Y %H:%M:%S GMT')
     elif source == 'csv':
@@ -31,7 +33,7 @@ def get_omdb(const):
 
 def unpack_from_rss_item(obj, for_watchlist=False):
     const = obj.find('link').text[-10:-1]
-    date = convert_to_datetime(obj.find('pubDate').text)
+    date = convert_to_datetime(obj.find('pubDate').text, 'xml')
     if for_watchlist:
         name = obj.find('title').text
         return const, name, date
@@ -72,7 +74,7 @@ def unpack_from_rss_item(obj, for_watchlist=False):
 #             pass
 
 
-def download_and_save_img(obj):
+def get_and_assign_poster(obj):
     title = obj.slug + '.jpg'
     try:
         img = urllib.request.urlretrieve(obj.url_poster)[0]
