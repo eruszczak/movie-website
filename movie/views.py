@@ -14,19 +14,17 @@ from django.views.generic import View
 def home(request):
     # manager for getting user's ratings
     # show others ratings maybe
-    all_movies = Title.objects.filter(rating__user=request.user, type__name='movie')
-    all_series = Title.objects.filter(rating__user=request.user, type__name='series')
+    all_movies = Rating.objects.filter(user=request.user, title__type__name='movie')
+    all_series = Rating.objects.filter(user=request.user, title__type__name='series')
     context = {
-        'ratings': Title.objects.all()[:10],
-        'info': {
-            'last_movie': all_movies[0],
-            'last_series': all_series[0] if all_series else None,
-            'last_good': all_movies.filter(rating__rate__gte=5)[0],
-            'movie_count': all_movies.count(),
-            'series_count': all_series.count(),
-            # 'search_movies': reverse('explore') + '?select_type=movie&q=',
-            # 'search_series': reverse('explore') + '?select_type=series&q=',
-        }
+        'ratings': all_movies,
+        'last_movie': all_movies[0].title if all_movies else None,
+        'last_series': all_series[0].title if all_series else all_movies[0].title,
+        'last_good': all_movies.filter(rate__gte=5)[0].title,
+        'movie_count': all_movies.count(),
+        'series_count': all_series.count(),
+        # 'search_movies': reverse('explore') + '?select_type=movie&q=',
+        # 'search_series': reverse('explore') + '?select_type=series&q=',
     }
     return render(request, 'home.html', context)
 
@@ -88,21 +86,33 @@ def explore(request):
 #
 def entry_details(request, slug):
     requested_obj = get_object_or_404(Title, slug=slug)
-    if request.method == 'GET':
-        context = {
-            'entry': requested_obj,
-            'archive': Rating.objects.filter(title=requested_obj, user=request.user),
-            # 'link_month': reverse('entry_show_rated_in_month',
-            #                       kwargs={'year': requested_obj.rate_date.year, 'month': requested_obj.rate_date.month})
-        }
-        return render(request, 'entry_details.html', context)
-#
-#     if request.method == 'POST':
 #         if not request.user.is_superuser:
 #             messages.info(request, 'Only admin can edit', extra_tags='alert-info')
 #             return redirect(requested_obj)
-#
-#         keys = request.POST.keys()  # todo not a fan of this. its bcs I used btn and value is '', maybe add value
+        # every user can edit if have this rated but anons
+    if request.method == 'POST':
+        watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
+        fav_add, fav_remove = request.POST.get('fav_add'), request.POST.get('fav_remove')
+        if watch or unwatch:
+            if watch:
+                requested_obj.watch_again_date = datetime.datetime.now()
+            elif unwatch:
+                requested_obj.watch_again_date = None
+            # requested_obj.save(update_fields=['watch_again_date'])
+        elif fav_add or fav_remove:
+            if fav_add:
+                pass
+            elif fav_remove:
+                pass
+    context = {
+        'entry': requested_obj,
+        'archive': Rating.objects.filter(title=requested_obj, user=request.user),
+        # 'link_month': reverse('entry_show_rated_in_month',
+        #                       kwargs={'year': requested_obj.rate_date.year, 'month': requested_obj.rate_date.month})
+    }
+    return render(request, 'entry_details.html', context)
+
+#         keys = request.POST.keys()  # todo not a fan of this. its bcs I used btn and value is '', maybe add value!
 #         if any(x in keys for x in ['watch', 'unwatch']):
 #             if 'watch' in keys:
 #                 requested_obj.watch_again_date = datetime.datetime.now()
@@ -117,39 +127,40 @@ def entry_details(request, slug):
 #                 Favourite.objects.filter(order__gt=to_delete.order).update(order=F('order') - 1)
 #                 to_delete.delete()
 #         return redirect(reverse('entry_details', kwargs={'slug': slug}))
-#
-#
-# def entry_edit(request, slug):
-#     requested_obj = get_object_or_404(Title, slug=slug)
-#     if not request.user.is_superuser:
-#         messages.info(request, 'Only admin can edit', extra_tags='alert-info')
-#         return redirect(requested_obj)
-#
-#     form = EditRating(instance=Rating.objects.filter(user=request.user, title=requested_obj))
-#     if request.method == 'POST':
-#         form = EditRating(request.POST)
-#         if form.is_valid():
-#             new_rate = form.cleaned_data.get('rate')
-#             new_date = form.cleaned_data.get('rate_date')
-#             # message = ''
-#             # if requested_obj.rating_set.first() != int(new_rate):
-#             #     message += 'rating: {} changed for {}'.format(requested_obj.rate, new_rate)
-#             #     requested_obj.rate = new_rate
-#             # if requested_obj.rate_date != new_date:
-#             #     message += ', ' if message else ''
-#             #     message += 'date: {} changed for {}'.format(requested_obj.rate_date, new_date)
-#             #     requested_obj.rate_date = new_date
-#             # if message:
-#             #     messages.success(request, message, extra_tags='alert-success')
-#             # else:
-#             #     messages.info(request, 'nothing changed', extra_tags='alert-info')
-#             # requested_obj.save(update_fields=['rating__rate', 'rating__rate_date'])
-#             return redirect(requested_obj)
-#     context = {
-#         'form': form,
-#         'entry': requested_obj,
-#     }
-#     return render(request, 'entry_edit.html', context)
+
+
+def entry_edit(request, slug):
+    requested_obj = get_object_or_404(Title, slug=slug)
+    # if not request.user.is_superuser:
+    #     messages.info(request, 'Only admin can edit', extra_tags='alert-info')
+    #     return redirect(requested_obj)
+
+    form = EditRating(instance=Rating.objects.filter(user=request.user, title=requested_obj).first())
+    if request.method == 'POST':
+        last_rating = Rating.objects.filter(user=request.user, title=requested_obj).first()
+        form = EditRating(request.POST)
+        if form.is_valid():
+            new_rate = form.cleaned_data.get('rate')
+            new_date = form.cleaned_data.get('rate_date')
+            message = ''
+            if last_rating.rate != int(new_rate):
+                message += 'rating: {} changed for {}'.format(last_rating.rate, new_rate)
+                last_rating.rate = new_rate
+            if last_rating.rate_date != new_date:
+                message += ', ' if message else ''
+                message += 'date: {} changed for {}'.format(last_rating.rate_date, new_date)
+                last_rating.rate_date = new_date
+            if message:
+                messages.success(request, message, extra_tags='alert-success')
+                last_rating.save(update_fields=['rate', 'rate_date'])
+            else:
+                messages.info(request, 'nothing changed', extra_tags='alert-info')
+            return redirect(requested_obj)
+    context = {
+        'form': form,
+        'entry': requested_obj,
+    }
+    return render(request, 'entry_edit.html', context)
 
 
 def entry_details_redirect(request, const):
@@ -234,27 +245,26 @@ def entry_show_from_director(request, pk):
     return render(request, 'entry_show_from.html', context)
 
 
-# def watchlist(request):
-#     if request.method == 'GET':
-#         context = {
-#             # 'ratings': Title.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),todo isnull problem
-#             'ratings': [e for e in Title.objects.all() if e.watch_again_date],
-#             # 'history': Archive.objects.filter(watch_again_date__isnull=False),
-#             'title': 'See again'
-#         }
-#         return render(request, 'watchlist.html', context)
-#
-#     if request.method == 'POST':
-#         if not request.user.is_superuser:
-#             messages.info(request, 'Only admin can do this', extra_tags='alert-info')
-#             return redirect(reverse('watchlist'))
-#         choosen_obj = get_object_or_404(Title, const=request.POST.get('const'))
-#         if request.POST.get('unwatch'):
-#             choosen_obj.watch_again_date = None
-#         choosen_obj.save()
-#         return redirect(reverse('watchlist'))
-#
-#
+def watchlist(request):
+    if request.method == 'POST':
+        if not request.user.is_superuser:
+            messages.info(request, 'Only admin can do this', extra_tags='alert-info')
+            return redirect(reverse('watchlist'))
+        choosen_obj = get_object_or_404(Title, const=request.POST.get('const'))
+        if request.POST.get('unwatch'):
+            choosen_obj.watch_again_date = None
+        choosen_obj.save()
+        return redirect(reverse('watchlist'))
+
+    context = {
+        # 'ratings': Title.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),todo isnull problem
+        # 'ratings': [e for e in Watchlist.objects.all() if not e.is_rated_with_later_date],
+        'ratings': Watchlist.objects.all(),
+        'title': 'See again'
+    }
+    return render(request, 'watchlist.html', context)
+
+
 # def imdb_watchlist(request):
 #     if request.method == 'GET':
 #         context = {

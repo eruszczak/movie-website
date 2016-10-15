@@ -19,15 +19,15 @@
                 <div class="row">
                     <div class="col-md-6">
                         <ul>
-                            <li>Last movie: <a href="{% url 'entry_details' slug=info.last_movie.slug %}">{{ info.last_movie.name }}</a></li>
-{#                            <li>Last tv-show: <a href="{% url 'entry_details' slug=info.last_series.slug %}">{{ info.last_series.name }}</a></li>#}
-                            <li>Last movie rated 9-10: <a href="{% url 'entry_details' slug=info.last_good.slug %}">{{ info.last_good.name }}</a></li>
+                            <li>Last movie: <a href="{% url 'entry_details' slug=last_movie.slug %}">{{ last_movie.name }}</a></li>
+                            <li>Last tv-show: <a href="{% url 'entry_details' slug=last_series.slug %}">{{ last_series.name }}</a></li>
+                            <li>Last movie rated 9-10: <a href="{% url 'entry_details' slug=last_good.slug %}">{{ last_good.name }}</a></li>
                         </ul>
                     </div>
                     <div class="col-md-6">
                         <ul>
-                            <li>Watched series: <a href="explore/?select_type=series&q=">{{ info.series_count }}</a></li>
-                            <li>Watched movies: <a href="{{ info.search_movies }}">{{ info.movie_count }}</a></li>
+                            <li>Watched series: <a href="explore/?select_type=series&q=">{{ series_count }}</a></li>
+                            <li>Watched movies: <a href="{{ search_movies }}">{{ movie_count }}</a></li>
                         </ul>
                     </div>
                 </div>
@@ -40,13 +40,13 @@
     <div class="col-md-6">
         <div class="last10 well well-sm {% cycle 'odd' 'even' %}">
             <div class="pull-left num">{{ forloop.counter }}</div>
-            <a href="{% url 'entry_details' slug=entry.slug %}"><img class="img-thumbnail pull-left" src="{% if entry.img %}{{ entry.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style=""></a>
+            <a href="{% url 'entry_details' slug=entry.title.slug %}"><img class="img-thumbnail pull-left" src="{% if entry.title.img %}{{ entry.title.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style=""></a>
             <div class="content">
-                <h5><a href="{% url 'entry_details' slug=entry.slug %}">{{ entry.name }} ({{ entry.year }})</a></h5>
+                <h5><a href="{% url 'entry_details' slug=entry.title.slug %}">{{ entry.title.name }} ({{ entry.title.year }})</a></h5>
                 {% for i in 'xxxxxxxxxx' %}
                     <i class="fa {% if forloop.counter <= entry.rate %}fa-star{% else %}fa-star-o{% endif %}" aria-hidden="true"></i>
                 {% endfor %}
-                <h5>{{ entry.rate_date|date:"F d" }}</h5>
+                <h5>{{ entry.title.rate_date|date:"F d" }}</h5>
             </div>
 
         </div>

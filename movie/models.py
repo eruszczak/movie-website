@@ -72,7 +72,7 @@ class Title(models.Model):
 
     plot = models.TextField(blank=True, null=True)
     slug = models.SlugField(unique=True, max_length=255)
-    img = models.ImageField(upload_to='poster', null=True, blank=True)  # changed path, need a fix
+    img = models.ImageField(upload_to='poster', null=True, blank=True)
     watch_again_date = models.DateField(blank=True, null=True)
 
     class Meta:
@@ -117,15 +117,33 @@ class Rating(models.Model):
 #     rate_imdb = models.CharField(max_length=150, blank=True, null=True)
 
 
-class ImdbWatchlist(models.Model):
+class Watchlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
-    added_date = models.DateField()
-    set_to_delete = models.BooleanField(default=False)
+    added_date = models.DateField(default=timezone.now)
+    imdb = models.BooleanField(default=False)
 
+    def __str__(self):
+        return '{} {}'.format(self.title.name, self.title.year)
+
+    @property
+    def is_rated_with_later_date(self):
+        return Rating.objects.filter(user=self.user, title=self.title, rate_date__gt=self.added_date).exists()  # , title__watchlist__imdb=True
+# class Watchlist(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     title = models.ForeignKey(Title, on_delete=models.CASCADE)
+#     added_date = models.DateTimeField(default=timezone.now)
+    # set_to_delete = models.BooleanField(default=False)
+    # history
+    # but this needs to accept every title, now only 'see-again'
+    # add to watchlist what others saw
+    # there were plans to dele
 
 class Favourite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    added_date = models.DateTimeField(default=timezone.now)
     order = models.PositiveIntegerField(blank=True, null=True)
 
     def __str__(self):
-        return self.entry.name
+        return '{} {}'.format(self.title.name, self.title.year)
