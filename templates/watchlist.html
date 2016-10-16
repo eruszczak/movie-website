@@ -30,7 +30,7 @@
                             {% if user.is_superuser and obj.imdb and not obj.deleted %}
                                 <td class="text-center">
                                     <form action="" method="post">{% csrf_token %}
-                                        <button class="btn btn-sm see-again-btn unwatch-btn" type="watchlist_imdb_delete" name="delete" value="delete">Don't want to see again</button>
+                                        <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="watchlist_imdb_delete" value="delete">Don't want to see again</button>
                                         <input id="choosen_object" name="const" value="{{ obj.title.const }}" hidden>
                                     </form>
                                 </td>

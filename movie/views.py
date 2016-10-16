@@ -106,7 +106,7 @@ def entry_details(request, slug):
                 pass
     context = {
         'entry': requested_obj,
-        'archive': Rating.objects.filter(title=requested_obj, user=request.user),
+        'archive': Rating.objects.filter(user=request.user).filter(title=requested_obj),
         # 'link_month': reverse('entry_show_rated_in_month',
         #                       kwargs={'year': requested_obj.rate_date.year, 'month': requested_obj.rate_date.month})
     }
@@ -245,7 +245,6 @@ def entry_show_from_director(request, pk):
     }
     return render(request, 'entry_show_from.html', context)
 
-
 def watchlist(request):
     if request.method == 'POST':
         # if not request.user.is_superuser:
@@ -259,7 +258,7 @@ def watchlist(request):
     context = {
         # 'ratings': Title.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),todo isnull problem
         # 'ratings': [e for e in Watchlist.objects.all() if not e.is_rated_with_later_date],
-        'ratings': Watchlist.objects.filter(user=request.user),
+        'ratings': Watchlist.objects.filter(user=request.user, deleted=False),
         'title': 'See again',
         'archive': [e for e in Watchlist.objects.filter(user=request.user) if e.is_rated_with_later_date],
     }

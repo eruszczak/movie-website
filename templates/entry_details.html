@@ -79,7 +79,7 @@
 						<tr>
 							<td class="">{{ a.rate_date|date:"Y-m-d" }}</td>
 							<td class="">{{ a.rate }}</td>
-							<td class="text-center">duration: {{ a.days_since_previous_rating }} days</td>
+							<td class="text-center">duration: {{ a.next_rating_days_diff }} days</td>
 						</tr>
 					{% endfor %}
 					</table>

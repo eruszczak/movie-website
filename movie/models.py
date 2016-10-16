@@ -4,7 +4,7 @@ from django.utils.text import slugify
 from django.utils import timezone
 from django.db import models
 from django.db.models import Q
-import datetime
+from datetime import datetime
 import sys
 from django.contrib.auth.models import User
 
@@ -100,7 +100,22 @@ class Rating(models.Model):
 
     class Meta:
         unique_together = ('user', 'title', 'rate', 'rate_date')
+        ordering = ('-rate_date', )
 
+    def __str__(self):
+        return '{} {}'.format(self.title.name, self.rate_date)
+
+    # rating manager -> Watchlist.objects.current rating for user
+    @property
+    def current_rating(self):
+        return Rating.objects.filter(user=self.user).filter(title=self.title).first()
+
+    @property
+    def next_rating_days_diff(self):
+        next_rating = Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.rate_date).last()
+        if next_rating:
+            return (next_rating.rate_date - self.rate_date).days
+        return (datetime.now().date() - self.rate_date).days
 
 
 # class Season(models.Model):
@@ -120,25 +135,27 @@ class Rating(models.Model):
 class Watchlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
-    added_date = models.DateField(default=timezone.now)
+    added_date = models.DateTimeField(default=timezone.now)
     imdb = models.BooleanField(default=False)
     deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ('-added_date', )
+        unique_together = ('user', 'title', 'added_date', 'imdb')
 
     def __str__(self):
         return '{} {}'.format(self.title.name, self.title.year)
 
     @property
     def is_rated_with_later_date(self):
-        return Rating.objects.filter(user=self.user, title=self.title, rate_date__gt=self.added_date).exists()  # , title__watchlist__imdb=True
-# class Watchlist(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     title = models.ForeignKey(Title, on_delete=models.CASCADE)
-#     added_date = models.DateTimeField(default=timezone.now)
-    # set_to_delete = models.BooleanField(default=False)
-    # history
-    # but this needs to accept every title, now only 'see-again'
-    # add to watchlist what others saw
-    # there were plans to dele
+        return Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.added_date).exists()  # , title__watchlist__imdb=True
+
+    # in view send property above and in template use property below
+    @property
+    def rated_after_days_diff(self):
+        rating = Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.added_date).last()
+        if rating:
+            return rating.rate_date - self.added_date
 
 class Favourite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
