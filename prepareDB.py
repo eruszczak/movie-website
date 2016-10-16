@@ -48,18 +48,23 @@ def get_watchlist(user):
     itemlist = get_rss(user.userprofile.imdb_id, 'watchlist')
     if itemlist:
         current_watchlist = []
+        user_watchlist = Watchlist.objects.filter(user=user)
         for obj in itemlist:
             const, name, date = unpack_from_rss_item(obj, for_watchlist=True)
             title = get_title_or_create(const)
             current_watchlist.append(const)
             # Watchlist.objects.update_or_create(user=user, title=title, added_date=date, imdb=True)
-            if not Watchlist.objects.filter(user=user).filter(title=title, added_date=date, imdb=True, deleted=True).exists():
+            print(date)
+            if not user_watchlist.filter(title=title, added_date=date, imdb=True).exists():
+                print('adding to watchlist', user, title, date)
                 Watchlist.objects.create(user=user, title=title, added_date=date, imdb=True)
 
-        to_delete = [x for x in Watchlist.objects.filter(user=user, imdb=True).exclude(title__const__in=current_watchlist) if not x.is_rated_with_later_date]
+        to_delete = [x for x in user_watchlist.filter(imdb=True).exclude(title__const__in=current_watchlist)
+                     if not x.is_rated_with_later_date]
         for obj in to_delete:
             print('deleting', obj.title, obj.added_date)
             # obj.delete()
+
 # this should be done only once per user! WHEN it has been uploaded
 # BOOLEAN FIELD if it has been successfull. it'd great if not using omdbapi... but fuck it
 
@@ -79,10 +84,11 @@ def update_from_csv(user):
 def update_from_rss(user):  # maybe default suer will be admin
     itemlist = get_rss(user.userprofile.imdb_id, 'ratings')
     if itemlist:
+        user_ratings = Rating.objects.filter(user=user)
         for num, obj in enumerate(itemlist):
             const, rate, rate_date = unpack_from_rss_item(obj)
             title = get_title_or_create(const)
-            if not Rating.objects.filter(user=user, title=title, rate=rate, rate_date=rate_date).exists():
+            if not user_ratings.filter(title=title, rate=rate, rate_date=rate_date).exists():
                 Rating.objects.create(user=user, title=title, rate=rate, rate_date=rate_date)
                 # else:
             #     print('updater. ' + obj.find('title').text)
@@ -102,14 +108,50 @@ def update_users_ratings_from_rss():
 #         update_from_rss(user)
 from users.models import UserProfile
 user = User.objects.filter(username='admin')[0]
-UserProfile.objects.filter(user=user).update(imdb_id='ur44264813')
-profile, created = UserProfile.objects.update_or_create(user=user)
+# UserProfile.objects.filter(user=user).update(imdb_id='ur44264813')
+# profile, created = UserProfile.objects.update_or_create(user=user)
+
+
+title = Title.objects.get(const='tt3165612')
+# Rating.objects.create(user=user, title=title, rate=7, rate_date=datetime(2016, 5, 4))
+x = Rating.objects.filter(user=user, title=title, rate=7)
+# current = x.first()
+second = x.last()
+print(x)
+# print(current)
+print(second)
+
+next_rating = x.filter(rate_date__gt=second.rate_date).last()
+if next_rating:
+    time = next_rating.rate_date
+else:
+    time = datetime.now().date()
+
+print((time - second.rate_date).days)
 
 # user = profile
-# Title.objects.all().delete()
+# Watchlist.objects.filter(user=user).delete()
 # update_from_csv(user)
-update_from_rss(user)
+# update_from_rss(user)
 # get_watchlist(user)
+# print(timezone.now())
+# from django.utils.dateparse import parse_datetime
+# naive = parse_datetime("2016-10-16 02:04:00")
+# import pytz
+# x = pytz.timezone("America/Los_Angeles").localize(naive, is_dst=False)
+# y = pytz.timezone("Europe/Warsaw").localize(datetime.utcnow(), is_dst=False)
+# print(datetime.utcnow())
+# print(x)
+# print(y)
+# print(x > y)
+# now = timezone.now()
+# from django.utils import timezone
+# print(timezone.now())
+# print(datetime.now(timezone.utc))
+# print(x > now)
+
+
+
 # print(user)
 # print(user.userprofile)
 # print(user.userprofile.imdb_ratings)
