@@ -112,34 +112,30 @@ user = User.objects.filter(username='admin')[0]
 # profile, created = UserProfile.objects.update_or_create(user=user)
 
 
-title = Title.objects.get(const='tt3165612')
+# title = Title.objects.get(const='tt3165612')
 # Rating.objects.create(user=user, title=title, rate=7, rate_date=datetime(2016, 5, 4))
-x = Rating.objects.filter(user=user, title=title, rate=7)
-# current = x.first()
-second = x.last()
-print(x)
-# print(current)
-print(second)
-
-next_rating = x.filter(rate_date__gt=second.rate_date).last()
-if next_rating:
-    time = next_rating.rate_date
-else:
-    time = datetime.now().date()
-
-print((time - second.rate_date).days)
+# x = Rating.objects.filter(user=user, title=title, rate=7)
 
 # user = profile
 # Watchlist.objects.filter(user=user).delete()
+x = convert_to_datetime('Fri, 14 Jun 2013 13:46:54 GMT', 'xml')
+print(x)
+a = Watchlist.objects.get(id='437')
+b = Watchlist.objects.get(id='438')
+b.added_date = datetime(2016, 10, 16, 18, 18, 9)
+b.save()
+print(a.added_date, a.added_date > b.added_date, b.added_date)
 # update_from_csv(user)
 # update_from_rss(user)
 # get_watchlist(user)
 # print(timezone.now())
 # from django.utils.dateparse import parse_datetime
-# naive = parse_datetime("2016-10-16 02:04:00")
-# import pytz
-# x = pytz.timezone("America/Los_Angeles").localize(naive, is_dst=False)
-# y = pytz.timezone("Europe/Warsaw").localize(datetime.utcnow(), is_dst=False)
+# naive = parse_datetime("2016-10-16 09:24:09")
+import pytz
+# x = pytz.timezone("Asia/Tokyo").localize(naive, is_dst=False)
+# a = Watchlist.objects.filter().last()
+# print(a)
+# y = pytz.timezone("Europe/Warsaw").localize(a.added_date, is_dst=False)
 # print(datetime.utcnow())
 # print(x)
 # print(y)
