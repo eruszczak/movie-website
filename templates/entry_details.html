@@ -20,10 +20,11 @@
 						<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}<br></a>
 						{% endfor %}</li>
 					<li class="list-group-item">{% for director in entry.director.all %}
-						<a href="{% url 'entry_show_from_director' pk=director.id %}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>
-						{% endfor %}</li>
-					  {% if entry.votes != 'N/A' %}<li class="list-group-item">{{ entry.votes }} votes</li>{% endif %}
-{#					  <li class="list-group-item">current rating: <a href="{% url 'entry_show_from_rate' rate=entry.rate %}">{{ entry.rate }}</a></li>#}
+						<a href="{% url 'entry_show_from_director' pk=director.id %}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>{% endfor %}
+					</li>
+					{% comment %}
+					{% if entry.votes != 'N/A' %}<li class="list-group-item">{{ entry.votes }} votes</li>{% endif %}
+						<li class="list-group-item">current rating: <a href="{% url 'entry_show_from_rate' rate=entry.rate %}">{{ entry.rate }}</a></li>
 					{% if entry.rate_imdb >= 1  %}<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>{% endif %}
 					<li class="list-group-item">rated on: <a href="{{ link_month }}">{{ entry.rate_date|date:"d.m.Y" }}</a>
 						{% if entry.yesterday_today_month %}
@@ -32,20 +33,21 @@
 							</span>
 						{% endif %}
 					</li>
+					{% endcomment %}
 					{% if user.is_superuser %}
 					<li class="list-group-item">
 						<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>
 						<form action="" method="post">{% csrf_token %}
-							{% if entry.watch_again_date %}
+							{% if watchlist %}
                                 <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="unwatch">Don't want to see again</button>
 							{% else %}
                                 <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="watch">Want to see again</button>
 							{% endif %}
-
-                            {% if not entry.get_favourite %}
-                                <button class="btn btn-sm" type="submit" name="fav_add">Best movie</button>
+							<br>
+                            {% if not favourite %}
+                                <button class="btn btn-sm" type="submit" name="fav_add" value="add">favourite</button>
                             {% else %}
-                                <button class="btn btn-sm" type="submit" name="fav_remove">Not Best movie</button>
+                                <button class="btn btn-sm" type="submit" name="fav_remove" value="delete">unfavourite</button>
                             {% endif %}
 						</form>
 					</li>
@@ -70,18 +72,22 @@
 				<div class="history">
 					<p class="lead"><br>History of ratings:</p>
 					<table class="table-bordered table-condensed">
-						<tr class="text-primary" style="font-weight: bold">
-							<td class="">{{ entry.rate_date|date:"Y-m-d" }}</td>
-							<td class="">{{ entry.rate }}</td>
-							<td class="text-center">{{ entry.timesince_rating }}</td>
-						</tr>
-					{% for a in archive %}
-						<tr>
-							<td class="">{{ a.rate_date|date:"Y-m-d" }}</td>
-							<td class="">{{ a.rate }}</td>
-							<td class="text-center">duration: {{ a.next_rating_days_diff }} days</td>
-						</tr>
-					{% endfor %}
+						<thead>
+							<tr>
+								<th class="text-center">title</th>
+								<th class="text-center">rating</th>
+								<th class="text-center">rated</th>
+							</tr>
+						</thead>
+                    	<tbody>
+						{% for a in archive %}
+							<tr>
+								<td class=""><a href="{% url 'entry_show_rated_in_month' year=a.rate_date|date:'Y' month=a.rate_date|date:'m' %}">{{ a.rate_date|date:"Y-m-d" }}</a></td>
+								<td class=""><a href="{% url 'entry_show_from_rate' rate=a.rate %}">{{ a.rate }}</a></td>
+								<td class="text-center">duration: {{ a.next_rating_days_diff }} days</td>
+							</tr>
+						{% endfor %}
+						<tbody>
 					</table>
 				</div>
 			{% endif %}

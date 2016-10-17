@@ -24,14 +24,13 @@
                     {% for obj in ratings %}
                     <tr>
                         <th scope="row" class="text-center">{{ forloop.counter0|add:ratings.start_index }}</th>
-                        <td><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }}</a></td>
+                        <td><a href="{% url 'entry_details' slug=obj.title.slug %}">{{ obj.title.name }}</a></td>
                         <td>{{ obj.rate }}</td>
-                        <td>{{ obj.rate_imdb }}</td>
-                        <td>{{ obj.votes }}</td>
+                        <td>{{ obj.title.rate_imdb }}</td>
+                        <td>{{ obj.title.votes }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
-                {{ list_dicts }}
             </table>
             {% if ratings.paginator.num_pages > 1 %}
                 {% include 'paginator.html' %}

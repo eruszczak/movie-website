@@ -93,20 +93,32 @@ def entry_details(request, slug):
     if request.method == 'POST':
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
         fav_add, fav_remove = request.POST.get('fav_add'), request.POST.get('fav_remove')
+        print(request.POST)
         if watch or unwatch:
             if watch:
-                requested_obj.watch_again_date = datetime.datetime.now()
+                Watchlist.objects.create(user=request.user, title=requested_obj)
             elif unwatch:
-                requested_obj.watch_again_date = None
-            # requested_obj.save(update_fields=['watch_again_date'])
+                to_delete = Watchlist.objects.get(user=request.user, title=requested_obj)
+                if to_delete.imdb:
+                    to_delete.deleted = True
+                    to_delete.save()
+                else:
+                    to_delete.delete()
+                # if not from imdb -> ok, delete.
         elif fav_add or fav_remove:
+            print('tes')
             if fav_add:
-                pass
+                Favourite.objects.create(user=request.user, title=requested_obj, order=Favourite.objects.all().count() + 1)
             elif fav_remove:
-                pass
+                to_delete = Favourite.objects.get(user=request.user, title=requested_obj)
+                Favourite.objects.filter(order__gt=to_delete.order).update(order=F('order') - 1)
+                to_delete.delete()
+
     context = {
         'entry': requested_obj,
         'archive': Rating.objects.filter(user=request.user).filter(title=requested_obj),
+        'favourite': Favourite.objects.filter(user=request.user).filter(title=requested_obj).first(),
+        'watchlist': Watchlist.objects.filter(user=request.user).filter(title=requested_obj).first(),
         # 'link_month': reverse('entry_show_rated_in_month',
         #                       kwargs={'year': requested_obj.rate_date.year, 'month': requested_obj.rate_date.month})
     }
@@ -214,7 +226,8 @@ def entry_show_rated_in_month(request, year, month):
 
 
 def entry_show_from_genre(request, genre):
-    entries = Genre.objects.get(name=genre).title_set.filter(rating__user=request.user)
+    # entries = Genre.objects.get(name=genre).title_set.filter(rating__user=request.user)
+    entries = Rating.objects.filter(user=request.user, title__genre__name=genre)
     page = request.GET.get('page')
     ratings = paginate(entries, page)
     context = {
@@ -225,7 +238,7 @@ def entry_show_from_genre(request, genre):
 
 
 def entry_show_from_rate(request, rate):
-    entries = Title.objects.filter(rating__user=request.user, rating__rate=rate)
+    entries = Rating.objects.filter(user=request.user, rate=rate)
     page = request.GET.get('page')
     ratings = paginate(entries, page)
     context = {
@@ -236,7 +249,8 @@ def entry_show_from_rate(request, rate):
 
 
 def entry_show_from_director(request, pk):
-    entries = Director.objects.get(id=pk).title_set.filter(rating__user=request.user)
+    # entries = Director.objects.get(id=pk).title_set.filter(rating__user=request.user)
+    entries = Rating.objects.filter(user=request.user, title__director__id=pk)
     page = request.GET.get('page')
     ratings = paginate(entries, page)
     context = {
