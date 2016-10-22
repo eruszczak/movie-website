@@ -165,3 +165,6 @@ class Favourite(models.Model):
 
     def __str__(self):
         return '{} {}'.format(self.title.name, self.title.year)
+
+    class Meta:
+        ordering = ('order', )

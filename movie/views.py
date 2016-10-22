@@ -147,7 +147,7 @@ def entry_edit(request, slug):
     #     messages.info(request, 'Only admin can edit', extra_tags='alert-info')
     #     return redirect(requested_obj)
 
-    form = EditRating(instance=Rating.objects.filter(user=request.user, title=requested_obj).first())
+    form = EditRating(instance=Rating.objects.filter(user=request.user, title=requested_obj).first())   # todo
     if request.method == 'POST':
         last_rating = Rating.objects.filter(user=request.user, title=requested_obj).first()
         form = EditRating(request.POST)
@@ -259,22 +259,23 @@ def entry_show_from_director(request, pk):
     }
     return render(request, 'entry_show_from.html', context)
 
-def watchlist(request):
+def watchlist(request, username):
+    print(username)
     if request.method == 'POST':
-        # if not request.user.is_superuser:
-        #     messages.info(request, 'Only admin can do this', extra_tags='alert-info')
-        #     return redirect(reverse('watchlist'))
+        if not request.user.username != username:
+            messages.info(request, 'Only admin can do this', extra_tags='alert-info')
+            return redirect(reverse('watchlist'))
         if request.POST.get('watchlist_imdb_delete'):
-            Watchlist.objects.filter(user=request.user, title__const=request.POST.get('const'),
+            Watchlist.objects.filter(user__username=username, title__const=request.POST.get('const'),
                                      imdb=True, deleted=False).update(deleted=True)
         return redirect(reverse('watchlist'))
 
     context = {
         # 'ratings': Title.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),todo isnull problem
         # 'ratings': [e for e in Watchlist.objects.all() if not e.is_rated_with_later_date],
-        'ratings': Watchlist.objects.filter(user=request.user, deleted=False),
+        'ratings': Watchlist.objects.filter(user__username=username, deleted=False),
         'title': 'See again',
-        'archive': [e for e in Watchlist.objects.filter(user=request.user) if e.is_rated_with_later_date],
+        'archive': [e for e in Watchlist.objects.filter(user__username=username) if e.is_rated_with_later_date],
     }
     return render(request, 'watchlist.html', context)
 
@@ -305,15 +306,17 @@ def watchlist(request):
 #         return redirect(reverse('imdb_watchlist'))
 #
 #
-# def favourite(request):
-#     if request.method == 'POST':
-#         item_order = request.POST.get('item_order')
-#         if item_order:
-#             item_order = re.findall('tt\d{7}', item_order)
-#             print('new_order', item_order)
-#             for new_position, item in enumerate(item_order, 1):
-#                 Favourite.objects.filter(const=item).update(order=new_position)
-#     context = {
-#         'ratings': [(fav.order, fav.get_entry) for fav in Favourite.objects.all().order_by('order')],
-#     }
-#     return render(request, 'favourite.html', context)
+def favourite(request, username):
+    print(username)
+    if request.method == 'POST':
+        item_order = request.POST.get('item_order')
+        if item_order:
+            item_order = re.findall('tt\d{7}', item_order)
+            print('new_order', item_order)
+            for new_position, item in enumerate(item_order, 1):
+                Favourite.objects.filter(user__username=username, title__const=item).update(order=new_position)
+    context = {
+        # 'ratings': [(fav.order, fav.get_entry) for fav in Favourite.objects.filter(user=request.user)],
+        'ratings': Favourite.objects.filter(user__username=username),
+    }
+    return render(request, 'favourite.html', context)

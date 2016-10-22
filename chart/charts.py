@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 def chart_genres():
     line_chart = pygal.Bar()
     line_chart.title = 'Rated genres distribution'
-    genres = Genre.objects.all().annotate(num=Count('entry')).order_by('-num')
+    genres = Genre.objects.all().annotate(num=Count('title')).order_by('-num')
     for g in genres:
         line_chart.add({
             'title': '{1} {0}'.format(g.name, g.entry_set.count()),

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row" style="margin-top:-35px;">
+	<div class="col-md-12">
+		<div class="page-header">
+			<h1 class="text-center">{{ user }}</h1>
+		</div>
+		<div class="row">
+			<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
+				<img class="img-responsive img-thumbnail" src="{% if user.userprofile.picture %}{{ user.userprofile.picture.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
+			</div>
+
+			<div class="col-xs-6 col-sm-3 col-md-3">
+				<ul class="list-group" style="margin-left: -10px">
+					<li class="list-group-item"><a href="{% url 'watchlist' username=user.username %}">watchlist</a></li>
+					<li class="list-group-item"><a href="{% url 'favourites' username=user.username %}">favourites</a></li>
+				</ul>
+			</div>
+		</div>
+    </div>
+</div>
+{% endblock %}

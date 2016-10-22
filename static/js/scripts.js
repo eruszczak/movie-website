@@ -1,3 +1,5 @@
+
+
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
 
@@ -109,7 +111,7 @@ function send_changed_order(data) {
             csrfmiddlewaretoken: csrftoken
         },
         type: 'POST',
-        url: '/favourites/'
+        url: '/users/admin/favourites/' // todo var csrftoken = $.cookie('csrftoken'); http://stackoverflow.com/questions/32217741/post-request-using-ajax-in-django
     });
 }
 
@@ -118,7 +120,7 @@ $( function() {
         placeholder: 'sort-placeholder',
         axis: 'y',
         update: function (event, ui) {
-            $('#save-order').removeClass('disabled');
+//            $('#save-order').removeClass('disabled');
             var data = $(this).sortable('serialize');
             $(this).find('li').each(function(i){
                 $(this).find('p.item-order').text(i+1);
