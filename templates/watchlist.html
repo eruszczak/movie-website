@@ -13,9 +13,7 @@
                         <tr>
                             <th class="text-center"></th>
                             <th class="text-center">title</th>
-                            <th class="text-center">rating</th>
-                            <th class="text-center">rated</th>
-                            {% if user.is_superuser %}
+                            {% if is_owner %}
                                 <th class="text-center">delete</th>
                             {% endif %}
                         </tr>
@@ -25,12 +23,13 @@
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
                             <td><a href="{% url 'entry_details' slug=obj.title.slug %}">{{ obj.title.name }}</a></td>
-{#                            <td>{{ obj.rate }}</td>#}
-{#                            <td>{{ obj.rate_date }}</td>#}
-                            {% if user.is_superuser and obj.imdb and not obj.deleted %}
+                            {% if is_owner %}
                                 <td class="text-center">
                                     <form action="" method="post">{% csrf_token %}
-                                        <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="watchlist_imdb_delete" value="delete">Don't want to see again</button>
+                                        <button class="btn btn-sm see-again-btn unwatch-btn" type="submit"
+                                                name="{% if obj.imdb %}watchlist_imdb_delete{% else %}watchlist_delete{% endif %}"
+                                                value="delete">Don't want to see again
+                                        </button>
                                         <input id="choosen_object" name="const" value="{{ obj.title.const }}" hidden>
                                     </form>
                                 </td>
@@ -41,38 +40,69 @@
                 </table>
             </div>
         </div>
-{#        <div class="row">#}
-{#            <div class="col-md-12">#}
-{#                <div class="col-md-12">#}
-{#                    <p class="lead text-center">History watchlist</p>#}
-{#                    <table class="table table-hover table-bordered table-condensed">#}
-{#                        <thead>#}
-{#                            <tr>#}
-{#                                <th class="text-center"></th>#}
-{#                                <th class="text-center">title</th>#}
-{#                                <th class="text-center">rating</th>#}
-{#                                <th class="text-center">added</th>#}
-{#                                <th class="text-center">watched after</th>#}
-{#                            </tr>#}
-{#                        </thead>#}
-{#                        <tbody>#}
-{#                            {% for obj in history %}#}
-{#                            <tr>#}
-{#                                <th scope="row" class="text-center">{{ forloop.counter }}</th>#}
-{#                                <td><a href="{% url 'entry_details' slug=obj.get_entry.slug %}">{{ obj.get_entry.name }}</a></td>#}
-{#                                <td>{{ obj.rate }}</td>#}
-{#                                <td>{{ obj.watch_again_date }}</td>#}
-{#                                <td>{{ obj.days_since_added_to_watchlist }} days</td>#}
-{#                            </tr>#}
-{#                            {% endfor %}#}
-{#                        </tbody>#}
-{#                    </table>#}
-{#                </div>#}
-{#            </div>#}
-{#        </div>#}
-    </div>
-
-    <div class="col-md-4">
+        {% if is_owner and deleted %}
+        <div class="row">
+            <div class="col-md-12">
+                <p class="lead text-center">Deleted from imdb_watchlist.</p>
+                <table class="table table-hover table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="text-center"></th>
+                            <th class="text-center">title</th>
+                                <th class="text-center">delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in deleted %}
+                        <tr>
+                            <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                            <td><a href="{% url 'entry_details' slug=obj.title.slug %}">{{ obj.title.name }}</a></td>
+                                <td class="text-center">
+                                    <form action="" method="post">{% csrf_token %}
+                                        <button class="btn btn-sm see-again-btn watch-btn" type="submit"
+                                                name="watchlist_imdb_readd"
+                                                value="delete">Readd
+                                        </button>
+                                        <input id="choosen_object" name="const" value="{{ obj.title.const }}" hidden>
+                                    </form>
+                                </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        {% if history %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-12">
+                    <p class="lead text-center">History watchlist</p>
+                    <table class="table table-hover table-bordered table-condensed">
+                        <thead>
+                           <tr>
+                                <th class="text-center"></th>
+                                <th class="text-center">title</th>
+                                <th class="text-center">rating</th>
+                                <th class="text-center">watched after</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for obj in history %}
+                            <tr>
+                                <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                                <td><a href="{% url 'entry_details' slug=obj.get_entry.slug %}">{{ obj.get_entry.name }}</a></td>
+                                <td>{{ obj.rate }}</td>
+                                <td>{{ obj.rated_after_days_diff }} days</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div><div class="col-md-4">
         <div class="input-group">
             <input id="inputBox_search" type="text" class="form-control" placeholder="q" name='q'>
             <span class="input-group-btn">
