@@ -111,7 +111,7 @@ function send_changed_order(data) {
             csrfmiddlewaretoken: csrftoken
         },
         type: 'POST',
-        url: '/users/admin/favourites/' // todo var csrftoken = $.cookie('csrftoken'); http://stackoverflow.com/questions/32217741/post-request-using-ajax-in-django
+        url: this.href
     });
 }
 

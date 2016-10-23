@@ -16,11 +16,13 @@ def home(request):
     # show others ratings maybe
     all_movies = Rating.objects.filter(user=request.user, title__type__name='movie')
     all_series = Rating.objects.filter(user=request.user, title__type__name='series')
+    random = Rating.objects.all().first()
+    random_title = Title.objects.all().first()
     context = {
         'ratings': all_movies,
-        'last_movie': all_movies[0].title if all_movies else None,
-        'last_series': all_series[0].title if all_series else all_movies[0].title,
-        'last_good': all_movies.filter(rate__gte=5)[0].title,
+        'last_movie': all_movies[0].title if all_movies else random_title,
+        'last_series': all_series[0].title if all_series else random_title,
+        'last_good': all_movies.filter(rate__gte=5)[0].title if all_movies else random_title,
         'movie_count': all_movies.count(),
         'series_count': all_series.count(),
         # 'search_movies': reverse('explore') + '?select_type=movie&q=',
@@ -93,7 +95,6 @@ def entry_details(request, slug):
     if request.method == 'POST':
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
         fav_add, fav_remove = request.POST.get('fav_add'), request.POST.get('fav_remove')
-        print(request.POST)
         if watch or unwatch:
             if watch:
                 Watchlist.objects.create(user=request.user, title=requested_obj)
@@ -106,39 +107,25 @@ def entry_details(request, slug):
                     to_delete.delete()
                 # if not from imdb -> ok, delete.
         elif fav_add or fav_remove:
-            print('tes')
             if fav_add:
                 Favourite.objects.create(user=request.user, title=requested_obj, order=Favourite.objects.all().count() + 1)
             elif fav_remove:
                 to_delete = Favourite.objects.get(user=request.user, title=requested_obj)
                 Favourite.objects.filter(order__gt=to_delete.order).update(order=F('order') - 1)
                 to_delete.delete()
+        return redirect(reverse('entry_details', kwargs={'slug': slug}))
 
+    # user_current_rating = Rating.objects.filter(user=request.user).filter(title=requested_obj).first()
+    user_current_rating = requested_obj.rating_set.filter(user=request.user).first()
     context = {
         'entry': requested_obj,
         'archive': Rating.objects.filter(user=request.user).filter(title=requested_obj),
         'favourite': Favourite.objects.filter(user=request.user).filter(title=requested_obj).first(),
         'watchlist': Watchlist.objects.filter(user=request.user).filter(title=requested_obj).first(),
-        # 'link_month': reverse('entry_show_rated_in_month',
-        #                       kwargs={'year': requested_obj.rate_date.year, 'month': requested_obj.rate_date.month})
+        'link_month': reverse('entry_show_rated_in_month', kwargs={
+            'year': user_current_rating.rate_date.year, 'month': user_current_rating.rate_date.month})
     }
     return render(request, 'entry_details.html', context)
-
-#         keys = request.POST.keys()  # todo not a fan of this. its bcs I used btn and value is '', maybe add value!
-#         if any(x in keys for x in ['watch', 'unwatch']):
-#             if 'watch' in keys:
-#                 requested_obj.watch_again_date = datetime.datetime.now()
-#             elif 'unwatch' in keys:
-#                 requested_obj.watch_again_date = None
-#             requested_obj.save(update_fields=['watch_again_date'])
-#         elif any(x in keys for x in ['fav_add', 'fav_remove']):
-#             if 'fav_add' in keys:
-#                 Favourite.objects.create(const=requested_obj.const, order=Favourite.objects.all().count() + 1)
-#             elif 'fav_remove' in keys:
-#                 to_delete = Favourite.objects.get(const=requested_obj.const)
-#                 Favourite.objects.filter(order__gt=to_delete.order).update(order=F('order') - 1)
-#                 to_delete.delete()
-#         return redirect(reverse('entry_details', kwargs={'slug': slug}))
 
 
 def entry_edit(request, slug):
@@ -259,64 +246,45 @@ def entry_show_from_director(request, pk):
     }
     return render(request, 'entry_show_from.html', context)
 
-def watchlist(request, username):
-    print(username)
-    if request.method == 'POST':
-        if not request.user.username != username:
-            messages.info(request, 'Only admin can do this', extra_tags='alert-info')
-            return redirect(reverse('watchlist'))
-        if request.POST.get('watchlist_imdb_delete'):
-            Watchlist.objects.filter(user__username=username, title__const=request.POST.get('const'),
-                                     imdb=True, deleted=False).update(deleted=True)
-        return redirect(reverse('watchlist'))
 
+def watchlist(request, username):
+    is_owner = username == request.user.username
+    user_watchlist = Watchlist.objects.filter(user__username=username)
+    if request.method == 'POST':
+        if not is_owner:
+            messages.info(request, 'Only owner can do this', extra_tags='alert-info')
+            return redirect(reverse('watchlist', kwargs={'username': username}))
+        if request.POST.get('watchlist_imdb_delete'):
+            user_watchlist.filter(title__const=request.POST.get('const'), imdb=True, deleted=False).update(deleted=True)
+        elif request.POST.get('watchlist_delete'):
+            user_watchlist.filter(title__const=request.POST.get('const'), imdb=False).delete()
+        elif request.POST.get('watchlist_imdb_readd'):
+            user_watchlist.filter(title__const=request.POST.get('const'), imdb=True, deleted=True).update(deleted=False)
+        return redirect(reverse('watchlist', kwargs={'username': username}))
     context = {
-        # 'ratings': Title.objects.filter(watch_again_date__isnull=True).order_by('-rate_date'),todo isnull problem
-        # 'ratings': [e for e in Watchlist.objects.all() if not e.is_rated_with_later_date],
-        'ratings': Watchlist.objects.filter(user__username=username, deleted=False),
+        'ratings': user_watchlist.filter(deleted=False),
         'title': 'See again',
-        'archive': [e for e in Watchlist.objects.filter(user__username=username) if e.is_rated_with_later_date],
+        'archive': [e for e in user_watchlist if e.is_rated_with_later_date],
+        'is_owner': is_owner,
+        'deleted': user_watchlist.filter(imdb=True, deleted=True),
     }
     return render(request, 'watchlist.html', context)
 
 
-# def imdb_watchlist(request):
-#     if request.method == 'GET':
-#         context = {
-#             'seen': ImdbWatchlist.objects.seen(),
-#             'not_seen': ImdbWatchlist.objects.not_seen(),
-#             'delete': ImdbWatchlist.objects.to_delete(),
-#             'title': 'IMDb Watchlist'
-#         }
-#         return render(request, 'imdb_watchlist.html', context)
-#
-#     if request.method == 'POST':
-#         if not request.user.is_superuser:
-#             messages.info(request, 'Only admin can do this', extra_tags='alert-info')
-#             return redirect(reverse('imdb_watchlist'))
-#         readd, delete = request.POST.get('watchlist_readd'), request.POST.get('watchlist_del')
-#         choosen_obj = get_object_or_404(ImdbWatchlist, const=readd or delete)
-#         if delete:
-#             choosen_obj.set_to_delete = True
-#             messages.info(request, '{} has been deleted from the watchlist'.format(choosen_obj.name))
-#         elif readd:
-#             choosen_obj.set_to_delete = False
-#             messages.info(request, '{} has been restored to the watchlist'.format(choosen_obj.name))
-#         choosen_obj.save(update_fields=['set_to_delete'])
-#         return redirect(reverse('imdb_watchlist'))
-#
-#
 def favourite(request, username):
-    print(username)
+    is_owner = username == request.user.username
+    print(request.user, username)
+    user_favourites = Favourite.objects.filter(user__username=username)
     if request.method == 'POST':
+        if not is_owner:
+            messages.info(request, 'Only owner can do this', extra_tags='alert-info')
+            return redirect(reverse('favourite', kwargs={'username': username}))
         item_order = request.POST.get('item_order')
         if item_order:
             item_order = re.findall('tt\d{7}', item_order)
-            print('new_order', item_order)
             for new_position, item in enumerate(item_order, 1):
-                Favourite.objects.filter(user__username=username, title__const=item).update(order=new_position)
+                user_favourites.filter(title__const=item).update(order=new_position)
     context = {
-        # 'ratings': [(fav.order, fav.get_entry) for fav in Favourite.objects.filter(user=request.user)],
-        'ratings': Favourite.objects.filter(user__username=username),
+        'ratings': user_favourites,
     }
     return render(request, 'favourite.html', context)
