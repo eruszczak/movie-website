@@ -1,17 +1,19 @@
-import django, os, sys
-
+import django, os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 import csv
+
 from movie.models import *
-from prepareDB_utils import *
+from utils.prepareDB_utils import *
 from utils.utils import email_watchlist, prepare_json
+from mysite.settings.base import MEDIA_ROOT
 
 
 def get_title_data(const):
     json = get_omdb(const)
     if json:
         json = prepare_json(json)
+        print('get_title_data, adding:', json['Title'])
         tomatoes = dict(
             tomato_meter=json['tomatoMeter'], tomato_rating=json['tomatoRating'], tomato_reviews=json['tomatoReviews'],
             tomato_fresh=json['tomatoFresh'], tomato_rotten=json['tomatoRotten'], url_tomato=json['tomatoURL'],
@@ -69,45 +71,46 @@ def get_watchlist(user):
 # BOOLEAN FIELD if it has been successfull. it'd great if not using omdbapi... but fuck it
 
 # there should be option to not include ratings.csv and only use RSS - so only provide your profil url / imdb id
+# need validate csv
+# this can be only done when there are no ratings
+# need time sleep or something.
 def update_from_csv(user):
-    # with open(user.userprofile.imdb_id, 'r') as f:
-    with open('ratings.csv', 'r') as f:
-        reader = csv.DictReader(f)
-        for num, row in enumerate(reader):
-            title = get_title_or_create(row['const'])
-            # this can be only done when there are no ratings
-            rate_date = convert_to_datetime(row['created'], 'csv')
-            Rating.objects.create(user=user, title=title, rate=row['You rated'], rate_date=rate_date)
+    path = os.path.join(MEDIA_ROOT, str(user.userprofile.imdb_ratings))
+    if os.path.isfile(path):
+        print('update_from_csv:', user)
+        with open(path, 'r') as f:
+            reader = csv.DictReader(f)
+            for num, row in enumerate(reader):
+                title = get_title_or_create(row['const'])
+                rate_date = convert_to_datetime(row['created'], 'csv')
+                Rating.objects.get_or_create(user=user, title=title, rate=row['You rated'], rate_date=rate_date)
 
 
-# but there must be an option for updating every user and single user
-def update_from_rss(user):  # maybe default suer will be admin
+def update_from_rss(user):
     itemlist = get_rss(user.userprofile.imdb_id, 'ratings')
     if itemlist:
-        user_ratings = Rating.objects.filter(user=user)
+        print('update_from_rss:', user)
         for num, obj in enumerate(itemlist):
             const, rate, rate_date = unpack_from_rss_item(obj)
             title = get_title_or_create(const)
-            if not user_ratings.filter(title=title, rate=rate, rate_date=rate_date).exists():
-                Rating.objects.create(user=user, title=title, rate=rate, rate_date=rate_date)
-                # else:
-            #     print('updater. ' + obj.find('title').text)
-            #     get_entry_info(const, rate, rate_date, is_updated=True)
-            #     recommended_has_been_rated = Recommendation.objects.filter(const=const)
-            #     if recommended_has_been_rated:
-            #         recommended_has_been_rated.update(is_rated=True)
-            #         print('recommended has been rated TRUE')
-                # time.sleep( 5 )
+            Rating.objects.get_or_create(user=user, title=title, rate=rate, rate_date=rate_date)
+            if num > 10:
+                break
 
 def update_users_ratings_from_rss():
-    for user in User.objects.all(imdb_id__null=False):
+    for user in User.objects.filter(userprofile__imdb_id__isnull=False):
+    # for user in User.objects.all():
         update_from_rss(user)
+
+def update_users_ratings_from_csv():
+    for user in User.objects.exclude(userprofile__imdb_ratings=''):
+    # for user in User.objects.all():
+        update_from_csv(user)
 
 # def get_users_ratings_from_rss():
 #     for user in User.objects.all(imdb_imdb_ratings__null=False, used=False):
 #         update_from_rss(user)
-from users.models import UserProfile
-user = User.objects.filter(username='admin')[0]
+# user = User.objects.filter(username='admin')[0]
 # UserProfile.objects.filter(user=user).update(imdb_id='ur44264813')
 # profile, created = UserProfile.objects.update_or_create(user=user)
 
@@ -118,20 +121,19 @@ user = User.objects.filter(username='admin')[0]
 
 # user = profile
 # Watchlist.objects.filter(user=user).delete()
-x = convert_to_datetime('Fri, 14 Jun 2013 13:46:54 GMT', 'xml')
-print(x)
-a = Watchlist.objects.get(id='437')
-b = Watchlist.objects.get(id='438')
-b.added_date = datetime(2016, 10, 16, 18, 18, 9)
-b.save()
-print(a.added_date, a.added_date > b.added_date, b.added_date)
+# x = convert_to_datetime('Fri, 14 Jun 2013 13:46:54 GMT', 'xml')
+# print(x)
+# a = Watchlist.objects.get(id='437')
+# b = Watchlist.objects.get(id='438')
+# b.added_date = datetime(2016, 10, 16, 18, 18, 9)
+# b.save()
+# print(a.added_date, a.added_date > b.added_date, b.added_date)
 # update_from_csv(user)
 # update_from_rss(user)
 # get_watchlist(user)
 # print(timezone.now())
 # from django.utils.dateparse import parse_datetime
 # naive = parse_datetime("2016-10-16 09:24:09")
-import pytz
 # x = pytz.timezone("Asia/Tokyo").localize(naive, is_dst=False)
 # a = Watchlist.objects.filter().last()
 # print(a)
@@ -153,19 +155,24 @@ import pytz
 # print(user.userprofile.imdb_ratings)
 if len(sys.argv) > 1:
     command = sys.argv[1]
-    if command == 'csv':
-        update_from_csv(user)
-    # elif command == 'posters':
-    #     download_posters()
-    elif command == 'update':
-        update_from_rss(user)
-        # get_watchlist()
-    # elif command == 'watchlist':
-    #     get_watchlist()
-    # elif command == 'assign':
-    #     assign_existing_posters()
-    elif command == 'email':
-        email_watchlist()
-    # if sys.argv[1] == 'seasons':
-    #     get_tv()
+    if command == 'allrss':
+        update_users_ratings_from_rss()
+
+    if command == 'allcsv':
+        update_users_ratings_from_csv()
+    # if command == 'csv':
+    #     update_from_csv(user)
+    # # elif command == 'posters':
+    # #     download_posters()
+    # elif command == 'update':
+    #     update_from_rss(user)
+    #     # get_watchlist()
+    # # elif command == 'watchlist':
+    # #     get_watchlist()
+    # # elif command == 'assign':
+    # #     assign_existing_posters()
+    # elif command == 'email':
+    #     email_watchlist()
+    # # if sys.argv[1] == 'seasons':
+    # #     get_tv()
     sys.exit(0)

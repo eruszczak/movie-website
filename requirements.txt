@@ -5,14 +5,12 @@ django-appconf==1.0.2
 django-cors-headers==1.1.0
 django-crispy-forms==1.6.0
 django-filter==0.14.0
-django-haystack==2.5.0
 djangorestframework==3.4.4
 geocoder==1.17.4
 geopy==1.11.0
 Markdown==2.6.6
 Pillow==3.3.1
-pygal==2.2.3
-pysolr==3.5.0
+psycopg2==2.6.2
 pytz==2016.6.1
 ratelim==0.1.6
 requests==2.10.0
