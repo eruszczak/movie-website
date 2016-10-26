@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from .models import UserProfile
 
+
 def register(request):
     form_data = request.POST if request.method == 'POST' else None
     form = RegisterForm(form_data)
@@ -47,12 +48,12 @@ def login(request):
     }
     return render(request, 'users/login.html', context)
 
+# from django.contrib.auth.decorators import login_required
 # @login_required
 def user_edit(request, username):
-    # requested_obj = get_object_or_404(User, username=username)
-    # form = EditProfileForm(instance=UserProfile.objects.get(user__username=username))
-    # form_data = request.POST if request.method == 'POST' else None
-    # if form_data.is_valid():
+    if not request.user.username == username:
+        messages.info(request, 'You can edit only your profile', extra_tags='alert-info')
+        return redirect(reverse('user_profile', kwargs={'username': username}))
     profile = UserProfile.objects.get(user__username=username)
     form = EditProfileForm(instance=profile)
     if request.method == 'POST':
@@ -85,5 +86,6 @@ def user_profile(request, username):
     context = {
         'title': 'User profile: ' + requested_obj.username,
         'user': requested_obj,
+        'is_owner': username == request.user.username,
     }
     return render(request, 'users/user_profile.html', context)

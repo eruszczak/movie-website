@@ -7,7 +7,7 @@ from django.conf import settings
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include('movie.urls')),
-    url(r'^recommend/', include('recommend.urls')),
+    # url(r'^recommend/', include('recommend.urls')),
     # url(r'^charts/', include('chart.urls')),
     # url(r'^book/', include('book.urls')),
     # url(r'^search/', include('haystack.urls')),

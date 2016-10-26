@@ -6,7 +6,30 @@
 {% block content %}
 <div class="row">
     <div class="col-md-6">
-        {% crispy form %}
+        <form id="recommend_form" method="post">{% csrf_token %}
+            <fieldset>
+                <div class="col-md-12">
+                    <div id="div_id_const" class="form-group"> <label for="id_const" class="control-label  requiredField">link or id<span class="asteriskField">*</span></label>
+                    <div class="controls ">
+                        <input class="textinput textInput form-control" id="id_const" maxlength="50" name="const" placeholder="eg. http://www.imdb.com/title/tt0111503/ or tt0111503" type="text">
+                    </div>
+                    </div>
+                </div>
+                {% if not user.is_authenticated %}
+                <div class="col-md-9"> <div id="div_id_nick" class="form-group"> <label for="id_nick" class="control-label  requiredField">
+                nickname<span class="asteriskField">*</span> </label> <div class="controls "> <input class="textinput textInput form-control" id="id_nick" maxlength="30" name="nick" type="text" value=""> </div> </div>
+                </div>
+                {% endif %}
+                <div class="col-md-12">
+                    <div id="div_id_note" class="form-group"><label for="id_note" class="control-label ">note</label>
+                        <div class="controls ">
+                            <textarea class="textarea form-control" cols="40" id="id_note" maxlength="120" name="note" placeholder="an optional message (max 120 chars)" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="form-group"> <div class="controls "> <input type="submit" name="submit" value="Save" class="btn btn-primary btn btn-success" id="submit-id-submit"> </div> </div>
+        </form>
     </div>
     <div class="col-md-6">
         <div class="panel panel-success">

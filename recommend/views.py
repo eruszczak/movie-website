@@ -9,15 +9,15 @@ from .models import Recommendation
 
 
 def recommend(request, username):
-    is_owner = username == request.user.username
+    # is_owner = username == request.user.username
     user = User.objects.get(username=username)
     recommended_for_user = Recommendation.objects.filter(user=user)
-    form = RecommendForm(initial={'nick': request.user.username})
+    form = RecommendForm()
     if request.method == 'POST':
         form = RecommendForm(request.POST)
         if form.is_valid():
             instance = form.save(commit=False)
-            if request.user:
+            if request.user.is_authenticated():
                 instance.sender = request.user
             else:
                 instance.nick = None

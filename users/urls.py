@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from . import views
 import movie.views
-# import recommend.views
+import recommend.views
 
 
 urlpatterns = [
@@ -15,6 +15,6 @@ urlpatterns = [
 
     url(r'^(?P<username>[-\w]+)/watchlist/$', movie.views.watchlist, name='watchlist'),
     url(r'^(?P<username>[-\w]+)/favourites/$', movie.views.favourite, name='favourites'),
-    # url(r'^(?P<username>[-\w]+)/recommend/$', recommend.views.recommend, name='recommend'),
+    url(r'^(?P<username>[-\w]+)/recommend/$', recommend.views.recommend, name='recommend'),
 
 ]

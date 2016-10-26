@@ -32,46 +32,71 @@ def home(request):
 
 
 def explore(request):
-    # if request.method == 'POST':
-    #     if not request.user.is_superuser:
-    #         messages.info(request, 'Only admin can do this', extra_tags='alert-info')
-    #         return redirect(reverse('explore'))
-    #
-    #     choosen_obj = get_object_or_404(Title, const=request.POST.get('const'))
-    #     if 'watch' in request.POST.keys():
-    #         choosen_obj.watch_again_date = datetime.datetime.now()
-    #     elif 'unwatch' in request.POST.keys():
-    #         choosen_obj.watch_again_date = None
-    #     choosen_obj.save(update_fields=['watch_again_date'])
-    #     return redirect(request.META.get('HTTP_REFERER'))
-    entries = Rating.objects.filter(user=request.user)
+    user = request.user if request.user.is_authenticated() else None
+
+    if request.method == 'POST':
+        # user_favourites = Favourite.objects.filter(user=request.user)
+        requested_obj = get_object_or_404(Title, const=request.POST.get('const'))
+        if not request.user.is_authenticated():
+            messages.info(request, 'Only logged in users can add to watchlist or favourites', extra_tags='alert-info')
+            return redirect(request.META.get('HTTP_REFERER'))
+
+        watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
+        # fav_add, fav_remove = request.POST.get('fav_add'), request.POST.get('fav_remove')
+        if watch:
+            Watchlist.objects.create(user=request.user, title=requested_obj)
+        elif unwatch:
+            to_delete = Watchlist.objects.get(user=request.user, title=requested_obj)
+            if to_delete.imdb:
+                to_delete.deleted = True
+                to_delete.save(update_fields=['deleted'])
+            else:
+                to_delete.delete()
+        # if fav_add:
+        #     Favourite.objects.create(user=request.user, title=requested_obj, order=user_favourites.count() + 1)
+        # elif fav_remove:
+        #     to_delete = user_favourites.filter(title=requested_obj).first()
+        #     user_favourites.filter(order__gt=to_delete.order).update(order=F('order') - 1)
+        #     to_delete.delete()
+        return redirect(request.META.get('HTTP_REFERER'))
+
+    entries = Title.objects.all()
     query = request.GET.get('q')
-    selected_type = request.GET.get('select_type')
-    if selected_type in 'movie series'.split():
-        # entries = entries.filter(Q(type_id=Type.objects.get(name=selected_type).id))
-        entries = entries.filter(Q(title__type__name=selected_type))
+    types = {'0': '', '1': 'movie', '2': 'series'}
+
+    selected_type = request.GET.get('t', '0')
+    if selected_type in ('1', '2'):
+        entries = entries.filter(Q(type__name=types[selected_type]))
     if query:
         if len(query) > 2:
-            entries = entries.filter(Q(title__name__icontains=query) | Q(title__year=query)).distinct()
+            entries = entries.filter(Q(name__icontains=query) | Q(year=query)).distinct()
         else:
-            entries = entries.filter(Q(title__name__startswith=query) | Q(title__year=query)).distinct()
-
+            entries = entries.filter(Q(name__startswith=query) | Q(year=query)).distinct()
     page = request.GET.get('page')
     ratings = paginate(entries, page)
 
-    query_string = ''
-    if query and selected_type:
-        select_type = '?select_type={}'.format(selected_type)
-        q = '&q={}'.format(query)
-        query_string = select_type + q + '&page='
+    # query_string = ''
+    # if query and request.GET.get('select_type'):
+    #     select_type = '?select_type={}'.format(selected_type)
+    #     q = '&q={}'.format(query)
+    #     query_string = select_type + q + '&page='
 
     context = {
         'ratings': ratings,
         'query': query,
-        'selected_type': selected_type,
-        'query_string': query_string,
+        'selected_type': types[selected_type]
+        # 'query_string': query_string,
     }
     return render(request, 'entry.html', context)
+
+# todo
+# dont show in query string selected type if 0. IGNORE IT COMPLETLY
+# dont show &q= if not using it
+# show all titles
+# you can sort by many fields
+# can see which titles were rated / favourited / watchlisted
+
+
 
 # def book(request):
 #     return render(request, 'book.html')
@@ -83,13 +108,14 @@ def explore(request):
 
 def entry_details(request, slug):
     requested_obj = get_object_or_404(Title, slug=slug)
-    user_favourites = Favourite.objects.filter(user__username=request.user.username)
-    user_ratings = Rating.objects.filter(user__username=request.user.username)
-    user_watchlist = Watchlist.objects.filter(user__username=request.user.username)
-    # user_current_rating = requested_obj.rating_set.filter(user__username=request.user.username).first()
+    user = request.user if request.user.is_authenticated() else None
+
+    user_favourites = Favourite.objects.filter(user=user)
+    user_ratings = Rating.objects.filter(user=user)
+    user_watchlist = Watchlist.objects.filter(user=user)
 
     if request.method == 'POST':
-        if not request.user.is_authenticated:
+        if not request.user.is_authenticated():
             messages.info(request, 'Only logged in users can add to watchlist or favourites', extra_tags='alert-info')
             return redirect(requested_obj)
 
@@ -129,7 +155,7 @@ def entry_details(request, slug):
 def entry_edit(request, slug):
     requested_obj = get_object_or_404(Title, slug=slug)
     current_rating = Rating.objects.filter(user__username=request.user.username, title=requested_obj).first()
-    if not request.user.is_authenticated or not current_rating:
+    if not request.user.is_authenticated() or not current_rating:
         messages.info(request, 'You can edit titles you have rated, you must be logged in', extra_tags='alert-info')
         return redirect(requested_obj)
 
@@ -271,7 +297,6 @@ def watchlist(request, username):
 
 def favourite(request, username):
     is_owner = username == request.user.username
-    print(request.user, username)
     user_favourites = Favourite.objects.filter(user__username=username)
     if request.method == 'POST':
         if not is_owner:

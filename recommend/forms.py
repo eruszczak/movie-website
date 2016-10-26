@@ -6,39 +6,13 @@ from .models import Recommendation
 
 
 class RecommendForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(RecommendForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Fieldset(
-                '',
-                Div(Field('const'), css_class='col-md-12'),
-                Div(Field('nick'), css_class='col-md-9'),
-                Div(Field('note'), css_class='col-md-12'),
-            ),
-        )
-        self.helper.form_id = 'recommend_form'
-        self.helper.add_input(Submit('submit', 'Save', css_class='btn btn-success'))
-    const = forms.CharField(
-        label='link or id',
-        widget=forms.TextInput(attrs={'placeholder': 'eg. http://www.imdb.com/title/tt0111503/ or tt0111503'}),
-        max_length=50,
-    )
-    nick = forms.CharField(
-        label='nickname',
-        max_length=30,
-    )
-    note = forms.CharField(
-        label='note',
-        max_length=120,
-        required=False,
-        widget=forms.Textarea(attrs={'placeholder': 'an optional message (max 120 chars)', 'rows': 3}),
-    )
+    const = forms.CharField()
+    nick = forms.CharField()
+    note = forms.CharField()
 
     class Meta:
         model = Recommendation
-        fields = ['const', 'nick', 'note']
-
+        fields = ('const', 'nick', 'note')
     # def clean_const(self):
     #     if Recommendation.objects.filter(date=timezone.now()).count() >= 5:
     #         raise forms.ValidationError('Today has been already recommended more than 5 titles')
