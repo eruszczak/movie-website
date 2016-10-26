@@ -72,86 +72,84 @@ def explore(request):
         'query_string': query_string,
     }
     return render(request, 'entry.html', context)
-#
-#
+
 # def book(request):
 #     return render(request, 'book.html')
-#
-#
 # def search(request):
 #     return render(request, 'search.html')
-#
-#
 # def about(request):
 #     return render(request, 'about.html')
-#
-#
+
+
 def entry_details(request, slug):
     requested_obj = get_object_or_404(Title, slug=slug)
-#         if not request.user.is_superuser:
-#             messages.info(request, 'Only admin can edit', extra_tags='alert-info')
-#             return redirect(requested_obj)
-        # every user can edit if have this rated but anons
+    user_favourites = Favourite.objects.filter(user__username=request.user.username)
+    user_ratings = Rating.objects.filter(user__username=request.user.username)
+    user_watchlist = Watchlist.objects.filter(user__username=request.user.username)
+    # user_current_rating = requested_obj.rating_set.filter(user__username=request.user.username).first()
+
     if request.method == 'POST':
+        if not request.user.is_authenticated:
+            messages.info(request, 'Only logged in users can add to watchlist or favourites', extra_tags='alert-info')
+            return redirect(requested_obj)
+
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
         fav_add, fav_remove = request.POST.get('fav_add'), request.POST.get('fav_remove')
-        if watch or unwatch:
-            if watch:
-                Watchlist.objects.create(user=request.user, title=requested_obj)
-            elif unwatch:
-                to_delete = Watchlist.objects.get(user=request.user, title=requested_obj)
-                if to_delete.imdb:
-                    to_delete.deleted = True
-                    to_delete.save()
-                else:
-                    to_delete.delete()
-                # if not from imdb -> ok, delete.
-        elif fav_add or fav_remove:
-            if fav_add:
-                Favourite.objects.create(user=request.user, title=requested_obj, order=Favourite.objects.all().count() + 1)
-            elif fav_remove:
-                to_delete = Favourite.objects.get(user=request.user, title=requested_obj)
-                Favourite.objects.filter(order__gt=to_delete.order).update(order=F('order') - 1)
+        if watch:
+            Watchlist.objects.create(user=request.user, title=requested_obj)
+        elif unwatch:
+            to_delete = Watchlist.objects.get(user=request.user, title=requested_obj)
+            if to_delete.imdb:
+                to_delete.deleted = True
+                to_delete.save(update_fields=['deleted'])
+            else:
                 to_delete.delete()
+
+        if fav_add:
+            Favourite.objects.create(user=request.user, title=requested_obj, order=user_favourites.count() + 1)
+        elif fav_remove:
+            to_delete = user_favourites.filter(title=requested_obj).first()
+            user_favourites.filter(order__gt=to_delete.order).update(order=F('order') - 1)
+            to_delete.delete()
         return redirect(reverse('entry_details', kwargs={'slug': slug}))
 
-    # user_current_rating = Rating.objects.filter(user=request.user).filter(title=requested_obj).first()
-    user_current_rating = requested_obj.rating_set.filter(user=request.user).first()
     context = {
         'entry': requested_obj,
-        'archive': Rating.objects.filter(user=request.user).filter(title=requested_obj),
-        'favourite': Favourite.objects.filter(user=request.user).filter(title=requested_obj).first(),
-        'watchlist': Watchlist.objects.filter(user=request.user).filter(title=requested_obj).first(),
-        'link_month': reverse('entry_show_rated_in_month', kwargs={
-            'year': user_current_rating.rate_date.year, 'month': user_current_rating.rate_date.month})
+        'archive': user_ratings.filter(title=requested_obj),
+        'favourite': user_favourites.filter(title=requested_obj).first(),
+        'watchlist': user_watchlist.filter(title=requested_obj).first(),
     }
+    if user_ratings.filter(title=requested_obj):
+        current_rating = user_ratings.first()
+        year, month = current_rating.rate_date.year, current_rating.rate_date.month
+        context['link_month'] = reverse('entry_show_rated_in_month', kwargs={'year': year, 'month': month})
     return render(request, 'entry_details.html', context)
 
 
 def entry_edit(request, slug):
     requested_obj = get_object_or_404(Title, slug=slug)
-    # if not request.user.is_superuser:
-    #     messages.info(request, 'Only admin can edit', extra_tags='alert-info')
-    #     return redirect(requested_obj)
+    current_rating = Rating.objects.filter(user__username=request.user.username, title=requested_obj).first()
+    if not request.user.is_authenticated or not current_rating:
+        messages.info(request, 'You can edit titles you have rated, you must be logged in', extra_tags='alert-info')
+        return redirect(requested_obj)
 
-    form = EditRating(instance=Rating.objects.filter(user=request.user, title=requested_obj).first())   # todo
+    form = EditRating(instance=current_rating)
     if request.method == 'POST':
-        last_rating = Rating.objects.filter(user=request.user, title=requested_obj).first()
         form = EditRating(request.POST)
         if form.is_valid():
             new_rate = form.cleaned_data.get('rate')
             new_date = form.cleaned_data.get('rate_date')
             message = ''
-            if last_rating.rate != int(new_rate):
-                message += 'rating: {} changed for {}'.format(last_rating.rate, new_rate)
-                last_rating.rate = new_rate
-            if last_rating.rate_date != new_date:
+            if current_rating.rate != int(new_rate):
+                message += 'rating: {} changed for {}'.format(current_rating.rate, new_rate)
+                current_rating.rate = new_rate
+            if current_rating.rate_date != new_date:
                 message += ', ' if message else ''
-                message += 'date: {} changed for {}'.format(last_rating.rate_date, new_date)
-                last_rating.rate_date = new_date
+                message += 'date: {} changed for {}'.format(current_rating.rate_date, new_date)
+                current_rating.rate_date = new_date
             if message:
                 messages.success(request, message, extra_tags='alert-success')
-                last_rating.save(update_fields=['rate', 'rate_date'])
+                current_rating.save(update_fields=['rate', 'rate_date'])
             else:
                 messages.info(request, 'nothing changed', extra_tags='alert-info')
             return redirect(requested_obj)
