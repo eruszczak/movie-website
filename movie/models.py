@@ -157,6 +157,7 @@ class Watchlist(models.Model):
         if rating:
             return rating.rate_date - self.added_date
 
+
 class Favourite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)

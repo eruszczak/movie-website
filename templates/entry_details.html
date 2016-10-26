@@ -34,9 +34,11 @@
 						{% endif %}
 					</li>
 					{% endcomment %}
-					{% if user.is_superuser %}
+					{% if user.is_authenticated %}
 					<li class="list-group-item">
-						<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>
+						{% if archive %}
+							<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>
+						{% endif %}
 						<form action="" method="post">{% csrf_token %}
 							{% if watchlist %}
                                 <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="unwatch">Don't want to see again</button>
@@ -49,6 +51,9 @@
                             {% else %}
                                 <button class="btn btn-sm" type="submit" name="fav_remove" value="delete">unfavourite</button>
                             {% endif %}
+							{% if not archive %}
+								<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>
+							{% endif %}
 						</form>
 					</li>
 					{% endif %}

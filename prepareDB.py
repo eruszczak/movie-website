@@ -55,11 +55,11 @@ def get_watchlist(user):
             const, name, date = unpack_from_rss_item(obj, for_watchlist=True)
             title = get_title_or_create(const)
             current_watchlist.append(const)
-            # Watchlist.objects.update_or_create(user=user, title=title, added_date=date, imdb=True)
-            print(date)
-            if not user_watchlist.filter(title=title, added_date=date, imdb=True).exists():
-                print('adding to watchlist', user, title, date)
-                Watchlist.objects.create(user=user, title=title, added_date=date, imdb=True)
+            obj, created = Watchlist.objects.get_or_create(user=user, title=title, added_date=date, imdb=True)
+            if created:
+                print('get_watchlist', user, title, date)
+            # if not user_watchlist.filter(title=title, added_date=date, imdb=True).exists():
+            #     Watchlist.objects.create(user=user, title=title, added_date=date, imdb=True)
 
         to_delete = [x for x in user_watchlist.filter(imdb=True).exclude(title__const__in=current_watchlist)
                      if not x.is_rated_with_later_date]
@@ -67,13 +67,15 @@ def get_watchlist(user):
             print('deleting', obj.title, obj.added_date)
             # obj.delete()
 
+
 # this should be done only once per user! WHEN it has been uploaded
 # BOOLEAN FIELD if it has been successfull. it'd great if not using omdbapi... but fuck it
-
 # there should be option to not include ratings.csv and only use RSS - so only provide your profil url / imdb id
 # need validate csv
 # this can be only done when there are no ratings
 # need time sleep or something.
+# valid imdb_id
+
 def update_from_csv(user):
     path = os.path.join(MEDIA_ROOT, str(user.userprofile.imdb_ratings))
     if os.path.isfile(path):
@@ -83,7 +85,10 @@ def update_from_csv(user):
             for num, row in enumerate(reader):
                 title = get_title_or_create(row['const'])
                 rate_date = convert_to_datetime(row['created'], 'csv')
-                Rating.objects.get_or_create(user=user, title=title, rate=row['You rated'], rate_date=rate_date)
+                obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date)
+                if created:
+                    obj.rate = row['You rated']
+                    obj.save(update_fields=['rate'])
 
 
 def update_from_rss(user):
@@ -93,19 +98,28 @@ def update_from_rss(user):
         for num, obj in enumerate(itemlist):
             const, rate, rate_date = unpack_from_rss_item(obj)
             title = get_title_or_create(const)
-            Rating.objects.get_or_create(user=user, title=title, rate=rate, rate_date=rate_date)
+            obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date)
+            if created:
+                obj.rate = rate
+                obj.save(update_fields=['rate'])
             if num > 10:
                 break
 
+
 def update_users_ratings_from_rss():
     for user in User.objects.filter(userprofile__imdb_id__isnull=False):
-    # for user in User.objects.all():
         update_from_rss(user)
+
 
 def update_users_ratings_from_csv():
     for user in User.objects.exclude(userprofile__imdb_ratings=''):
-    # for user in User.objects.all():
         update_from_csv(user)
+
+
+def update_users_watchlist():
+    for user in User.objects.filter(userprofile__imdb_id__isnull=False):
+        get_watchlist(user)
+
 
 # def get_users_ratings_from_rss():
 #     for user in User.objects.all(imdb_imdb_ratings__null=False, used=False):
@@ -153,13 +167,14 @@ def update_users_ratings_from_csv():
 # print(user)
 # print(user.userprofile)
 # print(user.userprofile.imdb_ratings)
-if len(sys.argv) > 1:
+if len(sys.argv) == 2:
     command = sys.argv[1]
     if command == 'allrss':
         update_users_ratings_from_rss()
-
     if command == 'allcsv':
         update_users_ratings_from_csv()
+    if command == 'allwatchlist':
+        update_users_watchlist()
     # if command == 'csv':
     #     update_from_csv(user)
     # # elif command == 'posters':
