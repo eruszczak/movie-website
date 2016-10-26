@@ -17,7 +17,10 @@
 				<ul class="list-group" style="margin-left: -10px">
 					<li class="list-group-item"><a href="{% url 'watchlist' username=user.username %}">watchlist</a></li>
 					<li class="list-group-item"><a href="{% url 'favourites' username=user.username %}">favourites</a></li>
+					<li class="list-group-item"><a href="{% url 'recommend' username=user.username %}">recommend</a></li>
+					{% if is_owner %}
 					<li class="list-group-item"><a href="{% url 'user_edit' username=user.username %}">edit</a></li>
+					{% endif %}
 				</ul>
 			</div>
 		</div>

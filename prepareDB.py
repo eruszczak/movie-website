@@ -135,8 +135,24 @@ def update_users_watchlist():
 
 # user = profile
 # Watchlist.objects.filter(user=user).delete()
-# x = convert_to_datetime('Fri, 14 Jun 2013 13:46:54 GMT', 'xml')
+# x = convert_to_datetime('Wed, 26 Oct 2016 12:51:04 GMT', 'xml') + timedelta(hours=7)
 # print(x)
+# print(x.tzinfo)
+# from django.utils import timezone
+# print(timezone.now())
+# print(timezone.now().tzinfo)
+#
+# import pytz
+# # utc = pytz.timezone('US/Pacific')
+# utc = pytz.timezone('UTC')
+# x = x.replace(tzinfo=utc)
+# print(x)
+# y = Watchlist.objects.get(id=8)
+# print('rss:', x)
+# print('db:', y.added_date)
+# print(x > y.added_date)
+
+# print(x.astimezone(utc))
 # a = Watchlist.objects.get(id='437')
 # b = Watchlist.objects.get(id='438')
 # b.added_date = datetime(2016, 10, 16, 18, 18, 9)

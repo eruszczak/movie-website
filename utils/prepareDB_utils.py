@@ -4,6 +4,7 @@ import urllib.request
 from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
 from django.core.files import File
+import pytz
 
 
 def convert_to_datetime(date_string, source):
@@ -33,9 +34,8 @@ def unpack_from_rss_item(obj, for_watchlist=False):
     const = obj.find('link').text[-10:-1]
     date = convert_to_datetime(obj.find('pubDate').text, 'xml')
     if for_watchlist:
-        # import pytz
-        # date += timedelta(hours=9)
-        # date = pytz.timezone("Europe/Warsaw").localize(date, is_dst=False)
+        date += timedelta(hours=7)
+        date = date.replace(tzinfo=pytz.timezone('UTC'))
         name = obj.find('title').text
         return const, name, date
     rate = obj.find('description').text.strip()[-3:-1].lstrip()

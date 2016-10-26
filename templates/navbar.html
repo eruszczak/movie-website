@@ -16,12 +16,13 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">more <span class="caret"></span></a>
                     <ul class="dropdown-menu">
+                        {% if user.is_authenticated %}
                         <li><a href="{% url 'watchlist' username=request.user %}">watchlist</a></li>
                           <li><a href="{% url 'favourites' username=request.user %}">favourite</a></li>
-{#                        <li role="separator" class="divider"></li>#}
- {#                         <li><a href="{% url 'recommend' username=request.user %}">recommend</a></li> #}
-{#                        <li><a href="{% url 'search' %}">search</a></li>#}
+                          <li><a href="{% url 'recommend' username=request.user %}">recommend</a></li>
                           <li role="separator" class="divider"></li>
+                        {% endif %}
+{#                        <li><a href="{% url 'search' %}">search</a></li>#}
                         <li><a href="{% url 'entry_groupby_year' %}">all years</a></li>
                         <li><a href="{% url 'entry_groupby_genre' %}">all genres</a></li>
                         <li><a href="{% url 'entry_groupby_director' %}">all directors</a></li>
@@ -37,7 +38,11 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% if user.is_authenticated %}{{ user.get_username }}{% else %}users{% endif %} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         {% if not user.is_authenticated %}
-                        <li><a href="{% url 'login' %}">login</a></li>
+                            <li><a href="{% url 'login' %}">login</a></li>
+                        {% endif %}
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'user_profile' username=request.user %}">profile</a></li>
+                            <li role="separator" class="divider"></li>
                         {% endif %}
                         <li><a href="{% url 'register' %}">register</a></li>
                         {% if user.is_authenticated %}
