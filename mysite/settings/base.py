@@ -16,23 +16,24 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'django.contrib.sites',
 ]
 
 EXTERNAL_APPS = [
     'crispy_forms',
-    'haystack',
+    # 'haystack',
     'rest_framework',
     'corsheaders',
+    # 'south',
 ]
 
 LOCAL_APPS = [
     'movie',
     'recommend',
-    'chart',
+    # 'chart',
     # 'book',
     'users',
     # 'contact',
-    #
     # 'school',
     'api',
 ]
@@ -126,14 +127,14 @@ MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media_cdn")
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://127.0.0.1:8983/solr'
-        # ...or for multicore...
-        # 'URL': 'http://127.0.0.1:8983/solr/mysite',
-    },
-}
+# HAYSTACK_CONNECTIONS = {
+#     'default': {
+#         'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+#         'URL': 'http://127.0.0.1:8983/solr'
+#         # ...or for multicore...
+#         # 'URL': 'http://127.0.0.1:8983/solr/mysite',
+#     },
+# }
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

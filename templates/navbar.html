@@ -19,7 +19,7 @@
                         <li><a href="{% url 'watchlist' username=request.user %}">watchlist</a></li>
                           <li><a href="{% url 'favourites' username=request.user %}">favourite</a></li>
 {#                        <li role="separator" class="divider"></li>#}
-                          <li><a href="{% url 'recommend' %}">recommend</a></li>
+ {#                         <li><a href="{% url 'recommend' username=request.user %}">recommend</a></li> #}
 {#                        <li><a href="{% url 'search' %}">search</a></li>#}
                           <li role="separator" class="divider"></li>
                         <li><a href="{% url 'entry_groupby_year' %}">all years</a></li>
@@ -32,7 +32,7 @@
 {#                        <li><a href="{% url 'school' %}">school</a></li>#}
                     </ul>
                 </li>
-				<li><a href="{% url 'charts:home' %}">charts</a></li>
+		{#		<li><a href="{% url 'charts:home' %}">charts</a></li> #}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ user }} <span class="caret"></span></a>
                     <ul class="dropdown-menu">

@@ -1,29 +1,34 @@
-from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.shortcuts import render, redirect
+from django.utils import timezone
+
+# from utils.prepareDB import get_title_or_create
 from .forms import RecommendForm
 from .models import Recommendation
 
-from prepareDB_utils import get_omdb
-from django.contrib import messages
-from django.utils import timezone
 
-
-def recommend(request):
+def recommend(request, username):
+    is_owner = username == request.user.username
+    user = User.objects.get(username=username)
+    recommended_for_user = Recommendation.objects.filter(user=user)
     form = RecommendForm(initial={'nick': request.user.username})
     if request.method == 'POST':
         form = RecommendForm(request.POST)
         if form.is_valid():
             instance = form.save(commit=False)
-            # json = get_omdb(instance.const)
-            # if json:
-            #     instance.name = json['Title']
-            #     instance.year = json['Year'][:4]
-            # instance.save()
+            if request.user:
+                instance.sender = request.user
+            else:
+                instance.nick = None
+            instance.user = user
+            # instance.title = get_title_or_create(instance.const)
+            instance.save()
             # messages.success(request, 'added recommendation', extra_tags='alert-success')
             return redirect(reverse("recommend"))
-    recommended_today = Recommendation.objects.filter(user=request.user, added_date=timezone.now())
+    recommended_today = recommended_for_user.filter(added_date=timezone.now())
     context = {
-        'obj_list': Recommendation.objects.filter(user=request.user),
+        'obj_list': recommended_for_user,
         'form': form,
         'count': {
             # 'today': recommended_today,
