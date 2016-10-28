@@ -3,7 +3,7 @@ from django.contrib import auth, messages
 from .forms import RegisterForm, LoginForm, EditProfileForm
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-from .models import UserProfile
+from .models import UserProfile, UserFollow
 
 
 def register(request):
@@ -82,10 +82,24 @@ def user_list(request):
 
 
 def user_profile(request, username):
-    requested_obj = get_object_or_404(User, username=username)
+    user = get_object_or_404(User, username=username)
+    if request.method == 'POST':
+        if not request.user.is_authenticated():
+            messages.error(request, 'You must be logged in to follow somebody')
+            return redirect(reverse('user_profile', kwargs={'username': username}))
+        if request.POST.get('follow'):
+            UserFollow.objects.create(user_follower=request.user, user_followed=user)
+        elif request.POST.get('unfollow'):
+            UserFollow.objects.filter(user_follower=request.user, user_followed=user).delete()
+        return redirect(reverse('user_profile', kwargs={'username': username}))
     context = {
-        'title': 'User profile: ' + requested_obj.username,
-        'user': requested_obj,
-        'is_owner': username == request.user.username,
+        'title': 'User profile: ' + user.username,
+        'user': user,
+        'is_owner': user == request.user,
+        'can_follow': not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists(),
     }
     return render(request, 'users/user_profile.html', context)
+
+
+def notifications(request):
+    return 1

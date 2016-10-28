@@ -1,8 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
+
+from django.db.models import Count
 from django.forms import ValidationError
 import os
+from recommend.models import Recommendation
+from movie.models import Rating
+
 
 def update_filename(instance, filename):
     path = os.path.join("user_files", instance.user.username)
@@ -10,9 +15,11 @@ def update_filename(instance, filename):
     fname = datetime.now().strftime("%Y-%m-%d %H-%M-%S") + extension
     return os.path.join(path, fname)
 
+
 def validate_file_extension(value):
     if not value.name.endswith('.csv'):
         raise ValidationError('Only csv files are supported')
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
@@ -26,3 +33,15 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    @property
+    def count_ratings(self):
+        return Rating.objects.filter(user=self.user).annotate(Count('title', distinct=True)).count()
+
+
+class UserFollow(models.Model):
+    user_follower = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_followed = models.ForeignKey(User, on_delete=models.CASCADE, related_name='second_user')
+
+    class Meta:
+        unique_together = ('user_follower', 'user_followed')

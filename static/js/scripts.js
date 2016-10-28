@@ -3,62 +3,64 @@
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
 
-    $("#summary").addClass('animated pulse');
+//    $("#summary").addClass('animated pulse');
 
     $(function () {
       $('[data-toggle="popover"]').popover()
     })
 
-    $( "#clickme" ).click(function() {
-      $( "#book" ).fadeOut( "slow", function() {
-        // Animation complete
-      });
-    });
+//    $( "#clickme" ).click(function() {
+//      $( "#book" ).fadeOut( "slow", function() {
+//        // Animation complete
+//      });
+//    });
 
-    $("#sendQuery").on("click", function () {
-        getResults();
-    });
+//    $("#sendQuery").on("click", function () {
+//        getResults();
+//    });
 
     $("#recommend_form").submit(function(event) {
         var const_value = $("#id_const").val();
         var valid_note = $("#id_note").val().length < 120;
-
-        if ($("#id_nick").length) {
-            var nick_field = $("#id_nick");
-        }
-
-        var regex = /(tt\d{7})[^\d]|$/
+        var nick_field = $("#id_nick");
+        var regex = /(tt\d{7})[^\d]*/;
         var valid_const = regex.exec(const_value)[1];
 
         if (valid_const && valid_note) {
             $("#id_const").val(valid_const);
-            if (!nick_field.length) {
+            if (!nick_field.length || (nick_field.val().length > 2)) {
                 return true;
-            } else if (nick_field.val().length > 2) {
-                return false;
             }
-            return true;
         }
         return false;
     });
+
+    $('.selectpicker').selectpicker({
+//      style: 'btn-info',
+//      size: 2
+    });
+
+
 });
 
-function getResults() {
-    link = '/charts/test'
-     $.getJSON(link, {
-          format: "json"
-        }).done(function(data) {
-            $('#highcharts').highcharts({
-            xAxis: {
-                categories: data.months
-            },
-            series: [{
 
-                data: data.values
-            }]
-        });
-    });
-};
+
+//function getResults() {
+//    link = '/charts/test'
+//     $.getJSON(link, {
+//          format: "json"
+//        }).done(function(data) {
+//            $('#highcharts').highcharts({
+//            xAxis: {
+//                categories: data.months
+//            },
+//            series: [{
+//
+//                data: data.values
+//            }]
+//        });
+//    });
+//};
 
 
 
@@ -78,21 +80,8 @@ $(document).ready(function() {
 //    }).mouseout(function() {
 //        $(this).val("want to see again").removeClass('unwatch-btn').addClass('watch-btn');
 //    });
-
-    $('#test_put').click(function() {
-        var resource_name = $(location).attr('pathname').split('/')[2];
-        $.ajax({
-            type: "PUT",
-            url : '/api/update/' + resource_name + '/',
-            dataType : "json",
-            success: function( data ) {
-            }
-        });
-        window.location.reload(true);
-    })
-
-    $('.test_put2').click(function() {
-        console.log('x')
+//
+//    $('#test_put').click(function() {
 //        var resource_name = $(location).attr('pathname').split('/')[2];
 //        $.ajax({
 //            type: "PUT",
@@ -102,7 +91,20 @@ $(document).ready(function() {
 //            }
 //        });
 //        window.location.reload(true);
-    })
+//    })
+
+//    $('.test_put2').click(function() {
+//        console.log('x')
+//        var resource_name = $(location).attr('pathname').split('/')[2];
+//        $.ajax({
+//            type: "PUT",
+//            url : '/api/update/' + resource_name + '/',
+//            dataType : "json",
+//            success: function( data ) {
+//            }
+//        });
+//        window.location.reload(true);
+//    })
 });
 
 
