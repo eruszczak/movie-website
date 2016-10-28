@@ -45,20 +45,20 @@ def send_email(subject, message):
     )
 
 
-def email_watchlist():
-    from movie.models import ImdbWatchlist
-    delete = ImdbWatchlist.objects.to_delete()
-    message = """
-                <table class="table table-hover table-bordered table-condensed">
-                <thead>
-                    <tr>
-                        <th class="text-center">title</th>
-                    </tr>
-                </thead>
-                <tbody>
-    """
-    message += '\n'.join(['<tr><td><a href="http://www.imdb.com/title/{1}/">{0}</a></td></tr>'.format(
-        obj.name, obj.const) for obj in delete])
-    message += '</tbody></table>'
-    print(message)
-    send_email(subject='[imdb watchlist]', message=message)
+# def email_watchlist():
+#     from movie.models import ImdbWatchlist
+#     delete = ImdbWatchlist.objects.to_delete()
+#     message = """
+#                 <table class="table table-hover table-bordered table-condensed">
+#                 <thead>
+#                     <tr>
+#                         <th class="text-center">title</th>
+#                     </tr>
+#                 </thead>
+#                 <tbody>
+#     """
+#     message += '\n'.join(['<tr><td><a href="http://www.imdb.com/title/{1}/">{0}</a></td></tr>'.format(
+#         obj.name, obj.const) for obj in delete])
+#     message += '</tbody></table>'
+#     print(message)
+#     send_email(subject='[imdb watchlist]', message=message)

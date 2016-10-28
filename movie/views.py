@@ -1,14 +1,13 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.core.urlresolvers import reverse
-from django.db.models import Q, Count, F
-from django.contrib import messages
-from .models import *
-from .forms import EditRating
-from utils.utils import paginate
-import datetime
 import calendar
 import re
-from django.views.generic import View
+
+from django.contrib import messages
+from django.db.models import Count, F
+from django.shortcuts import render, redirect
+
+from common.utils import paginate
+from .forms import EditRating
+from .models import *
 
 
 def home(request):
