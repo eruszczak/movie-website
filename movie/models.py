@@ -5,8 +5,8 @@ from django.utils import timezone
 from django.db import models
 from django.db.models import Q
 from datetime import datetime
-import sys
 from django.contrib.auth.models import User
+
 
 class Genre(models.Model):
     name = models.CharField(max_length=50, unique=True)

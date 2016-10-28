@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
-from django.core.urlresolvers import reverse
-from .forms import ContactForm
-from utils.utils import send_email
 from django.contrib import messages
+from django.core.urlresolvers import reverse
+from django.shortcuts import render, redirect
+
+from common.utils import send_email
+from .forms import ContactForm
 
 
 def contact(request):

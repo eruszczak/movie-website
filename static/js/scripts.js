@@ -19,6 +19,28 @@ $(document).ready(function(){
         getResults();
     });
 
+    $("#recommend_form").submit(function(event) {
+        var const_value = $("#id_const").val();
+        var valid_note = $("#id_note").val().length < 120;
+
+        if ($("#id_nick").length) {
+            var nick_field = $("#id_nick");
+        }
+
+        var regex = /(tt\d{7})[^\d]|$/
+        var valid_const = regex.exec(const_value)[1];
+
+        if (valid_const && valid_note) {
+            $("#id_const").val(valid_const);
+            if (!nick_field.length) {
+                return true;
+            } else if (nick_field.val().length > 2) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    });
 });
 
 function getResults() {

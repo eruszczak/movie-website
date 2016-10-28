@@ -4,6 +4,7 @@
 {% block title %}recommend{% endblock %}
 
 {% block content %}
+{% if not is_owner or is_owner %}
 <div class="row">
     <div class="col-md-6">
         <form id="recommend_form" method="post">{% csrf_token %}
@@ -17,7 +18,7 @@
                 </div>
                 {% if not user.is_authenticated %}
                 <div class="col-md-9"> <div id="div_id_nick" class="form-group"> <label for="id_nick" class="control-label  requiredField">
-                nickname<span class="asteriskField">*</span> </label> <div class="controls "> <input class="textinput textInput form-control" id="id_nick" maxlength="30" name="nick" type="text" value=""> </div> </div>
+                nickname<span class="asteriskField">*</span> </label> <div class="controls "> <input class="textinput textInput form-control" id="id_nick" maxlength="30" name="nick" type="text" value="" required> </div> </div>
                 </div>
                 {% endif %}
                 <div class="col-md-12">
@@ -46,12 +47,47 @@
         <hr>
         <h5 class="text-center">Progress bar for today's recommendations limit</h5>
         <div class="progress">
-  <div class="progress-bar progress-bar-{% if todays_count == 5 %}danger{% elif todays_count == 4 %}warning{% else %}info{% endif %}" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {{ count.today2 }}0%">
-    <span class="sr-only"></span>{{ count.today }} / 5
-  </div>
-</div>
+          <div class="progress-bar progress-bar-{% if todays_count == 5 %}danger{% elif todays_count == 4 %}warning{% else %}info{% endif %}" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {{ count.today2 }}0%">
+            <span class="sr-only"></span>{{ count.today }} / 5
+          </div>
+        </div>
     </div>
 </div>
 <hr>
-
+{% endif %}
+{% if obj_list %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="alert alert-warning text-center" role="alert">{{ obj_list|length }} recommendation{{ obj_list|pluralize }} found. {{ count.active_recommendations }} left to watch</div>
+    </div>
+</div>
+<table class="table table-hover table-bordered table-condensed">
+    <thead>
+        <tr>
+            <th class="text-center"></th>
+            <th class="text-center">title</th>
+            <th class="text-center">when</th>
+            <th class="text-center">watched</th>
+            <th class="text-center">author</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for obj in obj_list %}
+        <tr class="">
+            <th scope="row" class="col-md-1 text-center">{{ forloop.counter }}</th>
+            <td class=""><a href="{% url 'entry_details' slug=obj.title.slug %}" target="">{{ obj.title.name }}</a> ({{ obj.title.year }})</td>
+            <td class="col-md-2 text-center">{{ obj.added_date|date:"Y-m-d" }}</td>
+            <td class="col-md-1 text-center">{% if obj.is_active %}<i class="fa fa-check" aria-hidden="true"></i>{% else %}<i class="fa fa-times" aria-hidden="true"></i>{% endif %}</td>
+            <td class="col-md-2 text-center" data-toggle="tooltip" data-placement="left" title="{{ obj.note }}">{% if obj.sender %}<a href="{% url 'user_profile' username=obj.sender.username %}">{{ obj.sender }}</a>{% else %}{{ obj.nick }}{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="alert alert-warning text-center" role="alert">No recommendations found</div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

@@ -1,15 +1,5 @@
-import calendar
-from datetime import datetime
-from collections import OrderedDict
-from utils.utils import build_url
-from chart.charts import count_for_month_lists
+from rest_framework.generics import ListAPIView
 
-from movie.models import Rating
-from django.db.models import Q, Count
-
-from rest_framework.reverse import reverse
-from rest_framework.response import Response
-from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView
 from .pagination import SetPagination
 from .serializers import *
 
