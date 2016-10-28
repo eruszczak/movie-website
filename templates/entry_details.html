@@ -51,8 +51,17 @@
                             {% else %}
                                 <button class="btn btn-sm" type="submit" name="fav_remove" value="delete">unfavourite</button>
                             {% endif %}
-							{% if not archive %}
-								<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>
+							{% if follows %}
+							<select class="selectpicker show-tick" name="choose_followed_user"
+									multiple title="Choose one of the following..." data-width="auto" data-size="5"
+									data-actions-box="true" data-live-search="true">
+								{% for x in follows %}
+									<option value="{{ x }}" data-subtext="ratings: {{ x.user_followed.userprofile.count_ratings }}">{{ x.user_followed.username }}</option>
+								{% endfor %}
+								<!--<optgroup label="They watched it" disabled>-->
+									<!--<option>user1</option>-->
+								<!--</optgroup>-->
+							</select>
 							{% endif %}
 						</form>
 					</li>

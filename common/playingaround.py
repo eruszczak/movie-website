@@ -1,13 +1,26 @@
 import django, os
+from django.db.models import Count
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 import re
 import datetime
-from recommend.models import Recommendation
+from recommend.models import Recommendation, Rating, Title
 from django.utils import timezone
 import pytz
+from django.contrib.auth.models import User
 
+user = User.objects.all().first()
+print(user.username)
 
+# Recommendation.objects.all().delete()
+# x = Rating.objects.filter(user__id=1).annotate(Count('title', distinct=True)).count()
+# print(x)
+# x = Rating.objects.filter(user__id=1).count()
+# print(x)
+print(Title.objects.all().last().rating_set.filter(user=user).values('user__username'))
+# print(Rating.objects.all())
+print(Rating.objects.all().order_by('title__id').distinct('title__id'))
+# print(Rating.objects.all().last().title_set.all())
 # x = Recommendation.objects.filter(added_date__date=datetime.date.today())
 # print(x)
 # print(x.added_date > datetime.datetime.today())

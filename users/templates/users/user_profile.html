@@ -21,6 +21,17 @@
 					{% if is_owner %}
 					<li class="list-group-item"><a href="{% url 'user_edit' username=user.username %}">edit</a></li>
 					{% endif %}
+					{% if user.is_authenticated and not is_owner %}
+					<li class="list-group-item">
+						<form id="follow_user" method="post">{% csrf_token %}
+							{% if can_follow %}
+							<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="follow" value="follow">Follow user</button>
+							{% else %}
+							<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfollow" value="unfollow">Unfollow user</button>
+							{% endif %}
+						</form>
+					</li>
+					{% endif %}
 				</ul>
 			</div>
 		</div>

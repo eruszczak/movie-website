@@ -8,7 +8,8 @@ from django.shortcuts import render, redirect
 from common.utils import paginate
 from .forms import EditRating
 from .models import *
-
+from users.models import UserFollow
+from recommend.models import Recommendation
 
 def home(request):
     # manager for getting user's ratings
@@ -59,7 +60,12 @@ def explore(request):
         #     to_delete.delete()
         return redirect(request.META.get('HTTP_REFERER'))
 
-    entries = Title.objects.all()
+    entries = Rating.objects.all().order_by('title__inserted_date').distinct('title__inserted_date')
+    # entries = Title.objects.all()
+    # because i dont have a access to full ratings there
+    # hmm can change order later
+    # how to get for a title info about rating
+    print(entries)
     query = request.GET.get('q')
     types = {'0': '', '1': 'movie', '2': 'series'}
 
@@ -79,6 +85,8 @@ def explore(request):
     #     select_type = '?select_type={}'.format(selected_type)
     #     q = '&q={}'.format(query)
     #     query_string = select_type + q + '&page='
+
+    # ratings = ((Rating.objects.filter(user=user, title=x).first(), x) for x in ratings)   # todo
 
     context = {
         'ratings': ratings,
@@ -108,11 +116,9 @@ def explore(request):
 def entry_details(request, slug):
     requested_obj = get_object_or_404(Title, slug=slug)
     user = request.user if request.user.is_authenticated() else None
-
     user_favourites = Favourite.objects.filter(user=user)
     user_ratings = Rating.objects.filter(user=user)
     user_watchlist = Watchlist.objects.filter(user=user)
-
     if request.method == 'POST':
         if not request.user.is_authenticated():
             messages.info(request, 'Only logged in users can add to watchlist or favourites', extra_tags='alert-info')
@@ -129,20 +135,29 @@ def entry_details(request, slug):
                 to_delete.save(update_fields=['deleted'])
             else:
                 to_delete.delete()
-
-        if fav_add:
+        elif fav_add:
             Favourite.objects.create(user=request.user, title=requested_obj, order=user_favourites.count() + 1)
         elif fav_remove:
             to_delete = user_favourites.filter(title=requested_obj).first()
             user_favourites.filter(order__gt=to_delete.order).update(order=F('order') - 1)
             to_delete.delete()
+
+        selected = request.POST.get('choose_followed_user')
+        # if selected:
+        #     Recommendation
         return redirect(reverse('entry_details', kwargs={'slug': slug}))
 
+    followed_by_user = UserFollow.objects.filter(user_follower=user)
+    # recommended
+    print(followed_by_user)
     context = {
         'entry': requested_obj,
         'archive': user_ratings.filter(title=requested_obj),
         'favourite': user_favourites.filter(title=requested_obj).first(),
         'watchlist': user_watchlist.filter(title=requested_obj).first(),
+        'follows': UserFollow.objects.filter(user_follower=user),
+        'rated_by': Rating.objects.filter(title=requested_obj).count(),  # todo count distinct for user
+        'average': '1',
     }
     if user_ratings.filter(title=requested_obj):
         current_rating = user_ratings.first()
@@ -310,3 +325,11 @@ def favourite(request, username):
         'ratings': user_favourites,
     }
     return render(request, 'favourite.html', context)
+
+
+def add_title(request):
+    return render(request, '')
+
+
+def rated_by_user(request, username):
+    return render(request, '')
