@@ -162,3 +162,23 @@ $('#save-order').click(function() {
           window.location.reload(false);
     // });
 });
+
+
+
+$('input[name="rating"').change(
+  function(){
+    send_rating(this.value);
+  }
+)
+
+function send_rating(val) {
+  console.log(val);
+    $.ajax({
+        data: {
+            value: val,
+            csrfmiddlewaretoken: csrftoken
+        },
+        type: 'POST',
+        url: this.href
+    });
+}

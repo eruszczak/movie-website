@@ -1,9 +1,7 @@
-from django.shortcuts import get_object_or_404, get_list_or_404
 from django.core.urlresolvers import reverse
 from django.utils.text import slugify
 from django.utils import timezone
 from django.db import models
-from django.db.models import Q
 from datetime import datetime
 from django.contrib.auth.models import User
 
@@ -95,8 +93,8 @@ class Title(models.Model):
 class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
-    rate = models.IntegerField(blank=True, null=True)
-    rate_date = models.DateField(blank=True, null=True)
+    rate = models.IntegerField()
+    rate_date = models.DateField()
 
     class Meta:
         unique_together = ('user', 'title', 'rate', 'rate_date')

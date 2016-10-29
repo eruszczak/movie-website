@@ -4,12 +4,18 @@ import re
 from django.contrib import messages
 from django.db.models import Count, F
 from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404
 
 from common.utils import paginate
 from .forms import EditRating
-from .models import *
+from .models import Genre, Director, Actor, Type, Title, Rating, Watchlist, Favourite
 from users.models import UserFollow
 from recommend.models import Recommendation
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.db.models import Q
+from datetime import datetime
+
 
 def home(request):
     # manager for getting user's ratings
@@ -117,8 +123,9 @@ def entry_details(request, slug):
     requested_obj = get_object_or_404(Title, slug=slug)
     user = request.user if request.user.is_authenticated() else None
     user_favourites = Favourite.objects.filter(user=user)
-    user_ratings = Rating.objects.filter(user=user)
     user_watchlist = Watchlist.objects.filter(user=user)
+    user_ratings_of_requested_obj = Rating.objects.filter(user=user, title=requested_obj)
+    current_rating = user_ratings_of_requested_obj.first()
     if request.method == 'POST':
         if not request.user.is_authenticated():
             messages.info(request, 'Only logged in users can add to watchlist or favourites', extra_tags='alert-info')
@@ -142,25 +149,41 @@ def entry_details(request, slug):
             user_favourites.filter(order__gt=to_delete.order).update(order=F('order') - 1)
             to_delete.delete()
 
-        selected = request.POST.get('choose_followed_user')
-        # if selected:
-        #     Recommendation
+        selected_users = request.POST.getlist('choose_followed_user')
+        if selected_users:
+            for choosen_user in selected_users:
+                choosen_user = User.objects.get(username=choosen_user)
+                if not Recommendation.objects.filter(user=choosen_user, title=requested_obj).exists()\
+                        or not Rating.objects.filter(user=choosen_user, title=requested_obj).exists():
+                    Recommendation.objects.create(user=choosen_user, sender=user, title=requested_obj)
+
+        new_rating = request.POST.get('value')
+        if new_rating:
+            if current_rating:
+                current_rating.rate = new_rating
+                current_rating.save(update_fields=['rate'])
+            else:
+                Rating.objects.create(user=user, title=requested_obj, rate=new_rating, rate_date=datetime.now())
+
+        # delete
+        # rating
         return redirect(reverse('entry_details', kwargs={'slug': slug}))
 
-    followed_by_user = UserFollow.objects.filter(user_follower=user)
+    followed_by_user = UserFollow.objects.filter(user_follower=user).values_list('user_followed', flat=True)
+    followed_who_not_saw_this_title = Rating.objects.filter(user__id__in=followed_by_user, title=requested_obj).values_list('user__id', flat=True)
+    # print(followed_who_not_saw_this_title)
     # recommended
-    print(followed_by_user)
     context = {
         'entry': requested_obj,
-        'archive': user_ratings.filter(title=requested_obj),
+        'archive': user_ratings_of_requested_obj,
         'favourite': user_favourites.filter(title=requested_obj).first(),
         'watchlist': user_watchlist.filter(title=requested_obj).first(),
         'follows': UserFollow.objects.filter(user_follower=user),
         'rated_by': Rating.objects.filter(title=requested_obj).count(),  # todo count distinct for user
         'average': '1',
+        'loop': (n for n in range(10, 0, -1)),
     }
-    if user_ratings.filter(title=requested_obj):
-        current_rating = user_ratings.first()
+    if current_rating:
         year, month = current_rating.rate_date.year, current_rating.rate_date.month
         context['link_month'] = reverse('entry_show_rated_in_month', kwargs={'year': year, 'month': month})
     return render(request, 'entry_details.html', context)
