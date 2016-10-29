@@ -53,30 +53,50 @@
                             {% endif %}
 							{% if follows %}
 							<select class="selectpicker show-tick" name="choose_followed_user"
-									multiple title="Choose one of the following..." data-width="auto" data-size="5"
+									multiple title="Recommend to:" data-width="auto" data-size="5"
 									data-actions-box="true" data-live-search="true">
+								<!--<option selected disabled hidden style='display: none' value=''></option>-->
 								{% for x in follows %}
-									<option value="{{ x }}" data-subtext="ratings: {{ x.user_followed.userprofile.count_ratings }}">{{ x.user_followed.username }}</option>
+									<option value="{{ x.user_followed.username }}" data-subtext="ratings: {{ x.user_followed.userprofile.count_ratings }}">{{ x.user_followed.username }}</option>
 								{% endfor %}
 								<!--<optgroup label="They watched it" disabled>-->
 									<!--<option>user1</option>-->
 								<!--</optgroup>-->
 							</select>
+							<button class="btn btn-sm" type="submit" name="select_followed_users" value="select">Recommend</button>
 							{% endif %}
 						</form>
 					</li>
 					{% endif %}
 				</ul>
 			</div>
+
+				<!--<span class="starRating">-->
+					<!--<input id="rating5" type="radio" name="rating" value="5">-->
+					<!--<label for="rating5">5</label>-->
+				  <!--</span>-->
 		</div>
+		{% if user.is_authenticated %}
+		<form action="" method="post">{% csrf_token %}
+			<span class="starRating">
+				{% for i in loop %}
+					<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if archive.0.rate == i %}checked{% endif %}>
+					<label for="rating{{ i }}">{{ i }}</label>
+			  	{% endfor %}
+		  	</span>
+		</form>
+		{% endif %}
 		<div class="row">
 			<div class="col-xs-10 col-xs-offset-1"><br>
+				{% if archive %}
 				<div class="progress">
-					<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ entry.rate }}0%">{{ entry.rate }}/10</div>
+					<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ entry.rate }}0%">{{ archive.0.rate }}/10</div>
                 </div>
+				{% endif %}
 				{{ entry.plot }}
 			</div>
 		</div>
+
 
 		<div class="row">
 			<div class="col-md-2 hidden-xs"></div>

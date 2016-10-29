@@ -15,7 +15,6 @@ def recommend(request, username):
     recommended_today = recommended_for_user.filter(added_date__date=date.today()).count()
     if request.method == 'POST':
         form = RecommendForm(request.POST)
-        print(form.errors)
         if form.is_valid():
             instance = Recommendation()
             instance.title = form.cleaned_data.get('const')

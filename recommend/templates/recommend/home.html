@@ -78,7 +78,7 @@
             <td class=""><a href="{% url 'entry_details' slug=obj.title.slug %}" target="">{{ obj.title.name }}</a> ({{ obj.title.year }})</td>
             <td class="col-md-2 text-center">{{ obj.added_date|date:"Y-m-d" }}</td>
             <td class="col-md-1 text-center">{% if obj.is_active %}<i class="fa fa-check" aria-hidden="true"></i>{% else %}<i class="fa fa-times" aria-hidden="true"></i>{% endif %}</td>
-            <td class="col-md-2 text-center" data-toggle="tooltip" data-placement="left" title="{{ obj.note }}">{% if obj.sender %}<a href="{% url 'user_profile' username=obj.sender.username %}">{{ obj.sender }}</a>{% else %}{{ obj.nick }}{% endif %}</td>
+            <td class="col-md-2 text-center" {% if obj.note %}data-toggle="tooltip" data-placement="left" title="{{ obj.note }}"{% endif %} >{% if obj.sender %}<a href="{% url 'user_profile' username=obj.sender.username %}">{{ obj.sender }}</a>{% else %}{{ obj.nick }}{% endif %}</td>
         </tr>
         {% endfor %}
     </tbody>
