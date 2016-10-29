@@ -84,6 +84,9 @@
 					<label for="rating{{ i }}">{{ i }}</label>
 			  	{% endfor %}
 		  	</span>
+            {% if archive %}
+            <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating">delete_rating</button>
+            {% endif %}
 		</form>
 		{% endif %}
 		<div class="row">

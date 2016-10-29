@@ -22,7 +22,7 @@
 	<div class="container">
         {% if messages %}
             {% for message in messages %}
-                <div{% if message.tags %} class="{% if not message.tags %}alert-info{% else %}{{ message.tags }}{% endif %}{% endif %} style="margin-top: 10px;">
+                <div{% if message.tags %} class="alert {% if not message.tags %}alert-info{% else %}{{ message.tags }}{% endif %}{% endif %} style="margin-top: 10px;">
                   {{ message }}
                 </div>
             {% endfor %}

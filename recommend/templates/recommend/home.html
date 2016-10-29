@@ -69,6 +69,9 @@
             <th class="text-center">when</th>
             <th class="text-center">watched</th>
             <th class="text-center">author</th>
+            {% if is_owner %}
+            <th class="text-center">delete</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
@@ -77,8 +80,15 @@
             <th scope="row" class="col-md-1 text-center">{{ forloop.counter }}</th>
             <td class=""><a href="{% url 'entry_details' slug=obj.title.slug %}" target="">{{ obj.title.name }}</a> ({{ obj.title.year }})</td>
             <td class="col-md-2 text-center">{{ obj.added_date|date:"Y-m-d" }}</td>
-            <td class="col-md-1 text-center">{% if obj.is_active %}<i class="fa fa-check" aria-hidden="true"></i>{% else %}<i class="fa fa-times" aria-hidden="true"></i>{% endif %}</td>
+            <td class="col-md-1 text-center">{% if not obj.is_active %}<i class="fa fa-check" aria-hidden="true"></i>{% else %}<i class="fa fa-times" aria-hidden="true"></i>{% endif %}</td>
             <td class="col-md-2 text-center" {% if obj.note %}data-toggle="tooltip" data-placement="left" title="{{ obj.note }}"{% endif %} >{% if obj.sender %}<a href="{% url 'user_profile' username=obj.sender.username %}">{{ obj.sender }}</a>{% else %}{{ obj.nick }}{% endif %}</td>
+            {% if is_owner and obj.is_active %}
+            <td class="col-md-1 text-center">
+                <form action="" method="post">{% csrf_token %}
+                    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_watchlist" value="{{ obj.id }}">delete</button>
+                </form>
+            </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </tbody>

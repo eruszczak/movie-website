@@ -14,6 +14,10 @@ def recommend(request, username):
     recommended_for_user = Recommendation.objects.filter(user=user)
     recommended_today = recommended_for_user.filter(added_date__date=date.today()).count()
     if request.method == 'POST':
+        obj_to_delete = request.POST.get('delete_watchlist')
+        if obj_to_delete and user == request.user:
+            Recommendation.objects.filter(id=obj_to_delete).delete()
+            return redirect(reverse("recommend", kwargs={'username': username}))
         form = RecommendForm(request.POST)
         if form.is_valid():
             instance = Recommendation()
@@ -41,7 +45,7 @@ def recommend(request, username):
         'count': {
             'today': recommended_today,
             'today2': recommended_today * 2,
-            # 'active_recommendations': Recommendation.objects.filter(user=request.user).count(),
+            'active_recommendations': len([x for x in recommended_for_user if x.is_active]),
         },
         'is_owner': user == request.user,
     }

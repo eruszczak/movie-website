@@ -165,20 +165,22 @@ def entry_details(request, slug):
             else:
                 Rating.objects.create(user=user, title=requested_obj, rate=new_rating, rate_date=datetime.now())
 
-        # delete
-        # rating
+        delete_rating = request.POST.get('delete_rating')
+        if delete_rating:
+            current_rating.delete()
         return redirect(reverse('entry_details', kwargs={'slug': slug}))
 
+    # todo: below is a ugly way of doing things
     followed_by_user = UserFollow.objects.filter(user_follower=user).values_list('user_followed', flat=True)
-    followed_who_not_saw_this_title = Rating.objects.filter(user__id__in=followed_by_user, title=requested_obj).values_list('user__id', flat=True)
-    # print(followed_who_not_saw_this_title)
-    # recommended
+    followed_who_saw_this_title = Rating.objects.filter(user__id__in=followed_by_user, title=requested_obj).values_list('user__id', flat=True)
+    followed_who_have_it_in_recommended = Recommendation.objects.filter(user__id__in=followed_by_user, title=requested_obj).values_list('user_id', flat=True)
     context = {
         'entry': requested_obj,
         'archive': user_ratings_of_requested_obj,
         'favourite': user_favourites.filter(title=requested_obj).first(),
         'watchlist': user_watchlist.filter(title=requested_obj).first(),
-        'follows': UserFollow.objects.filter(user_follower=user),
+        # 'follows': UserFollow.objects.filter(user_follower=user),
+        'follows': UserFollow.objects.filter(user_follower=user).exclude(user_followed__id__in=followed_who_saw_this_title).exclude(user_followed__id__in=followed_who_have_it_in_recommended),
         'rated_by': Rating.objects.filter(title=requested_obj).count(),  # todo count distinct for user
         'average': '1',
         'loop': (n for n in range(10, 0, -1)),

@@ -17,4 +17,4 @@ class Recommendation(models.Model):
 
     @property
     def is_active(self):
-        return Rating.objects.filter(user=self.user, title=self.title, rate_date__gte=self.added_date).exists()
+        return not Rating.objects.filter(user=self.user, title=self.title, rate_date__gte=self.added_date).exists()
