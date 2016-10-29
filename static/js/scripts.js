@@ -172,7 +172,6 @@ $('input[name="rating"').change(
 )
 
 function send_rating(val) {
-  console.log(val);
     $.ajax({
         data: {
             value: val,
@@ -181,4 +180,5 @@ function send_rating(val) {
         type: 'POST',
         url: this.href
     });
+    window.location.reload(false);
 }
