@@ -37,52 +37,77 @@ def home(request):
     return render(request, 'home.html', context)
 
 
+# todo. Redundant code
 def explore(request):
     user = request.user if request.user.is_authenticated() else None
-
+    userid = user.id if user else None
     if request.method == 'POST':
-        # user_favourites = Favourite.objects.filter(user=request.user)
         requested_obj = get_object_or_404(Title, const=request.POST.get('const'))
         if not request.user.is_authenticated():
             messages.info(request, 'Only logged in users can add to watchlist or favourites', extra_tags='alert-info')
             return redirect(request.META.get('HTTP_REFERER'))
-
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
-        # fav_add, fav_remove = request.POST.get('fav_add'), request.POST.get('fav_remove')
-        if watch:
-            Watchlist.objects.create(user=request.user, title=requested_obj)
-        elif unwatch:
-            to_delete = Watchlist.objects.get(user=request.user, title=requested_obj)
-            if to_delete.imdb:
-                to_delete.deleted = True
-                to_delete.save(update_fields=['deleted'])
-            else:
+        if watch or unwatch:
+            if watch:
+                Watchlist.objects.create(user=request.user, title=requested_obj)
+            elif unwatch:
+                to_delete = Watchlist.objects.get(user=request.user, title=requested_obj)   # get() so cant recommend twice the same title. unless it's deleted hmmm
+                if to_delete.imdb:
+                    to_delete.deleted = True
+                    to_delete.save(update_fields=['deleted'])
+                else:
+                    to_delete.delete()
+        fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
+        if fav or unfav:
+            user_favourites = Favourite.objects.filter(user=request.user)
+            if fav:
+                Favourite.objects.create(user=request.user, title=requested_obj, order=user_favourites.count() + 1)
+            elif unfav:
+                to_delete = user_favourites.filter(title=requested_obj).first()
+                user_favourites.filter(order__gt=to_delete.order).update(order=F('order') - 1)
                 to_delete.delete()
-        # if fav_add:
-        #     Favourite.objects.create(user=request.user, title=requested_obj, order=user_favourites.count() + 1)
-        # elif fav_remove:
-        #     to_delete = user_favourites.filter(title=requested_obj).first()
-        #     user_favourites.filter(order__gt=to_delete.order).update(order=F('order') - 1)
-        #     to_delete.delete()
         return redirect(request.META.get('HTTP_REFERER'))
 
-    entries = Rating.objects.all().order_by('title__inserted_date').distinct('title__inserted_date')
-    # entries = Title.objects.all()
-    # because i dont have a access to full ratings there
-    # hmm can change order later
-    # how to get for a title info about rating
-    print(entries)
+    # todo i think select1 will fail if for a user there are few ratings of the same title (just like it did in watchlist)
+    entries = Title.objects.extra(select={
+        'seen_by_user': """SELECT 1 FROM movie_rating as rating
+            WHERE rating.title_id = movie_title.id AND rating.user_id = %s""",
+        'has_in_watchlist': """SELECT 1 FROM movie_watchlist as watchlist
+            WHERE watchlist.title_id = movie_title.id AND watchlist.user_id = %s""",
+        'has_in_favourites': """SELECT 1 FROM movie_favourite as favourite
+        WHERE favourite.title_id = movie_title.id AND favourite.user_id = %s"""
+    }, select_params=[userid] * 3)
+
     query = request.GET.get('q')
     types = {'0': '', '1': 'movie', '2': 'series'}
+
+    year = request.GET.get('y')
+    if year:
+        find = re.match(r'(\d{4})-*(\d{4})*', year)
+        first_year, second_year = find.group(1), find.group(2)
+        print(first_year, second_year)
+        if first_year and second_year:
+            entries = entries.filter(year__lte=second_year, year__gte=first_year)
+        elif first_year:
+            entries = entries.filter(year=first_year)
+        # if find.groups():
+        #     print(find.group())
 
     selected_type = request.GET.get('t', '0')
     if selected_type in ('1', '2'):
         entries = entries.filter(Q(type__name=types[selected_type]))
     if query:
-        if len(query) > 2:
-            entries = entries.filter(Q(name__icontains=query) | Q(year=query)).distinct()
-        else:
-            entries = entries.filter(Q(name__startswith=query) | Q(year=query)).distinct()
+        entries = entries.filter(name__icontains=query) if len(query) > 2 else entries.filter(name__startswith=query)
+
+    director = request.GET.get('d')
+    if director:
+        entries = Title.objects.filter(director__id=director)
+
+    genres = request.GET.getlist('g')
+    if genres:
+        for g in genres:
+            entries = Title.objects.filter(genre__name=g)
+
     page = request.GET.get('page')
     ratings = paginate(entries, page)
 
@@ -97,7 +122,8 @@ def explore(request):
     context = {
         'ratings': ratings,
         'query': query,
-        'selected_type': types[selected_type]
+        'selected_type': types[selected_type],
+        'genres': Genre.objects.annotate(num=Count('title')).order_by('-num'),
         # 'query_string': query_string,
     }
     return render(request, 'entry.html', context)
@@ -124,6 +150,7 @@ def entry_details(request, slug):
     user = request.user if request.user.is_authenticated() else None
     user_favourites = Favourite.objects.filter(user=user)
     user_watchlist = Watchlist.objects.filter(user=user)
+    obj_in_watchlist = Watchlist.objects.filter(user=user, title=requested_obj).first()
     user_ratings_of_requested_obj = Rating.objects.filter(user=user, title=requested_obj)
     current_rating = user_ratings_of_requested_obj.first()
     if request.method == 'POST':
@@ -131,20 +158,26 @@ def entry_details(request, slug):
             messages.info(request, 'Only logged in users can add to watchlist or favourites', extra_tags='alert-info')
             return redirect(requested_obj)
 
+        print(request.POST)
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
-        fav_add, fav_remove = request.POST.get('fav_add'), request.POST.get('fav_remove')
+        fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
         if watch:
-            Watchlist.objects.create(user=request.user, title=requested_obj)
+            if obj_in_watchlist.deleted:
+                # this is when you delete title imdb=True and then you add it again
+                obj_in_watchlist.deleted = False
+                obj_in_watchlist.save(update_fields=['deleted'])
+            else:
+                Watchlist.objects.create(user=request.user, title=requested_obj)
         elif unwatch:
-            to_delete = Watchlist.objects.get(user=request.user, title=requested_obj)
+            to_delete = obj_in_watchlist
             if to_delete.imdb:
                 to_delete.deleted = True
                 to_delete.save(update_fields=['deleted'])
             else:
                 to_delete.delete()
-        elif fav_add:
+        elif fav:
             Favourite.objects.create(user=request.user, title=requested_obj, order=user_favourites.count() + 1)
-        elif fav_remove:
+        elif unfav:
             to_delete = user_favourites.filter(title=requested_obj).first()
             user_favourites.filter(order__gt=to_delete.order).update(order=F('order') - 1)
             to_delete.delete()
@@ -178,7 +211,7 @@ def entry_details(request, slug):
         'entry': requested_obj,
         'archive': user_ratings_of_requested_obj,
         'favourite': user_favourites.filter(title=requested_obj).first(),
-        'watchlist': user_watchlist.filter(title=requested_obj).first(),
+        'watchlist': user_watchlist.filter(title=requested_obj, deleted=False).first(),
         # 'follows': UserFollow.objects.filter(user_follower=user),
         'follows': UserFollow.objects.filter(user_follower=user).exclude(user_followed__id__in=followed_who_saw_this_title).exclude(user_followed__id__in=followed_who_have_it_in_recommended),
         'rated_by': Rating.objects.filter(title=requested_obj).count(),  # todo count distinct for user
@@ -232,22 +265,22 @@ def entry_details_redirect(request, const):
 
 def entry_groupby_year(request):
     context = {
-        'year_count': Title.objects.filter(rating__user=request.user).values('year').annotate(the_count=Count('year')).order_by('-year'),
+        'year_count': Title.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
     }
     return render(request, 'entry_groupby_year.html', context)
 
 
 def entry_groupby_genre(request):
     context = {
-        'genre': Genre.objects.filter(title__rating__user=request.user).annotate(num=Count('title')).order_by('-num'),  # todo, genre.set all?
+        'genre': Genre.objects.annotate(num=Count('title')).order_by('-num'),
     }
     return render(request, 'entry_groupby_genre.html', context)
 
 
 def entry_groupby_director(request):
     context = {
-        'director': Director.objects.filter(title__rating__user=request.user, title__type__name='movie'
-                                            ).annotate(num=Count('title')).order_by('-num')[:50],
+        # 'director': Director.objects.filter(title__rating__user=request.user, title__type__name='movie').annotate(num=Count('title')).order_by('-num')[:50],
+        'director': Director.objects.filter(title__type__name='movie').annotate(num=Count('title')).order_by('-num')[:50],
     }
     return render(request, 'entry_groupby_director.html', context)
 
@@ -261,11 +294,13 @@ def entry_show_from_year(request, year):
         'ratings': ratings,
         'title': year,
     }
-    return render(request, 'entry_show_from.html', context)
+    return render(request, 'title_show_from.html', context)
 
 
 def entry_show_rated_in_month(request, year, month):
-    entries = Rating.objects.filter(user=request.user, rate_date__year=year, rate_date__month=month)
+    # entries = Rating.objects.filter(user=request.user, rate_date__year=year, rate_date__month=month)
+    # check what other people rated in that month // maybe day
+    entries = Rating.objects.filter(rate_date__year=year, rate_date__month=month)
     page = request.GET.get('page')
     ratings = paginate(entries, page)
     context = {
@@ -277,18 +312,20 @@ def entry_show_rated_in_month(request, year, month):
 
 def entry_show_from_genre(request, genre):
     # entries = Genre.objects.get(name=genre).title_set.filter(rating__user=request.user)
-    entries = Rating.objects.filter(user=request.user, title__genre__name=genre)
+    # entries = Rating.objects.filter(user=request.user, title__genre__name=genre)
+    entries = Title.objects.filter(genre__name=genre)
     page = request.GET.get('page')
     ratings = paginate(entries, page)
     context = {
         'ratings': ratings,
         'title': genre,
     }
-    return render(request, 'entry_show_from.html', context)
+    return render(request, 'title_show_from.html', context)
 
 
 def entry_show_from_rate(request, rate):
-    entries = Rating.objects.filter(user=request.user, rate=rate)
+    # entries = Rating.objects.filter(user=request.user, rate=rate)
+    entries = Rating.objects.filter(rate=rate)
     page = request.GET.get('page')
     ratings = paginate(entries, page)
     context = {
@@ -300,14 +337,15 @@ def entry_show_from_rate(request, rate):
 
 def entry_show_from_director(request, pk):
     # entries = Director.objects.get(id=pk).title_set.filter(rating__user=request.user)
-    entries = Rating.objects.filter(user=request.user, title__director__id=pk)
+    # entries = Rating.objects.filter(user=request.user, title__director__id=pk)
+    entries = Title.objects.filter(director__id=pk)
     page = request.GET.get('page')
     ratings = paginate(entries, page)
     context = {
         'ratings': ratings,
         'title': Director.objects.get(id=pk).name,
     }
-    return render(request, 'entry_show_from.html', context)
+    return render(request, 'title_show_from.html', context)
 
 
 def watchlist(request, username):

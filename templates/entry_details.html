@@ -47,9 +47,9 @@
 							{% endif %}
 							<br>
                             {% if not favourite %}
-                                <button class="btn btn-sm" type="submit" name="fav_add" value="add">favourite</button>
+                                <button class="btn btn-sm" type="submit" name="fav" value="fav">favourite</button>
                             {% else %}
-                                <button class="btn btn-sm" type="submit" name="fav_remove" value="delete">unfavourite</button>
+                                <button class="btn btn-sm" type="submit" name="unfav" value="unfav">unfavourite</button>
                             {% endif %}
 							{% if follows %}
 							<select class="selectpicker show-tick" name="choose_followed_user"
@@ -93,7 +93,7 @@
 			<div class="col-xs-10 col-xs-offset-1"><br>
 				{% if archive %}
 				<div class="progress">
-					<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ entry.rate }}0%">{{ archive.0.rate }}/10</div>
+					<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ archive.0.rate }}0%">{{ archive.0.rate }}/10</div>
                 </div>
 				{% endif %}
 				{{ entry.plot }}

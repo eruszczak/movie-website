@@ -265,3 +265,9 @@ p.item-order {float: right}
 .starRating:not(:hover) > :checked ~ label:before{
   opacity : 1;
 }
+
+
+
+.color-watched {
+    background-color: #4fc33f;
+}
