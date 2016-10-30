@@ -15,11 +15,10 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from datetime import datetime
+from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites
 
 
 def home(request):
-    # manager for getting user's ratings
-    # show others ratings maybe
     all_movies = Rating.objects.filter(user=request.user, title__type__name='movie')
     all_series = Rating.objects.filter(user=request.user, title__type__name='series')
     random = Rating.objects.all().first()
@@ -37,45 +36,32 @@ def home(request):
     return render(request, 'home.html', context)
 
 
-# todo. Redundant code
 def explore(request):
-    user = request.user if request.user.is_authenticated() else None
-    userid = user.id if user else None
+    userid = request.user if request.user.is_authenticated() else None
     if request.method == 'POST':
         requested_obj = get_object_or_404(Title, const=request.POST.get('const'))
         if not request.user.is_authenticated():
             messages.info(request, 'Only logged in users can add to watchlist or favourites', extra_tags='alert-info')
             return redirect(request.META.get('HTTP_REFERER'))
+
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
         if watch or unwatch:
-            if watch:
-                Watchlist.objects.create(user=request.user, title=requested_obj)
-            elif unwatch:
-                to_delete = Watchlist.objects.get(user=request.user, title=requested_obj)   # get() so cant recommend twice the same title. unless it's deleted hmmm
-                if to_delete.imdb:
-                    to_delete.deleted = True
-                    to_delete.save(update_fields=['deleted'])
-                else:
-                    to_delete.delete()
+            obj_in_watchlist = Watchlist.objects.filter(user=request.user, title=requested_obj).first()
+            alter_title_in_watchlist(request.user, requested_obj, obj_in_watchlist, watch, unwatch)
+
         fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
         if fav or unfav:
-            user_favourites = Favourite.objects.filter(user=request.user)
-            if fav:
-                Favourite.objects.create(user=request.user, title=requested_obj, order=user_favourites.count() + 1)
-            elif unfav:
-                to_delete = user_favourites.filter(title=requested_obj).first()
-                user_favourites.filter(order__gt=to_delete.order).update(order=F('order') - 1)
-                to_delete.delete()
+            alter_title_in_favourites(request.user, requested_obj, fav, unfav)
         return redirect(request.META.get('HTTP_REFERER'))
 
-    # todo i think select1 will fail if for a user there are few ratings of the same title (just like it did in watchlist)
+    # select1 will fail if for a user there are few ratings of the same title (just like it did in watchlist)
     entries = Title.objects.extra(select={
         'seen_by_user': """SELECT 1 FROM movie_rating as rating
             WHERE rating.title_id = movie_title.id AND rating.user_id = %s""",
         'has_in_watchlist': """SELECT 1 FROM movie_watchlist as watchlist
-            WHERE watchlist.title_id = movie_title.id AND watchlist.user_id = %s""",
+            WHERE watchlist.title_id = movie_title.id AND watchlist.user_id = %s AND watchlist.deleted = false""",
         'has_in_favourites': """SELECT 1 FROM movie_favourite as favourite
-        WHERE favourite.title_id = movie_title.id AND favourite.user_id = %s"""
+            WHERE favourite.title_id = movie_title.id AND favourite.user_id = %s"""
     }, select_params=[userid] * 3)
 
     query = request.GET.get('q')
@@ -85,17 +71,15 @@ def explore(request):
     if year:
         find = re.match(r'(\d{4})-*(\d{4})*', year)
         first_year, second_year = find.group(1), find.group(2)
-        print(first_year, second_year)
         if first_year and second_year:
             entries = entries.filter(year__lte=second_year, year__gte=first_year)
         elif first_year:
             entries = entries.filter(year=first_year)
-        # if find.groups():
-        #     print(find.group())
 
     selected_type = request.GET.get('t', '0')
     if selected_type in ('1', '2'):
         entries = entries.filter(Q(type__name=types[selected_type]))
+
     if query:
         entries = entries.filter(name__icontains=query) if len(query) > 2 else entries.filter(name__startswith=query)
 
@@ -131,25 +115,12 @@ def explore(request):
 # todo
 # dont show in query string selected type if 0. IGNORE IT COMPLETLY
 # dont show &q= if not using it
-# show all titles
 # you can sort by many fields
-# can see which titles were rated / favourited / watchlisted
-
-
-
-# def book(request):
-#     return render(request, 'book.html')
-# def search(request):
-#     return render(request, 'search.html')
-# def about(request):
-#     return render(request, 'about.html')
 
 
 def entry_details(request, slug):
     requested_obj = get_object_or_404(Title, slug=slug)
     user = request.user if request.user.is_authenticated() else None
-    user_favourites = Favourite.objects.filter(user=user)
-    user_watchlist = Watchlist.objects.filter(user=user)
     obj_in_watchlist = Watchlist.objects.filter(user=user, title=requested_obj).first()
     user_ratings_of_requested_obj = Rating.objects.filter(user=user, title=requested_obj)
     current_rating = user_ratings_of_requested_obj.first()
@@ -158,29 +129,13 @@ def entry_details(request, slug):
             messages.info(request, 'Only logged in users can add to watchlist or favourites', extra_tags='alert-info')
             return redirect(requested_obj)
 
-        print(request.POST)
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
+        if watch or unwatch:
+            alter_title_in_watchlist(request.user, requested_obj, obj_in_watchlist, watch, unwatch)
+
         fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
-        if watch:
-            if obj_in_watchlist.deleted:
-                # this is when you delete title imdb=True and then you add it again
-                obj_in_watchlist.deleted = False
-                obj_in_watchlist.save(update_fields=['deleted'])
-            else:
-                Watchlist.objects.create(user=request.user, title=requested_obj)
-        elif unwatch:
-            to_delete = obj_in_watchlist
-            if to_delete.imdb:
-                to_delete.deleted = True
-                to_delete.save(update_fields=['deleted'])
-            else:
-                to_delete.delete()
-        elif fav:
-            Favourite.objects.create(user=request.user, title=requested_obj, order=user_favourites.count() + 1)
-        elif unfav:
-            to_delete = user_favourites.filter(title=requested_obj).first()
-            user_favourites.filter(order__gt=to_delete.order).update(order=F('order') - 1)
-            to_delete.delete()
+        if fav or unfav:
+            alter_title_in_favourites(request.user, requested_obj, fav, unfav)
 
         selected_users = request.POST.getlist('choose_followed_user')
         if selected_users:
@@ -210,10 +165,13 @@ def entry_details(request, slug):
     context = {
         'entry': requested_obj,
         'archive': user_ratings_of_requested_obj,
-        'favourite': user_favourites.filter(title=requested_obj).first(),
-        'watchlist': user_watchlist.filter(title=requested_obj, deleted=False).first(),
+        'favourite': Favourite.objects.filter(user=user, title=requested_obj).exists(),
+        'watchlist': Watchlist.objects.filter(user=user, title=requested_obj, deleted=False).exists(),
         # 'follows': UserFollow.objects.filter(user_follower=user),
-        'follows': UserFollow.objects.filter(user_follower=user).exclude(user_followed__id__in=followed_who_saw_this_title).exclude(user_followed__id__in=followed_who_have_it_in_recommended),
+        # 'follows': UserFollow.objects.filter(user_follower=user).exclude(user_followed__id__in=followed_who_saw_this_title).exclude(user_followed__id__in=followed_who_have_it_in_recommended),
+        'follows': [a for a in UserFollow.objects.filter(user_follower=user)
+                    if not Recommendation.objects.filter(user=a.user_followed, title=requested_obj).exists()
+                    or not Rating.objects.filter(user=a.user_followed, title=requested_obj).exists()],
         'rated_by': Rating.objects.filter(title=requested_obj).count(),  # todo count distinct for user
         'average': '1',
         'loop': (n for n in range(10, 0, -1)),
@@ -258,7 +216,7 @@ def entry_edit(request, slug):
     return render(request, 'entry_edit.html', context)
 
 
-def entry_details_redirect(request, const):
+def entry_details_redirect(request, const): # todo, id for very short url
     requested_obj = get_object_or_404(Title, const=const)
     return redirect(requested_obj)
 
