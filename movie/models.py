@@ -71,10 +71,9 @@ class Title(models.Model):
     plot = models.TextField(blank=True, null=True)
     slug = models.SlugField(unique=True, max_length=255)
     img = models.ImageField(upload_to='poster', null=True, blank=True)
-    watch_again_date = models.DateField(blank=True, null=True)
 
     class Meta:
-        ordering = ('-rating__rate_date', '-inserted_date')
+        ordering = ('-inserted_date', )
 
     def __str__(self):
         return '{} {}'.format(self.name, self.year)

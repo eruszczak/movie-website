@@ -1,6 +1,9 @@
 # from movie.models import Genre, Title
 # from django.db.models import Count
 # from django.core.urlresolvers import reverse
+from django.db import connection  # todo
+
+
 #
 #
 # def chart_genres():
@@ -47,19 +50,18 @@
 #             }
 #         }])
 #     return line_chart.render()
-#
-#
-def count_for_month_lists(year):
-    from django.db import connection        # todo
-    query = """SELECT COUNT(*) AS 'the_count', strftime("%%m", rate_date) as 'month'
-    FROM movie_entry
-    WHERE strftime("%%Y", rate_date) = %s
+
+
+def count_for_month_lists(year, username):
+    query = """SELECT COUNT(*) AS the_count, EXTRACT(MONTH FROM rate_date) as month
+    FROM movie_rating
+    WHERE EXTRACT(YEAR FROM rate_date) = %s
     GROUP BY month"""
     cursor = connection.cursor()
     cursor.execute(query, [str(year)])
     return list(cursor.fetchall())
-#
-#
+
+
 # def chart_last_year_ratings(year=2015):
 #     from datetime import datetime
 #     import calendar

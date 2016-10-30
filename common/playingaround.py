@@ -1,5 +1,6 @@
 import django, os
-from django.db.models import Count
+from django.db.models import Count, CharField, Value
+from django.db.models import ForeignKey
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 import re
@@ -17,9 +18,26 @@ print(user.username)
 # print(x)
 # x = Rating.objects.filter(user__id=1).count()
 # print(x)
-print(Title.objects.all().last().rating_set.filter(user=user).values('user__username'))
+# print(Title.objects.all().last().rating_set.filter(user=user).values('user__username'))
 # print(Rating.objects.all())
-print(Rating.objects.all().order_by('title__id').distinct('title__id'))
+# print(Rating.objects.all().order_by('title__id').distinct('title__id'))
+
+# x = Title.objects.extra(select={'ye': "year < %s"}, select_params=['2010'])
+# x = Title.objects.extra(select={'ye': "SELECT COUNT(*) FROM movie_rating WHERE movie_rating.title_id = movie_title.id"})
+x = Title.objects.extra(select={'seen_by_user': "SELECT 1 FROM movie_rating WHERE movie_rating.title_id = movie_title.id AND movie_rating.user_id = %s",
+                                'has_in_watchlist': "SELECT 1 FROM movie_watchlist WHERE movie_watchlist.title_id = movie_title.id AND movie_watchlist.user_id = %s"},
+                        select_params=[user.id, user.id])
+# x = Title.objects.extra(select={'seen_by_user': "SELECT 1 FROM recommend_recommendation WHERE recommend_recommendation.title_id = movie_title.id AND recommend_recommendation.user_id = %s"}, select_params=[user.id])
+# x = Title.objects.all()#.order_by('-id')
+print(x.count())
+for a in x:
+    print(a.seen_by_user, a.has_in_watchlist, a.name)
+
+from chart.charts import count_for_month_lists
+# print(count_for_month_lists(2016, 'test'))
+# x = Title.objects.all().annotate(col=Value('xx', output_field=ForeignKey(User)))
+# for a in x:
+#     print(a.col)
 # print(Rating.objects.all().last().title_set.all())
 # x = Recommendation.objects.filter(added_date__date=datetime.date.today())
 # print(x)

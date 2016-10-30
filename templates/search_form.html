@@ -1,4 +1,11 @@
 <form class="navbar-form navbar-right" role="search">
+
+    <select class="selectpicker show-tick" name="g" multiple title="Choose genre" data-width="auto" data-size="7" data-max-options="3">
+    {% for g in genres %}
+        <option value="{{ g.name }}" data-subtext="{{ g.num }} titles">{{ g.name }}</option>
+    {% endfor %}
+    </select>
+    <input type="text" name='y' class="form-control" placeholder="yyyy or yyyy-yyyy">
     <div class="form-group">
       <select class="form-control" name="t">
         <option value="1">movie</option>
@@ -7,7 +14,7 @@
       </select>
     </div>
     <div class="form-group">
-        <input type="text" name='q' class="form-control" placeholder="search by title/year"><!--value='{{ request.GET.q }}'-->
+        <input type="text" name='q' class="form-control" placeholder="search by title"><!--value='{{ request.GET.q }}'-->
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
 </form>

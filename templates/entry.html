@@ -18,27 +18,37 @@
                 <tr>
                     <th class="text-center"></th>
                     <th class="text-center">title</th>
-                    <th class="text-center">rating</th>
                     {% if user.is_authenticated %}
-                        <th class="text-center"><a id="watchlist-link" href="{% url 'watchlist' username=request.user %}">watchlist</a></th>
+                    <th class="text-center">action</th>
+                    <th class="text-center"><a id="watchlist-link" href="{% url 'watchlist' username=request.user %}">watchlist</a></th>
                     {% endif %}
                 </tr>
             </thead>
             <tbody>
                 {% for obj in ratings %}
                 <tr class="{% if obj.user == request.user %}taaaa{% endif %}">
-                    <th scope="row" class="col-md-1 text-center">{{ forloop.counter0|add:ratings.start_index }}</th>
-                    <td class="col-md-9" style="padding-left: 20px"><a href="{% url 'entry_details' slug=obj.title.slug %}">{{ obj.title.name }} ({{ obj.title.year }})</a></td>
-                    <td class="text-center">{{ obj.title.rate }}</td>
+                    <th scope="row" class="col-md-1 text-center {% if obj.seen_by_user %}color-watched{% endif %}">{{ forloop.counter0|add:ratings.start_index }}</th>
+                    <td class="col-md-9" style="padding-left: 20px"><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a></td>
+                    <td class="text-center">{{ obj.rate }}</td>
                     {% if user.is_authenticated %}
                         <td class="text-center">
                             <form action="" method="post">{% csrf_token %}
-                                {% if obj.title.watch_again_date %}
-                                    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch">Don't want to see again</button>
+                                {% if obj.has_in_favourites %}
+                                        <button class="btn btn-sm see-again-btn" type="submit" name="unfav" value="unfav">unfavourite</button>
                                 {% else %}
-                                    <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch">Want to see again {{ obj.title.rating.user }} {{ request.user }}</button>
+                                        <button class="btn btn-sm see-again-btn" type="submit" name="fav" value="fav">favourite</button>
                                 {% endif %}
-                                <input name="const" value="{{ obj.title.const }}" type="hidden">
+                                <input name="const" value="{{ obj.const }}" type="hidden">
+                            </form>
+                        </td>
+                        <td class="text-center">
+                            <form action="" method="post">{% csrf_token %}
+                                {% if obj.has_in_watchlist %}
+                                    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="unwatch">Don't want to see again</button>
+                                {% else %}
+                                    <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="watch">Want to see again</button>
+                                {% endif %}
+                                <input name="const" value="{{ obj.const }}" type="hidden">
                             </form>
                         </td>
                     {% endif %}
