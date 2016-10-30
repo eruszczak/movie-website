@@ -46,10 +46,10 @@
                                 <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="watch">Want to see again</button>
 							{% endif %}
 							<br>
-                            {% if not favourite %}
-                                <button class="btn btn-sm" type="submit" name="fav" value="fav">favourite</button>
+                            {% if favourite %}
+								<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="unfav">unfavourite</button>
                             {% else %}
-                                <button class="btn btn-sm" type="submit" name="unfav" value="unfav">unfavourite</button>
+                                <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav">favourite</button>
                             {% endif %}
 							{% if follows %}
 							<select class="selectpicker show-tick" name="choose_followed_user"

@@ -1,13 +1,11 @@
 import django, os
-from django.db.models import Count, CharField, Value
-from django.db.models import ForeignKey
+from django.db.models import Count, CharField, Value, ForeignKey
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
-import re
-import datetime
-from recommend.models import Recommendation, Rating, Title
+import re, datetime, pytz
 from django.utils import timezone
-import pytz
+from users.models import *
+from recommend.models import *
 from django.contrib.auth.models import User
 
 user = User.objects.all().first()
@@ -24,14 +22,34 @@ print(user.username)
 
 # x = Title.objects.extra(select={'ye': "year < %s"}, select_params=['2010'])
 # x = Title.objects.extra(select={'ye': "SELECT COUNT(*) FROM movie_rating WHERE movie_rating.title_id = movie_title.id"})
-x = Title.objects.extra(select={'seen_by_user': "SELECT 1 FROM movie_rating WHERE movie_rating.title_id = movie_title.id AND movie_rating.user_id = %s",
-                                'has_in_watchlist': "SELECT 1 FROM movie_watchlist WHERE movie_watchlist.title_id = movie_title.id AND movie_watchlist.user_id = %s"},
-                        select_params=[user.id, user.id])
+# x = Title.objects.extra(select={'seen_by_user': "SELECT 1 FROM movie_rating WHERE movie_rating.title_id = movie_title.id AND movie_rating.user_id = %s",
+#                                 'has_in_watchlist': "SELECT 1 FROM movie_watchlist WHERE movie_watchlist.title_id = movie_title.id AND movie_watchlist.user_id = %s"},
+#                         select_params=[user.id, user.id])
 # x = Title.objects.extra(select={'seen_by_user': "SELECT 1 FROM recommend_recommendation WHERE recommend_recommendation.title_id = movie_title.id AND recommend_recommendation.user_id = %s"}, select_params=[user.id])
 # x = Title.objects.all()#.order_by('-id')
-print(x.count())
-for a in x:
-    print(a.seen_by_user, a.has_in_watchlist, a.name)
+# print(x.count())
+# for a in x:
+#     print(a.seen_by_user, a.has_in_watchlist, a.name)
+
+
+
+
+# followed_by_user = UserFollow.objects.filter(user_follower=user).values_list('user_followed', flat=True)
+# followed_who_saw_this_title = Rating.objects.filter(user__id__in=followed_by_user, title=requested_obj).values_list(
+#     'user__id', flat=True)
+# followed_who_have_it_in_recommended = Recommendation.objects.filter(user__id__in=followed_by_user,
+#                                                                     title=requested_obj).values_list('user_id',
+#                                                                                                      flat=True)
+#
+# 'follows': UserFollow.objects.filter(user_follower=user).exclude(
+#     user_followed__id__in=followed_who_saw_this_title).exclude(
+#     user_followed__id__in=followed_who_have_it_in_recommended),
+
+x = UserFollow.objects.filter(user_follower=1)
+title = Title.objects.get(id=1)
+print([a for a in x if Recommendation.objects.filter(user=a.user_followed, title=title).exists()
+       or Rating.objects.filter(user=a.user_followed, title=title).exists()])
+
 
 from chart.charts import count_for_month_lists
 # print(count_for_month_lists(2016, 'test'))

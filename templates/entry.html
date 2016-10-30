@@ -19,8 +19,8 @@
                     <th class="text-center"></th>
                     <th class="text-center">title</th>
                     {% if user.is_authenticated %}
-                    <th class="text-center">action</th>
-                    <th class="text-center"><a id="watchlist-link" href="{% url 'watchlist' username=request.user %}">watchlist</a></th>
+                    <th class="text-center"><a id="" href="{% url 'favourites' username=request.user %}">favourite</a></th>
+                    <th class="text-center"><a id="" href="{% url 'watchlist' username=request.user %}">watchlist</a></th>
                     {% endif %}
                 </tr>
             </thead>
@@ -29,14 +29,13 @@
                 <tr class="{% if obj.user == request.user %}taaaa{% endif %}">
                     <th scope="row" class="col-md-1 text-center {% if obj.seen_by_user %}color-watched{% endif %}">{{ forloop.counter0|add:ratings.start_index }}</th>
                     <td class="col-md-9" style="padding-left: 20px"><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a></td>
-                    <td class="text-center">{{ obj.rate }}</td>
                     {% if user.is_authenticated %}
                         <td class="text-center">
                             <form action="" method="post">{% csrf_token %}
                                 {% if obj.has_in_favourites %}
-                                        <button class="btn btn-sm see-again-btn" type="submit" name="unfav" value="unfav">unfavourite</button>
+                                        <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="unfav">unfavourite</button>
                                 {% else %}
-                                        <button class="btn btn-sm see-again-btn" type="submit" name="fav" value="fav">favourite</button>
+                                        <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav">favourite</button>
                                 {% endif %}
                                 <input name="const" value="{{ obj.const }}" type="hidden">
                             </form>
