@@ -74,9 +74,10 @@ def logout(request):
 
 
 def user_list(request):
+    list_of_users = User.objects.exclude(username=request.user.username) if request.user.is_authenticated() else User.objects.all()
     context = {
         'title': 'User list',
-        'user_list': User.objects.all(),
+        'user_list': list_of_users,
     }
     return render(request, 'users/user_list.html', context)
 
@@ -87,16 +88,20 @@ def user_profile(request, username):
         if not request.user.is_authenticated():
             messages.error(request, 'You must be logged in to follow somebody')
             return redirect(reverse('user_profile', kwargs={'username': username}))
+
         if request.POST.get('follow'):
             UserFollow.objects.create(user_follower=request.user, user_followed=user)
         elif request.POST.get('unfollow'):
             UserFollow.objects.filter(user_follower=request.user, user_followed=user).delete()
         return redirect(reverse('user_profile', kwargs={'username': username}))
+
+    can_follow = not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists()\
+        if request.user.is_authenticated() else None
     context = {
         'title': 'User profile: ' + user.username,
-        'user': user,
+        'choosen_user': user,
         'is_owner': user == request.user,
-        'can_follow': not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists(),
+        'can_follow': can_follow,
     }
     return render(request, 'users/user_profile.html', context)
 
