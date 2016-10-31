@@ -19,6 +19,8 @@ from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites
 
 
 def home(request):
+    if request.user.is_authenticated():
+        pass
     all_movies = Rating.objects.filter(user=request.user, title__type__name='movie')
     all_series = Rating.objects.filter(user=request.user, title__type__name='series')
     random = Rating.objects.all().first()
@@ -37,7 +39,6 @@ def home(request):
 
 
 def explore(request):
-    userid = request.user if request.user.is_authenticated() else None
     if request.method == 'POST':
         requested_obj = get_object_or_404(Title, const=request.POST.get('const'))
         if not request.user.is_authenticated():
@@ -54,15 +55,18 @@ def explore(request):
             alter_title_in_favourites(request.user, requested_obj, fav, unfav)
         return redirect(request.META.get('HTTP_REFERER'))
 
-    # select1 will fail if for a user there are few ratings of the same title (just like it did in watchlist)
-    entries = Title.objects.extra(select={
-        'seen_by_user': """SELECT 1 FROM movie_rating as rating
-            WHERE rating.title_id = movie_title.id AND rating.user_id = %s""",
-        'has_in_watchlist': """SELECT 1 FROM movie_watchlist as watchlist
-            WHERE watchlist.title_id = movie_title.id AND watchlist.user_id = %s AND watchlist.deleted = false""",
-        'has_in_favourites': """SELECT 1 FROM movie_favourite as favourite
-            WHERE favourite.title_id = movie_title.id AND favourite.user_id = %s"""
-    }, select_params=[userid] * 3)
+    if request.user.is_authenticated():
+        # 'SELECT 1' will fail if for a user there are few ratings of the same title (just like it did in watchlist)
+        entries = Title.objects.extra(select={
+            'seen_by_user': """SELECT 1 FROM movie_rating as rating
+                WHERE rating.title_id = movie_title.id AND rating.user_id = %s""",
+            'has_in_watchlist': """SELECT 1 FROM movie_watchlist as watchlist
+                WHERE watchlist.title_id = movie_title.id AND watchlist.user_id = %s AND watchlist.deleted = false""",
+            'has_in_favourites': """SELECT 1 FROM movie_favourite as favourite
+                WHERE favourite.title_id = movie_title.id AND favourite.user_id = %s"""
+        }, select_params=[request.user.id] * 3)
+    else:
+        entries = Title.objects.all()
 
     query = request.GET.get('q')
     types = {'0': '', '1': 'movie', '2': 'series'}
@@ -119,60 +123,65 @@ def explore(request):
 
 
 def entry_details(request, slug):
-    requested_obj = get_object_or_404(Title, slug=slug)
-    user = request.user if request.user.is_authenticated() else None
-    obj_in_watchlist = Watchlist.objects.filter(user=user, title=requested_obj).first()
-    user_ratings_of_requested_obj = Rating.objects.filter(user=user, title=requested_obj)
-    current_rating = user_ratings_of_requested_obj.first()
+    title = get_object_or_404(Title, slug=slug)
+    if request.user.is_authenticated():
+        user_ratings_of_title = Rating.objects.filter(user=request.user, title=title)
+        current_rating = user_ratings_of_title.first()
+        is_favourite_for_user = Favourite.objects.filter(user=request.user, title=title).exists()
+        is_in_user_watchlist = Watchlist.objects.filter(user=request.user, title=title, deleted=False).exists()
+        followed = [obj.user_followed for obj in UserFollow.objects.filter(user_follower=request.user)
+                    if not Recommendation.objects.filter(user=obj.user_followed, title=title).exists()
+                    and not Rating.objects.filter(user=obj.user_followed, title=title).exists()]
+    else:
+        user_ratings_of_title = None
+        current_rating = None
+        is_favourite_for_user = None
+        is_in_user_watchlist = None
+        followed = None
+
     if request.method == 'POST':
         if not request.user.is_authenticated():
             messages.info(request, 'Only logged in users can add to watchlist or favourites', extra_tags='alert-info')
-            return redirect(requested_obj)
+            return redirect(title)
 
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
         if watch or unwatch:
-            alter_title_in_watchlist(request.user, requested_obj, obj_in_watchlist, watch, unwatch)
+            obj_in_watchlist = Watchlist.objects.filter(user=request.user, title=title).first()
+            alter_title_in_watchlist(request.user, title, obj_in_watchlist, watch, unwatch)
 
         fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
         if fav or unfav:
-            alter_title_in_favourites(request.user, requested_obj, fav, unfav)
+            alter_title_in_favourites(request.user, title, fav, unfav)
 
         selected_users = request.POST.getlist('choose_followed_user')
         if selected_users:
             for choosen_user in selected_users:
                 choosen_user = User.objects.get(username=choosen_user)
-                if not Recommendation.objects.filter(user=choosen_user, title=requested_obj).exists()\
-                        or not Rating.objects.filter(user=choosen_user, title=requested_obj).exists():
-                    Recommendation.objects.create(user=choosen_user, sender=user, title=requested_obj)
+                if not Recommendation.objects.filter(user=choosen_user, title=title).exists()\
+                        or not Rating.objects.filter(user=choosen_user, title=title).exists():
+                    Recommendation.objects.create(user=choosen_user, sender=request.user, title=title)
 
         new_rating = request.POST.get('value')
+        # insert_as_new_rate instead of editing todo
         if new_rating:
             if current_rating:
                 current_rating.rate = new_rating
                 current_rating.save(update_fields=['rate'])
             else:
-                Rating.objects.create(user=user, title=requested_obj, rate=new_rating, rate_date=datetime.now())
+                Rating.objects.create(user=request.user, title=title, rate=new_rating, rate_date=datetime.now())
 
         delete_rating = request.POST.get('delete_rating')
         if delete_rating:
             current_rating.delete()
         return redirect(reverse('entry_details', kwargs={'slug': slug}))
 
-    # todo: below is a ugly way of doing things
-    followed_by_user = UserFollow.objects.filter(user_follower=user).values_list('user_followed', flat=True)
-    followed_who_saw_this_title = Rating.objects.filter(user__id__in=followed_by_user, title=requested_obj).values_list('user__id', flat=True)
-    followed_who_have_it_in_recommended = Recommendation.objects.filter(user__id__in=followed_by_user, title=requested_obj).values_list('user_id', flat=True)
     context = {
-        'entry': requested_obj,
-        'archive': user_ratings_of_requested_obj,
-        'favourite': Favourite.objects.filter(user=user, title=requested_obj).exists(),
-        'watchlist': Watchlist.objects.filter(user=user, title=requested_obj, deleted=False).exists(),
-        # 'follows': UserFollow.objects.filter(user_follower=user),
-        # 'follows': UserFollow.objects.filter(user_follower=user).exclude(user_followed__id__in=followed_who_saw_this_title).exclude(user_followed__id__in=followed_who_have_it_in_recommended),
-        'follows': [a for a in UserFollow.objects.filter(user_follower=user)
-                    if not Recommendation.objects.filter(user=a.user_followed, title=requested_obj).exists()
-                    or not Rating.objects.filter(user=a.user_followed, title=requested_obj).exists()],
-        'rated_by': Rating.objects.filter(title=requested_obj).count(),  # todo count distinct for user
+        'entry': title,
+        'user_ratings_of_title': user_ratings_of_title,
+        'is_favourite_for_user': is_favourite_for_user,
+        'is_in_user_watchlist': is_in_user_watchlist,
+        'followed_who_can_take_recommendation': followed,
+        'rated_by': Rating.objects.filter(title=title).count(),  # todo count distinct for user
         'average': '1',
         'loop': (n for n in range(10, 0, -1)),
     }

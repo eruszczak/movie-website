@@ -34,34 +34,30 @@
 						{% endif %}
 					</li>
 					{% endcomment %}
-					{% if user.is_authenticated %}
+					{% if request.user.is_authenticated %}
 					<li class="list-group-item">
 						{% if archive %}
 							<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>
 						{% endif %}
 						<form action="" method="post">{% csrf_token %}
-							{% if watchlist %}
+							{% if is_in_user_watchlist %}
                                 <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="unwatch">Don't want to see again</button>
 							{% else %}
                                 <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="watch">Want to see again</button>
 							{% endif %}
 							<br>
-                            {% if favourite %}
+                            {% if is_favourite_for_user %}
 								<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="unfav">unfavourite</button>
                             {% else %}
                                 <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav">favourite</button>
                             {% endif %}
-							{% if follows %}
+							{% if followed_who_can_take_recommendation %}
 							<select class="selectpicker show-tick" name="choose_followed_user"
 									multiple title="Recommend to:" data-width="auto" data-size="5"
 									data-actions-box="true" data-live-search="true">
-								<!--<option selected disabled hidden style='display: none' value=''></option>-->
-								{% for x in follows %}
-									<option value="{{ x.user_followed.username }}" data-subtext="ratings: {{ x.user_followed.userprofile.count_ratings }}">{{ x.user_followed.username }}</option>
+								{% for user in followed_who_can_take_recommendation %}
+									<option value="{{ user.username }}" data-subtext="ratings: {{ user.userprofile.count_ratings }}">{{ user.username }}</option>
 								{% endfor %}
-								<!--<optgroup label="They watched it" disabled>-->
-									<!--<option>user1</option>-->
-								<!--</optgroup>-->
 							</select>
 							<button class="btn btn-sm" type="submit" name="select_followed_users" value="select">Recommend</button>
 							{% endif %}
@@ -76,24 +72,24 @@
 					<!--<label for="rating5">5</label>-->
 				  <!--</span>-->
 		</div>
-		{% if user.is_authenticated %}
+		{% if request.user.is_authenticated %}
 		<form action="" method="post">{% csrf_token %}
 			<span class="starRating">
 				{% for i in loop %}
-					<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if archive.0.rate == i %}checked{% endif %}>
+					<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if user_ratings_of_title.0.rate == i %}checked{% endif %}>
 					<label for="rating{{ i }}">{{ i }}</label>
 			  	{% endfor %}
 		  	</span>
-            {% if archive %}
+            {% if user_ratings_of_title %}
             <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating">delete_rating</button>
             {% endif %}
 		</form>
 		{% endif %}
 		<div class="row">
 			<div class="col-xs-10 col-xs-offset-1"><br>
-				{% if archive %}
+				{% if user_ratings_of_title %}
 				<div class="progress">
-					<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ archive.0.rate }}0%">{{ archive.0.rate }}/10</div>
+					<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ user_ratings_of_title.0.rate }}0%">{{ user_ratings_of_title.0.rate }}/10</div>
                 </div>
 				{% endif %}
 				{{ entry.plot }}
@@ -105,7 +101,7 @@
 			<div class="col-md-2 hidden-xs"></div>
 			<div class="col-xs-2 visible-xs"></div>
 			<div class="col-xs-10 col-md-5">
-			{% if archive %}
+			{% if user_ratings_of_title %}
 				<div class="history">
 					<p class="lead"><br>History of ratings:</p>
 					<table class="table-bordered table-condensed">
@@ -117,7 +113,7 @@
 							</tr>
 						</thead>
                     	<tbody>
-						{% for a in archive %}
+						{% for a in user_ratings_of_title %}
 							<tr>
 								<td class=""><a href="{% url 'entry_show_rated_in_month' year=a.rate_date|date:'Y' month=a.rate_date|date:'m' %}">{{ a.rate_date|date:"Y-m-d" }}</a></td>
 								<td class=""><a href="{% url 'entry_show_from_rate' rate=a.rate %}">{{ a.rate }}</a></td>

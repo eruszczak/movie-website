@@ -45,10 +45,11 @@ print(user.username)
 #     user_followed__id__in=followed_who_saw_this_title).exclude(
 #     user_followed__id__in=followed_who_have_it_in_recommended),
 
-x = UserFollow.objects.filter(user_follower=1)
-title = Title.objects.get(id=1)
-print([a for a in x if Recommendation.objects.filter(user=a.user_followed, title=title).exists()
-       or Rating.objects.filter(user=a.user_followed, title=title).exists()])
+# x = UserFollow.objects.filter(user_follower=1)
+# title = Title.objects.get(slug='inferno-2016')
+# # title = Title.objects.get(slug='ice-age-collision-course-2016')
+# print([a.user_followed.username for a in x if not Recommendation.objects.filter(user=a.user_followed, title=title).exists()
+#        and not Rating.objects.filter(user=a.user_followed, title=title).exists()])
 
 
 from chart.charts import count_for_month_lists
