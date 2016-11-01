@@ -1,23 +1,6 @@
-
-
-$(document).ready(function(){
+$(document).ready(function() {
     $('[data-toggle="tooltip"]').tooltip();
-
-//    $("#summary").addClass('animated pulse');
-
-    $(function () {
-      $('[data-toggle="popover"]').popover()
-    })
-
-//    $( "#clickme" ).click(function() {
-//      $( "#book" ).fadeOut( "slow", function() {
-//        // Animation complete
-//      });
-//    });
-
-//    $("#sendQuery").on("click", function () {
-//        getResults();
-//    });
+    $('[data-toggle="popover"]').popover()
 
     $("#recommend_form").submit(function(event) {
         var const_value = $("#id_const").val();
@@ -35,40 +18,6 @@ $(document).ready(function(){
         return false;
     });
 
-    $('.selectpicker').selectpicker({
-//      style: 'btn-info',
-//      size: 2
-    });
-
-
-});
-
-
-
-//function getResults() {
-//    link = '/charts/test'
-//     $.getJSON(link, {
-//          format: "json"
-//        }).done(function(data) {
-//            $('#highcharts').highcharts({
-//            xAxis: {
-//                categories: data.months
-//            },
-//            series: [{
-//
-//                data: data.values
-//            }]
-//        });
-//    });
-//};
-
-
-
-
-
-
-
-$(document).ready(function() {
 //    $('#unwatch').mouseover(function() {
 //        $(this).val("want to see again").removeClass('unwatch-btn').addClass('watch-btn');
 //    }).mouseout(function() {
@@ -80,37 +29,56 @@ $(document).ready(function() {
 //    }).mouseout(function() {
 //        $(this).val("want to see again").removeClass('unwatch-btn').addClass('watch-btn');
 //    });
-//
-//    $('#test_put').click(function() {
-//        var resource_name = $(location).attr('pathname').split('/')[2];
-//        $.ajax({
-//            type: "PUT",
-//            url : '/api/update/' + resource_name + '/',
-//            dataType : "json",
-//            success: function( data ) {
-//            }
-//        });
-//        window.location.reload(true);
-//    })
 
-//    $('.test_put2').click(function() {
-//        console.log('x')
-//        var resource_name = $(location).attr('pathname').split('/')[2];
-//        $.ajax({
-//            type: "PUT",
-//            url : '/api/update/' + resource_name + '/',
-//            dataType : "json",
-//            success: function( data ) {
-//            }
-//        });
-//        window.location.reload(true);
-//    })
+    if ($('div').is('#favouritePage')) {
+        var pathArray = window.location.pathname.split('/');
+        var path_username = pathArray[pathArray.length - 3];
+        if (path_username == request_username) {
+            sortable();
+        }
+    }
+
+    // when on title page you click 1 of 10 stars
+    $('input[name="rating"').change(function() {
+        ajax_request({'value': this.value}, true);
+    });
+
+    // now it's not needed because order is saved without button click
+//    $('#save-order').click(function() {
+//        var ordering = $('#sortable').sortable('serialize');
+//        ajax_request({'item_order': ordering}, true);
+//    });
 });
 
+function sortable() {
+    $('#sortable').sortable({
+        placeholder: 'sort-placeholder',
+        axis: 'y',
+        update: function (event, ui) {
+//            $('#save-order').removeClass('disabled');
+            var ordering = $(this).sortable('serialize');
+            $(this).find('li').each(function(i){
+                $(this).find('p.item-order').text(i+1);
+            });
+            ajax_request({'item_order': ordering});
+        }
+    });
+    $("#sortable").disableSelection();
+}
 
-// todo animation
+function ajax_request(data, refresh = false, destination = this.href) {
+    data['csrfmiddlewaretoken'] = csrftoken;
+    $.ajax({
+        data: data,
+        type: 'POST',
+        url: destination
+    });
+    if (refresh) {
+        window.location.reload(false);
+    }
+}
 
-// using jQuery
+var csrftoken = getCookie('csrftoken');
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -125,60 +93,4 @@ function getCookie(name) {
         }
     }
     return cookieValue;
-}
-var csrftoken = getCookie('csrftoken');
-
-function send_changed_order(data) {
-    $.ajax({
-        data: {
-            item_order: data,
-            csrfmiddlewaretoken: csrftoken
-        },
-        type: 'POST',
-        url: this.href
-    });
-}
-
-$( function() {
-    $('#sortable').sortable({
-        placeholder: 'sort-placeholder',
-        axis: 'y',
-        update: function (event, ui) {
-//            $('#save-order').removeClass('disabled');
-            var data = $(this).sortable('serialize');
-            $(this).find('li').each(function(i){
-                $(this).find('p.item-order').text(i+1);
-            });
-            send_changed_order(data);
-        }
-    });
-    $( "#sortable" ).disableSelection();
-});
-
-$('#save-order').click(function() {
-    var data = $('#sortable').sortable('serialize');
-    send_changed_order(data);
-      // $(document).ajaxStop(function () {
-          window.location.reload(false);
-    // });
-});
-
-
-
-$('input[name="rating"').change(
-  function(){
-    send_rating(this.value);
-  }
-)
-
-function send_rating(val) {
-    $.ajax({
-        data: {
-            value: val,
-            csrfmiddlewaretoken: csrftoken
-        },
-        type: 'POST',
-        url: this.href
-    });
-    window.location.reload(false);
 }

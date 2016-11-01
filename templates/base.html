@@ -43,6 +43,9 @@
         <script src="{% static 'js/graphs.js' %}"></script>
         <script src="{% static 'js/school.js' %}"></script>
     </scripts>
+    <script>
+        var request_username = '{{ request.user }}';
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <nav class="navbar navbar-default navbar-fixed-top">
 	<div class="container">
 		<div class="navbar-header">
@@ -20,7 +21,7 @@
                         <li><a href="{% url 'entry_groupby_year' %}">all years</a></li>
                         <li><a href="{% url 'entry_groupby_genre' %}">all genres</a></li>
                         <li><a href="{% url 'entry_groupby_director' %}">all directors</a></li>
-                        <li role="separator" class="divider"></li>
+                        <!--<li role="separator" class="divider"></li>-->
          {#               <li><a href="{% url 'contact' %}">contact</a></li> #}
 {#                        <li><a href="{% url 'about' %}">about</a></li>#}
 {#                        <li><a href="{% url 'school' %}">school</a></li>#}
@@ -30,23 +31,26 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% if request.user.is_authenticated %}{{ request.user.username }}{% else %}users{% endif %} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        {% if not request.user.is_authenticated %}
-                            <li><a href="{% url 'login' %}">login</a></li>
-                        {% endif %}
-                        {% if request.user.is_authenticated %}
-                            <li><a href="{% url 'user_profile' username=request.user %}">profile</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'watchlist' username=request.user %}">watchlist</a></li>
-                            <li><a href="{% url 'favourites' username=request.user %}">favourites</a></li>
-                            <li><a href="{% url 'recommend' username=request.user %}">recommend</a></li>
-                            <li role="separator" class="divider"></li>
-                        {% endif %}
-                        <li role="separator" class="divider"></li>
+                    {% if request.user.is_authenticated %}
                         <li><a href="{% url 'user_list' %}">users</a></li>
+                        <li><a href="{% url 'user_profile' username=request.user %}">profile</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{% url 'watchlist' username=request.user %}">watchlist</a></li>
+                        <li><a href="{% url 'favourites' username=request.user %}">favourites</a></li>
+                        <li><a href="{% url 'recommend' username=request.user %}">recommend</a></li>
+                        <li role="separator" class="divider"></li>
+                    {% else %}
+                        <li><a href="{% url 'user_list' %}">users</a></li>
+                    {% endif %}
+                    {% if not request.user.is_authenticated %}
+                        <li><a href="{% url 'login' %}">login</a></li>
                         <li><a href="{% url 'register' %}">register</a></li>
-                        {% if request.user.is_authenticated %}
-                            <li><a href="{% url 'logout' %}">logout</a></li>
+                    {% else %}
+                        {% if request.user.userprofile.picture %}
+                        <li class="text-center"><img class="img-responsive img-thumbnail" src="{{ request.user.userprofile.picture.url }}" alt="..." style="width: 100px"></li>
                         {% endif %}
+                        <li class="text-center"><a href="{% url 'logout' %}">logout</a></li>
+                    {% endif %}
                     </ul>
                 </li>
 			</ul>

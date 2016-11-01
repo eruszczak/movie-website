@@ -48,8 +48,7 @@ def login(request):
     }
     return render(request, 'users/login.html', context)
 
-# from django.contrib.auth.decorators import login_required
-# @login_required
+
 def user_edit(request, username):
     if not request.user.username == username:
         messages.info(request, 'You can edit only your profile', extra_tags='alert-info')

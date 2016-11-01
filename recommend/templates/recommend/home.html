@@ -16,7 +16,7 @@
                     </div>
                     </div>
                 </div>
-                {% if not user.is_authenticated %}
+                {% if not request.user.is_authenticated %}
                 <div class="col-md-9"> <div id="div_id_nick" class="form-group"> <label for="id_nick" class="control-label  requiredField">
                 nickname<span class="asteriskField">*</span> </label> <div class="controls "> <input class="textinput textInput form-control" id="id_nick" maxlength="30" name="nick" type="text" value="" required> </div> </div>
                 </div>

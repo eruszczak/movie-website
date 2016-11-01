@@ -19,21 +19,28 @@ from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites
 
 
 def home(request):
+    all_movies = Rating.objects.filter(title__type__name='movie').order_by('-rate_date')
+    all_series = Rating.objects.filter(title__type__name='series').order_by('-rate_date')
+    # titles_count = Title.objects.all().count()
     if request.user.is_authenticated():
-        pass
-    all_movies = Rating.objects.filter(user=request.user, title__type__name='movie')
-    all_series = Rating.objects.filter(user=request.user, title__type__name='series')
-    random = Rating.objects.all().first()
-    random_title = Title.objects.all().first()
+        # rated_titles = Title.objects.filter(rating__user__username='test').order_by('-rating__rate_date')
+        # rated titles
+        # rated_titles = Title.objects.all().rating_set.all()
+        # user_ratings = Rating.objects.filter(user=request.user).order_by('-rate_date')
+        # all_movies = user_ratings.filter(title__type__name='movie')
+        # all_series = user_ratings.filter(title__type__name='series')
+        all_movies = all_movies.filter(user=request.user)
+        all_series = all_series.filter(user=request.user)
     context = {
         'ratings': all_movies,
-        'last_movie': all_movies[0].title if all_movies else random_title,
-        'last_series': all_series[0].title if all_series else random_title,
-        'last_good': all_movies.filter(rate__gte=5)[0].title if all_movies else random_title,
+        'last_movie': all_movies.first().title if all_movies else None,
+        'last_series': all_series.first().title if all_series else None,
+        'last_good_movie': all_movies.filter(rate__gte=9).first().title if all_movies.filter(rate__gte=9) else None,
         'movie_count': all_movies.count(),
         'series_count': all_series.count(),
         # 'search_movies': reverse('explore') + '?select_type=movie&q=',
         # 'search_series': reverse('explore') + '?select_type=series&q=',
+        # see_more leads to explore with filtered user's ratings
     }
     return render(request, 'home.html', context)
 
@@ -89,12 +96,16 @@ def explore(request):
 
     director = request.GET.get('d')
     if director:
-        entries = Title.objects.filter(director__id=director)
+        entries = entries.filter(director__id=director)
 
     genres = request.GET.getlist('g')
     if genres:
         for g in genres:
-            entries = Title.objects.filter(genre__name=g)
+            entries = entries.filter(genre__name=g)
+
+    user = request.GET.get('u')
+    if user:
+        entries = entries.filter(rating__user__username=user)
 
     page = request.GET.get('page')
     ratings = paginate(entries, page)
@@ -106,12 +117,18 @@ def explore(request):
     #     query_string = select_type + q + '&page='
 
     # ratings = ((Rating.objects.filter(user=user, title=x).first(), x) for x in ratings)   # todo
-
+    list_of_users = User.objects.exclude(username=request.user.username) if request.user.is_authenticated() else User.objects.all()
     context = {
         'ratings': ratings,
         'query': query,
         'selected_type': types[selected_type],
         'genres': Genre.objects.annotate(num=Count('title')).order_by('-num'),
+        # 'users': User.objects.annotate(num=Count('title')).order_by('-num'),
+        'list_of_users': list_of_users,
+        # cant have a search with this option............
+        # user followed are highlighted
+        # order by ratings count
+        # need to add order in entry_details
         # 'query_string': query_string,
     }
     return render(request, 'entry.html', context)
@@ -166,7 +183,8 @@ def entry_details(request, slug):
         if new_rating:
             if current_rating:
                 current_rating.rate = new_rating
-                current_rating.save(update_fields=['rate'])
+                current_rating.rate_date = datetime.today()
+                current_rating.save(update_fields=['rate', 'rate_date'])
             else:
                 Rating.objects.create(user=request.user, title=title, rate=new_rating, rate_date=datetime.now())
 

@@ -53,10 +53,10 @@
                             {% endif %}
 							{% if followed_who_can_take_recommendation %}
 							<select class="selectpicker show-tick" name="choose_followed_user"
-									multiple title="Recommend to:" data-width="auto" data-size="5"
+									multiple title="Recommend to" data-width="auto" data-size="5"
 									data-actions-box="true" data-live-search="true">
 								{% for user in followed_who_can_take_recommendation %}
-									<option value="{{ user.username }}" data-subtext="ratings: {{ user.userprofile.count_ratings }}">{{ user.username }}</option>
+									<option value="{{ user.username }}" data-subtext="{{ user.userprofile.count_ratings }} ratings">{{ user.username }}</option>
 								{% endfor %}
 							</select>
 							<button class="btn btn-sm" type="submit" name="select_followed_users" value="select">Recommend</button>
