@@ -12,9 +12,26 @@ user = User.objects.all().first()
 print(user.username)
 
 
-rated_titles = Title.objects.filter(rating__user__username='test').order_by('-rating__rate_date')
-rated_titles = Title.objects.all().order_by('-rating__rate_date')
-print(rated_titles)
+# rated_titles = Title.objects.filter(rating__user__username='test').order_by('-rating__rate_date')
+# rated_titles = Title.objects.all().order_by('-rating__rate_date')
+# print(rated_titles)
+
+# titles = Title.objects.extra(select={
+#     'seen_by_user': """SELECT 1 FROM movie_rating as rating
+#         WHERE rating.title_id = movie_title.id AND rating.user_id = %s""",
+#     'has_in_watchlist': """SELECT 1 FROM movie_watchlist as watchlist
+#         WHERE watchlist.title_id = movie_title.id AND watchlist.user_id = %s AND watchlist.deleted = false""",
+#     'has_in_favourites': """SELECT 1 FROM movie_favourite as favourite
+#         WHERE favourite.title_id = movie_title.id AND favourite.user_id = %s"""
+# }, select_params=[1] * 3)
+#
+# print(titles.query)
+# for t in titles:
+#     print(t.seen_by_user, t.has_in_watchlist, t.has_in_favourites, t.name)
+#
+# titles = Title.objects.filter()
+
+
 
 # x = User.objects.annotate(num=Count('title')).order_by('-num')
 # rated_titles = Title.objects.filter(rating__user=x).order_by('-rating__rate_date')

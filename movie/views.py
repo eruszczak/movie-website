@@ -36,12 +36,18 @@ def home(request):
         'last_movie': all_movies.first().title if all_movies else None,
         'last_series': all_series.first().title if all_series else None,
         'last_good_movie': all_movies.filter(rate__gte=9).first().title if all_movies.filter(rate__gte=9) else None,
-        'movie_count': all_movies.count(),
+        'movie_count': all_movies.count(),  # todo
         'series_count': all_series.count(),
-        # 'search_movies': reverse('explore') + '?select_type=movie&q=',
-        # 'search_series': reverse('explore') + '?select_type=series&q=',
+        # 'search_movies': reverse('explore') + '?t=movie',
+        # 'search_series': reverse('explore') + '?t=series',
         # see_more leads to explore with filtered user's ratings
     }
+    if request.user.is_authenticated():
+        context['search_movies'] = reverse('explore') + '?u={}&t=movies'.format(request.user.username)
+        context['search_series'] = reverse('explore') + '?u={}&t=series'.format(request.user.username)
+    else:
+        context['total_movies'] = reverse('explore') + '?t=movie'
+        context['total_series'] = reverse('explore') + '?t=series'
     return render(request, 'home.html', context)
 
 
@@ -64,7 +70,7 @@ def explore(request):
 
     if request.user.is_authenticated():
         # 'SELECT 1' will fail if for a user there are few ratings of the same title (just like it did in watchlist)
-        entries = Title.objects.extra(select={
+        titles = Title.objects.extra(select={
             'seen_by_user': """SELECT 1 FROM movie_rating as rating
                 WHERE rating.title_id = movie_title.id AND rating.user_id = %s""",
             'has_in_watchlist': """SELECT 1 FROM movie_watchlist as watchlist
@@ -73,65 +79,70 @@ def explore(request):
                 WHERE favourite.title_id = movie_title.id AND favourite.user_id = %s"""
         }, select_params=[request.user.id] * 3)
     else:
-        entries = Title.objects.all()
-
-    query = request.GET.get('q')
-    types = {'0': '', '1': 'movie', '2': 'series'}
+        titles = Title.objects.all()
+    query_string = ''
 
     year = request.GET.get('y')
     if year:
-        find = re.match(r'(\d{4})-*(\d{4})*', year)
-        first_year, second_year = find.group(1), find.group(2)
+        find_years = re.match(r'(\d{4})-*(\d{4})*', year)
+        first_year, second_year = find_years.group(1), find_years.group(2)
         if first_year and second_year:
-            entries = entries.filter(year__lte=second_year, year__gte=first_year)
+            titles = titles.filter(year__lte=second_year, year__gte=first_year)
         elif first_year:
-            entries = entries.filter(year=first_year)
+            titles = titles.filter(year=first_year)
+            query_string += '{}={}&'.format('y', year)
 
-    selected_type = request.GET.get('t', '0')
-    if selected_type in ('1', '2'):
-        entries = entries.filter(Q(type__name=types[selected_type]))
+    selected_type = request.GET.get('t', '')
+    if selected_type in ('movie', 'series'):
+        titles = titles.filter(Q(type__name=selected_type))
+        query_string += '{}={}&'.format('t', selected_type)
 
+    query = request.GET.get('q')
     if query:
-        entries = entries.filter(name__icontains=query) if len(query) > 2 else entries.filter(name__startswith=query)
+        titles = titles.filter(name__icontains=query) if len(query) > 2 else titles.filter(name__startswith=query)
+        query_string += '{}={}&'.format('q', query)
 
     director = request.GET.get('d')
     if director:
-        entries = entries.filter(director__id=director)
+        titles = titles.filter(director__id=director)
+        query_string += '{}={}&'.format('d', director)
 
     genres = request.GET.getlist('g')
     if genres:
-        for g in genres:
-            entries = entries.filter(genre__name=g)
+        for genre in genres:
+            titles = titles.filter(genre__name=genre)
+            query_string += '{}={}&'.format('g', genre)
 
     user = request.GET.get('u')
     if user:
-        entries = entries.filter(rating__user__username=user)
+        query_string += '{}={}&'.format('u', user)
+        if request.GET.get('exclude_his'):
+            titles = titles.exclude(rating__user__username=user)
+            query_string += 'exclude_his=on&'
+        elif request.GET.get('exclude_mine'):
+            titles = titles.filter(rating__user__username=user).exclude(rating__user=request.user)
+            query_string += 'exclude_mine=on&'
+        else:
+            titles = titles.filter(rating__user__username=user)
 
     page = request.GET.get('page')
-    ratings = paginate(entries, page)
+    ratings = paginate(titles, page)
 
-    # query_string = ''
-    # if query and request.GET.get('select_type'):
-    #     select_type = '?select_type={}'.format(selected_type)
-    #     q = '&q={}'.format(query)
-    #     query_string = select_type + q + '&page='
+    if query_string:
+        query_string = '?' + query_string
+        query_string += 'page='
 
     # ratings = ((Rating.objects.filter(user=user, title=x).first(), x) for x in ratings)   # todo
-    list_of_users = User.objects.exclude(username=request.user.username) if request.user.is_authenticated() else User.objects.all()
     context = {
         'ratings': ratings,
         'query': query,
-        'selected_type': types[selected_type],
+        'selected_type': selected_type,
         'genres': Genre.objects.annotate(num=Count('title')).order_by('-num'),
         # 'users': User.objects.annotate(num=Count('title')).order_by('-num'),
-        'list_of_users': list_of_users,
-        # cant have a search with this option............
-        # user followed are highlighted
-        # order by ratings count
-        # need to add order in entry_details
-        # 'query_string': query_string,
+        'list_of_users': User.objects.all() if not request.user.is_authenticated() else User.objects.exclude(username=request.user.username),
+        'query_string': query_string,
     }
-    return render(request, 'entry.html', context)
+    return render(request, 'explore.html', context)
 
 # todo
 # dont show in query string selected type if 0. IGNORE IT COMPLETLY
@@ -139,7 +150,7 @@ def explore(request):
 # you can sort by many fields
 
 
-def entry_details(request, slug):
+def title_details(request, slug):
     title = get_object_or_404(Title, slug=slug)
     if request.user.is_authenticated():
         user_ratings_of_title = Rating.objects.filter(user=request.user, title=title)
@@ -206,10 +217,10 @@ def entry_details(request, slug):
     if current_rating:
         year, month = current_rating.rate_date.year, current_rating.rate_date.month
         context['link_month'] = reverse('entry_show_rated_in_month', kwargs={'year': year, 'month': month})
-    return render(request, 'entry_details.html', context)
+    return render(request, 'title_details.html', context)
 
 
-def entry_edit(request, slug):
+def title_edit(request, slug):
     requested_obj = get_object_or_404(Title, slug=slug)
     current_rating = Rating.objects.filter(user__username=request.user.username, title=requested_obj).first()
     if not request.user.is_authenticated() or not current_rating:
@@ -240,49 +251,37 @@ def entry_edit(request, slug):
         'form': form,
         'entry': requested_obj,
     }
-    return render(request, 'entry_edit.html', context)
+    return render(request, 'title_edit.html', context)
 
 
-def entry_details_redirect(request, const): # todo, id for very short url
+def title_details_redirect(request, const): # todo, id for very short url
     requested_obj = get_object_or_404(Title, const=const)
     return redirect(requested_obj)
 
 
-def entry_groupby_year(request):
+def groupby_year(request):
     context = {
         'year_count': Title.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
     }
-    return render(request, 'entry_groupby_year.html', context)
+    return render(request, 'groupby_year.html', context)
 
 
-def entry_groupby_genre(request):
+def groupby_genre(request):
     context = {
-        'genre': Genre.objects.annotate(num=Count('title')).order_by('-num'),
+        'genre': Genre.objects.annotate(num=Count('title')).order_by('-num'),   # todo count
     }
-    return render(request, 'entry_groupby_genre.html', context)
+    return render(request, 'groupby_genre.html', context)
 
 
-def entry_groupby_director(request):
+def groupby_director(request):
     context = {
         # 'director': Director.objects.filter(title__rating__user=request.user, title__type__name='movie').annotate(num=Count('title')).order_by('-num')[:50],
         'director': Director.objects.filter(title__type__name='movie').annotate(num=Count('title')).order_by('-num')[:50],
     }
-    return render(request, 'entry_groupby_director.html', context)
+    return render(request, 'groupby_director.html', context)
 
 
-def entry_show_from_year(request, year):
-    # entries = Title.objects.filter(year=year).order_by('-rate', '-rate_imdb', '-votes')
-    entries = Title.objects.filter(rating__user=request.user, year=year)
-    page = request.GET.get('page')
-    ratings = paginate(entries, page)
-    context = {
-        'ratings': ratings,
-        'title': year,
-    }
-    return render(request, 'title_show_from.html', context)
-
-
-def entry_show_rated_in_month(request, year, month):
+def titles_rated_in_month(request, year, month):
     # entries = Rating.objects.filter(user=request.user, rate_date__year=year, rate_date__month=month)
     # check what other people rated in that month // maybe day
     entries = Rating.objects.filter(rate_date__year=year, rate_date__month=month)
@@ -292,23 +291,10 @@ def entry_show_rated_in_month(request, year, month):
         'ratings': ratings,
         'title': '{} {}'.format(calendar.month_name[int(month)], year),
     }
-    return render(request, 'entry_show_from.html', context)
+    return render(request, 'title_from.html', context)
 
 
-def entry_show_from_genre(request, genre):
-    # entries = Genre.objects.get(name=genre).title_set.filter(rating__user=request.user)
-    # entries = Rating.objects.filter(user=request.user, title__genre__name=genre)
-    entries = Title.objects.filter(genre__name=genre)
-    page = request.GET.get('page')
-    ratings = paginate(entries, page)
-    context = {
-        'ratings': ratings,
-        'title': genre,
-    }
-    return render(request, 'title_show_from.html', context)
-
-
-def entry_show_from_rate(request, rate):
+def titles_from_rate(request, rate):
     # entries = Rating.objects.filter(user=request.user, rate=rate)
     entries = Rating.objects.filter(rate=rate)
     page = request.GET.get('page')
@@ -317,20 +303,7 @@ def entry_show_from_rate(request, rate):
         'ratings': ratings,
         'title': rate,
     }
-    return render(request, 'entry_show_from.html', context)
-
-
-def entry_show_from_director(request, pk):
-    # entries = Director.objects.get(id=pk).title_set.filter(rating__user=request.user)
-    # entries = Rating.objects.filter(user=request.user, title__director__id=pk)
-    entries = Title.objects.filter(director__id=pk)
-    page = request.GET.get('page')
-    ratings = paginate(entries, page)
-    context = {
-        'ratings': ratings,
-        'title': Director.objects.get(id=pk).name,
-    }
-    return render(request, 'title_show_from.html', context)
+    return render(request, 'title_from.html', context)
 
 
 def watchlist(request, username):

@@ -8,9 +8,9 @@
     <input type="text" name='y' class="form-control" placeholder="yyyy or yyyy-yyyy">
     <div class="form-group">
       <select class="form-control" name="t">
-        <option value="1">movie</option>
-        <option value="2">series</option>
-        <option value="0" selected>movie & series</option>
+        <option value="movie">movie</option>
+        <option value="series">series</option>
+        <option value="" selected>movie & series</option>
       </select>
     </div>
     <div class="form-group">
@@ -18,18 +18,17 @@
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
 
-    <select class="selectpicker show-tick" name="u" multiple title="what others saw" data-width="auto" data-size="5" data-live-search="true">
+    {% if request.user.is_authenticated %}
+    <select class="selectpicker show-tick" name="u" title="Compare with others" data-width="auto" data-size="7" data-live-search="true">
     {% for user in list_of_users %}
         <option value="{{ user.username }}" data-subtext="{{ user.userprofile.count_ratings }} ratings">{{ user.username }}</option>
     {% endfor %}
     </select>
     <div class="checkbox">
-      <label><input type="checkbox" value="both">we both have seen</label>
+      <label><input class="filter_results" type="checkbox" name="exclude_mine">exclude mine</label>
     </div>
     <div class="checkbox">
-      <label><input type="checkbox" value="exclude_mine">I haven't seen</label>
+      <label><input class="filter_results" type="checkbox" name="exclude_his">exclude his</label>
     </div>
-    <div class="checkbox">
-      <label><input type="checkbox" value="exclude_his">he hasn't seen</label>
-    </div>
+    {% endif %}
 </form>

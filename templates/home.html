@@ -32,8 +32,13 @@
                     </div>
                     <div class="col-md-6">
                         <ul>
-                            <li>Watched series: <a href="explore/?select_type=series&q=">{{ series_count }}</a></li>
+                            {% if request.user.is_authenticated %}
+                            <li>Watched series: <a href="{{ search_series }}">{{ series_count }}</a></li>
                             <li>Watched movies: <a href="{{ search_movies }}">{{ movie_count }}</a></li>
+                            {% else %}
+                            <li>Total series: <a href="{{ total_series }}">{{ series_count }}</a></li>
+                            <li>Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>

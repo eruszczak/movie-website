@@ -39,11 +39,11 @@ class GenreListSerializer(serializers.ModelSerializer):
     # detail_url = serializers.HyperlinkedIdentityField(view_name='api-movie:entry_detail', lookup_field='slug')
     # build url
     url_details = serializers.HyperlinkedIdentityField(view_name='api-title:genre_detail', lookup_field='name', lookup_url_kwarg='genre')
-    url = serializers.HyperlinkedIdentityField(view_name='entry_show_from_genre', lookup_field='name', lookup_url_kwarg='genre')
+    # url = serializers.HyperlinkedIdentityField(view_name='entry_show_from_genre', lookup_field='name', lookup_url_kwarg='genre')
 
     class Meta:
         model = Genre
-        fields = 'name the_count url_details url'.split()
+        fields = 'name the_count url_details'.split()
 
 
 # class GenreDetailSerializer(serializers.ModelSerializer):

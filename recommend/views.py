@@ -49,4 +49,4 @@ def recommend(request, username):
         },
         'is_owner': user == request.user,
     }
-    return render(request, 'recommend/home.html', context)
+    return render(request, 'recommend.html', context)

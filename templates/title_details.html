@@ -15,12 +15,12 @@
 
 			<div class="col-xs-6 col-sm-3 col-md-3">
 				<ul class="list-group" style="margin-left: -10px">
-					<li class="list-group-item"><a href="{% url 'entry_show_from_year' year=entry.year %}">{{ entry.year }}</a></li>
+					<li class="list-group-item"><a href="{% url 'explore' %}?y={{ entry.year }}">{{ entry.year }}</a></li>
 					<li class="list-group-item">{% for genre in entry.genre.all %}
-						<a href="{% url 'entry_show_from_genre' genre=genre.name %}">{{ genre.name }}<br></a>
+						<a href="{% url 'explore' %}?g={{ genre.name }}">{{ genre.name }}<br></a>
 						{% endfor %}</li>
 					<li class="list-group-item">{% for director in entry.director.all %}
-						<a href="{% url 'entry_show_from_director' pk=director.id %}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>{% endfor %}
+						<a href="{% url 'explore' %}?d={{ director.id }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>{% endfor %}
 					</li>
 					{% comment %}
 					{% if entry.votes != 'N/A' %}<li class="list-group-item">{{ entry.votes }} votes</li>{% endif %}
