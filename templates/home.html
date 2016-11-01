@@ -19,9 +19,15 @@
                 <div class="row">
                     <div class="col-md-6">
                         <ul>
-                {#            <li>Last movie: <a href="{% url 'entry_details' slug=last_movie.slug %}">{{ last_movie.name }}</a></li>#}
-                        {#    <li>Last tv-show: <a href="{% url 'entry_details' slug=last_series.slug %}">{{ last_series.name }}</a></li>#}
-                       {#     <li>Last movie rated 9-10: <a href="{% url 'entry_details' slug=last_good.slug %}">{{ last_good.name }}</a></li>#}
+                            {% if last_movie %}
+                                <li>Last movie: <a href="{% url 'entry_details' slug=last_movie.slug %}">{{ last_movie.name }}</a></li>
+                            {% endif %}
+                            {% if last_series %}
+                                <li>Last tv-show: <a href="{% url 'entry_details' slug=last_series.slug %}">{{ last_series.name }}</a></li>
+                            {% endif %}
+                            {% if last_good_movie %}
+                                <li>Last movie rated 9-10: <a href="{% url 'entry_details' slug=last_good_movie.slug %}">{{ last_good_movie.name }}</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                     <div class="col-md-6">
@@ -35,7 +41,7 @@
         </div>
     </div>
 
-    <h3 class="page-header text-center">recently seen <small>(<a href="{% url 'explore' %}">see more</a>)</small></h3>
+    <h3 class="page-header text-center">recently seen <small>(<a href="{% url 'explore' %}{% if request.user.is_authenticated %}?u={{ request.user.username }}{% else %}{% endif %}">see more</a>)</small></h3>
     {% for entry in ratings %}
     <div class="col-md-6">
         <div class="last10 well well-sm {% cycle 'odd' 'even' %}">

@@ -17,4 +17,19 @@
         <input type="text" name='q' class="form-control" placeholder="search by title"><!--value='{{ request.GET.q }}'-->
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
+
+    <select class="selectpicker show-tick" name="u" multiple title="what others saw" data-width="auto" data-size="5" data-live-search="true">
+    {% for user in list_of_users %}
+        <option value="{{ user.username }}" data-subtext="{{ user.userprofile.count_ratings }} ratings">{{ user.username }}</option>
+    {% endfor %}
+    </select>
+    <div class="checkbox">
+      <label><input type="checkbox" value="both">we both have seen</label>
+    </div>
+    <div class="checkbox">
+      <label><input type="checkbox" value="exclude_mine">I haven't seen</label>
+    </div>
+    <div class="checkbox">
+      <label><input type="checkbox" value="exclude_his">he hasn't seen</label>
+    </div>
 </form>

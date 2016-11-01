@@ -11,6 +11,18 @@ from django.contrib.auth.models import User
 user = User.objects.all().first()
 print(user.username)
 
+
+rated_titles = Title.objects.filter(rating__user__username='test').order_by('-rating__rate_date')
+rated_titles = Title.objects.all().order_by('-rating__rate_date')
+print(rated_titles)
+
+# x = User.objects.annotate(num=Count('title')).order_by('-num')
+# rated_titles = Title.objects.filter(rating__user=x).order_by('-rating__rate_date')
+# print(x)
+# print(rated_titles)
+
+# display users with their watched titles
+
 # Recommendation.objects.all().delete()
 # x = Rating.objects.filter(user__id=1).annotate(Count('title', distinct=True)).count()
 # print(x)
