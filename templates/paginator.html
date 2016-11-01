@@ -2,9 +2,9 @@
     <ul class="pager">
       {% if ratings.has_previous %}
         {% if query_string %}
-        <li><a href="{{ query_string }}{{ ratings.previous_page_number }}">Next</a></li>
+        <li><a href="{{ query_string }}{{ ratings.previous_page_number }}">Previous</a></li>
         {% else %}
-        <li><a href="?page={{ ratings.previous_page_number }}">Next</a></li>
+        <li><a href="?page={{ ratings.previous_page_number }}">Previous</a></li>
         {% endif %}
       {% else %}
       <li><a style="cursor: default">Previous</a></li>

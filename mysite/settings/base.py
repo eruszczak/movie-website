@@ -31,7 +31,6 @@ LOCAL_APPS = [
     'movie',
     'recommend',
     # 'chart',
-    # 'book',
     'users',
     # 'contact',
     # 'school',

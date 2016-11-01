@@ -10,7 +10,7 @@ class Genre(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
     def get_absolute_url(self):
-        return reverse('entry_show_from_genre', kwargs={'genre': self.name})
+        return reverse('explore')
 
     def __str__(self):
         return self.name

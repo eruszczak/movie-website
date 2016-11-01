@@ -2,4 +2,4 @@ from django.shortcuts import render
 
 
 def home(request):
-    return render(request, 'chart/index.html')
+    return render(request, 'chart.html')

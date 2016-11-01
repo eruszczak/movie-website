@@ -38,6 +38,10 @@ $(document).ready(function() {
         }
     }
 
+    $('input.filter_results').on('change', function() {
+       $('input.filter_results').not(this).prop('checked', false);
+    });
+
     // when on title page you click 1 of 10 stars
     $('input[name="rating"').change(function() {
         ajax_request({'value': this.value}, true);
