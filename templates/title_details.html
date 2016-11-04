@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load humanize %}
 {% block title %}{{ entry.name }}{% endblock %}
 {% block content %}
 
@@ -16,16 +17,29 @@
 			<div class="col-xs-6 col-sm-3 col-md-3">
 				<ul class="list-group" style="margin-left: -10px">
 					<li class="list-group-item"><a href="{% url 'explore' %}?y={{ entry.year }}">{{ entry.year }}</a></li>
-					<li class="list-group-item">{% for genre in entry.genre.all %}
-						<a href="{% url 'explore' %}?g={{ genre.name }}">{{ genre.name }}<br></a>
-						{% endfor %}</li>
-					<li class="list-group-item">{% for director in entry.director.all %}
-						<a href="{% url 'explore' %}?d={{ director.id }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>{% endfor %}
+					<li class="list-group-item">
+					{% for genre in entry.genre.all %}
+						<a href="{{ genre.get_absolute_url }}">{{ genre.name }}<br></a>
+					{% endfor %}
 					</li>
+					<li class="list-group-item">
+					{% for director in entry.director.all %}
+						<a href="{{ director.get_absolute_url }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>
+					{% endfor %}
+					</li>
+					{% if entry.votes %}
+					<li class="list-group-item">IMDb votes: {{ entry.votes|intcomma }}</li>
+					{% endif %}
+
+					{% if entry.rate_imdb %}
+					<li class="list-group-item">Average IMDb ratings: {{ entry.rate_imdb }}</li>
+					{% endif %}
+
+                    {% if average_rating %}
+                    <li class="list-group-item">Average ratings: {{ average_rating }} <a href="{% url 'user_list' %}?s={{ entry.slug }}">click</a></li>
+                    {% endif %}
+
 					{% comment %}
-					{% if entry.votes != 'N/A' %}<li class="list-group-item">{{ entry.votes }} votes</li>{% endif %}
-						<li class="list-group-item">current rating: <a href="{% url 'entry_show_from_rate' rate=entry.rate %}">{{ entry.rate }}</a></li>
-					{% if entry.rate_imdb >= 1  %}<li class="list-group-item">imdb rating: {{ entry.rate_imdb }}</li>{% endif %}
 					<li class="list-group-item">rated on: <a href="{{ link_month }}">{{ entry.rate_date|date:"d.m.Y" }}</a>
 						{% if entry.yesterday_today_month %}
 							<span class="label {% if entry.yesterday_today_month == 'this month' %}label-info{% else %}label-warning{% endif %}">
@@ -34,46 +48,42 @@
 						{% endif %}
 					</li>
 					{% endcomment %}
+
 					{% if request.user.is_authenticated %}
 					<li class="list-group-item">
-						{% if archive %}
-							<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>
-						{% endif %}
+					{% if user_ratings_of_title %}
+						<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>
+					{% endif %}
 						<form action="" method="post">{% csrf_token %}
-							{% if is_in_user_watchlist %}
-                                <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="unwatch">Don't want to see again</button>
-							{% else %}
-                                <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="watch">Want to see again</button>
-							{% endif %}
+						{% if is_in_user_watchlist %}
+							<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="unwatch">Don't want to see again</button>
+						{% else %}
+							<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="watch">Want to see again</button>
+						{% endif %}
 							<br>
-                            {% if is_favourite_for_user %}
-								<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="unfav">unfavourite</button>
-                            {% else %}
-                                <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav">favourite</button>
-                            {% endif %}
-							{% if followed_who_can_take_recommendation %}
+						{% if is_favourite_for_user %}
+							<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="unfav">unfavourite</button>
+						{% else %}
+							<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav">favourite</button>
+						{% endif %}
+						{% if followed_who_can_take_recommendation %}
 							<select class="selectpicker show-tick" name="choose_followed_user"
 									multiple title="Recommend to" data-width="auto" data-size="5"
 									data-actions-box="true" data-live-search="true">
-								{% for user in followed_who_can_take_recommendation %}
-									<option value="{{ user.username }}" data-subtext="{{ user.userprofile.count_ratings }} ratings">{{ user.username }}</option>
-								{% endfor %}
+							{% for user in followed_who_can_take_recommendation %}
+								<option value="{{ user.username }}" data-subtext="{{ user.userprofile.count_ratings }} ratings">{{ user.username }}</option>
+							{% endfor %}
 							</select>
 							<button class="btn btn-sm" type="submit" name="select_followed_users" value="select">Recommend</button>
-							{% endif %}
+						{% endif %}
 						</form>
 					</li>
 					{% endif %}
 				</ul>
 			</div>
-
-				<!--<span class="starRating">-->
-					<!--<input id="rating5" type="radio" name="rating" value="5">-->
-					<!--<label for="rating5">5</label>-->
-				  <!--</span>-->
 		</div>
 		{% if request.user.is_authenticated %}
-		<form action="" method="post">{% csrf_token %}
+		<form id="star_rating_form" action="" method="post">{% csrf_token %}
 			<span class="starRating">
 				{% for i in loop %}
 					<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if user_ratings_of_title.0.rate == i %}checked{% endif %}>
@@ -82,6 +92,9 @@
 		  	</span>
             {% if user_ratings_of_title %}
             <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating">delete_rating</button>
+			<div class="checkbox">
+				<label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>
+            </div>
             {% endif %}
 		</form>
 		{% endif %}
@@ -95,7 +108,6 @@
 				{{ entry.plot }}
 			</div>
 		</div>
-
 
 		<div class="row">
 			<div class="col-md-2 hidden-xs"></div>
@@ -116,7 +128,7 @@
 						{% for a in user_ratings_of_title %}
 							<tr>
 								<td class=""><a href="{% url 'entry_show_rated_in_month' year=a.rate_date|date:'Y' month=a.rate_date|date:'m' %}">{{ a.rate_date|date:"Y-m-d" }}</a></td>
-								<td class=""><a href="{% url 'entry_show_from_rate' rate=a.rate %}">{{ a.rate }}</a></td>
+								<td class=""><a href="{% url 'explore' %}?r={{ a.rate }}">{{ a.rate }}</a></td>
 								<td class="text-center">duration: {{ a.next_rating_days_diff }} days</td>
 							</tr>
 						{% endfor %}
@@ -132,11 +144,10 @@
 					<li><a href="{{ entry.url_imdb }}">imdb</a></li>
 					<li><a href="{{ entry.url_tomato }}">rotten tomatoes</a></li>
 					<li><a href="{% url 'entry_details_redirect' const=entry.const %}">shorter link</a></li>
-{#					<li><a id="watchlist-link" href="{% url 'watchlist' username %}">see watchlist</a></li>#}
 				</ul>
+				Last updated: {{ entry.last_updated|date:"Y-m-d" }}
 			</div>
 		</div>
-
 
 		{% comment %}
 		<br>
@@ -165,6 +176,6 @@
 			</div>
 		{% endif %}
 		{% endcomment %}
+    </div>
 </div>
-	</div>
 {% endblock %}

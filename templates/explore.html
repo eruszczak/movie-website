@@ -19,8 +19,8 @@
                     <th class="text-center"></th>
                     <th class="text-center">title</th>
                     {% if request.user.is_authenticated %}
-                    <th class="text-center"><a id="" href="{% url 'favourites' username=request.user %}">favourite</a></th>
-                    <th class="text-center"><a id="" href="{% url 'watchlist' username=request.user %}">watchlist</a></th>
+                    <th class="text-center"><a id="" href="{{ request.user.userprofile.favourite_url }}">favourite</a></th>
+                    <th class="text-center"><a id="" href="{{ request.user.userprofile.watchlist_url }}">watchlist</a></th>
                     {% endif %}
                 </tr>
             </thead>

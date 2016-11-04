@@ -1,27 +1,25 @@
 import calendar
 import re
-
 from django.contrib import messages
 from django.db.models import Count, F
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-
-from common.utils import paginate
 from .forms import EditRating
 from .models import Genre, Director, Actor, Type, Title, Rating, Watchlist, Favourite
 from users.models import UserFollow
 from recommend.models import Recommendation
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import Q, When, Case, IntegerField
 from datetime import datetime
-from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites
+from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites, paginate, average_rating_of_title
 
 
 def home(request):
     all_movies = Rating.objects.filter(title__type__name='movie').order_by('-rate_date')
     all_series = Rating.objects.filter(title__type__name='series').order_by('-rate_date')
-    # titles_count = Title.objects.all().count()
+    titles_count = Title.objects.filter(type__name='movie').count()
+    series_count = Title.objects.filter(type__name='series').count()
     if request.user.is_authenticated():
         # rated_titles = Title.objects.filter(rating__user__username='test').order_by('-rating__rate_date')
         # rated titles
@@ -38,10 +36,8 @@ def home(request):
         'last_good_movie': all_movies.filter(rate__gte=9).first().title if all_movies.filter(rate__gte=9) else None,
         'movie_count': all_movies.count(),  # todo
         'series_count': all_series.count(),
-        # 'search_movies': reverse('explore') + '?t=movie',
-        # 'search_series': reverse('explore') + '?t=series',
-        # see_more leads to explore with filtered user's ratings
     }
+    # can refactor += this but when template will be done. atm its not worth it bcs i use separate names for keys
     if request.user.is_authenticated():
         context['search_movies'] = reverse('explore') + '?u={}&t=movies'.format(request.user.username)
         context['search_series'] = reverse('explore') + '?u={}&t=series'.format(request.user.username)
@@ -69,18 +65,20 @@ def explore(request):
         return redirect(request.META.get('HTTP_REFERER'))
 
     if request.user.is_authenticated():
-        # 'SELECT 1' will fail if for a user there are few ratings of the same title (just like it did in watchlist)
-        titles = Title.objects.extra(select={
-            'seen_by_user': """SELECT 1 FROM movie_rating as rating
-                WHERE rating.title_id = movie_title.id AND rating.user_id = %s""",
-            'has_in_watchlist': """SELECT 1 FROM movie_watchlist as watchlist
-                WHERE watchlist.title_id = movie_title.id AND watchlist.user_id = %s AND watchlist.deleted = false""",
-            'has_in_favourites': """SELECT 1 FROM movie_favourite as favourite
-                WHERE favourite.title_id = movie_title.id AND favourite.user_id = %s"""
-        }, select_params=[request.user.id] * 3)
+        titles = Title.objects.annotate(
+            seen_by_user=Count(
+                Case(When(rating__user=request.user, then=1), output_field=IntegerField())
+            ),
+            has_in_watchlist=Count(
+                Case(When(watchlist__user=request.user, then=1), output_field=IntegerField())
+            ),
+            has_in_favourites=Count(
+                Case(When(favourite__user=request.user, then=1), output_field=IntegerField())
+            ),
+        )
     else:
         titles = Title.objects.all()
-    query_string = ''
+    query_string = ''   # this is needed for a button prev/next in pagination while searching
 
     year = request.GET.get('y')
     if year:
@@ -124,7 +122,32 @@ def explore(request):
             query_string += 'exclude_mine=on&'
         else:
             titles = titles.filter(rating__user__username=user)
+            rating = request.GET.get('r')
+            if rating:
+                titles = titles.filter(rating__rate=rating)
+                query_string += '{}={}&'.format('r', rating)
+    else:
+        rating = request.GET.get('r')
+        if rating and request.user.is_authenticated():
+            titles = titles.filter(rating__user=request.user, rating__rate=rating)
+            query_string += '{}={}&'.format('r', rating)
 
+    rate_date_year, rate_date_month = request.POST.get('year'), request.POST.get('month')
+    if rate_date_year and (user or request.user.is_authenticated()):
+        # so here rating are already filtered for user if 'user'
+        if not user:
+            titles = titles.filter(rating__user=request.user)
+        if rate_date_year and rate_date_month:
+            titles = titles.filter(rating__rate_date__year=rate_date_year, rating__rate_date__month=rate_date_month)
+            query_string += '{}={}&'.format('year', rate_date_year)
+            query_string += '{}={}&'.format('month', rate_date_month)
+        elif rate_date_year:
+            titles = titles.filter(rating__rate_date__year=rate_date_year)
+            query_string += '{}={}&'.format('year', rate_date_year)
+    # way to show rated 'in range' and the same for other users
+    # ORDERING!
+    # any invalid options can cause an error?
+    # eg. when searching year/month or smth
     page = request.GET.get('page')
     ratings = paginate(titles, page)
 
@@ -188,21 +211,28 @@ def title_details(request, slug):
                 if not Recommendation.objects.filter(user=choosen_user, title=title).exists()\
                         or not Rating.objects.filter(user=choosen_user, title=title).exists():
                     Recommendation.objects.create(user=choosen_user, sender=request.user, title=title)
-
-        new_rating = request.POST.get('value')
+        print(request.POST)
+        # new_rating = request.POST.get('value')
+        new_rating = request.POST.get('rating')
+        x = request.POST.get('insert_as_new')
+        print(x)
         # insert_as_new_rate instead of editing todo
         if new_rating:
-            if current_rating:
+            if current_rating and not request.POST.get('insert_as_new'):
                 current_rating.rate = new_rating
-                current_rating.rate_date = datetime.today()
-                current_rating.save(update_fields=['rate', 'rate_date'])
+                # current_rating.rate_date = datetime.today()
+                # maybe don't change a date.
+                # only when insert_as_new
+                # if i'll change date it will be inserted with another update (but it will be 'archived')
+                # unless you change rate date too in edit view
+                current_rating.save(update_fields=['rate'])
             else:
                 Rating.objects.create(user=request.user, title=title, rate=new_rating, rate_date=datetime.now())
 
         delete_rating = request.POST.get('delete_rating')
         if delete_rating:
             current_rating.delete()
-        return redirect(reverse('entry_details', kwargs={'slug': slug}))
+        return redirect(title)
 
     context = {
         'entry': title,
@@ -211,7 +241,7 @@ def title_details(request, slug):
         'is_in_user_watchlist': is_in_user_watchlist,
         'followed_who_can_take_recommendation': followed,
         'rated_by': Rating.objects.filter(title=title).count(),  # todo count distinct for user
-        'average': '1',
+        'average_rating': average_rating_of_title(title),
         'loop': (n for n in range(10, 0, -1)),
     }
     if current_rating:
@@ -221,12 +251,11 @@ def title_details(request, slug):
 
 
 def title_edit(request, slug):
-    requested_obj = get_object_or_404(Title, slug=slug)
-    current_rating = Rating.objects.filter(user__username=request.user.username, title=requested_obj).first()
+    title = get_object_or_404(Title, slug=slug)
+    current_rating = Rating.objects.filter(user__username=request.user.username, title=title).first()
     if not request.user.is_authenticated() or not current_rating:
         messages.info(request, 'You can edit titles you have rated, you must be logged in', extra_tags='alert-info')
-        return redirect(requested_obj)
-
+        return redirect(title)
     form = EditRating(instance=current_rating)
     if request.method == 'POST':
         form = EditRating(request.POST)
@@ -240,23 +269,25 @@ def title_edit(request, slug):
             if current_rating.rate_date != new_date:
                 message += ', ' if message else ''
                 message += 'date: {} changed for {}'.format(current_rating.rate_date, new_date)
+                # maybe don't change a date.
+                # only when insert_as_new
                 current_rating.rate_date = new_date
             if message:
                 messages.success(request, message, extra_tags='alert-success')
                 current_rating.save(update_fields=['rate', 'rate_date'])
             else:
                 messages.info(request, 'nothing changed', extra_tags='alert-info')
-            return redirect(requested_obj)
+            return redirect(title)
     context = {
         'form': form,
-        'entry': requested_obj,
+        'entry': title,
     }
     return render(request, 'title_edit.html', context)
 
 
 def title_details_redirect(request, const): # todo, id for very short url
-    requested_obj = get_object_or_404(Title, const=const)
-    return redirect(requested_obj)
+    title = get_object_or_404(Title, const=const)
+    return redirect(title)
 
 
 def groupby_year(request):
@@ -268,15 +299,15 @@ def groupby_year(request):
 
 def groupby_genre(request):
     context = {
-        'genre': Genre.objects.annotate(num=Count('title')).order_by('-num'),   # todo count
+        'genre': Genre.objects.annotate(num=Count('title')).order_by('-num'),
     }
     return render(request, 'groupby_genre.html', context)
 
 
 def groupby_director(request):
     context = {
-        # 'director': Director.objects.filter(title__rating__user=request.user, title__type__name='movie').annotate(num=Count('title')).order_by('-num')[:50],
         'director': Director.objects.filter(title__type__name='movie').annotate(num=Count('title')).order_by('-num')[:50],
+        # todo order by average imdb/users ratings of their movies // popularity of their movies
     }
     return render(request, 'groupby_director.html', context)
 
@@ -307,41 +338,41 @@ def titles_from_rate(request, rate):
 
 
 def watchlist(request, username):
-    is_owner = username == request.user.username
-    user_watchlist = Watchlist.objects.filter(user__username=username)
+    user = get_object_or_404(User, username=username)
+    user_watchlist = Watchlist.objects.filter(user=user)
     if request.method == 'POST':
-        if not is_owner:
-            messages.info(request, 'Only owner can do this', extra_tags='alert-info')
-            return redirect(reverse('watchlist', kwargs={'username': username}))
+        if not request.user == user:
+            messages.info(request, 'You can change only your list', extra_tags='alert-info')
+            return redirect(user.userprofile.watchlist_url())
         if request.POST.get('watchlist_imdb_delete'):
             user_watchlist.filter(title__const=request.POST.get('const'), imdb=True, deleted=False).update(deleted=True)
         elif request.POST.get('watchlist_delete'):
             user_watchlist.filter(title__const=request.POST.get('const'), imdb=False).delete()
         elif request.POST.get('watchlist_imdb_readd'):
             user_watchlist.filter(title__const=request.POST.get('const'), imdb=True, deleted=True).update(deleted=False)
-        return redirect(reverse('watchlist', kwargs={'username': username}))
+        return redirect(user.userprofile.watchlist_url())
     context = {
         'ratings': user_watchlist.filter(deleted=False),
         'title': 'See again',
         'archive': [e for e in user_watchlist if e.is_rated_with_later_date],
-        'is_owner': is_owner,
+        'is_owner': request.user == user,
         'deleted': user_watchlist.filter(imdb=True, deleted=True),
     }
     return render(request, 'watchlist.html', context)
 
 
 def favourite(request, username):
-    is_owner = username == request.user.username
-    user_favourites = Favourite.objects.filter(user__username=username)
+    user = get_object_or_404(User, username=username)
+    user_favourites = Favourite.objects.filter(user=user)
     if request.method == 'POST':
-        if not is_owner:
-            messages.info(request, 'Only owner can do this', extra_tags='alert-info')
-            return redirect(reverse('favourite', kwargs={'username': username}))
-        item_order = request.POST.get('item_order')
-        if item_order:
-            item_order = re.findall('tt\d{7}', item_order)
-            for new_position, item in enumerate(item_order, 1):
-                user_favourites.filter(title__const=item).update(order=new_position)
+        if not request.user == user:
+            messages.info(request, 'You can change order only for your list', extra_tags='alert-info')
+            return redirect(user.userprofile.favourite_url())
+        new_title_order = request.POST.get('item_order')
+        if new_title_order:
+            new_title_order = re.findall('tt\d{7}', new_title_order)
+            for new_position, const in enumerate(new_title_order, 1):
+                user_favourites.filter(title__const=const).update(order=new_position)
     context = {
         'ratings': user_favourites,
     }

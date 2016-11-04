@@ -1,4 +1,3 @@
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from urllib.parse import urlencode
 import datetime
 from django.core.mail import send_mail
@@ -11,27 +10,6 @@ def build_url(url, **kwargs):
     get = kwargs.pop('get', {})
     url += '?' + urlencode(get)
     return url
-
-
-def prepare_json(json):
-    json['imdbVotes'] = json['imdbVotes'].replace(',', '')
-    json['Runtime'] = json['Runtime'][:-4] if json['Runtime'] != 'N/A' else None
-    json['Year'] = json['Year'][:4] if json['Year'] != 'N/A' else None
-    for k, v in json.items():
-        if v == 'N/A' and k not in ['Genre', 'Director', 'Actors']:
-            json[k] = None
-    return json
-
-
-def paginate(query_set, page, page_size=50):
-    paginator = Paginator(query_set, page_size)
-    try:
-        ratings = paginator.page(page)
-    except PageNotAnInteger:
-        ratings = paginator.page(1)
-    except EmptyPage:
-        ratings = paginator.page(paginator.num_pages)
-    return ratings
 
 
 def send_email(subject, message):

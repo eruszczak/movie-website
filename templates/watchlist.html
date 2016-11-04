@@ -22,7 +22,7 @@
                         {% for obj in ratings %}
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                            <td><a href="{% url 'entry_details' slug=obj.title.slug %}">{{ obj.title.name }}</a></td>
+                            <td><a href="{{ obj.title }}">{{ obj.title.name }}</a></td>
                             {% if is_owner %}
                                 <td class="text-center">
                                     <form action="" method="post">{% csrf_token %}
@@ -56,7 +56,7 @@
                         {% for obj in deleted %}
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                            <td><a href="{% url 'entry_details' slug=obj.title.slug %}">{{ obj.title.name }}</a></td>
+                            <td><a href="{{ obj.title }}">{{ obj.title.name }}</a></td>
                                 <td class="text-center">
                                     <form action="" method="post">{% csrf_token %}
                                         <button class="btn btn-sm see-again-btn watch-btn" type="submit"
@@ -91,7 +91,7 @@
                             {% for obj in history %}
                             <tr>
                                 <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                                <td><a href="{% url 'entry_details' slug=obj.get_entry.slug %}">{{ obj.get_entry.name }}</a></td>
+                                <td><a href="{{ obj.get_entry }}">{{ obj.get_entry.name }}</a></td>
                                 <td>{{ obj.rate }}</td>
                                 <td>{{ obj.rated_after_days_diff }} days</td>
                             </tr>

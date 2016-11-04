@@ -44,7 +44,8 @@ $(document).ready(function() {
 
     // when on title page you click 1 of 10 stars
     $('input[name="rating"').change(function() {
-        ajax_request({'value': this.value}, true);
+        $("#star_rating_form").submit();
+//        ajax_request({'value': this.value, 'checkbox': $('input[name="insert_as_new"').val()}, true);
     });
 
     // now it's not needed because order is saved without button click
@@ -75,11 +76,13 @@ function ajax_request(data, refresh = false, destination = this.href) {
     $.ajax({
         data: data,
         type: 'POST',
-        url: destination
+        url: destination,
+        success: function() {
+//            if (refresh) {
+//                window.location.reload(false);
+//            }
+        }
     });
-    if (refresh) {
-        window.location.reload(false);
-    }
 }
 
 var csrftoken = getCookie('csrftoken');

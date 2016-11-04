@@ -4,6 +4,7 @@ from .forms import RegisterForm, LoginForm, EditProfileForm
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from .models import UserProfile, UserFollow
+from common.prepareDB import update_from_csv, update_from_rss
 
 
 def register(request):
@@ -50,10 +51,11 @@ def login(request):
 
 
 def user_edit(request, username):
-    if not request.user.username == username:
-        messages.info(request, 'You can edit only your profile', extra_tags='alert-info')
-        return redirect(reverse('user_profile', kwargs={'username': username}))
     profile = UserProfile.objects.get(user__username=username)
+    if not request.user == profile.user:
+        messages.info(request, 'You can edit only your profile', extra_tags='alert-info')
+        return redirect(profile)
+
     form = EditProfileForm(instance=profile)
     if request.method == 'POST':
         form = EditProfileForm(request.POST, request.FILES, instance=profile)
@@ -73,7 +75,11 @@ def logout(request):
 
 
 def user_list(request):
-    list_of_users = User.objects.exclude(username=request.user.username) if request.user.is_authenticated() else User.objects.all()
+    if not request.GET.get('s'):
+        list_of_users = User.objects.exclude(
+            username=request.user.username) if request.user.is_authenticated() else User.objects.all()
+    else:
+        list_of_users = User.objects.filter(rating__title__slug=request.GET['s'])
     context = {
         'title': 'User list',
         'user_list': list_of_users,
@@ -86,13 +92,22 @@ def user_profile(request, username):
     if request.method == 'POST':
         if not request.user.is_authenticated():
             messages.error(request, 'You must be logged in to follow somebody')
-            return redirect(reverse('user_profile', kwargs={'username': username}))
-
+            return redirect(user.userprofile)
         if request.POST.get('follow'):
             UserFollow.objects.create(user_follower=request.user, user_followed=user)
+            messages.info(request, '{} has been followed'.format(user.username))
         elif request.POST.get('unfollow'):
             UserFollow.objects.filter(user_follower=request.user, user_followed=user).delete()
-        return redirect(reverse('user_profile', kwargs={'username': username}))
+            messages.info(request, '{} has been unfollowed'.format(user.username))
+        elif request.POST.get('update_csv') and user.userprofile.imdb_ratings:
+            update_from_csv(user)
+            # these functions can return something so user know what was added
+            messages.info(request, 'updated csv')
+        elif request.POST.get('update_rss') and user.userprofile.imdb_id:
+            update_from_rss(user)
+            # these functions can return something so user know what was added
+            messages.info(request, 'updated rss')
+        return redirect(user.userprofile)
 
     can_follow = not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists()\
         if request.user.is_authenticated() else None

@@ -6,10 +6,10 @@
     <hr>
     {% for obj in genre %}
         <div class="col-xs-4 col-md-2">
-            <p><a href="{% url 'explore' %}?g={{ obj.name }}"
+            <p><a href="{{ obj.get_absolute_url }}"
                   data-toggle="tooltip" data-placement="right"
-                  title="{{ obj.entry_set.count }} title{{ obj.entry_set.count|pluralize }}">{{ obj.name }}</a>
-                <span class="visible-xs-inline"><small> ({{ obj.entry_set.count }})</small></span>
+                  title="{{ obj.num }} title{{ obj.entry_set.count|pluralize }}">{{ obj.name }}</a>
+                <span class="visible-xs-inline"><small> ({{ obj.num }})</small></span>
             </p>
         </div>
     {% endfor %}

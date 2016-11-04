@@ -7,7 +7,7 @@
             {% for entry in ratings %}
             <li id="item-{{ entry.title.const }}" class="ui-state-default">
                 <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
-                <a href="{% url 'entry_details' slug=entry.title.slug %}">{{ entry.title.name }}</a>
+                <a href="{{ entry.title }}">{{ entry.title.name }}</a>
                 <p class="item-order">{{ entry.order }}</p>
             </li>
             {% endfor %}

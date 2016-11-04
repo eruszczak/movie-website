@@ -10,7 +10,7 @@ class Genre(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
     def get_absolute_url(self):
-        return reverse('explore')
+        return reverse('explore') + '?g={}'.format(self.name)
 
     def __str__(self):
         return self.name
@@ -19,6 +19,9 @@ class Genre(models.Model):
 class Director(models.Model):
     name = models.CharField(max_length=150, unique=True)
 
+    def get_absolute_url(self):
+        return reverse('explore') + '?d={}'.format(self.id)
+
     def __str__(self):
         return self.name
 
@@ -26,12 +29,18 @@ class Director(models.Model):
 class Actor(models.Model):
     name = models.CharField(max_length=150, unique=True)
 
+    def get_absolute_url(self):
+        return reverse('explore') + '?a={}'.format(self.id)
+
     def __str__(self):
         return self.name
 
 
 class Type(models.Model):
     name = models.CharField(max_length=50, unique=True)
+
+    def get_absolute_url(self):
+        return reverse('explore') + '?t={}'.format(self.name)   # todo
 
     def __str__(self):
         return self.name
@@ -79,7 +88,7 @@ class Title(models.Model):
         return '{} {}'.format(self.name, self.year)
 
     def get_absolute_url(self):
-        return reverse('entry_details', kwargs={'slug': self.slug})
+        return reverse('title_details', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -96,20 +105,19 @@ class Rating(models.Model):
     rate_date = models.DateField()
 
     class Meta:
-        unique_together = ('user', 'title', 'rate', 'rate_date')
+        unique_together = ('user', 'title', 'rate_date')
         ordering = ('-rate_date', )
 
     def __str__(self):
         return '{} {}'.format(self.title.name, self.rate_date)
 
-    # rating manager -> Watchlist.objects.current rating for user
     @property
-    def current_rating(self):
-        return Rating.objects.filter(user=self.user).filter(title=self.title).first()
+    def is_current_rating(self):
+        return self == Rating.objects.filter(user=self.user, title=self.title).first()
 
     @property
     def next_rating_days_diff(self):
-        next_rating = Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.rate_date).last()
+        next_rating = Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.rate_date).last()   # not sure about last()
         if next_rating:
             return (next_rating.rate_date - self.rate_date).days
         return (datetime.now().date() - self.rate_date).days
@@ -138,21 +146,24 @@ class Watchlist(models.Model):
 
     class Meta:
         ordering = ('-added_date', )
-        unique_together = ('user', 'title', 'added_date', 'imdb')
+        unique_together = ('user', 'title')
 
     def __str__(self):
         return '{} {}'.format(self.title.name, self.title.year)
+
+    def get_absolute_url(self):
+        return reverse('watchlist', kwargs={'username': self.user.username})
 
     @property
     def is_rated_with_later_date(self):
         return Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.added_date).exists()  # , title__watchlist__imdb=True
 
-    # in view send property above and in template use property below
     @property
     def rated_after_days_diff(self):
         rating = Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.added_date).last()
         if rating:
             return rating.rate_date - self.added_date
+        return None
 
 
 class Favourite(models.Model):
@@ -164,5 +175,9 @@ class Favourite(models.Model):
     def __str__(self):
         return '{} {}'.format(self.title.name, self.title.year)
 
+    def get_absolute_url(self):
+        return reverse('favourite', kwargs={'username': self.user.username})
+
     class Meta:
         ordering = ('order', )
+        unique_together = ('user', 'title')
