@@ -1,12 +1,11 @@
+import os
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
-
-from django.db.models import Count
 from django.forms import ValidationError
-import os
 from recommend.models import Recommendation
 from movie.models import Rating
+from django.core.urlresolvers import reverse
 
 
 def update_filename(instance, filename):
@@ -34,9 +33,24 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
 
+    def get_absolute_url(self):
+        return reverse('user_profile', kwargs={'username': self.user.username})
+
+    def watchlist_url(self):
+        return reverse('watchlist', kwargs={'username': self.user.username})
+
+    def favourite_url(self):
+        return reverse('favourite', kwargs={'username': self.user.username})
+
+    def recommend_url(self):
+        return reverse('recommend', kwargs={'username': self.user.username})
+
+    def ratings_url(self):
+        return reverse('explore') + '?u={}'.format(self.user.username)
+
     @property
     def count_ratings(self):
-        return Rating.objects.filter(user=self.user).annotate(Count('title', distinct=True)).count()
+        return Rating.objects.filter(user=self.user).values('title').order_by('-title').distinct().count()
 
 
 class UserFollow(models.Model):

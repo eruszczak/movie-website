@@ -17,7 +17,7 @@ def recommend(request, username):
         obj_to_delete = request.POST.get('delete_watchlist')
         if obj_to_delete and user == request.user:
             Recommendation.objects.filter(id=obj_to_delete).delete()
-            return redirect(reverse("recommend", kwargs={'username': username}))
+            return redirect(user.userprofile.recommend_url())
         form = RecommendForm(request.POST)
         if form.is_valid():
             instance = Recommendation()
@@ -36,7 +36,7 @@ def recommend(request, username):
             instance.note = form.cleaned_data.get('note')
             instance.save()
             messages.success(request, 'added recommendation', extra_tags='alert-success')
-            return redirect(reverse("recommend", kwargs={'username': username}))
+            return redirect(user.userprofile.recommend_url())
     else:
         form = RecommendForm()
     context = {

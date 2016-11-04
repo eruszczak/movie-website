@@ -24,7 +24,7 @@
                     {% for obj in ratings %}
                     <tr>
                         <th scope="row" class="text-center">{{ forloop.counter0|add:ratings.start_index }}</th>
-                        <td><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }}</a></td>
+                        <td><a href="{{ obj }}">{{ obj.name }}</a></td>
                         <td>{{ obj.year }}</td>
                         <td>{{ obj.rate_imdb }}</td>
                         <td>{{ obj.votes }}</td>

@@ -12,7 +12,7 @@
             <tbody>
                 {% for user in user_list %}
                 <tr>
-                    <td class="col-md-9" style="padding-left: 20px"><a href="{% url 'user_profile' username=user.username %}">{{ user.username }}</a></td>
+                    <td class="col-md-9" style="padding-left: 20px"><a href="{{ user.userprofile }}">{{ user.username }}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

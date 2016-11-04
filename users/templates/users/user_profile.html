@@ -15,23 +15,36 @@
 
 			<div class="col-xs-6 col-sm-3 col-md-3">
 				<ul class="list-group" style="margin-left: -10px">
-					<li class="list-group-item"><a href="{% url 'watchlist' username=choosen_user.username %}">watchlist</a></li>
-					<li class="list-group-item"><a href="{% url 'favourites' username=choosen_user.username %}">favourites</a></li>
-					<li class="list-group-item"><a href="{% url 'recommend' username=choosen_user.username %}">recommend</a></li>
-					{% if is_owner %}
-					<li class="list-group-item"><a href="{% url 'user_edit' username=choosen_user.username %}">edit</a></li>
-					{% endif %}
-					{% if request.user.is_authenticated and not is_owner %}
+					<li class="list-group-item"><a href="{{ choosen_user.userprofile.watchlist_url }}">watchlist</a></li>
+					<li class="list-group-item"><a href="{{ choosen_user.userprofile.favourite_url }}">favourites</a></li>
+					<li class="list-group-item"><a href="{{ choosen_user.userprofile.recommend_url }}">recommend</a></li>
+					<li class="list-group-item"><a href="{{ choosen_user.userprofile.ratings_url }}">ratings</a></li>
+				{% if is_owner %}
+					<li class="list-group-item"><a href="{% url 'user_edit' choosen_user.username %}">edit</a></li>
+				{% endif %}
+				{% if request.user.is_authenticated and not is_owner %}
 					<li class="list-group-item">
 						<form id="follow_user" method="post">{% csrf_token %}
-							{% if can_follow %}
+						{% if can_follow %}
 							<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="follow" value="follow">Follow user</button>
-							{% else %}
+						{% else %}
 							<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfollow" value="unfollow">Unfollow user</button>
-							{% endif %}
+						{% endif %}
 						</form>
 					</li>
-					{% endif %}
+				{% endif %}
+				{% if is_owner %}
+					<li class="list-group-item">
+						<form id="update_ratings" method="post">{% csrf_token %}
+						{% if user.userprofile.imdb_id %}
+							<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="update_rss" value="update_rss">update rss</button>
+						{% endif %}
+						{% if user.userprofile.imdb_ratings %}
+							<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="update_csv" value="update_csv">update csv</button>
+						{% endif %}
+						</form>
+					</li>
+				{% endif %}
 				</ul>
 			</div>
 		</div>

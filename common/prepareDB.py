@@ -1,9 +1,8 @@
 import csv
 import os
 import sys
-from .utils import prepare_json
-from mysite.settings.base import MEDIA_ROOT
-from .prepareDB_utils import convert_to_datetime, get_rss, get_omdb, unpack_from_rss_item, get_and_assign_poster
+from django.conf import settings
+from .prepareDB_utils import convert_to_datetime, get_rss, get_omdb, unpack_from_rss_item, get_and_assign_poster, prepare_json
 from django.contrib.auth.models import User
 from movie.models import Title, Type, Genre, Actor, Director, Watchlist, Rating
 
@@ -80,7 +79,7 @@ def get_watchlist(user):
 # valid imdb_id
 
 def update_from_csv(user):
-    path = os.path.join(MEDIA_ROOT, str(user.userprofile.imdb_ratings))
+    path = os.path.join(settings.MEDIA_ROOT, str(user.userprofile.imdb_ratings))
     if os.path.isfile(path):
         print('update_from_csv:', user)
         with open(path, 'r') as f:
