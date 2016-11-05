@@ -3,7 +3,7 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="row" style="margin-top:-35px;">
+<div class="row lower">
 	<div class="col-md-12">
 		<div class="page-header">
 			<h1 class="text-center">{{ choosen_user.username }}</h1>
@@ -14,7 +14,7 @@
 			</div>
 
 			<div class="col-xs-6 col-sm-3 col-md-3">
-				<ul class="list-group" style="margin-left: -10px">
+				<ul class="list-group marginleft">
 					<li class="list-group-item"><a href="{{ choosen_user.userprofile.watchlist_url }}">watchlist</a></li>
 					<li class="list-group-item"><a href="{{ choosen_user.userprofile.favourite_url }}">favourites</a></li>
 					<li class="list-group-item"><a href="{{ choosen_user.userprofile.recommend_url }}">recommend</a></li>

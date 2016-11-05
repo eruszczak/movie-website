@@ -3,6 +3,8 @@
 {% block content %}
 <div class="row">
     <div class="col-md-12">
+    {% if not search_for_title %}
+        List of users
         <table class="table table-hover table-bordered table-condensed">
             <thead>
                 <tr>
@@ -11,12 +13,36 @@
             </thead>
             <tbody>
                 {% for user in user_list %}
+
                 <tr>
-                    <td class="col-md-9" style="padding-left: 20px"><a href="{{ user.userprofile }}">{{ user.username }}</a></td>
+                    <td class="col-md-9 paddingleft"><a href="{{ user.userprofile }}">{{ user.username }}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+    {% else %}
+        Users who saw <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a>
+        <table class="table table-hover table-bordered table-condensed">
+            <thead>
+                <tr>
+                    <th class="text-center">username</th>
+                    <th class="text-center">stars</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in search_for_title %}
+                <tr>
+                    <td class="col-md-9 paddingleft"><a href="{{ user.userprofile }}">{{ user.username }}</a></td>
+                    <td class="col-md-9">
+                    {% for i in 'xxxxxxxxxx' %}
+                        <i class="fa {% if forloop.counter <= user.current_rating %}fa-star{% else %}fa-star-o{% endif %}" aria-hidden="true"></i>
+                    {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
     </div>
 </div>
 {% endblock %}

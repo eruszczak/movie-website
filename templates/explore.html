@@ -4,8 +4,8 @@
 <div class="row">
     <div class="col-md-12">
         <div class="text-center">
-            <a href="{% url 'entry_groupby_year' %}" class="btn btn-info" role="button">All years</a>
-            <a href="{% url 'entry_groupby_genre' %}" class="btn btn-info" role="button">All genres</a>
+            <a href="{% url 'groupby_year' %}" class="btn btn-info" role="button">All years</a>
+            <a href="{% url 'groupby_genre' %}" class="btn btn-info" role="button">All genres</a>
         </div>
         <p class="lead text-center search_summary">{{ ratings.paginator.count }}{% if query %} results for '{{ query }}' {% else %} ratings{% endif %}
         {% if selected_type %} ({{ selected_type }}){% endif %}</p>
@@ -28,7 +28,7 @@
                 {% for obj in ratings %}
                 <tr class="{% if obj.user == request.user %}taaaa{% endif %}">
                     <th scope="row" class="col-md-1 text-center {% if obj.seen_by_user %}color-watched{% endif %}">{{ forloop.counter0|add:ratings.start_index }}</th>
-                    <td class="col-md-9" style="padding-left: 20px"><a href="{% url 'entry_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a></td>
+                    <td class="col-md-9 paddingleft"><a href="{{ obj.get_absolute_url }}">{{ obj.name }} ({{ obj.year }})</a></td>
                     {% if request.user.is_authenticated %}
                         <td class="text-center">
                             <form action="" method="post">{% csrf_token %}

@@ -271,3 +271,19 @@ p.item-order {float: right}
 .color-watched {
     background-color: #4fc33f;
 }
+
+.lower {
+    margin-top: -35px;
+}
+
+.marginleft {
+    margin-left: -10px;
+}
+
+.paddingleft {
+    padding-left: 20px
+}
+
+.displaynone {
+    display: none;
+}

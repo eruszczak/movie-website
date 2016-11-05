@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from .models import UserProfile, UserFollow
 from common.prepareDB import update_from_csv, update_from_rss
+from movie.models import Title
 
 
 def register(request):
@@ -18,7 +19,7 @@ def register(request):
         profile.user = user
         profile.save()
         message = 'Successful registration'
-        if request.POST.get('login_after') == 'on':
+        if request.POST.get('login_after'):
             created_user = auth.authenticate(username=user.username, password=request.POST.get('password'))
             auth.login(request, created_user)
             message += '. You have been logged in'
@@ -75,15 +76,21 @@ def logout(request):
 
 
 def user_list(request):
-    if not request.GET.get('s'):
-        list_of_users = User.objects.exclude(
-            username=request.user.username) if request.user.is_authenticated() else User.objects.all()
+    context = {'title': 'User list'}
+    if request.GET.get('s'):
+        title = get_object_or_404(Title, slug=request.GET['s'])
+        list_of_users = User.objects.filter(rating__title=title).distinct()     # todo ordering, show stars
+        users = User.objects.extra(select={
+            'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
+                WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s LIMIT 1""",
+            }, select_params=[title.id])
+        context['search_for_title'] = users
+        context['searched_title'] = title
+    elif request.user.is_authenticated():
+        list_of_users = User.objects.exclude(pk=request.user.pk)
     else:
-        list_of_users = User.objects.filter(rating__title__slug=request.GET['s'])
-    context = {
-        'title': 'User list',
-        'user_list': list_of_users,
-    }
+        list_of_users = User.objects.all()
+    context['user_list'] = list_of_users
     return render(request, 'users/user_list.html', context)
 
 
