@@ -4,7 +4,7 @@
 {% block title %}{{ entry.name }}{% endblock %}
 {% block content %}
 
-<div class="row" style="margin-top:-35px;">
+<div class="row lower">
 	<div class="col-md-12">
 		<div class="page-header">
 			<h1 class="text-center">{{ entry.name }}</h1>
@@ -15,7 +15,7 @@
 			</div>
 
 			<div class="col-xs-6 col-sm-3 col-md-3">
-				<ul class="list-group" style="margin-left: -10px">
+				<ul class="list-group marginleft">
 					<li class="list-group-item"><a href="{% url 'explore' %}?y={{ entry.year }}">{{ entry.year }}</a></li>
 					<li class="list-group-item">
 					{% for genre in entry.genre.all %}
@@ -39,20 +39,10 @@
                     <li class="list-group-item">Average ratings: {{ average_rating }} <a href="{% url 'user_list' %}?s={{ entry.slug }}">click</a></li>
                     {% endif %}
 
-					{% comment %}
-					<li class="list-group-item">rated on: <a href="{{ link_month }}">{{ entry.rate_date|date:"d.m.Y" }}</a>
-						{% if entry.yesterday_today_month %}
-							<span class="label {% if entry.yesterday_today_month == 'this month' %}label-info{% else %}label-warning{% endif %}">
-								{{ entry.yesterday_today_month }}
-							</span>
-						{% endif %}
-					</li>
-					{% endcomment %}
-
 					{% if request.user.is_authenticated %}
 					<li class="list-group-item">
 					{% if user_ratings_of_title %}
-						<a href="{% url 'entry_edit' slug=entry.slug %}" class="label label-default">change rating</a>
+						<a href="{% url 'title_edit' slug=entry.slug %}" class="label label-default">change rating</a>
 					{% endif %}
 						<form action="" method="post">{% csrf_token %}
 						{% if is_in_user_watchlist %}
@@ -82,6 +72,7 @@
 				</ul>
 			</div>
 		</div>
+
 		{% if request.user.is_authenticated %}
 		<form id="star_rating_form" action="" method="post">{% csrf_token %}
 			<span class="starRating">
@@ -91,7 +82,6 @@
 			  	{% endfor %}
 		  	</span>
             {% if user_ratings_of_title %}
-            <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating">delete_rating</button>
 			<div class="checkbox">
 				<label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>
             </div>
@@ -108,7 +98,9 @@
 				{{ entry.plot }}
 			</div>
 		</div>
-
+<!--<span class="label {% if entry.yesterday_today_month == 'this month' %}label-info{% else %}label-warning{% endif %}">-->
+<!--{{ entry.yesterday_today_month }}-->
+<!--</span>-->
 		<div class="row">
 			<div class="col-md-2 hidden-xs"></div>
 			<div class="col-xs-2 visible-xs"></div>
@@ -122,14 +114,21 @@
 								<th class="text-center">title</th>
 								<th class="text-center">rating</th>
 								<th class="text-center">rated</th>
+								<th class="text-center">delete</th>
 							</tr>
 						</thead>
                     	<tbody>
-						{% for a in user_ratings_of_title %}
+						{% for rating in user_ratings_of_title %}
 							<tr>
-								<td class=""><a href="{% url 'entry_show_rated_in_month' year=a.rate_date|date:'Y' month=a.rate_date|date:'m' %}">{{ a.rate_date|date:"Y-m-d" }}</a></td>
-								<td class=""><a href="{% url 'explore' %}?r={{ a.rate }}">{{ a.rate }}</a></td>
-								<td class="text-center">duration: {{ a.next_rating_days_diff }} days</td>
+								<td class=""><a href="{% url 'explore' %}?year={{ rating.rate_date|date:'Y' }}&month={{ rating.rate_date|date:'m' }}">{{ rating.rate_date|date:"Y-m-d" }}</a></td>
+								<td class=""><a href="{% url 'explore' %}?r={{ a.rate }}">{{ rating.rate }}</a></td>
+								<td class="text-center">duration: {{ rating.next_rating_days_diff }} days</td>
+								<td>
+									<form action="" method="post">{% csrf_token %}
+										<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating">delete_rating</button>
+										<input type="hidden" name="rating_pk" value="{{ rating.pk }}">
+									</form>
+								</td>
 							</tr>
 						{% endfor %}
 						<tbody>
@@ -143,39 +142,12 @@
 				<ul>
 					<li><a href="{{ entry.url_imdb }}">imdb</a></li>
 					<li><a href="{{ entry.url_tomato }}">rotten tomatoes</a></li>
-					<li><a href="{% url 'entry_details_redirect' const=entry.const %}">shorter link</a></li>
+					<li><a href="{% url 'title_details_redirect' const=entry.const %}">shorter link</a></li>
 				</ul>
 				Last updated: {{ entry.last_updated|date:"Y-m-d" }}
 			</div>
 		</div>
 
-		{% comment %}
-		<br>
-		{% if episodes %}
-			<div class="row">
-				<div class="col-xs-7">
-					{% for season, eps in episodes %}
-					<div id="accordion" role="tablist" aria-multiselectable="true">
-					  <div class="panel panel-default">
-						<div class="panel-heading" role="tab" id="heading{{season}}">
-						  <h4 class="panel-title">
-							<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{season}}" aria-expanded="true" aria-controls="collapse{{season}}">
-							  season {{ season }}
-							</a>
-						  </h4>
-						</div>
-						<div id="collapse{{season}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{season}}">
-							{% for e in eps %}
-								{{ e.number }} {{ e.name }} <br>
-							{% endfor %}
-						</div>
-					  </div>
-					</div>
-						{% endfor %}
-				</div>
-			</div>
-		{% endif %}
-		{% endcomment %}
     </div>
 </div>
 {% endblock %}

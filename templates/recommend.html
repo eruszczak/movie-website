@@ -78,7 +78,7 @@
         {% for obj in obj_list %}
         <tr class="">
             <th scope="row" class="col-md-1 text-center">{{ forloop.counter }}</th>
-            <td class=""><a href="{% url 'entry_details' slug=obj.title.slug %}" target="">{{ obj.title.name }}</a> ({{ obj.title.year }})</td>
+            <td class=""><a href="{{ obj.title.get_absolute_url }}" target="">{{ obj.title.name }}</a> ({{ obj.title.year }})</td>
             <td class="col-md-2 text-center">{{ obj.added_date|date:"Y-m-d" }}</td>
             <td class="col-md-1 text-center">{% if not obj.is_active %}<i class="fa fa-check" aria-hidden="true"></i>{% else %}<i class="fa fa-times" aria-hidden="true"></i>{% endif %}</td>
             <td class="col-md-2 text-center" {% if obj.note %}data-toggle="tooltip" data-placement="left" title="{{ obj.note }}"{% endif %}>

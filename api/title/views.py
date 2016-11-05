@@ -38,7 +38,7 @@ class TitleListView(ListAPIView):
             # queryset = queryset.filter(rate_date__year=rated_year),
             # queryset = Title.objects.filter(rate_date__year=rated_year, rate_date__month=rated_month)
         if genre:
-            queryset = Genre.objects.get(name=genre).entry_set.all()
+            queryset = Genre.objects.get(name=genre).title_set.all()
         return queryset
 
 
@@ -111,7 +111,7 @@ class GenreDetailView(ListAPIView):
 #                 (calendar.month_abbr[int(month.lstrip('0'))], {
 #                     'count': value,
 #                     'details': build_url(abs_url, get={'rated_year': year, 'rated_month': month}),
-#                     # 'link': reverse('entry_show_rated_in_month', kwargs={'year': year, 'month': month})
+#                     # 'link': reverse('titles_rated_in_month', kwargs={'year': year, 'month': month})
 #                 })
 #                 for value, month in count_per_month
 #             )

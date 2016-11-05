@@ -78,7 +78,7 @@ def explore(request):
         )
     else:
         titles = Title.objects.all()
-    query_string = ''   # this is needed for a button prev/next in pagination while searching
+    query_string = ''   # this is needed for pagination buttons while searching
 
     year = request.GET.get('y')
     if year:
@@ -132,9 +132,10 @@ def explore(request):
             titles = titles.filter(rating__user=request.user, rating__rate=rating)
             query_string += '{}={}&'.format('r', rating)
 
-    rate_date_year, rate_date_month = request.POST.get('year'), request.POST.get('month')
+    # only if you specified ?u= or you are logged in
+    rate_date_year, rate_date_month = request.GET.get('year'), request.GET.get('month')
     if rate_date_year and (user or request.user.is_authenticated()):
-        # so here rating are already filtered for user if 'user'
+        # if user: ratings are already filtered for him
         if not user:
             titles = titles.filter(rating__user=request.user)
         if rate_date_year and rate_date_month:
@@ -146,23 +147,21 @@ def explore(request):
             query_string += '{}={}&'.format('year', rate_date_year)
     # way to show rated 'in range' and the same for other users
     # ORDERING!
-    # any invalid options can cause an error?
-    # eg. when searching year/month or smth
+    # any invalid options can cause an error? # eg. when searching year/month or smth
+
     page = request.GET.get('page')
     ratings = paginate(titles, page)
 
     if query_string:
-        query_string = '?' + query_string
-        query_string += 'page='
+        query_string = '?' + query_string + 'page='
 
-    # ratings = ((Rating.objects.filter(user=user, title=x).first(), x) for x in ratings)   # todo
     context = {
         'ratings': ratings,
         'query': query,
         'selected_type': selected_type,
         'genres': Genre.objects.annotate(num=Count('title')).order_by('-num'),
         # 'users': User.objects.annotate(num=Count('title')).order_by('-num'),
-        'list_of_users': User.objects.all() if not request.user.is_authenticated() else User.objects.exclude(username=request.user.username),
+        'list_of_users': User.objects.all() if not request.user.is_authenticated() else User.objects.exclude(pk=request.user.pk),
         'query_string': query_string,
     }
     return render(request, 'explore.html', context)
@@ -211,29 +210,32 @@ def title_details(request, slug):
                 if not Recommendation.objects.filter(user=choosen_user, title=title).exists()\
                         or not Rating.objects.filter(user=choosen_user, title=title).exists():
                     Recommendation.objects.create(user=choosen_user, sender=request.user, title=title)
-        print(request.POST)
-        # new_rating = request.POST.get('value')
+
         new_rating = request.POST.get('rating')
-        x = request.POST.get('insert_as_new')
-        print(x)
-        # insert_as_new_rate instead of editing todo
         if new_rating:
             if current_rating and not request.POST.get('insert_as_new'):
                 current_rating.rate = new_rating
-                # current_rating.rate_date = datetime.today()
-                # maybe don't change a date.
-                # only when insert_as_new
-                # if i'll change date it will be inserted with another update (but it will be 'archived')
-                # unless you change rate date too in edit view
                 current_rating.save(update_fields=['rate'])
+            elif current_rating and request.POST.get('insert_as_new'):
+                ratings_from_today = Rating.objects.filter(user=request.user, title=title, rate_date=datetime.now())
+                if ratings_from_today.exists():
+                    # if you want to insert_as_new but it has been already rated today -> update only
+                    ratings_from_today.update(rate=new_rating)
+                else:
+                    Rating.objects.create(user=request.user, title=title, rate=new_rating, rate_date=datetime.now())
             else:
                 Rating.objects.create(user=request.user, title=title, rate=new_rating, rate_date=datetime.now())
 
         delete_rating = request.POST.get('delete_rating')
         if delete_rating:
-            current_rating.delete()
+            Rating.objects.filter(pk=request.POST.get('rating_pk'), user=request.user).delete()
         return redirect(title)
 
+    # followed = [obj.user_followed for obj in UserFollow.objects.filter(user_follower=request.user)
+    #             if not Recommendation.objects.filter(user=obj.user_followed, title=title).exists()
+    #             and not Rating.objects.filter(user=obj.user_followed, title=title).exists()]
+    # f = [obj.user_followed.id for obj in UserFollow.objects.filter(user_follower=request.user)
+    #      if Rating.objects.filter(user=obj.user_followed, title=title).exists()]
     context = {
         'entry': title,
         'user_ratings_of_title': user_ratings_of_title,
@@ -243,10 +245,8 @@ def title_details(request, slug):
         'rated_by': Rating.objects.filter(title=title).count(),  # todo count distinct for user
         'average_rating': average_rating_of_title(title),
         'loop': (n for n in range(10, 0, -1)),
+        # 'ratings_of_followed': Rating.objects.filter(title=title, user__id__in=f),
     }
-    if current_rating:
-        year, month = current_rating.rate_date.year, current_rating.rate_date.month
-        context['link_month'] = reverse('entry_show_rated_in_month', kwargs={'year': year, 'month': month})
     return render(request, 'title_details.html', context)
 
 
@@ -269,8 +269,6 @@ def title_edit(request, slug):
             if current_rating.rate_date != new_date:
                 message += ', ' if message else ''
                 message += 'date: {} changed for {}'.format(current_rating.rate_date, new_date)
-                # maybe don't change a date.
-                # only when insert_as_new
                 current_rating.rate_date = new_date
             if message:
                 messages.success(request, message, extra_tags='alert-success')
@@ -310,31 +308,6 @@ def groupby_director(request):
         # todo order by average imdb/users ratings of their movies // popularity of their movies
     }
     return render(request, 'groupby_director.html', context)
-
-
-def titles_rated_in_month(request, year, month):
-    # entries = Rating.objects.filter(user=request.user, rate_date__year=year, rate_date__month=month)
-    # check what other people rated in that month // maybe day
-    entries = Rating.objects.filter(rate_date__year=year, rate_date__month=month)
-    page = request.GET.get('page')
-    ratings = paginate(entries, page)
-    context = {
-        'ratings': ratings,
-        'title': '{} {}'.format(calendar.month_name[int(month)], year),
-    }
-    return render(request, 'title_from.html', context)
-
-
-def titles_from_rate(request, rate):
-    # entries = Rating.objects.filter(user=request.user, rate=rate)
-    entries = Rating.objects.filter(rate=rate)
-    page = request.GET.get('page')
-    ratings = paginate(entries, page)
-    context = {
-        'ratings': ratings,
-        'title': rate,
-    }
-    return render(request, 'title_from.html', context)
 
 
 def watchlist(request, username):
