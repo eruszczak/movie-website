@@ -14,6 +14,7 @@ class Recommendation(models.Model):
 
     class Meta:
         ordering = ('-added_date', )
+        unique_together = ('user', 'title')
 
     @property
     def is_active(self):
