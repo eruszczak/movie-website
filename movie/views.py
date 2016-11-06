@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q, When, Case, IntegerField
 from datetime import datetime
 from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites, paginate, average_rating_of_title
+from django.http import Http404
 
 
 def home(request):
@@ -173,21 +174,44 @@ def explore(request):
 
 
 def title_details(request, slug):
-    title = get_object_or_404(Title, slug=slug)
+    title = Title.objects.filter(slug=slug).first()
+    if not title:
+        # if no title -> check if this is imdb const
+        title = Title.objects.filter(const=slug).first()
+        if not title:
+            raise Http404
     if request.user.is_authenticated():
         user_ratings_of_title = Rating.objects.filter(user=request.user, title=title)
         current_rating = user_ratings_of_title.first()
         is_favourite_for_user = Favourite.objects.filter(user=request.user, title=title).exists()
         is_in_user_watchlist = Watchlist.objects.filter(user=request.user, title=title, deleted=False).exists()
-        followed = [obj.user_followed for obj in UserFollow.objects.filter(user_follower=request.user)
-                    if not Recommendation.objects.filter(user=obj.user_followed, title=title).exists()
-                    and not Rating.objects.filter(user=obj.user_followed, title=title).exists()]
+        # followed = [obj.user_followed for obj in UserFollow.objects.filter(user_follower=request.user)
+        #             if not Recommendation.objects.filter(user=obj.user_followed, title=title).exists()
+        #             and not Rating.objects.filter(user=obj.user_followed, title=title).exists()]
+        followed = UserFollow.objects.filter(user_follower=request.user).extra(select={
+            'latest_rate': """
+                SELECT rate from movie_rating as rating, movie_title as title
+                WHERE rating.title_id = title.id
+                AND rating.user_id = users_userfollow.user_followed_id
+                AND title.id = %s
+                ORDER BY rating.rate_date DESC LIMIT 1""",
+            'has_in_recommend': """
+                SELECT 1 from recommend_recommendation as recommend, movie_title as title
+                WHERE recommend.title_id = title.id
+                AND recommend.user_id = users_userfollow.user_followed_id
+                AND title.id = %s""",
+        }, select_params=[title.id] * 2)
+        # for checking if recommended can use CASE
+        followed_can_take_recommendation = [obj.user_followed for obj in followed
+                                            if not obj.latest_rate and not obj.has_in_recommend]
+        followed_saw_title = [obj for obj in followed if obj.latest_rate]
     else:
         user_ratings_of_title = None
         current_rating = None
         is_favourite_for_user = None
         is_in_user_watchlist = None
-        followed = None
+        followed_can_take_recommendation = None
+        followed_saw_title = None
 
     if request.method == 'POST':
         if not request.user.is_authenticated():
@@ -231,18 +255,13 @@ def title_details(request, slug):
             Rating.objects.filter(pk=request.POST.get('rating_pk'), user=request.user).delete()
         return redirect(title)
 
-    # followed = [obj.user_followed for obj in UserFollow.objects.filter(user_follower=request.user)
-    #             if not Recommendation.objects.filter(user=obj.user_followed, title=title).exists()
-    #             and not Rating.objects.filter(user=obj.user_followed, title=title).exists()]
-    # f = [obj.user_followed.id for obj in UserFollow.objects.filter(user_follower=request.user)
-    #      if Rating.objects.filter(user=obj.user_followed, title=title).exists()]
     context = {
         'entry': title,
         'user_ratings_of_title': user_ratings_of_title,
         'is_favourite_for_user': is_favourite_for_user,
         'is_in_user_watchlist': is_in_user_watchlist,
-        'followed_who_can_take_recommendation': followed,
-        'rated_by': Rating.objects.filter(title=title).count(),  # todo count distinct for user
+        'followed_can_take_recommendation': followed_can_take_recommendation,
+        'followed_saw_title': followed_saw_title,
         'average_rating': average_rating_of_title(title),
         'loop': (n for n in range(10, 0, -1)),
         # 'ratings_of_followed': Rating.objects.filter(title=title, user__id__in=f),
@@ -281,11 +300,6 @@ def title_edit(request, slug):
         'entry': title,
     }
     return render(request, 'title_edit.html', context)
-
-
-def title_details_redirect(request, const): # todo, id for very short url
-    title = get_object_or_404(Title, const=const)
-    return redirect(title)
 
 
 def groupby_year(request):

@@ -287,3 +287,10 @@ p.item-order {float: right}
 .displaynone {
     display: none;
 }
+
+#fav-icon {
+  background: none;
+  border: none;
+  color: red;
+  font-size: 18px;
+}

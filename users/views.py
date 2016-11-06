@@ -79,18 +79,19 @@ def user_list(request):
     context = {'title': 'User list'}
     if request.GET.get('s'):
         title = get_object_or_404(Title, slug=request.GET['s'])
-        list_of_users = User.objects.filter(rating__title=title).distinct()     # todo ordering, show stars
-        users = User.objects.extra(select={
+        users_who_saw_title = User.objects.filter(rating__title=title).distinct()     # todo ordering, show stars
+        users_who_saw_title = users_who_saw_title.extra(select={
             'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
                 WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s LIMIT 1""",
             }, select_params=[title.id])
-        context['search_for_title'] = users
+        context['users_who_saw_title'] = users_who_saw_title
         context['searched_title'] = title
     elif request.user.is_authenticated():
         list_of_users = User.objects.exclude(pk=request.user.pk)
+        context['user_list'] = list_of_users
     else:
         list_of_users = User.objects.all()
-    context['user_list'] = list_of_users
+        context['user_list'] = list_of_users
     return render(request, 'users/user_list.html', context)
 
 

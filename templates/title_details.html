@@ -13,7 +13,6 @@
 			<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
 				<img class="img-responsive img-thumbnail" src="{% if entry.img %}{{ entry.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
 			</div>
-
 			<div class="col-xs-6 col-sm-3 col-md-3">
 				<ul class="list-group marginleft">
 					<li class="list-group-item"><a href="{% url 'explore' %}?y={{ entry.year }}">{{ entry.year }}</a></li>
@@ -44,7 +43,7 @@
 					{% if user_ratings_of_title %}
 						<a href="{% url 'title_edit' slug=entry.slug %}" class="label label-default">change rating</a>
 					{% endif %}
-						<form action="" method="post">{% csrf_token %}
+						<input action="" method="post">{% csrf_token %}
 						{% if is_in_user_watchlist %}
 							<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="unwatch">Don't want to see again</button>
 						{% else %}
@@ -55,17 +54,32 @@
 							<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="unfav">unfavourite</button>
 						{% else %}
 							<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav">favourite</button>
+							<button id="fav-icon" type="submit">
+								<i class="fa fa-heart" aria-hidden="true"></i>
+							</button>
 						{% endif %}
-						{% if followed_who_can_take_recommendation %}
+						{% if followed_can_take_recommendation %}
 							<select class="selectpicker show-tick" name="choose_followed_user"
 									multiple title="Recommend to" data-width="auto" data-size="5"
 									data-actions-box="true" data-live-search="true">
-							{% for user in followed_who_can_take_recommendation %}
+							{% for user in followed_can_take_recommendation %}
 								<option value="{{ user.username }}" data-subtext="{{ user.userprofile.count_ratings }} ratings">{{ user.username }}</option>
 							{% endfor %}
 							</select>
 							<button class="btn btn-sm" type="submit" name="select_followed_users" value="select">Recommend</button>
 						{% endif %}
+						<!--{% if followed_who_can_take_recommendation %}-->
+							<!--<select class="selectpicker show-tick" name="choose_followed_user"-->
+									<!--multiple title="Recommend to" data-width="auto" data-size="5"-->
+									<!--data-actions-box="true" data-live-search="true">-->
+							<!--{% for user in followed_who_can_take_recommendation %}-->
+								<!--{% if not user.seen_by_followed and not user.has_in_recommend %}-->
+								<!--<option value="{{ user.user_followed.username }}" data-subtext="{{ user.user_followed.userprofile.count_ratings }} ratings">{{ user.user_followed.username }}</option>-->
+								<!--{% endif %}-->
+							<!--{% endfor %}-->
+							<!--</select>-->
+							<!--<button class="btn btn-sm" type="submit" name="select_followed_users" value="select">Recommend</button>-->
+						<!--{% endif %}-->
 						</form>
 					</li>
 					{% endif %}
@@ -142,11 +156,19 @@
 				<ul>
 					<li><a href="{{ entry.url_imdb }}">imdb</a></li>
 					<li><a href="{{ entry.url_tomato }}">rotten tomatoes</a></li>
-					<li><a href="{% url 'title_details_redirect' const=entry.const %}">shorter link</a></li>
 				</ul>
 				Last updated: {{ entry.last_updated|date:"Y-m-d" }}
 			</div>
 		</div>
+		{% if followed_saw_title %}
+		<div class="row">
+		{% for user in followed_saw_title %}
+			{% if user.latest_rate %}
+			<p><img src="{{ user.user_followed.userprofile.picture }}">{{ user.user_followed.username }} -- {{ user.latest_rate }}</p>
+			{% endif %}
+		{% endfor %}
+		</div>
+		{% endif %}
 
     </div>
 </div>

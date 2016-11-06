@@ -30,16 +30,11 @@ def alter_title_in_favourites(user, title, fav=None, unfav=None):
 
 
 def average_rating_of_title(title):
-    # avg_all_ratings = title.rating_set.values('rate').aggregate(avg=Avg('rate'))
-    sum_rate = 0
-    ids_of_users = title.rating_set.values_list('user', flat=True).order_by('user').distinct()
-    title_ratings = Rating.objects.filter(title=title)
-    for user_id in ids_of_users:
-        latest_rating = title_ratings.filter(user__id=user_id).first()
-        sum_rate += latest_rating.rate
-    if sum_rate:
-        avg_rate = round(sum_rate / len(ids_of_users), 1)
-        return '{} ({} users)'.format(avg_rate, len(ids_of_users))
+    current_ratings = Rating.objects.filter(title=title).order_by('user', '-rate_date').distinct('user').values_list(
+        'rate', flat=True)
+    if current_ratings.exists():
+        avg_rate = sum(rate for rate in current_ratings) / current_ratings.count()
+        return '{} ({} users)'.format(round(avg_rate, 1), current_ratings.count())
     return None
 
 
