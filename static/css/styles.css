@@ -294,3 +294,15 @@ p.item-order {float: right}
   color: red;
   font-size: 18px;
 }
+
+.margintop {
+    margin-top: 10px;
+}
+
+.increase {
+    color: green;
+}
+
+.decrease {
+    color: red;
+}

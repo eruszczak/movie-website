@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RecommendForm
@@ -14,9 +13,11 @@ def recommend(request, username):
     recommended_for_user = Recommendation.objects.filter(user=user)
     recommended_today = recommended_for_user.filter(added_date__date=date.today()).count()
     if request.method == 'POST':
-        obj_to_delete = request.POST.get('delete_watchlist')
-        if obj_to_delete and user == request.user:
-            Recommendation.objects.filter(id=obj_to_delete).delete()
+        if request.POST.get('delete_recommend'):
+            to_del = Recommendation.objects.filter(pk=request.POST.get('recommend_pk'), user=request.user).first()
+            if to_del.is_active():
+                to_del.delete()
+                messages.info(request, '')
             return redirect(user.userprofile.recommend_url())
         form = RecommendForm(request.POST)
         if form.is_valid():
@@ -44,7 +45,6 @@ def recommend(request, username):
         'form': form,
         'count': {
             'today': recommended_today,
-            'today2': recommended_today * 2,
             'active_recommendations': len([x for x in recommended_for_user if x.is_active]),
         },
         'is_owner': user == request.user,

@@ -47,7 +47,7 @@
         <hr>
         <h5 class="text-center">Progress bar for today's recommendations limit</h5>
         <div class="progress">
-          <div class="progress-bar progress-bar-{% if todays_count == 5 %}danger{% elif todays_count == 4 %}warning{% else %}info{% endif %}" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {{ count.today2 }}0%">
+          <div class="progress-bar progress-bar-{% if count.today == 5 %}danger{% elif count.today == 4 %}warning{% else %}info{% endif %}" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {{ count.today|add:count.today }}0%">
             <span class="sr-only"></span>{{ count.today }} / 5
           </div>
         </div>
@@ -80,7 +80,13 @@
             <th scope="row" class="col-md-1 text-center">{{ forloop.counter }}</th>
             <td class=""><a href="{{ obj.title.get_absolute_url }}" target="">{{ obj.title.name }}</a> ({{ obj.title.year }})</td>
             <td class="col-md-2 text-center">{{ obj.added_date|date:"Y-m-d" }}</td>
-            <td class="col-md-1 text-center">{% if not obj.is_active %}<i class="fa fa-check" aria-hidden="true"></i>{% else %}<i class="fa fa-times" aria-hidden="true"></i>{% endif %}</td>
+            <td class="col-md-1 text-center">
+            {% if not obj.is_active %}
+                <i class="fa fa-check" aria-hidden="true"></i>
+            {% else %}
+                <i class="fa fa-times" aria-hidden="true"></i>
+            {% endif %}
+            </td>
             <td class="col-md-2 text-center" {% if obj.note %}data-toggle="tooltip" data-placement="left" title="{{ obj.note }}"{% endif %}>
             {% if obj.sender %}
                 <a href="{{ obj.sender.userprofile }}">{{ obj.sender }}</a>
@@ -91,7 +97,8 @@
             {% if is_owner and obj.is_active %}
             <td class="col-md-1 text-center">
                 <form action="" method="post">{% csrf_token %}
-                    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_watchlist" value="{{ obj.id }}">delete</button>
+                    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_recommend" value="delete_recommend">delete</button>
+                    <input type="hidden" name="recommend_pk" value="{{ obj.pk }}">
                 </form>
             </td>
             {% endif %}

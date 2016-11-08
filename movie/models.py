@@ -1,9 +1,9 @@
 from django.core.urlresolvers import reverse
-from django.utils.text import slugify
 from django.utils import timezone
 from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
+from .utils.functions import create_slug
 
 
 class Genre(models.Model):
@@ -92,7 +92,7 @@ class Title(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.slug = slugify('{} {}'.format(self.name, self.year))
+            self.slug = create_slug(self)
         if not self.url_imdb:
             self.url_imdb = 'http://www.imdb.com/title/{}/'.format(self.const)
         super(Title, self).save(*args, **kwargs)
@@ -111,16 +111,34 @@ class Rating(models.Model):
     def __str__(self):
         return '{} {}'.format(self.title.name, self.rate_date)
 
+    def save(self, *args, **kwargs):
+        in_watchlist = Watchlist.objects.filter(user=self.user, title=self.title,
+                                                added_date__date__lte=self.rate_date, deleted=False).first()
+        if in_watchlist:
+            if in_watchlist.imdb:
+                in_watchlist.deleted = True
+                in_watchlist.save(update_fields=['deleted'])
+            else:
+                in_watchlist.delete()
+        super(Rating, self).save(*args, **kwargs)
+
     @property
     def is_current_rating(self):
         return self == Rating.objects.filter(user=self.user, title=self.title).first()
 
     @property
     def next_rating_days_diff(self):
-        next_rating = Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.rate_date).last()   # not sure about last()
+        next_rating = Rating.objects.filter(user=self.user, title=self.title, rate_date__gt=self.rate_date).last()
         if next_rating:
             return (next_rating.rate_date - self.rate_date).days
         return (datetime.now().date() - self.rate_date).days
+
+    def rated_before_rate_diff(self):
+        previous = Rating.objects.filter(user=self.user, title=self.title, rate_date__lt=self.rate_date).first()
+        print(previous)
+        if previous:
+            return self.rate - previous.rate
+        return None
 
 
 # class Season(models.Model):
@@ -151,6 +169,13 @@ class Watchlist(models.Model):
     def __str__(self):
         return '{} {}'.format(self.title.name, self.title.year)
 
+    def save(self, *args, **kwargs):
+        if not self.id and self.imdb:
+            rated_later = Rating.objects.filter(user=self.user, title=self.title, rate_date__gte=self.added_date.date())
+            if rated_later.exists():
+                self.deleted = True
+        super(Watchlist, self).save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('watchlist', kwargs={'username': self.user.username})
 
@@ -172,12 +197,12 @@ class Favourite(models.Model):
     added_date = models.DateTimeField(default=timezone.now)
     order = models.PositiveIntegerField(blank=True, null=True)
 
+    class Meta:
+        ordering = ('order', )
+        unique_together = ('user', 'title')
+
     def __str__(self):
         return '{} {}'.format(self.title.name, self.title.year)
 
     def get_absolute_url(self):
         return reverse('favourite', kwargs={'username': self.user.username})
-
-    class Meta:
-        ordering = ('order', )
-        unique_together = ('user', 'title')
