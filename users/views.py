@@ -4,7 +4,7 @@ from .forms import RegisterForm, LoginForm, EditProfileForm
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from .models import UserProfile, UserFollow
-from common.prepareDB import update_from_csv, update_from_rss
+from common.prepareDB import update_from_csv, update_from_rss, get_watchlist
 from movie.models import Title
 
 
@@ -97,6 +97,8 @@ def user_list(request):
 
 def user_profile(request, username):
     user = get_object_or_404(User, username=username)
+    # nooo
+    # need second form for 3 update buttons where I check if i am owner
     if request.method == 'POST':
         if not request.user.is_authenticated():
             messages.error(request, 'You must be logged in to follow somebody')
@@ -107,14 +109,29 @@ def user_profile(request, username):
         elif request.POST.get('unfollow'):
             UserFollow.objects.filter(user_follower=request.user, user_followed=user).delete()
             messages.info(request, '{} has been unfollowed'.format(user.username))
-        elif request.POST.get('update_csv') and user.userprofile.imdb_ratings:
-            update_from_csv(user)
-            # these functions can return something so user know what was added
-            messages.info(request, 'updated csv')
-        elif request.POST.get('update_rss') and user.userprofile.imdb_id:
-            update_from_rss(user)
-            # these functions can return something so user know what was added
-            messages.info(request, 'updated rss')
+        elif request.POST.get('update_csv') and user.userprofile.imdb_ratings and user == request.user:
+            message = 'Updated nothing using {}'.format(user.userprofile.imdb_ratings)
+            updated_titles = update_from_csv(user)
+            if updated_titles:
+                message = '(csv) Updated {} titles: '.format(len(updated_titles))
+                message += ', '.join(['<a href="{}">{}</a>'.format(obj.get_absolute_url(), obj.name) for obj in updated_titles])
+            messages.info(request, message, extra_tags='safe')
+        elif request.POST.get('update_rss') and user.userprofile.imdb_id and user == request.user:
+            message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/ratings">RSS</a>'.format(user.userprofile.imdb_id)
+            updated_titles = update_from_rss(user)
+            if updated_titles:
+                message = '(rss) Updated {} titles: '.format(len(updated_titles))
+                message += ', '.join(['<a href="{}">{}</a>'.format(obj.get_absolute_url(), obj.name) for obj in updated_titles])
+            messages.info(request, message, extra_tags='safe')
+        elif request.POST.get('update_watchlist') and user.userprofile.imdb_id and user == request.user:
+            message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/watchlist">RSS</a>'.format(
+                user.userprofile.imdb_id)
+            updated_titles = get_watchlist(user)
+            if updated_titles:
+                message = '(rss watchlist) Updated {} titles: '.format(len(updated_titles))
+                message += ', '.join(['<a href="{}">{}</a>'.format(obj.get_absolute_url(), obj.name) for obj in updated_titles])
+            messages.info(request, message, extra_tags='safe')
+
         return redirect(user.userprofile)
 
     can_follow = not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists()\

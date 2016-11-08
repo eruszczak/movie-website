@@ -13,6 +13,7 @@
                         <tr>
                             <th class="text-center"></th>
                             <th class="text-center">title</th>
+                            <th class="text-center">added</th>
                             {% if is_owner %}
                                 <th class="text-center">delete</th>
                             {% endif %}
@@ -22,7 +23,9 @@
                         {% for obj in ratings %}
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                            <td><a href="{{ obj.title }}">{{ obj.title.name }}</a></td>
+                            <td><a href="{{ obj.title.get_absolute_url }}">{{ obj.title.name }}</a></td>
+                            <!--<td><a href="{{ obj.title.get_absolute_url }}">{{ obj.added_date|date:"Y-m-d" }}</a></td>-->
+                            <td>{{ obj.added_date }}</td>
                             {% if is_owner %}
                                 <td class="text-center">
                                     <form action="" method="post">{% csrf_token %}
@@ -30,7 +33,7 @@
                                                 name="{% if obj.imdb %}watchlist_imdb_delete{% else %}watchlist_delete{% endif %}"
                                                 value="delete">Don't want to see again
                                         </button>
-                                        <input id="choosen_object" name="const" value="{{ obj.title.const }}" hidden>
+                                        <input name="const" value="{{ obj.title.const }}" hidden>
                                     </form>
                                 </td>
                             {% endif %}
@@ -56,16 +59,13 @@
                         {% for obj in deleted %}
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                            <td><a href="{{ obj.title }}">{{ obj.title.name }}</a></td>
-                                <td class="text-center">
-                                    <form action="" method="post">{% csrf_token %}
-                                        <button class="btn btn-sm see-again-btn watch-btn" type="submit"
-                                                name="watchlist_imdb_readd"
-                                                value="delete">Readd
-                                        </button>
-                                        <input id="choosen_object" name="const" value="{{ obj.title.const }}" hidden>
-                                    </form>
-                                </td>
+                            <td><a href="{{ obj.title.get_absolute_url }}">{{ obj.title.name }}</a></td>
+                            <td class="text-center">
+                                <form action="" method="post">{% csrf_token %}
+                                    <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watchlist_imdb_readd" value="delete">Readd</button>
+                                    <input name="const" value="{{ obj.title.const }}" hidden>
+                                </form>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

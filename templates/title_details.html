@@ -41,9 +41,9 @@
 					{% if request.user.is_authenticated %}
 					<li class="list-group-item">
 					{% if user_ratings_of_title %}
-						<a href="{% url 'title_edit' slug=entry.slug %}" class="label label-default">change rating</a>
+						<a href="{% url 'title_edit' slug=entry.slug %}" class="label label-default">change current rating</a>
 					{% endif %}
-						<input action="" method="post">{% csrf_token %}
+						<form action="" method="post">{% csrf_token %}
 						{% if is_in_user_watchlist %}
 							<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="unwatch">Don't want to see again</button>
 						{% else %}
@@ -53,8 +53,8 @@
 						{% if is_favourite_for_user %}
 							<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="unfav">unfavourite</button>
 						{% else %}
-							<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav">favourite</button>
-							<button id="fav-icon" type="submit">
+							<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav">favourite <i class="fa fa-heart" aria-hidden="true"></i></button>
+							<button id="fav-icon" type="submit" name="fav" value="fav">
 								<i class="fa fa-heart" aria-hidden="true"></i>
 							</button>
 						{% endif %}
@@ -135,7 +135,19 @@
 						{% for rating in user_ratings_of_title %}
 							<tr>
 								<td class=""><a href="{% url 'explore' %}?year={{ rating.rate_date|date:'Y' }}&month={{ rating.rate_date|date:'m' }}">{{ rating.rate_date|date:"Y-m-d" }}</a></td>
-								<td class=""><a href="{% url 'explore' %}?r={{ a.rate }}">{{ rating.rate }}</a></td>
+								<td class=""><a href="{% url 'explore' %}?r={{ a.rate }}">{{ rating.rate }}</a>
+								{% with rating.rated_before_rate_diff as rate_diff %}
+								{% if rate_diff != None %}
+									{% if rate_diff > 0 %}
+									<span class="increase">(+{{ rating.rated_before_rate_diff }})</span>
+									{% elif rate_diff == 0 %}
+									<span class="">==</span>
+									{% else %}
+									<span class="decrease">({{ rate_diff }})</span>
+									{% endif %}
+								{% endif %}
+								{% endwith %}
+								</td>
 								<td class="text-center">duration: {{ rating.next_rating_days_diff }} days</td>
 								<td>
 									<form action="" method="post">{% csrf_token %}

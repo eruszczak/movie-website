@@ -22,8 +22,8 @@
 	<div class="container">
         {% if messages %}
             {% for message in messages %}
-                <div{% if message.tags %} class="alert {% if not message.tags %}alert-info{% else %}{{ message.tags }}{% endif %}{% endif %} style="margin-top: 10px;">
-                  {{ message }}
+                <div{% if message.tags %} class="margintop alert {% if not message.tags and not 'safe' in message.tags %}alert-info"{% else %}{{ message.tags }}"{% endif %}{% endif %}>
+                  {% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}
                 </div>
             {% endfor %}
             <hr>
