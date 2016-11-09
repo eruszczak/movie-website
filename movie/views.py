@@ -1,4 +1,3 @@
-import calendar
 import re
 from django.contrib import messages
 from django.db.models import Count, F
@@ -52,7 +51,7 @@ def explore(request):
     if request.method == 'POST':
         requested_obj = get_object_or_404(Title, const=request.POST.get('const'))
         if not request.user.is_authenticated():
-            messages.info(request, 'Only logged in users can add to watchlist or favourites', extra_tags='alert-info')
+            messages.info(request, 'Only logged in users can add to watchlist or favourites')
             return redirect(request.META.get('HTTP_REFERER'))
 
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
@@ -167,11 +166,6 @@ def explore(request):
     }
     return render(request, 'explore.html', context)
 
-# todo
-# dont show in query string selected type if 0. IGNORE IT COMPLETLY
-# dont show &q= if not using it
-# you can sort by many fields
-
 
 def title_details(request, slug):
     title = Title.objects.filter(slug=slug).first()
@@ -215,7 +209,7 @@ def title_details(request, slug):
 
     if request.method == 'POST':
         if not request.user.is_authenticated():
-            messages.info(request, 'Only logged in users can add to watchlist or favourites', extra_tags='alert-info')
+            messages.info(request, 'Only logged in users can add to watchlist or favourites')
             return redirect(title)
 
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
@@ -234,6 +228,10 @@ def title_details(request, slug):
                 if not Recommendation.objects.filter(user=choosen_user, title=title).exists()\
                         or not Rating.objects.filter(user=choosen_user, title=title).exists():
                     Recommendation.objects.create(user=choosen_user, sender=request.user, title=title)
+                    messages.info(request, 'You recommended <a href="{}">{}</a> to <a href="{}">{}</a>'.format(
+                        title.get_absolute_url(), title.name,
+                        request.user.userprofile.get_absolute_url(), request.user.username
+                    ), extra_tags='safe')
 
         new_rating = request.POST.get('rating')
         if new_rating:
@@ -264,7 +262,6 @@ def title_details(request, slug):
         'followed_saw_title': followed_saw_title,
         'average_rating': average_rating_of_title(title),
         'loop': (n for n in range(10, 0, -1)),
-        # 'ratings_of_followed': Rating.objects.filter(title=title, user__id__in=f),
     }
     return render(request, 'title_details.html', context)
 
@@ -273,7 +270,7 @@ def title_edit(request, slug):
     title = get_object_or_404(Title, slug=slug)
     current_rating = Rating.objects.filter(user__username=request.user.username, title=title).first()
     if not request.user.is_authenticated() or not current_rating:
-        messages.info(request, 'You can edit titles you have rated, you must be logged in', extra_tags='alert-info')
+        messages.info(request, 'You can edit titles you have rated, you must be logged in')
         return redirect(title)
     form = EditRating(instance=current_rating)
     if request.method == 'POST':
@@ -290,10 +287,10 @@ def title_edit(request, slug):
                 message += 'date: {} changed for {}'.format(current_rating.rate_date, new_date)
                 current_rating.rate_date = new_date
             if message:
-                messages.success(request, message, extra_tags='alert-success')
+                messages.success(request, message)
                 current_rating.save(update_fields=['rate', 'rate_date'])
             else:
-                messages.info(request, 'nothing changed', extra_tags='alert-info')
+                messages.info(request, 'Nothing changed')
             return redirect(title)
     context = {
         'form': form,
@@ -329,7 +326,7 @@ def watchlist(request, username):
     user_watchlist = Watchlist.objects.filter(user=user)
     if request.method == 'POST':
         if not request.user == user:
-            messages.info(request, 'You can change only your list', extra_tags='alert-info')
+            messages.info(request, 'You can change only your list')
             return redirect(user.userprofile.watchlist_url())
         if request.POST.get('watchlist_imdb_delete'):
             user_watchlist.filter(title__const=request.POST.get('const'), imdb=True, deleted=False).update(deleted=True)
@@ -353,7 +350,7 @@ def favourite(request, username):
     user_favourites = Favourite.objects.filter(user=user)
     if request.method == 'POST':
         if not request.user == user:
-            messages.info(request, 'You can change order only for your list', extra_tags='alert-info')
+            messages.info(request, 'You can change order only for your list')
             return redirect(user.userprofile.favourite_url())
         new_title_order = request.POST.get('item_order')
         if new_title_order:
@@ -369,6 +366,3 @@ def favourite(request, username):
 def add_title(request):
     return render(request, '')
 
-
-def rated_by_user(request, username):
-    return render(request, '')

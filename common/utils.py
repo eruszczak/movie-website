@@ -23,6 +23,10 @@ def send_email(subject, message):
     )
 
 
+def build_html_string_for_titles(titles):
+    return ', '.join(['<a href="{}">{}</a>'.format(obj.get_absolute_url(), obj.name) for obj in titles])
+
+
 # def email_watchlist():
 #     from movie.models import ImdbWatchlist
 #     delete = ImdbWatchlist.objects.to_delete()

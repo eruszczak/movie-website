@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from .models import UserProfile, UserFollow
 from common.prepareDB import update_from_csv, update_from_rss, get_watchlist
+from common.utils import build_html_string_for_titles
 from movie.models import Title
 
 
@@ -23,7 +24,7 @@ def register(request):
             created_user = auth.authenticate(username=user.username, password=request.POST.get('password'))
             auth.login(request, created_user)
             message += '. You have been logged in'
-        messages.success(request, '{}, {}'.format(message, user.username), extra_tags='alert-success')
+        messages.success(request, '{}, {}'.format(message, user.username))
         return redirect(reverse('home'))
     return render(request, 'users/register.html', {'form': form})
 
@@ -38,12 +39,12 @@ def login(request):
         if user:
             if user.is_active:
                 auth.login(request, user)
-                messages.success(request, 'You have been logged in: ' + user.username, extra_tags='alert-success')
+                messages.success(request, 'You have been logged in: ' + user.username)
                 return redirect(reverse('home'))
             else:
-                messages.error(request, 'User not active', extra_tags='alert-warning')
+                messages.warning(request, 'User not active')
         else:
-            messages.error(request, 'Invalid creditentials', extra_tags='alert-warning')
+            messages.warning(request, 'Invalid creditentials')
     context = {
         'form': form,
         'title': 'login'
@@ -54,7 +55,7 @@ def login(request):
 def user_edit(request, username):
     profile = UserProfile.objects.get(user__username=username)
     if not request.user == profile.user:
-        messages.info(request, 'You can edit only your profile', extra_tags='alert-info')
+        messages.info(request, 'You can edit only your profile')
         return redirect(profile)
 
     form = EditProfileForm(instance=profile)
@@ -71,7 +72,7 @@ def user_edit(request, username):
 
 def logout(request):
     auth.logout(request)
-    messages.success(request, 'You have been logged out: ' + request.user.username, extra_tags='alert-success')
+    messages.success(request, 'You have been logged out: ' + request.user.username)
     return redirect(request.META.get('HTTP_REFERER'))
 
 
@@ -97,39 +98,39 @@ def user_list(request):
 
 def user_profile(request, username):
     user = get_object_or_404(User, username=username)
-    # nooo
-    # need second form for 3 update buttons where I check if i am owner
     if request.method == 'POST':
         if not request.user.is_authenticated():
             messages.error(request, 'You must be logged in to follow somebody')
             return redirect(user.userprofile)
+
         if request.POST.get('follow'):
             UserFollow.objects.create(user_follower=request.user, user_followed=user)
-            messages.info(request, '{} has been followed'.format(user.username))
         elif request.POST.get('unfollow'):
             UserFollow.objects.filter(user_follower=request.user, user_followed=user).delete()
-            messages.info(request, '{} has been unfollowed'.format(user.username))
-        elif request.POST.get('update_csv') and user.userprofile.imdb_ratings and user == request.user:
-            message = 'Updated nothing using {}'.format(user.userprofile.imdb_ratings)
+        elif user == request.user and request.POST.get('update_csv') and user.userprofile.csv_ratings:
+            message = 'Updated nothing using {}'.format(user.userprofile.csv_ratings)
             updated_titles = update_from_csv(user)
             if updated_titles:
                 message = '(csv) Updated {} titles: '.format(len(updated_titles))
-                message += ', '.join(['<a href="{}">{}</a>'.format(obj.get_absolute_url(), obj.name) for obj in updated_titles])
+                message += build_html_string_for_titles(updated_titles)
             messages.info(request, message, extra_tags='safe')
-        elif request.POST.get('update_rss') and user.userprofile.imdb_id and user == request.user:
-            message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/ratings">RSS</a>'.format(user.userprofile.imdb_id)
+        elif user == request.user and request.POST.get('update_rss') and user.userprofile.imdb_id:
+            message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/ratings">RSS</a>'.format(
+                user.userprofile.imdb_id)
             updated_titles = update_from_rss(user)
             if updated_titles:
                 message = '(rss) Updated {} titles: '.format(len(updated_titles))
-                message += ', '.join(['<a href="{}">{}</a>'.format(obj.get_absolute_url(), obj.name) for obj in updated_titles])
+                message += build_html_string_for_titles(updated_titles)
             messages.info(request, message, extra_tags='safe')
-        elif request.POST.get('update_watchlist') and user.userprofile.imdb_id and user == request.user:
+        elif user == request.user and request.POST.get('update_watchlist') and user.userprofile.imdb_id:
             message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/watchlist">RSS</a>'.format(
                 user.userprofile.imdb_id)
-            updated_titles = get_watchlist(user)
+            updated_titles, deleted_titles = get_watchlist(user)
             if updated_titles:
                 message = '(rss watchlist) Updated {} titles: '.format(len(updated_titles))
-                message += ', '.join(['<a href="{}">{}</a>'.format(obj.get_absolute_url(), obj.name) for obj in updated_titles])
+                message += build_html_string_for_titles(updated_titles)
+                message += '<br><br>Deleted {} titles: '.format(len(deleted_titles))
+                message += build_html_string_for_titles(deleted_titles)
             messages.info(request, message, extra_tags='safe')
 
         return redirect(user.userprofile)
@@ -143,7 +144,3 @@ def user_profile(request, username):
         'can_follow': can_follow,
     }
     return render(request, 'users/user_profile.html', context)
-
-
-def notifications(request):
-    return 1
