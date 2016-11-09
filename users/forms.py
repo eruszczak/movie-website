@@ -36,7 +36,7 @@ class EditProfileForm(forms.ModelForm):
         if isinstance(picture, InMemoryUploadedFile):
             w, h = get_image_dimensions(picture)
             if (w > 200 or h > 200) or (w < 100 or h < 100):
-                raise forms.ValidationError("The picture is {}x{}. It's supposed to be between 100x100px and 200x200px".format(w, h))
+                raise forms.ValidationError("The picture is {}x{} - must be between 100x100px and 200x200px".format(w, h))
             if picture._size > 1024 * 1024:
                 raise forms.ValidationError("Image file too large ( > 1mb )")
         return picture
