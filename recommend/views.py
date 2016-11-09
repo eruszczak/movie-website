@@ -15,9 +15,10 @@ def recommend(request, username):
     if request.method == 'POST':
         if request.POST.get('delete_recommend'):
             to_del = Recommendation.objects.filter(pk=request.POST.get('recommend_pk'), user=request.user).first()
-            if to_del.is_active():
+            if to_del.is_active:
+                messages.info(request, 'Deleted <a href="{}">{}</a> from recommendations'.format(
+                    to_del.title.get_absolute_url(), to_del.title.name), extra_tags='safe')
                 to_del.delete()
-                messages.info(request, '')
             return redirect(user.userprofile.recommend_url())
         form = RecommendForm(request.POST)
         if form.is_valid():
@@ -25,7 +26,8 @@ def recommend(request, username):
             instance.title = form.cleaned_data.get('const')
             if recommended_today > 5:
                 raise ValidationError('This user already got 5 recommendations today. Wait until tomorrow.')
-            if recommended_for_user.filter(title=instance.title).exists() or Rating.objects.filter(user=user, title=instance.title).exists():
+            if recommended_for_user.filter(title=instance.title).exists()\
+                    or Rating.objects.filter(user=user, title=instance.title).exists():
                 raise ValidationError('This title has been already recommended or rated by this user.')
             if request.user.is_authenticated():
                 instance.sender = request.user
@@ -36,7 +38,7 @@ def recommend(request, username):
             instance.user = user
             instance.note = form.cleaned_data.get('note')
             instance.save()
-            messages.success(request, 'added recommendation', extra_tags='alert-success')
+            messages.success(request, 'added recommendation')
             return redirect(user.userprofile.recommend_url())
     else:
         form = RecommendForm()

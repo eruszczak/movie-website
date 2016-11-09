@@ -1,7 +1,7 @@
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template.defaultfilters import slugify
 from django.db.models import F
-# movie.models are imported within functions to prevent circular dependencies
+# models are imported within functions to prevent circular dependencies
 
 
 def alter_title_in_watchlist(user, title, watchlist_instance, watch=None, unwatch=None):
@@ -34,6 +34,7 @@ def alter_title_in_favourites(user, title, fav=None, unfav=None):
 
 def average_rating_of_title(title):
     from ..models import Rating
+    # not sure about sum() - it would be better to do it with aggregate Avg, but for now it will do
     current_ratings = Rating.objects.filter(title=title).order_by('user', '-rate_date').distinct('user').values_list(
         'rate', flat=True)
     if current_ratings.exists():
@@ -61,3 +62,4 @@ def create_slug(title, new_slug=None):
         slug += 'i'
         create_slug(title, slug)
     return slug
+

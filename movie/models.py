@@ -135,7 +135,6 @@ class Rating(models.Model):
 
     def rated_before_rate_diff(self):
         previous = Rating.objects.filter(user=self.user, title=self.title, rate_date__lt=self.rate_date).first()
-        print(previous)
         if previous:
             return self.rate - previous.rate
         return None
@@ -171,6 +170,7 @@ class Watchlist(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id and self.imdb:
+            # if there's later rating then it's not "active" anymore and should be deleted
             rated_later = Rating.objects.filter(user=self.user, title=self.title, rate_date__gte=self.added_date.date())
             if rated_later.exists():
                 self.deleted = True

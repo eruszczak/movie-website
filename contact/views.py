@@ -18,7 +18,7 @@ def contact(request):
             send_email(message='{}. Send by: {}'.format(message, nick), subject=subject)
             messages.success(request, 'email has been sent')
             return redirect(reverse('contact'))
-        # messages.error(request, 'there was an error')
+        # messages.warning(request, 'there was an error')
     context = {
         'form': form,
         'title': 'contact',

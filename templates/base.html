@@ -20,14 +20,14 @@
     {% endblock %}
 	{% block image %}{% endblock %}
 	<div class="container">
-        {% if messages %}
-            {% for message in messages %}
-                <div{% if message.tags %} class="margintop alert {% if not message.tags and not 'safe' in message.tags %}alert-info"{% else %}{{ message.tags }}"{% endif %}{% endif %}>
-                  {% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}
-                </div>
-            {% endfor %}
-            <hr>
-        {% endif %}
+    {% if messages %}
+        {% for message in messages %}
+        <div class="margintop alert {% if 'safe' in message.tags %}alert-warning{% else %}alert-{{ message.tags }}{% endif %}">
+            {% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}
+        </div>
+        {% endfor %}
+        <hr>
+    {% endif %}
         {% block content %}{% endblock %}
 	</div>
     <scripts>

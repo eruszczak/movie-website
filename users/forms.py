@@ -27,8 +27,8 @@ class EditProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        # fields = ('user.email', 'user.password', 'new_password', 'new_password_confirm', 'imdb_id', 'imdb_ratings', 'picture')
-        fields = ('imdb_id', 'imdb_ratings', 'picture')
+        # fields = ('user.email', 'user.password', 'new_password', 'new_password_confirm', 'imdb_id', 'csv_ratings', 'picture')
+        fields = ('imdb_id', 'csv_ratings', 'picture')
 
     def clean_picture(self):
         picture = self.cleaned_data.get('picture')
@@ -41,13 +41,13 @@ class EditProfileForm(forms.ModelForm):
                 raise forms.ValidationError("Image file too large ( > 1mb )")
         return picture
 
-    def clean_imdb_ratings(self):
-        imdb_ratings = self.cleaned_data.get('imdb_ratings')
-        if isinstance(imdb_ratings, InMemoryUploadedFile):
-            if imdb_ratings._size > 1024 * 1024 * 2:
+    def clean_csv_ratings(self):
+        csv_ratings = self.cleaned_data.get('csv_ratings')
+        if isinstance(csv_ratings, InMemoryUploadedFile):
+            if csv_ratings._size > 1024 * 1024 * 2:
                 raise forms.ValidationError("file too large ( > 2mb )")
 
-        return imdb_ratings
+        return csv_ratings
 
 
 class LoginForm(forms.Form):

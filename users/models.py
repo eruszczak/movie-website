@@ -23,12 +23,14 @@ def validate_file_extension(value):
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
 
-    imdb_id = models.CharField(blank=True, null=True, max_length=15)
-    imdb_ratings = models.FileField(upload_to=update_filename, validators=[validate_file_extension], blank=True, null=True)
-    imdb_ratings_used = models.DateTimeField(null=True, blank=True)
     picture = models.ImageField(upload_to=update_filename, blank=True, null=True)
-    ratings_last_updated = models.DateTimeField(null=True, blank=True)
-    last_updated = models.DateTimeField(auto_now=True, null=True, blank=True)
+    imdb_id = models.CharField(blank=True, null=True, max_length=15)
+    csv_ratings = models.FileField(upload_to=update_filename, validators=[validate_file_extension], blank=True, null=True)
+
+    last_updated_csv_ratings = models.DateTimeField(null=True, blank=True)
+    last_updated_rss_ratings = models.DateTimeField(null=True, blank=True)
+    last_updated_rss_watchlist = models.DateTimeField(null=True, blank=True)
+    last_updated_profile = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def __str__(self):
         return self.user.username
