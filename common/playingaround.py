@@ -12,9 +12,16 @@ from django.db.models.expressions import F
 from django.db.models.aggregates import Max
 from recommend.models import *
 from django.shortcuts import redirect
+
 user = User.objects.all().first()
-print(user.username)
-print(user.userprofile)
+# user.userprofile.last_updated_csv_ratings = timezone.now()
+# user.userprofile.save()
+print(user.userprofile.can_update_csv_ratings)
+print(user.userprofile.can_update_rss_ratings)
+print(user.userprofile.can_update_rss_watchlist)
+
+
+
 
 # titles = Title.objects.extra(select={
 #     'seen_by_user': """SELECT rating.rate FROM movie_rating as rating
@@ -46,8 +53,6 @@ followed = User.objects.extra(select={
         LIMIT 1""",
     }
 )
-for f in followed:
-    print(f, f.seen_by_user)
 
 # a = Title.objects.annotate(
 #     seen_by_user=Count(

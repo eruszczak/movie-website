@@ -1,10 +1,10 @@
 import re
 from django.contrib import messages
-from django.db.models import Count, F
+from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from .forms import EditRating
-from .models import Genre, Director, Actor, Type, Title, Rating, Watchlist, Favourite
+from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 from users.models import UserFollow
 from recommend.models import Recommendation
 from django.contrib.auth.models import User
@@ -145,9 +145,6 @@ def explore(request):
         elif rate_date_year:
             titles = titles.filter(rating__rate_date__year=rate_date_year)
             query_string += '{}={}&'.format('year', rate_date_year)
-    # way to show rated 'in range' and the same for other users
-    # ORDERING!
-    # any invalid options can cause an error? # eg. when searching year/month or smth
 
     page = request.GET.get('page')
     ratings = paginate(titles, page)

@@ -2,42 +2,9 @@ import csv
 import os
 import sys
 from django.conf import settings
-from .prepareDB_utils import convert_to_datetime, get_rss, get_omdb, unpack_from_rss_item, get_and_assign_poster, prepare_json
+from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, get_title_data
 from django.contrib.auth.models import User
-from movie.models import Title, Type, Genre, Actor, Director, Watchlist, Rating
-
-
-def get_title_data(const):
-    json = get_omdb(const)
-    if json:
-        json = prepare_json(json)
-        print('get_title_data, adding:', json['Title'])
-        tomatoes = dict(
-            tomato_meter=json['tomatoMeter'], tomato_rating=json['tomatoRating'], tomato_reviews=json['tomatoReviews'],
-            tomato_fresh=json['tomatoFresh'], tomato_rotten=json['tomatoRotten'], url_tomato=json['tomatoURL'],
-            tomato_user_meter=json['tomatoUserMeter'], tomato_user_rating=json['tomatoUserRating'],
-            tomato_user_reviews=json['tomatoUserReviews'], tomatoConsensus=json['tomatoConsensus']
-        )
-        title_type = Type.objects.get_or_create(name=json['Type'].lower())[0]
-        title = Title(const=const, name=json['Title'], type=title_type, rate_imdb=json['imdbRating'],
-                      runtime=json['Runtime'], year=json['Year'], url_poster=json['Poster'],
-                      release_date=convert_to_datetime(json['Released'], 'json'),
-                      votes=json['imdbVotes'], plot=json['Plot'], **tomatoes
-        )
-        title.save()
-        if title.url_poster:
-            get_and_assign_poster(title)
-        for genre in json['Genre'].split(', '):
-            genre, created = Genre.objects.get_or_create(name=genre.lower())
-            title.genre.add(genre)
-        for director in json['Director'].split(', '):
-            director, created = Director.objects.get_or_create(name=director)
-            title.director.add(director)
-        for actor in json['Actors'].split(', '):
-            actor, created = Actor.objects.get_or_create(name=actor)
-            title.actor.add(actor)
-        return True
-    return False
+from movie.models import Title, Watchlist, Rating
 
 
 def get_title_or_create(const):
@@ -54,30 +21,21 @@ def get_watchlist(user):
         updated_titles = []
         current_watchlist = []
         user_watchlist = Watchlist.objects.filter(user=user)
+        print('get_watchlist', user)
         for obj in itemlist:
             const, name, date = unpack_from_rss_item(obj, for_watchlist=True)
             title = get_title_or_create(const)
             current_watchlist.append(const)
-            # watchlist can show only 250 titles. keep in mind
             obj, created = Watchlist.objects.get_or_create(user=user, title=title,
                                                            defaults={'imdb': True, 'added_date': date})
             if created:
                 updated_titles.append(title)
-                print('get_watchlist', user, title, date)
         no_longer_in_watchlist = user_watchlist.filter(imdb=True).exclude(title__const__in=current_watchlist)
         deleted_titles = [w.title for w in no_longer_in_watchlist]
         no_longer_in_watchlist.delete()
         return updated_titles, deleted_titles
     return None
 
-
-# this should be done only once per user! WHEN it has been uploaded
-# BOOLEAN FIELD if it has been successfull. it'd great if not using omdbapi... but fuck it
-# there should be option to not include ratings.csv and only use RSS - so only provide your profil url / imdb id
-# need validate csv
-# this can be only done when there are no ratings
-# need time sleep or something.
-# valid imdb_id
 
 def update_from_csv(user):
     path = os.path.join(settings.MEDIA_ROOT, str(user.userprofile.csv_ratings))
@@ -102,16 +60,15 @@ def update_from_rss(user):
     if itemlist:
         updated_titles = []
         print('update_from_rss:', user)
-        for num, item in enumerate(itemlist):
+        for i, item in enumerate(itemlist):
             const, rate, rate_date = unpack_from_rss_item(item)
             title = get_title_or_create(const)
             obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
                                                         defaults={'rate': rate})
             if created:
                 updated_titles.append(title)
-            if num > 10:    # this is bad. only repeated should be counted. BUT maybe increase the limit in case of somebody rated many titles
-                break       # like 50. because it's already downloaded so doesnt matter
-            # need some kind of time restriction
+            if i > 50:
+                break
         return updated_titles
     return None
 
