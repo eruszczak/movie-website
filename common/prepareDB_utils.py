@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
 from django.core.files import File
 import pytz
+from movie.models import Type, Genre, Actor, Director, Title
 
 
 def prepare_json(json):
@@ -60,3 +61,37 @@ def get_and_assign_poster(obj):
     else:
         print(title, 'saving poster')
         obj.img.save(title, File(open(img, 'rb')), save=True)
+
+
+def get_title_data(const):
+    json = get_omdb(const)
+    if json:
+        json = prepare_json(json)
+        print('get_title_data, adding:', json['Title'])
+        tomatoes = dict(
+            tomato_meter=json['tomatoMeter'], tomato_rating=json['tomatoRating'], tomato_reviews=json['tomatoReviews'],
+            tomato_fresh=json['tomatoFresh'], tomato_rotten=json['tomatoRotten'], url_tomato=json['tomatoURL'],
+            tomato_user_meter=json['tomatoUserMeter'], tomato_user_rating=json['tomatoUserRating'],
+            tomato_user_reviews=json['tomatoUserReviews'], tomatoConsensus=json['tomatoConsensus']
+        )
+        title_type = Type.objects.get_or_create(name=json['Type'].lower())[0]
+        title = Title(
+            const=const, name=json['Title'], type=title_type, rate_imdb=json['imdbRating'],
+            runtime=json['Runtime'], year=json['Year'], url_poster=json['Poster'],
+            release_date=convert_to_datetime(json['Released'], 'json'),
+            votes=json['imdbVotes'], plot=json['Plot'], **tomatoes
+        )
+        title.save()
+        if title.url_poster:
+            get_and_assign_poster(title)
+        for genre in json['Genre'].split(', '):
+            genre, created = Genre.objects.get_or_create(name=genre.lower())
+            title.genre.add(genre)
+        for director in json['Director'].split(', '):
+            director, created = Director.objects.get_or_create(name=director)
+            title.director.add(director)
+        for actor in json['Actors'].split(', '):
+            actor, created = Actor.objects.get_or_create(name=actor)
+            title.actor.add(actor)
+        return True
+    return False

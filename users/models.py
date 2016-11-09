@@ -6,6 +6,7 @@ from django.forms import ValidationError
 from recommend.models import Recommendation
 from movie.models import Rating
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 
 
 def update_filename(instance, filename):
@@ -53,6 +54,24 @@ class UserProfile(models.Model):
     @property
     def count_ratings(self):
         return Rating.objects.filter(user=self.user).values('title').order_by('-title').distinct().count()
+
+    @property
+    def can_update_csv_ratings(self):
+        return self.have_minutes_passed(self.last_updated_csv_ratings)
+
+    @property
+    def can_update_rss_ratings(self):
+        return self.have_minutes_passed(self.last_updated_rss_ratings)
+
+    @property
+    def can_update_rss_watchlist(self):
+        return self.have_minutes_passed(self.last_updated_rss_watchlist)
+
+    @staticmethod
+    def have_minutes_passed(time):
+        if not time:
+            return True
+        return (timezone.now() - time).seconds > 60 * 3
 
 
 class UserFollow(models.Model):

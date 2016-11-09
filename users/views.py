@@ -7,6 +7,7 @@ from .models import UserProfile, UserFollow
 from common.prepareDB import update_from_csv, update_from_rss, get_watchlist
 from common.utils import build_html_string_for_titles
 from movie.models import Title
+from django.utils import timezone
 
 
 def register(request):
@@ -80,7 +81,7 @@ def user_list(request):
     context = {'title': 'User list'}
     if request.GET.get('s'):
         title = get_object_or_404(Title, slug=request.GET['s'])
-        users_who_saw_title = User.objects.filter(rating__title=title).distinct()     # todo ordering, show stars
+        users_who_saw_title = User.objects.filter(rating__title=title).distinct()
         users_who_saw_title = users_who_saw_title.extra(select={
             'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
                 WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s LIMIT 1""",
@@ -107,31 +108,46 @@ def user_profile(request, username):
             UserFollow.objects.create(user_follower=request.user, user_followed=user)
         elif request.POST.get('unfollow'):
             UserFollow.objects.filter(user_follower=request.user, user_followed=user).delete()
-        elif user == request.user and request.POST.get('update_csv') and user.userprofile.csv_ratings:
-            message = 'Updated nothing using {}'.format(user.userprofile.csv_ratings)
-            updated_titles = update_from_csv(user)
-            if updated_titles:
-                message = '(csv) Updated {} titles: '.format(len(updated_titles))
-                message += build_html_string_for_titles(updated_titles)
-            messages.info(request, message, extra_tags='safe')
-        elif user == request.user and request.POST.get('update_rss') and user.userprofile.imdb_id:
-            message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/ratings">RSS</a>'.format(
-                user.userprofile.imdb_id)
-            updated_titles = update_from_rss(user)
-            if updated_titles:
-                message = '(rss) Updated {} titles: '.format(len(updated_titles))
-                message += build_html_string_for_titles(updated_titles)
-            messages.info(request, message, extra_tags='safe')
-        elif user == request.user and request.POST.get('update_watchlist') and user.userprofile.imdb_id:
-            message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/watchlist">RSS</a>'.format(
-                user.userprofile.imdb_id)
-            updated_titles, deleted_titles = get_watchlist(user)
-            if updated_titles:
-                message = '(rss watchlist) Updated {} titles: '.format(len(updated_titles))
-                message += build_html_string_for_titles(updated_titles)
-                message += '<br><br>Deleted {} titles: '.format(len(deleted_titles))
-                message += build_html_string_for_titles(deleted_titles)
-            messages.info(request, message, extra_tags='safe')
+        elif user == request.user:
+            if request.POST.get('update_csv') and user.userprofile.csv_ratings:
+                if user.userprofile.can_update_csv_ratings:
+                    user.userprofile.last_updated_csv_ratings = timezone.now()
+                    user.userprofile.save(update_fields=['last_updated_csv_ratings'])
+                    updated_titles = update_from_csv(user)
+                    message = None
+                    if updated_titles:
+                        message = '(csv) Updated {} titles: {}'.format(
+                            len(updated_titles), build_html_string_for_titles(updated_titles))
+                    if message is None:
+                        message = 'Updated nothing using {}'.format(user.userprofile.csv_ratings)
+                    messages.info(request, message, extra_tags='safe')
+            elif request.POST.get('update_rss') and user.userprofile.imdb_id:
+                if user.userprofile.can_update_rss_ratings:
+                    user.userprofile.last_updated_rss_ratings = timezone.now()
+                    user.userprofile.save(update_fields=['last_updated_rss_ratings'])
+                    updated_titles = update_from_rss(user)
+                    message = None
+                    if updated_titles:
+                        message = '(rss) Updated {} titles: {}'.format(
+                            len(updated_titles), build_html_string_for_titles(updated_titles))
+                    if message is None:
+                        message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/ratings">RSS</a>'.format(
+                            user.userprofile.imdb_id)
+                    messages.info(request, message, extra_tags='safe')
+            elif request.POST.get('update_watchlist') and user.userprofile.imdb_id:
+                if user.userprofile.can_update_rss_watchlist:
+                    user.userprofile.last_updated_rss_watchlist = timezone.now()
+                    user.userprofile.save(update_fields=['last_updated_rss_watchlist'])
+                    updated_titles, deleted_titles = get_watchlist(user)
+                    message = None
+                    if updated_titles:
+                        message = '(rss watchlist) Updated {} titles: {}<br><br>Deleted {} titles: {}'.format(
+                            len(updated_titles), build_html_string_for_titles(updated_titles),
+                            len(deleted_titles), build_html_string_for_titles(deleted_titles))
+                    if message is None:
+                        message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/watchlist">RSS</a>'.format(
+                            user.userprofile.imdb_id)
+                    messages.info(request, message, extra_tags='safe')
 
         return redirect(user.userprofile)
 
