@@ -13,3 +13,4 @@ mysite/static/
 /mysite/settings/__init__.py
 dump.json
 ratings.csv
+common/playingaround.py

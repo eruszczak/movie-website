@@ -8,8 +8,12 @@
 <div class="row">
     <div class="col-md-6">
         <form id="recommend_form" method="post">{% csrf_token %}
+
+            {{ form.non_field_errors }}
             <fieldset>
                 <div class="col-md-12">
+                    {{ form.const.errors }}
+                    {{ form.nick.errors }}
                     <div id="div_id_const" class="form-group"> <label for="id_const" class="control-label  requiredField">link or id<span class="asteriskField">*</span></label>
                     <div class="controls ">
                         <input class="textinput textInput form-control" id="id_const" maxlength="50" name="const" placeholder="eg. http://www.imdb.com/title/tt0111503/ or tt0111503" type="text">
@@ -82,7 +86,7 @@
             <td class="col-md-2 text-center">{{ obj.added_date|date:"Y-m-d" }}</td>
             <td class="col-md-1 text-center">
             {% if not obj.is_active %}
-                <i class="fa fa-check" aria-hidden="true"></i>
+                <i class="fa fa-check" aria-hidden="true"></i>{{ obj.rated_after }} days
             {% else %}
                 <i class="fa fa-times" aria-hidden="true"></i>
             {% endif %}

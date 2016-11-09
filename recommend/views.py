@@ -3,8 +3,6 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RecommendForm
 from .models import Recommendation
-from movie.models import Rating
-from django.forms import ValidationError
 from datetime import date
 
 
@@ -20,25 +18,20 @@ def recommend(request, username):
                     to_del.title.get_absolute_url(), to_del.title.name), extra_tags='safe')
                 to_del.delete()
             return redirect(user.userprofile.recommend_url())
-        form = RecommendForm(request.POST)
+
+        form = RecommendForm(request.POST, request=request, user=user, recommendations=recommended_for_user)
         if form.is_valid():
-            instance = Recommendation()
+            # i cant use form because not every field is there
+            instance = Recommendation(user=user)
             instance.title = form.cleaned_data.get('const')
-            if recommended_today > 5:
-                raise ValidationError('This user already got 5 recommendations today. Wait until tomorrow.')
-            if recommended_for_user.filter(title=instance.title).exists()\
-                    or Rating.objects.filter(user=user, title=instance.title).exists():
-                raise ValidationError('This title has been already recommended or rated by this user.')
-            if request.user.is_authenticated():
-                instance.sender = request.user
-            else:
-                instance.nick = form.cleaned_data.get('nick')
-                if not instance.nick:
-                    raise ValidationError('Not logged users have to fill nick nickname.')
-            instance.user = user
             instance.note = form.cleaned_data.get('note')
+            user, is_logged = form.cleaned_data.get('nick')
+            if is_logged:
+                instance.sender = user
+            else:
+                instance.nick = user
             instance.save()
-            messages.success(request, 'added recommendation')
+            messages.success(request, 'Added recommendation')
             return redirect(user.userprofile.recommend_url())
     else:
         form = RecommendForm()
