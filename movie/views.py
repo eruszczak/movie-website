@@ -18,15 +18,9 @@ from django.http import Http404
 def home(request):
     all_movies = Rating.objects.filter(title__type__name='movie').order_by('-rate_date')
     all_series = Rating.objects.filter(title__type__name='series').order_by('-rate_date')
-    titles_count = Title.objects.filter(type__name='movie').count()
-    series_count = Title.objects.filter(type__name='series').count()
+    movie_titles = Title.objects.filter(type__name='movie')
+    series_titles = Title.objects.filter(type__name='series')
     if request.user.is_authenticated():
-        # rated_titles = Title.objects.filter(rating__user__username='test').order_by('-rating__rate_date')
-        # rated titles
-        # rated_titles = Title.objects.all().rating_set.all()
-        # user_ratings = Rating.objects.filter(user=request.user).order_by('-rate_date')
-        # all_movies = user_ratings.filter(title__type__name='movie')
-        # all_series = user_ratings.filter(title__type__name='series')
         all_movies = all_movies.filter(user=request.user)
         all_series = all_series.filter(user=request.user)
     context = {
@@ -34,12 +28,16 @@ def home(request):
         'last_movie': all_movies.first().title if all_movies else None,
         'last_series': all_series.first().title if all_series else None,
         'last_good_movie': all_movies.filter(rate__gte=9).first().title if all_movies.filter(rate__gte=9) else None,
-        'movie_count': all_movies.count(),  # todo
-        'series_count': all_series.count(),
+        'movie_count': movie_titles.count(),
+        'series_count': series_titles.count(),
+        'movies_my_count': all_movies.values('title').distinct().count(),
+        'series_my_count': all_series.values('title').distinct().count(),
+        'total_movies': reverse('explore') + '?t=movie',
+        'total_series': reverse('explore') + '?t=series',
     }
     # can refactor += this but when template will be done. atm its not worth it bcs i use separate names for keys
     if request.user.is_authenticated():
-        context['search_movies'] = reverse('explore') + '?u={}&t=movies'.format(request.user.username)
+        context['search_movies'] = reverse('explore') + '?u={}&t=movie'.format(request.user.username)
         context['search_series'] = reverse('explore') + '?u={}&t=series'.format(request.user.username)
     else:
         context['total_movies'] = reverse('explore') + '?t=movie'

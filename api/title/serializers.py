@@ -6,15 +6,15 @@ from rest_framework import serializers
 class TitleListSerializer(serializers.ModelSerializer):
     genre = serializers.SerializerMethodField()
     director = serializers.SerializerMethodField()
-    url_details = serializers.HyperlinkedIdentityField(view_name='api-title:title_detail', lookup_field='slug')
-    url = serializers.HyperlinkedIdentityField(view_name='entry_details', lookup_field='slug')
+    # url_details = serializers.HyperlinkedIdentityField(view_name='api-title:title_details', lookup_field='slug')
+    # url = serializers.HyperlinkedIdentityField(view_name='title_details', lookup_field='slug')
     # rate_date2 = serializers.SerializerMethodField()
     # detail_page = serializers.URLField(source='get_absolute_url')
     # filter_backends = [SearchFilter, OrderingFilter]        # /?search=, &ordering=-date
     # search_fields = ['title', 'content']                    # different way, built-in search
     class Meta:
         model = Title
-        fields = 'name year genre director const url url_details'.split()
+        fields = 'name year genre director const'.split()
         # fields = '__all__'
 
     def get_genre(self, obj):

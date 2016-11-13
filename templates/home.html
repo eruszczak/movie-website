@@ -19,7 +19,6 @@
                 <div class="row">
                     <div class="col-md-6">
                         <ul>
-                            {% comment %}
                             {% if last_movie %}
                                 <li>Last movie: <a href="{{ last_movie.get_absolute_url }}">{{ last_movie.name }}</a></li>
                             {% endif %}
@@ -29,13 +28,12 @@
                             {% if last_good_movie %}
                                 <li>Last movie rated 9-10: <a href="{{ last_good_movie.get_absolute_url }}">{{ last_good_movie.name }}</a></li>
                             {% endif %}
-                            {% endcomment %}
                         </ul>
                     </div>
                     <div class="col-md-6">
                         <ul>
-                            <li>Watched series: <a href="{{ search_series }}">{{ series_count }}</a></li>
-                            <li>Watched movies: <a href="{{ search_movies }}">{{ movie_count }}</a></li>
+                            <li>Total series: <a href="{{ total_series }}">{{ series_count }}</a> (<a href="{{ search_series }}">{{ series_my_count }}</a> watched)</li>
+                            <li>Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a> (<a href="{{ search_movies }}">{{ movies_my_count }}</a> watched)</li>
                         </ul>
                     </div>
                 </div>
