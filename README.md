@@ -1,37 +1,23 @@
-# My first Django website
-#### temporary hosting: http://kierrez.pythonanywhere.com
-Created for helping me with tracking watched movies/tv-shows.
+#### This is a new version of a Django website from [this repo](https://github.com/kierrez/website/blob/master/README.md) that I'm currently working on.
 
-It is helpful because:
-- if you rate again some title on IMDb, information about previous rating is overwritten
-- through the title detail page I can see quickly:
-  - what titles I have seen with the same rating /rated/7/
-  - what titles I have seen with its genres /genre/drama/
-  - what titles I have seen in that month /2016/9/
-  - what titles I have seen directed by the same director /director/2/
-  - previous ratings!
-- people can /recommend/ me titles by inserting IMDb's link and when I watch something from the list it is shown
-- can mark titles as "want to see again" and then can see how long it took me to do it /watchlist/
-- also I keep up-to-date my IMDb's Watchlist so I know which titles should be deleted from it /watchlist-imdb/
-- initially I wanted to build an API for javascript /charts/, ended up using it for a [GitHub Page](http://kierrez.github.io/) and dynamic /search/ing too
-- can change rating without changing rating date /title/heat-1995/edit/
+Created for helping with tracking watched movies/tv-shows.
 
-How the process looks like:
-- I exported my IMDb ratings to .csv file
-- then used it to populate my database (done by [this function](https://github.com/kierrez/website/blob/master/prepareDB.py#L73))
-- at this point I have all my ratings but need a way to update them daily (done by [this function](https://github.com/kierrez/website/blob/master/prepareDB.py#L87) which uses [IMDb's RSS](http://rss.imdb.com/user/ur44264813/ratings))
+It is helpful because if you rate again some title on IMDb, information about previous rating is overwritten.
 
 
-
-for getting details about title [OMDb API](http://www.omdbapi.com/)
-
-## Plans
-- [ ] Host it on my own VPS
-- [ ] Custom domain name
-- [ ] Use PostgreSQL instead of SQLite
-- [ ] Allow other users to use it for their IMDb account
-
-## Problems
-- [ ] Free pythonanywhere account doesn't allow to download stuff (so new titles don't have a posters)
-- [ ] API doesn't provide complete info about seasons and episodes, which is why I don't want to use it at all
-- [ ] I am not allowed there to send emails too
+This version's features:
+- creating accounts
+- uploading ratings.csv file exported from IMDb and then using it for importing your ratings to the website
+- if you provide your imdb accounts' id and you have a public profile your ratings will be kept up-to-date
+- you can follow other users and then easily recommend them titles (you can also see how long it took them to watch it)
+- migrated from SQLite to PostgreSQL
+- watchlist
+  - easy to update, just like ratings
+  - you can add titles to watchlist on IMDb or on the website
+  - you can see what titles have been already watched and should be deleted from the list
+- the database with titles is updated when:
+  - missing titles will be added if someone updates his ratings (using csv file or auto-updater)
+  - user adds it using a form (only IMDb id/link is needed)
+  - someone wants to recommend some title to somebody and it's not already added
+- more searching options
+- got rid of redundant templates and views

@@ -1,8 +1,8 @@
 from django.db.models import Q
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-
+from movie.models import Title, Genre
 from .pagination import SetPagination
-from .serializers import *
+from .serializers import TitleListSerializer
 
 
 class TitleListView(ListAPIView):
@@ -48,16 +48,16 @@ class TitleDetailView(RetrieveAPIView):
     lookup_field = 'slug'
 
 
-class GenreListView(ListAPIView):
-    queryset = Genre.objects.all()
-    serializer_class = GenreListSerializer
-
-
-class GenreDetailView(ListAPIView):
-    queryset = Genre.objects.all()
-    serializer_class = GenreListSerializer
-    lookup_field = 'name'
-    lookup_url_kwarg = 'genre'
+# class GenreListView(ListAPIView):
+#     queryset = Genre.objects.all()
+#     serializer_class = GenreListSerializer
+#
+#
+# class GenreDetailView(ListAPIView):
+#     queryset = Genre.objects.all()
+#     serializer_class = GenreListSerializer
+#     lookup_field = 'name'
+#     lookup_url_kwarg = 'genre'
 
 
 # class Genre2(ListAPIView):

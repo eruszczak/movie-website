@@ -14,7 +14,7 @@ urlpatterns = [
     # url(r'^contact/', include('contact.urls')),
 
     # url(r'^api/', include('movie.api.urls', namespace='api-movie')),
-    # url(r'^api/', include('api.urls', namespace='api')),
+    url(r'^api/', include('api.urls', namespace='api')),
     # url(r'^api/', include('api.urls')),
 
     # url(r'^school/', include('school.urls')),
