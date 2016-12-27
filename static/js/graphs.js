@@ -1,17 +1,55 @@
-function graph_genres(place='#graph') {
-    link = '/api/g/'
-     $.getJSON(link, {
-          format: "json"
+var pathArray = window.location.pathname.split('/');
+var path_username = pathArray[2];
+
+charts = {
+    'genres': {
+        'endpoint': '/api/ratings/g/',
+        'chartTitle': 'Rating Distribution By Genre',
+        'fieldName': 'genre__name',
+        'detail_url': '',
+//        'params': {'u': path_username}
+    },
+    'years': {
+        'endpoint': '/api/ratings/y/',
+        'chartTitle': 'Rating Distribution By Year',
+        'fieldName': 'year',
+//        'detail_url': '',
+//        'params': {'u': path_username}
+    },
+    'rates': {
+        'endpoint': '/api/ratings/r/',
+        'chartTitle': 'Rating Distribution',
+        'fieldName': 'rate',
+//        'detail_url': '',
+//        'params': {'u': path_username}
+    },
+    'monthly': {
+        'endpoint': '/api/ratings/m/',
+        'chartTitle': 'Watched per month',
+        'fieldName': 'month',
+//        'detail_url': '',
+//        'params': {'u': path_username, ''}
+    },
+}
+
+// todo
+// clicked btn effect on default chart
+// details
+
+function graph_genres(chart, place='#graph') {
+     $.getJSON(chart.endpoint, {
+//          format: 'json',
+          u: path_username
         }).done(function(data) {
-            var names = $.map(data, function(dict) { return dict.name; });
+            var categories = $.map(data, function(dict) { return dict[chart.fieldName]; });
             var values = $.map(data, function(dict) { return dict.the_count; });
             $(place).highcharts({
                 title: {
-                    text: 'Rating Distribution By Genre',
+                    text: chart.chartTitle,
                     x: -20 //center
                 },
                 xAxis: {
-                    categories: names
+                    categories: categories
                 },
                 legend: {
                     enabled: false
@@ -42,6 +80,7 @@ function graph_genres(place='#graph') {
         });
 };
 
+/*
         function initialize_years(data) {
             var years = $.map(data, function(dict, year) { return year });
               years = years.sort(function(a, b){return b-a});
@@ -119,117 +158,30 @@ function graph_months(place='#graph') {
 };
 
 
-function graph_rated(place='#graph') {
-    link = '/api/rated/'
-    $.getJSON(link, {
-        format: "json"
-    }).done(function(data) {
-        var values = $.map(data, function(dict) { return dict.the_count });
-        var rates = $.map(data, function(dict) { return dict.rate });
-        $(place).highcharts({
-            title: {
-                text: 'Rating Distribution',
-                x: -20 //center
-            },
-            xAxis: {
-                categories: rates
-            },
-            legend: {
-                enabled: false
-            },
-            plotOptions: {
-                line: {
-                    dataLabels: {
-                        enabled: true
-                    },
-                    enableMouseTracking: true
-                },
-                series: {
-                    cursor: 'pointer',
-                    point: {
-                        events: {
-                            click: function () {
-                                var url = '/rated/' + this.category
-                                window.open(url, '_blank')
-                            }
-                        }
-                    }
-                }
-            },
-            series: [{
-                data: values
-            }]
-        });
-    })
-}
 
-function graph_year(place='#graph') {
-    link = '/api/year/'
-    $.getJSON(link, {
-        format: "json"
-    }).done(function(data) {
-        var values = $.map(data, function(dict) { return dict.the_count });
-        var years = $.map(data, function(dict) { return dict.year });
-        $(place).highcharts({
-            title: {
-                text: 'Rating Distribution By Year',
-                x: -20 //center
-            },
-            xAxis: {
-                categories: years
-            },
-            legend: {
-                enabled: false
-            },
-            plotOptions: {
-                line: {
-                    dataLabels: {
-                        enabled: true
-                    },
-                    enableMouseTracking: true
-                },
-                series: {
-                    cursor: 'pointer',
-                    point: {
-                        events: {
-                            click: function () {
-                                var url = '/year/' + this.category
-                                window.open(url, '_blank')
-                            }
-                        }
-                    }
-                }
-            },
-            series: [{
-                data: values
-            }]
-        });
-    })
-}
-graph_months();
-// $( document ).ready(function() {
-//     $("#graph_months").click();
-// });
-
-$('#graph_rated').click(function() {
-    graph_rated()
-});
-$('#graph_year').click(function() {
-    graph_year()
-});
-$('#graph_months').click(function() {
-    graph_months()
+*/
+$(document).ready(function() {
+    graph_genres(charts.genres);
 });
 $('#graph_genres').click(function() {
-    graph_genres()
+    graph_genres(charts.genres);;
+});
+$('#graph_year').click(function() {
+    graph_genres(charts.years);
+});
+$('#graph_rated').click(function() {
+    graph_genres(charts.rates);
+});
+$('#graph_months').click(function() {
+    graph_genres(charts.monthly);
 });
 
 /* display graphs for AllYears and AllGenres pages */
-$(function(){
+/*$(function(){ todo
     if ($('div').is('#include_graph_genre')) {
         graph_genres('#include_graph_genre')
     }
     if ($('div').is('#include_graph_year')) {
         graph_year('#include_graph_year')
     }
-});
+});*/

@@ -3,14 +3,15 @@ __pycache__
 .idea
 env/
 
-*.sqlite3
 todo
-mysite/settings/info.py
-posters/
-#migrations/
-mysite/static/
+*.sqlite3
 *.zip
-/mysite/settings/__init__.py
 dump.json
 ratings.csv
+mysite/static/
+mysite/settings/info.py
+/mysite/settings/__init__.py
 common/playingaround.py
+
+posters/
+bower_components/
