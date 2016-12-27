@@ -73,9 +73,9 @@ def explore(request):
             has_in_favourites=Count(
                 Case(When(favourite__user=request.user, then=1), output_field=IntegerField())
             ),
-        )
+        ).order_by('-year', '-votes')
     else:
-        titles = Title.objects.all()
+        titles = Title.objects.all().order_by('-year', '-votes')
     query_string = ''   # this is needed for pagination buttons while searching
 
     year = request.GET.get('y')

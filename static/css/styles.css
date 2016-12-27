@@ -20,6 +20,7 @@ body {
 .navbar-default {
   color: white;
   background-color: #159957;
+  border: none;
   /*background-image: linear-gradient(120deg, #155799, #159957);*/
 }
 

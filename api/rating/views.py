@@ -1,7 +1,12 @@
-from rest_framework.generics import ListAPIView
+from django.db.models import Count
+from django.db.models.functions import ExtractMonth, ExtractYear
 
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
+
+from movie.models import Rating, Title
 from .pagination import SetPagination
-from .serializers import *
+from .serializers import RatingListSerializer
 
 
 class RatingListView(ListAPIView):
@@ -39,3 +44,44 @@ class RatingListView(ListAPIView):
         # if genre:
         #     queryset = Genre.objects.get(name=genre).entry_set.all()
         return queryset
+
+
+class Genres(ListAPIView):
+    def get(self, request, *args, **kwargs):
+        username = self.request.query_params.get('u')
+        if username is not None:
+            genre_count = Title.objects.filter(rating__user__username=username)\
+                .values('genre__name').annotate(the_count=Count('genre')).order_by('genre')
+            return Response(genre_count)
+        return Response()
+
+
+class Years(ListAPIView):
+    def get(self, request, *args, **kwargs):
+        username = self.request.query_params.get('u')
+        if username is not None:
+            year_count = Title.objects.filter(rating__user__username=username) \
+                .values('year').annotate(the_count=Count('year')).order_by('year')
+            return Response(year_count)
+        return Response()
+
+
+class Rates(ListAPIView):
+    def get(self, request, *args, **kwargs):
+        username = self.request.query_params.get('u')
+        if username is not None:
+            rate_count = Rating.objects.filter(user__username=username) \
+                .values('rate').annotate(the_count=Count('rate')).order_by('rate')
+            return Response(rate_count)
+        return Response()
+
+
+class MonthlyRatings(ListAPIView):
+    def get(self, request, *args, **kwargs):
+        username = self.request.query_params.get('u')
+        if username is not None:
+            count_per_months = Rating.objects.annotate(month=ExtractMonth('rate_date'), year=ExtractYear('rate_date'))\
+                .values('month', 'year').distinct().order_by('year', 'month')\
+                .annotate(the_count=Count('id'))
+            return Response(count_per_months)
+        return Response()

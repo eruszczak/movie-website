@@ -8,7 +8,7 @@ It is helpful because if you rate again some title on IMDb, information about pr
 This version's features:
 - creating accounts
 - uploading ratings.csv file exported from IMDb and then using it for importing your ratings to the website
-- if you provide your imdb accounts' id and you have a public profile your ratings will be kept up-to-date
+- if you provide your imdb account's id and you have a public profile your ratings will be kept up-to-date
 - you can follow other users and then easily recommend them titles (you can also see how long it took them to watch it)
 - migrated from SQLite to PostgreSQL
 - watchlist
