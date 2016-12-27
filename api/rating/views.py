@@ -50,8 +50,8 @@ class Genres(ListAPIView):
     def get(self, request, *args, **kwargs):
         username = self.request.query_params.get('u')
         if username is not None:
-            genre_count = Title.objects.filter(rating__user__username=username)\
-                .values('genre__name').annotate(the_count=Count('genre')).order_by('genre')
+            genre_count = Rating.objects.filter(user__username=username).values('title__genre__name')\
+                .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
             return Response(genre_count)
         return Response()
 
@@ -60,8 +60,8 @@ class Years(ListAPIView):
     def get(self, request, *args, **kwargs):
         username = self.request.query_params.get('u')
         if username is not None:
-            year_count = Title.objects.filter(rating__user__username=username) \
-                .values('year').annotate(the_count=Count('year')).order_by('year')
+            year_count = Rating.objects.filter(user__username=username).values('title__year')\
+                .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
             return Response(year_count)
         return Response()
 
@@ -70,8 +70,8 @@ class Rates(ListAPIView):
     def get(self, request, *args, **kwargs):
         username = self.request.query_params.get('u')
         if username is not None:
-            rate_count = Rating.objects.filter(user__username=username) \
-                .values('rate').annotate(the_count=Count('rate')).order_by('rate')
+            rate_count = Rating.objects.filter(user__username=username).values('rate')\
+                .annotate(the_count=Count('title', distinct=True)).order_by('rate')
             return Response(rate_count)
         return Response()
 
