@@ -110,7 +110,7 @@ def explore(request):
             query_string += '{}={}&'.format('g', genre)
 
     user = request.GET.get('u')
-    if user:
+    if user is not None:
         query_string += '{}={}&'.format('u', user)
         if request.GET.get('exclude_his'):
             titles = titles.exclude(rating__user__username=user)
