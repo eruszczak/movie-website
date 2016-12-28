@@ -26,10 +26,6 @@ charts = {
     },
 }
 
-// todo
-// clicked btn effect on default chart
-// details
-
 function graph_genres(chart, place='#graph') {
      $.getJSON(chart.endpoint, {
           u: path_username
@@ -67,91 +63,89 @@ function graph_genres(chart, place='#graph') {
                     }
                 },
                 series: [{
+                    name: 'Count',
                     data: values
                 }]
             });
         });
 };
 
-/*
-function initialize_years(data) {
-    var years = $.map(data, function(dict, year) { return year });
-    years = years.sort(function(a, b){return b-a});
-    years.unshift('all');
-    $("#select_year").append(
-        $.map(years, function(v, k) {
-            return $("<option>").val(k).text(v);
-        })
-    );
-    initialize_years = function(){};
-}
-*/
 function graph_months(chart, place='#graph') {
     $('#select_year').show()
      $.getJSON(chart.endpoint, {
             u: path_username
-        }).done(function(data) {
-//            initialize_years(data);
-            var series = [];
-            var months = $.map(data['2014'], function(dict, month) { return month });
-            var years = $.map(data, function(dict, year) { return year });
-            for (var i = 0; i < years.length; i += 1) {
-                var values = $.map(data[years[i]], function(dict, month) { return dict.count });
-                series.push({name: years[i], data: values});
-            };
-            $(place).highcharts({
-                chart: {
-                    type: 'column'
-                },
+     }).done(function(data) {
+        var series = [];
+        for (var i = 0; i < data.length; i += 1) {
+            // insert to series[] new year and 12-elems array filled with zeroes and replace value for that month
+            // before inserting check if this year already is in series[]. is so, only replace zero
+            var d = {};
+            var year = data[i].year;
+            var month = data[i].month;
+            var count = data[i].the_count;
+            var objIndex = findObjectInArray(series, year);
+
+            if (objIndex > 0) {
+                var curr_months = series[objIndex].data;
+                curr_months[month - 1] = count;
+                series[objIndex].data = curr_months;
+            } else {
+                d.name = year;
+                d.data = [0,0,0,0,0,0,0,0,0,0,0,0];
+                d.data[month - 1] = count;
+                series.push(d);
+            }
+        }
+
+        $(place).highcharts({
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: chart.title,
+                x: -20
+            },
+            xAxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            },
+            yAxis: {
                 title: {
-                    text: chart.title,
-                    x: -20
+                    text: chart.title
                 },
-                xAxis: {
-                    categories: months
-                },
-                yAxis: {
-                    title: {
-                        text: 'Ratings'
+            },
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true
                     },
+                    enableMouseTracking: true
                 },
-                plotOptions: {
-                    line: {
-                        dataLabels: {
-                            enabled: true
-                        },
-                        enableMouseTracking: true
-                    },
-                    series: {
-                        cursor: 'pointer',
-                        point: {
-                            events: {
-                                click: function () {
-                                    var month_num = parseInt(this.index) + 1;
-                                    var url = '/' + this.series.name + '/' + month_num;
-                                    window.open(url, '_blank');
-                                }
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function () {
+                                var month_num = parseInt(this.index) + 1;
+                                var url = '/explore/?u=' + path_username;
+                                url += '&year=' + this.series.name + '&month=' + month_num;
+                                window.open(url, '_blank');
                             }
                         }
                     }
-                },
-                tooltip: {
-                    valueSuffix: ' ratings'
-                },
-//                legend: {
-//                    layout: 'vertical',
-//                    align: 'right',
-//                    verticalAlign: 'middle',
-//                    borderWidth: 0
-//                },
-                series: series
-            });
+                }
+            },
+            tooltip: {
+                valueSuffix: ' ratings'
+            },
+            series: series
         });
+     });
 };
 
 
 $(document).ready(function() {
-    graph_genres(charts.genres);
+//    graph_genres(charts.genres);
+    $('#graph_genres').click();
 });
 $('#graph_genres').click(function() {
     graph_genres(charts.genres);;
@@ -175,3 +169,14 @@ $('#graph_months').click(function() {
         graph_year('#include_graph_year')
     }
 });*/
+
+function findObjectInArray(arr, val) {
+    var index = -1;
+    for (var j = 0; j < arr.length; j += 1) {
+        if (arr[j].name == val) {
+            index = j;
+            break;
+        }
+    }
+    return index;
+}
