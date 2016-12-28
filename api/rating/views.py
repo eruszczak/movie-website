@@ -81,7 +81,10 @@ class MonthlyRatings(ListAPIView):
         username = self.request.query_params.get('u')
         if username is not None:
             count_per_months = Rating.objects.annotate(month=ExtractMonth('rate_date'), year=ExtractYear('rate_date'))\
-                .values('month', 'year').distinct().order_by('year', 'month')\
-                .annotate(the_count=Count('id'))
+                .values('month', 'year').order_by('year', 'month')\
+                .annotate(the_count=Count('title', distinct=True))
+            d = {}
+            for item in count_per_months:
+                print(item['month'], item['year'], item['the_count'])
             return Response(count_per_months)
         return Response()

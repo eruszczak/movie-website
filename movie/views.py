@@ -145,6 +145,7 @@ def explore(request):
             query_string += '{}={}&'.format('year', rate_date_year)
 
     page = request.GET.get('page')
+    titles = titles.distinct()
     ratings = paginate(titles, page)
 
     if query_string:
