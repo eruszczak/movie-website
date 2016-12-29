@@ -18,17 +18,53 @@ $(document).ready(function() {
         return false;
     });
 
-//    $('#unwatch').mouseover(function() {
-//        $(this).val("want to see again").removeClass('unwatch-btn').addClass('watch-btn');
-//    }).mouseout(function() {
-//        $(this).val("don't want to see again").removeClass('watch-btn').addClass('unwatch-btn');
-//    });
-//
-//    $('#watch').mouseover(function() {
-//        $(this).val("don't want to see again").removeClass('watch-btn').addClass('unwatch-btn');
-//    }).mouseout(function() {
-//        $(this).val("want to see again").removeClass('unwatch-btn').addClass('watch-btn');
-//    });
+    $('body').on('click', 'button[name="fav"]', function() {
+        var data = {
+            'fav': 'fav',
+            'const': $(this).val()
+        };
+        ajax_request(data);
+        $(this).removeClass('watch-btn').addClass('unwatch-btn');
+        $(this).attr('name', 'unfav');
+        $(this).html('unfavourite');
+    });
+    $('body').on('click', 'button[name="unfav"]', function() {
+        var data = {
+            'unfav': 'unfav',
+            'const': $(this).val()
+        };
+        ajax_request(data);
+        $(this).removeClass('unwatch-btn').addClass('watch-btn');
+        $(this).attr('name', 'fav');
+        $(this).html('favourite');
+    });
+
+
+    $('body').on('click', 'button[name="watch"]', function() {
+        var data = {
+            'watch': 'watch',
+            'const': $(this).val()
+        };
+        ajax_request(data);
+        $(this).removeClass('watch-btn').addClass('unwatch-btn');
+        $(this).attr('name', 'unwatch');
+        $(this).html('Don\'t want to see again');
+    });
+    $('body').on('click', 'button[name="unwatch"]', function() {
+        var data = {
+            'unwatch': 'unwatch',
+            'const': $(this).val()
+        };
+        ajax_request(data);
+        $(this).removeClass('unwatch-btn').addClass('watch-btn');
+        $(this).attr('name', 'watch');
+        $(this).html('Want to see again');
+    });
+
+
+
+
+
 
     if ($('div').is('#favouritePage')) {
         var pathArray = window.location.pathname.split('/');
@@ -47,12 +83,6 @@ $(document).ready(function() {
         $("#star_rating_form").submit();
 //        ajax_request({'value': this.value, 'checkbox': $('input[name="insert_as_new"').val()}, true);
     });
-
-    // now it's not needed because order is saved without button click
-//    $('#save-order').click(function() {
-//        var ordering = $('#sortable').sortable('serialize');
-//        ajax_request({'item_order': ordering}, true);
-//    });
 });
 
 function sortable() {
@@ -70,12 +100,14 @@ function sortable() {
     $("#sortable").disableSelection();
 }
 
-function ajax_request(data, refresh = false, destination = this.href) {
-    data['csrfmiddlewaretoken'] = csrftoken;
+function ajax_request(data, refresh=false) {
+    data['csrfmiddlewaretoken'] = csrftoken; // attach csrf token
+    var url = [location.protocol, '//', location.host, location.pathname].join('');
+    console.log(data, url);
     $.ajax({
         data: data,
         type: 'POST',
-        url: destination,
+        url: url,
         success: function() {
 //            if (refresh) {
 //                window.location.reload(false);
@@ -100,3 +132,5 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+
