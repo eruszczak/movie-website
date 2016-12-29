@@ -60,10 +60,9 @@ function sortable() {
         placeholder: 'sort-placeholder',
         axis: 'y',
         update: function (event, ui) {
-//            $('#save-order').removeClass('disabled');
             var ordering = $(this).sortable('serialize');
             $(this).find('li').each(function(i){
-                $(this).find('p.item-order').text(i+1);
+                $(this).find('p#item-order').text(i+1);
             });
             ajax_request({'item_order': ordering});
         }

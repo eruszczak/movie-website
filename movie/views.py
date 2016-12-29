@@ -68,7 +68,7 @@ def explore(request):
                 Case(When(rating__user=request.user, then=1), output_field=IntegerField())
             ),
             has_in_watchlist=Count(
-                Case(When(watchlist__user=request.user, then=1), output_field=IntegerField())
+                Case(When(watchlist__user=request.user, watchlist__deleted=False, then=1), output_field=IntegerField())
             ),
             has_in_favourites=Count(
                 Case(When(favourite__user=request.user, then=1), output_field=IntegerField())
