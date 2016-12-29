@@ -1,14 +1,17 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 
 {% block content %}
     <div id="favouritePage">
-        <button id="save-order" type="button" class="btn btn-primary btn-xs disabled">save</button>
         <ul id="sortable">
             {% for entry in ratings %}
             <li id="item-{{ entry.title.const }}" class="ui-state-default">
                 <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
-                <a href="{{ entry.title }}">{{ entry.title.name }}</a>
-                <p class="item-order">{{ entry.order }}</p>
+                <p id="item-order" class="" style="float: left; line-height: 50px; margin-right: 10px;">{{ entry.order }}</p>
+                <img class="img-responsive"
+                     src="{% if entry.title.img %}{{ entry.title.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
+                     style="height: 50px; float: left; margin-right: 10px;" alt="...">
+                <a href="{{ entry.title.get_absolute_url }}" style="line-height: 50px;">{{ entry.title.name }}</a>
             </li>
             {% endfor %}
         </ul>

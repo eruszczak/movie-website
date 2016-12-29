@@ -3,9 +3,9 @@ $question = document.getElementsByName("q")[0]
 function school(link) {
      $('#result-panel, .result-panel-heading, #inputQuery:focus, .functionality').css('border-color', getRandomColor())
 
-     var question = $question.value
-     if (!question) { return }
-     $('#question').html(question)
+     var question = $question.value;
+     if (!question) { return; };
+     $('#question').html(question);
 
     change_display()
 
@@ -13,25 +13,25 @@ function school(link) {
           format: "json"
      }).done(function(data) {
         if (!data) {
-            $('#query_info').show().html('An error occurred. Try again')
-            return
+            $('#query_info').show().html('An error occurred. Try again');
+            return;
         }
         if (typeof data === 'object') {
-            $('#map').show()
-            initMap(data)
-            data =  data.time
+            $('#map').show();
+            initMap(data);
+            data =  data.time;
         }
         $('#answer').html(data)
-        var item = $('<ul><li>' + question + '</li><li>' + data + '</li></ul>').hide().fadeIn(1000)
-        $('#history').prepend(item)
+        var item = $('<ul><li>' + question + '</li><li>' + data + '</li></ul>').hide().fadeIn(1000);
+        $('#history').prepend(item);
      });
-     $question.value = ''
+     $question.value = '';
 };
 
 function get_link() {
     query = document.getElementsByName("q")[0].value;
-    link = '/api-school/?q=' + query
-    return link
+    link = '/api-school/?q=' + query;
+    return link;
 }
 
 $('#school').on('click', function() {
@@ -41,8 +41,8 @@ $('#school').on('click', function() {
 
 $('#inputQuery').keypress(function(e) {
     if (e.which == 13) {
-        link = get_link()
-        school(link)
+        link = get_link();
+        school(link);
         return false;
     }
 })
