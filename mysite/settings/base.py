@@ -16,26 +16,19 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'django.contrib.sites',
     'django.contrib.humanize',
 ]
 
 EXTERNAL_APPS = [
     'crispy_forms',
-    # 'haystack',
     'rest_framework',
     'corsheaders',
-    # 'south',
 ]
 
 LOCAL_APPS = [
     'movie',
     'recommend',
-    # 'chart',
     'users',
-    # 'contact',
-    # 'school',
-    'api',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + EXTERNAL_APPS + LOCAL_APPS
