@@ -7,7 +7,7 @@
 <div class="row lower">
 	<div class="col-md-12">
 		<div class="page-header">
-			<h1 class="text-center">{{ entry.name }}</h1>
+			<h2 class="text-center">{{ entry.name }} (<a href="{% url 'explore' %}?y={{ entry.year }}">{{ entry.year }}</a>)</h2>
 		</div>
 		<div class="row">
 			<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
@@ -15,8 +15,7 @@
 			</div>
 			<div class="col-xs-6 col-sm-3 col-md-3">
 				<ul class="list-group marginleft">
-					<li class="list-group-item">year: <a href="{% url 'explore' %}?y={{ entry.year }}">{{ entry.year }}</a></li>
-					<li class="list-group-item">genre:
+					<li class="list-group-item">
 					{% for genre in entry.genre.all %}
 						<a href="{{ genre.get_absolute_url }}">{{ genre.name }}<br></a>
 					{% endfor %}
@@ -57,8 +56,8 @@
 							<i class="fa fa-heart" aria-hidden="true"></i>
 						</button>
 					{% endif %}
+					{% if followed_can_take_recommendation %}
 						<form action="" method="post">{% csrf_token %}
-						{% if followed_can_take_recommendation %}
 							<select class="selectpicker show-tick" name="choose_followed_user"
 									multiple title="Recommend to" data-width="auto" data-size="5"
 									data-actions-box="true" data-live-search="true">
@@ -67,100 +66,94 @@
 							{% endfor %}
 							</select>
 							<button class="btn btn-sm" type="submit" name="select_followed_users" value="select">Recommend</button>
-						{% endif %}
 						</form>
+					{% endif %}
 					</li>
 					{% endif %}
 				</ul>
 			</div>
 		</div>
+		{% if request.user.is_authenticated %}
 		<div class="row">
 			<div class="col-md-6 col-md-offset-3">
-			{% if request.user.is_authenticated %}
-			<form id="star_rating_form" action="" method="post">{% csrf_token %}
-				<span class="starRating">
+				<hr>
+				<form id="star_rating_form" action="" method="post">{% csrf_token %}
+					<span class="starRating">
 					{% for i in loop %}
 						<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if user_ratings_of_title.0.rate == i %}checked{% endif %}>
 						<label for="rating{{ i }}">{{ i }}</label>
 					{% endfor %}
-				</span>
-				{% if user_ratings_of_title %}
-				<div class="checkbox">
-					<label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>
+					</span>
+					{% if user_ratings_of_title %}
+					<div class="checkbox">
+						<label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>
+					</div>
+					{% endif %}
+				</form>
+			</div>
+		</div>
+		{% endif %}
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<hr>
+				<div class="panel panel-success">
+					<div class="panel-heading">Plot</div>
+					<div class="panel-body">{{ entry.plot }}</div>
 				</div>
-				{% endif %}
-			</form>
-			{% endif %}
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-xs-10 col-xs-offset-1"><br>
-				{% if user_ratings_of_title %}
-				<div class="progress">
-					<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: {{ user_ratings_of_title.0.rate }}0%">{{ user_ratings_of_title.0.rate }}/10</div>
-                </div>
-				{% endif %}
-				{{ entry.plot }}
-			</div>
-		</div>
-<!--<span class="label {% if entry.yesterday_today_month == 'this month' %}label-info{% else %}label-warning{% endif %}">-->
-<!--{{ entry.yesterday_today_month }}-->
-<!--</span>-->
-		<div class="row">
-			<div class="col-md-2 hidden-xs"></div>
-			<div class="col-xs-2 visible-xs"></div>
-			<div class="col-xs-10 col-md-5">
-			{% if user_ratings_of_title %}
-				<div class="history">
-					<p class="lead"><br>History of ratings:</p>
-					<table class="table-bordered table-condensed">
-						<thead>
-							<tr>
-								<th class="text-center">title</th>
-								<th class="text-center">rating</th>
-								<th class="text-center">rated</th>
-								<th class="text-center">delete</th>
-							</tr>
-						</thead>
-                    	<tbody>
-						{% for rating in user_ratings_of_title %}
-							<tr>
-								<td class=""><a href="{% url 'explore' %}?year={{ rating.rate_date|date:'Y' }}&month={{ rating.rate_date|date:'m' }}">{{ rating.rate_date|date:"Y-m-d" }}</a></td>
-								<td class=""><a href="{% url 'explore' %}?r={{ a.rate }}">{{ rating.rate }}</a>
-								{% with rating.rated_before_rate_diff as rate_diff %}
-								{% if rate_diff != None %}
-									{% if rate_diff > 0 %}
-									<span class="increase">(+{{ rating.rated_before_rate_diff }})</span>
-									{% elif rate_diff == 0 %}
-									<span class="">==</span>
-									{% else %}
-									<span class="decrease">({{ rate_diff }})</span>
-									{% endif %}
-								{% endif %}
-								{% endwith %}
-								</td>
-								<td class="text-center">duration: {{ rating.next_rating_days_diff }} days</td>
-								<td>
-									<form action="" method="post">{% csrf_token %}
-										<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating">delete_rating</button>
-										<input type="hidden" name="rating_pk" value="{{ rating.pk }}">
-									</form>
-								</td>
-							</tr>
-						{% endfor %}
-						<tbody>
-					</table>
+			<div class="col-md-8 col-md-offset-2">
+				<div class="row">
+					<div class="col-md-7">
+						<div class="panel panel-success">
+							<div class="panel-heading">History of ratings</div>
+							<div class="panel-body">
+								<table class="table-bordered table-condensed">
+									<tbody>
+									{% for rating in user_ratings_of_title %}
+										<tr>
+											<td class=""><a href="{% url 'explore' %}?year={{ rating.rate_date|date:'Y' }}&month={{ rating.rate_date|date:'m' }}">{{ rating.rate_date|date:"Y-m-d" }}</a></td>
+											<td class=""><a href="{% url 'explore' %}?r={{ rating.rate }}">{{ rating.rate }}</a>
+											{% with rating.rated_before_rate_diff as rate_diff %}
+											{% if rate_diff != None %}
+												{% if rate_diff > 0 %}
+												<span class="increase">(+{{ rating.rated_before_rate_diff }})</span>
+												{% elif rate_diff == 0 %}
+												<span class="">==</span>
+												{% else %}
+												<span class="decrease">({{ rate_diff }})</span>
+												{% endif %}
+											{% endif %}
+											{% endwith %}
+											</td>
+											<td class="text-center">duration: {{ rating.next_rating_days_diff }} days</td>
+											<td>
+												<form action="" method="post">{% csrf_token %}
+													<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating">delete</button>
+													<input type="hidden" name="rating_pk" value="{{ rating.pk }}">
+												</form>
+											</td>
+										</tr>
+									{% endfor %}
+									<tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-5">
+						<div class="panel panel-success">
+							<div class="panel-heading">More</div>
+							<div class="panel-body">
+								<ul>
+									<li><a href="{{ entry.url_imdb }}">imdb</a></li>
+									<li><a href="{{ entry.url_tomato }}">rotten tomatoes</a></li>
+								</ul>
+								Title last updated: {{ entry.last_updated|date:"Y-m-d" }}
+							</div>
+						</div>
+					</div>
 				</div>
-			{% endif %}
-			</div>
-			<div class="col-xs-2 visible-xs"></div>
-			<div class="col-xs-10 col-md-5">
-				<p class="lead"><br>Find out more:</p>
-				<ul>
-					<li><a href="{{ entry.url_imdb }}">imdb</a></li>
-					<li><a href="{{ entry.url_tomato }}">rotten tomatoes</a></li>
-				</ul>
-				Last updated: {{ entry.last_updated|date:"Y-m-d" }}
 			</div>
 		</div>
 		{% if followed_saw_title %}

@@ -52,11 +52,11 @@ class Genres(ListAPIView):
     def get(self, request, *args, **kwargs):
         username = self.request.query_params.get('u')
         if username is not None:
-            genre_count = Rating.objects.filter(user__username=username).values('title__genre__name')\
-                .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
+            genre_count = Title.objects.filter(rating__user__username=username).values('genre__name')\
+                .annotate(the_count=Count('pk', distinct=True)).order_by('the_count')
             return Response(genre_count)
-        genre_count = Rating.objects.values('title__genre__name')\
-            .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
+        genre_count = Title.objects.all().values('genre__name')\
+            .annotate(the_count=Count('pk')).order_by('the_count')
         return Response(genre_count)
 
 
@@ -64,12 +64,10 @@ class Years(ListAPIView):
     def get(self, request, *args, **kwargs):
         username = self.request.query_params.get('u')
         if username is not None:
-            year_count = Rating.objects.filter(user__username=username).values('title__year')\
-                .annotate(the_count=Count('title', distinct=True)).order_by('title__year')
-            test = Title.objects.filter()
+            year_count = Title.objects.filter(rating__user__username=username).values('year')\
+                .annotate(the_count=Count('pk', distinct=True)).order_by('year')
             return Response(year_count)
-        year_count = Rating.objects.values('title__year')\
-            .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
+        year_count = Title.objects.all().values('year').annotate(the_count=Count('pk')).order_by('year')
         return Response(year_count)
 
 
@@ -79,6 +77,8 @@ class Rates(ListAPIView):
         if username is not None:
             rate_count = Rating.objects.filter(user__username=username).values('rate')\
                 .annotate(the_count=Count('title', distinct=True)).order_by('rate')
+            rate_count = Title.objects.filter(rating__user__username=username).values('rating__rate')\
+                .annotate(the_count=Count('pk', distinct=True)).order_by('rating__rate')
             return Response(rate_count)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
