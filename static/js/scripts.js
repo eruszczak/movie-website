@@ -31,9 +31,6 @@ $(document).ready(function() {
     });
 
 
-
-
-
     if ($('div').is('#favouritePage')) {
         var pathArray = window.location.pathname.split('/');
         var path_username = pathArray[pathArray.length - 3];

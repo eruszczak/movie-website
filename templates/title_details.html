@@ -15,13 +15,13 @@
 			</div>
 			<div class="col-xs-6 col-sm-3 col-md-3">
 				<ul class="list-group marginleft">
-					<li class="list-group-item"><a href="{% url 'explore' %}?y={{ entry.year }}">{{ entry.year }}</a></li>
-					<li class="list-group-item">
+					<li class="list-group-item">year: <a href="{% url 'explore' %}?y={{ entry.year }}">{{ entry.year }}</a></li>
+					<li class="list-group-item">genre:
 					{% for genre in entry.genre.all %}
 						<a href="{{ genre.get_absolute_url }}">{{ genre.name }}<br></a>
 					{% endfor %}
 					</li>
-					<li class="list-group-item">
+					<li class="list-group-item">director:
 					{% for director in entry.director.all %}
 						<a href="{{ director.get_absolute_url }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>
 					{% endfor %}
@@ -31,11 +31,11 @@
 					{% endif %}
 
 					{% if entry.rate_imdb %}
-					<li class="list-group-item">Average IMDb ratings: {{ entry.rate_imdb }}</li>
+					<li class="list-group-item">Avg IMDb ratings: {{ entry.rate_imdb }}</li>
 					{% endif %}
 
-                    {% if average_rating %}
-                    <li class="list-group-item">Average ratings: {{ average_rating }} <a href="{% url 'user_list' %}?s={{ entry.slug }}">click</a></li>
+                    {% if rate %}
+                    <li class="list-group-item">Avg ratings: {{ rate.avg }} <a href="{% url 'user_list' %}?s={{ entry.slug }}">({{ rate.count }} user{{ rate.count|pluralize }})</a></li>
                     {% endif %}
 
 					{% if request.user.is_authenticated %}
@@ -43,21 +43,21 @@
 					{% if user_ratings_of_title %}
 						<a href="{% url 'title_edit' slug=entry.slug %}" class="label label-default">change current rating</a>
 					{% endif %}
+					{% if is_in_user_watchlist %}
+						<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="unwatch">Don't want to see again</button>
+					{% else %}
+						<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="watch">Want to see again</button>
+					{% endif %}
+						<br>
+					{% if is_favourite_for_user %}
+						<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="unfav">unfavourite</button>
+					{% else %}
+						<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav">favourite <i class="fa fa-heart" aria-hidden="true"></i></button>
+						<button id="fav-icon" type="submit" name="fav" value="fav">
+							<i class="fa fa-heart" aria-hidden="true"></i>
+						</button>
+					{% endif %}
 						<form action="" method="post">{% csrf_token %}
-						{% if is_in_user_watchlist %}
-							<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="unwatch">Don't want to see again</button>
-						{% else %}
-							<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="watch">Want to see again</button>
-						{% endif %}
-							<br>
-						{% if is_favourite_for_user %}
-							<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="unfav">unfavourite</button>
-						{% else %}
-							<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav">favourite <i class="fa fa-heart" aria-hidden="true"></i></button>
-							<button id="fav-icon" type="submit" name="fav" value="fav">
-								<i class="fa fa-heart" aria-hidden="true"></i>
-							</button>
-						{% endif %}
 						{% if followed_can_take_recommendation %}
 							<select class="selectpicker show-tick" name="choose_followed_user"
 									multiple title="Recommend to" data-width="auto" data-size="5"
@@ -68,40 +68,31 @@
 							</select>
 							<button class="btn btn-sm" type="submit" name="select_followed_users" value="select">Recommend</button>
 						{% endif %}
-						<!--{% if followed_who_can_take_recommendation %}-->
-							<!--<select class="selectpicker show-tick" name="choose_followed_user"-->
-									<!--multiple title="Recommend to" data-width="auto" data-size="5"-->
-									<!--data-actions-box="true" data-live-search="true">-->
-							<!--{% for user in followed_who_can_take_recommendation %}-->
-								<!--{% if not user.seen_by_followed and not user.has_in_recommend %}-->
-								<!--<option value="{{ user.user_followed.username }}" data-subtext="{{ user.user_followed.userprofile.count_ratings }} ratings">{{ user.user_followed.username }}</option>-->
-								<!--{% endif %}-->
-							<!--{% endfor %}-->
-							<!--</select>-->
-							<!--<button class="btn btn-sm" type="submit" name="select_followed_users" value="select">Recommend</button>-->
-						<!--{% endif %}-->
 						</form>
 					</li>
 					{% endif %}
 				</ul>
 			</div>
 		</div>
-
-		{% if request.user.is_authenticated %}
-		<form id="star_rating_form" action="" method="post">{% csrf_token %}
-			<span class="starRating">
-				{% for i in loop %}
-					<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if user_ratings_of_title.0.rate == i %}checked{% endif %}>
-					<label for="rating{{ i }}">{{ i }}</label>
-			  	{% endfor %}
-		  	</span>
-            {% if user_ratings_of_title %}
-			<div class="checkbox">
-				<label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>
-            </div>
-            {% endif %}
-		</form>
-		{% endif %}
+		<div class="row">
+			<div class="col-md-6 col-md-offset-3">
+			{% if request.user.is_authenticated %}
+			<form id="star_rating_form" action="" method="post">{% csrf_token %}
+				<span class="starRating">
+					{% for i in loop %}
+						<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if user_ratings_of_title.0.rate == i %}checked{% endif %}>
+						<label for="rating{{ i }}">{{ i }}</label>
+					{% endfor %}
+				</span>
+				{% if user_ratings_of_title %}
+				<div class="checkbox">
+					<label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>
+				</div>
+				{% endif %}
+			</form>
+			{% endif %}
+			</div>
+		</div>
 		<div class="row">
 			<div class="col-xs-10 col-xs-offset-1"><br>
 				{% if user_ratings_of_title %}
