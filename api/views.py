@@ -55,8 +55,9 @@ class Genres(ListAPIView):
             genre_count = Rating.objects.filter(user__username=username).values('title__genre__name')\
                 .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
             return Response(genre_count)
-        # return not filtered for user todo
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        genre_count = Rating.objects.values('title__genre__name')\
+            .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
+        return Response(genre_count)
 
 
 class Years(ListAPIView):
@@ -66,8 +67,9 @@ class Years(ListAPIView):
             year_count = Rating.objects.filter(user__username=username).values('title__year')\
                 .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
             return Response(year_count)
-        # return not filtered for user todo
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        year_count = Rating.objects.values('title__year')\
+            .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
+        return Response(year_count)
 
 
 class Rates(ListAPIView):

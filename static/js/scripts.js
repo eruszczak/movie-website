@@ -18,7 +18,8 @@ $(document).ready(function() {
         return false;
     });
 
-    $('body').on('click', 'button[name="fav"], button[name="unfav"], button[name="watch"], button[name="unwatch"]', function() {
+    var selectors = 'button[name="fav"], button[name="unfav"], button[name="watch"], button[name="unwatch"]';
+    $('body').on('click', selectors, function() {
         var data = {'const': $(this).val()};
         var btnName = $(this).attr('name');
         data[btnName] = btnName;
