@@ -1,35 +1,36 @@
-var pathArray = window.location.pathname.split('/');
-var path_username = pathArray[2];
+$(document).ready(function() {
+    $('#graph_genres').click();
 
-charts = {
-    'genres': {
-        'endpoint': '/api/ratings/g/',
-        'title': 'Rating Distribution By Genre',
-        'fieldName': 'title__genre__name',
-        'detail_url': '&g=',
-    },
-    'years': {
-        'endpoint': '/api/ratings/y/',
-        'title': 'Rating Distribution By Year',
-        'fieldName': 'title__year',
-        'detail_url': '&y=',
-    },
-    'rates': {
-        'endpoint': '/api/ratings/r/',
-        'title': 'Rating Distribution',
-        'fieldName': 'rate',
-        'detail_url': '&r=',
-    },
-    'monthly': {
-        'endpoint': '/api/ratings/m/',
-        'title': 'Watched per month',
-    },
-}
+    /* display graphs for AllYears and AllGenres pages */
+    if ($('div').is('#includeChartGenres')) {
+        renderChart(charts.genres, '#includeChartGenres');
+    }
 
-function graph_genres(chart, place='#graph') {
-     $.getJSON(chart.endpoint, {
-          u: path_username
-        }).done(function(data) {
+    if ($('div').is('#includeChartYears')) {
+        renderChart(charts.years, '#includeChartYears');
+    }
+
+    $('#graph_genres').click(function() {
+        renderChart(charts.genres);;
+    });
+
+    $('#graph_year').click(function() {
+        renderChart(charts.years);
+    });
+
+    $('#graph_rated').click(function() {
+        renderChart(charts.rates);
+    });
+
+    $('#graph_months').click(function() {
+        monthlyChart(charts.monthly);
+    });
+});
+
+function renderChart(chart, place='#graph') {
+    /*If rendered in different place than #graph it means that I want global data, not for specific user*/
+    var queryParams = place === '#graph' ? {u: path_username} : {};
+     $.getJSON(chart.endpoint, queryParams).done(function(data) {
             var categories = $.map(data, function(dict) { return dict[chart.fieldName]; });
             var values = $.map(data, function(dict) { return dict.the_count; });
             $(place).highcharts({
@@ -55,7 +56,11 @@ function graph_genres(chart, place='#graph') {
                         point: {
                             events: {
                                 click: function () {
-                                    var url = '/explore/?u=' + path_username + chart.detail_url + this.category;
+                                    if (place === '#graph') {
+                                        var url = '/explore/?u=' + path_username + '&' + chart.queryParam + this.category;
+                                    } else {
+                                        var url = '/explore/?' + chart.queryParam + this.category;
+                                    }
                                     window.open(url, '_blank');
                                 }
                             }
@@ -70,7 +75,7 @@ function graph_genres(chart, place='#graph') {
         });
 };
 
-function graph_months(chart, place='#graph') {
+function monthlyChart(chart, place='#graph') {
     $('#select_year').show()
      $.getJSON(chart.endpoint, {
             u: path_username
@@ -142,34 +147,6 @@ function graph_months(chart, place='#graph') {
      });
 };
 
-
-$(document).ready(function() {
-//    graph_genres(charts.genres);
-    $('#graph_genres').click();
-});
-$('#graph_genres').click(function() {
-    graph_genres(charts.genres);;
-});
-$('#graph_year').click(function() {
-    graph_genres(charts.years);
-});
-$('#graph_rated').click(function() {
-    graph_genres(charts.rates);
-});
-$('#graph_months').click(function() {
-    graph_months(charts.monthly);
-});
-
-/* display graphs for AllYears and AllGenres pages */
-/*$(function(){ todo
-    if ($('div').is('#include_graph_genre')) {
-        graph_genres('#include_graph_genre')
-    }
-    if ($('div').is('#include_graph_year')) {
-        graph_year('#include_graph_year')
-    }
-});*/
-
 function findObjectInArray(arr, val) {
     var index = -1;
     for (var j = 0; j < arr.length; j += 1) {
@@ -180,3 +157,31 @@ function findObjectInArray(arr, val) {
     }
     return index;
 }
+
+charts = {
+    'genres': {
+        'endpoint': '/api/g/',
+        'title': 'Rating Distribution By Genre',
+        'fieldName': 'title__genre__name',
+        'queryParam': 'g=',
+    },
+    'years': {
+        'endpoint': '/api/y/',
+        'title': 'Rating Distribution By Year',
+        'fieldName': 'title__year',
+        'queryParam': 'y=',
+    },
+    'rates': {
+        'endpoint': '/api/r/',
+        'title': 'Rating Distribution',
+        'fieldName': 'rate',
+        'queryParam': 'r=',
+    },
+    'monthly': {
+        'endpoint': '/api/m/',
+        'title': 'Watched per month',
+    },
+}
+
+var pathArray = window.location.pathname.split('/');
+var path_username = pathArray[2];
