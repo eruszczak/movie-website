@@ -7,7 +7,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 
-from movie.models import Rating
+from movie.models import Rating, Title
 from .serializers import RatingListSerializer
 
 
@@ -65,7 +65,8 @@ class Years(ListAPIView):
         username = self.request.query_params.get('u')
         if username is not None:
             year_count = Rating.objects.filter(user__username=username).values('title__year')\
-                .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
+                .annotate(the_count=Count('title', distinct=True)).order_by('title__year')
+            test = Title.objects.filter()
             return Response(year_count)
         year_count = Rating.objects.values('title__year')\
             .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
