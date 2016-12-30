@@ -1,5 +1,5 @@
-$(document).ready(function() {
     $('#graph_genres').click();
+$(document).ready(function() {
 
     /* display graphs for AllYears and AllGenres pages */
     if ($('div').is('#includeChartGenres')) {
@@ -49,7 +49,9 @@ function renderChart(chart, place='#graph') {
                         dataLabels: {
                             enabled: true
                         },
-                        enableMouseTracking: true
+                        enableMouseTracking: true,
+                        animation: false
+
                     },
                     series: {
                         cursor: 'pointer',
@@ -104,6 +106,7 @@ function monthlyChart(chart, place='#graph') {
 
         $(place).highcharts({
             chart: {
+                animation: false,
                 type: 'column'
             },
             title: {
@@ -162,19 +165,19 @@ charts = {
     'genres': {
         'endpoint': '/api/g/',
         'title': 'Rating Distribution By Genre',
-        'fieldName': 'title__genre__name',
+        'fieldName': 'genre__name',
         'queryParam': 'g=',
     },
     'years': {
         'endpoint': '/api/y/',
         'title': 'Rating Distribution By Year',
-        'fieldName': 'title__year',
+        'fieldName': 'year',
         'queryParam': 'y=',
     },
     'rates': {
         'endpoint': '/api/r/',
         'title': 'Rating Distribution',
-        'fieldName': 'rate',
+        'fieldName': 'rating__rate',
         'queryParam': 'r=',
     },
     'monthly': {
