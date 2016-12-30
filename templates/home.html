@@ -61,7 +61,6 @@
 {% for entry in ratings %}
     <div class="col-md-6">
         <div class="last10 well well-sm {% cycle 'odd' 'even' %}">
-            <!--<div class="pull-left num">{{ forloop.counter }}</div>-->
             <a href="{{ entry.title.get_absolute_url }}">
                 <img class="img-rounded pull-left" src="{% if entry.title.img %}{{ entry.title.img.url }}
                     {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="">
