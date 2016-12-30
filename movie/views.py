@@ -298,6 +298,7 @@ def title_edit(request, slug):
 def groupby_year(request):
     context = {
         'year_count': Title.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
+        'title_count': Title.objects.all().count()
     }
     return render(request, 'groupby_year.html', context)
 

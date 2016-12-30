@@ -18,49 +18,17 @@ $(document).ready(function() {
         return false;
     });
 
-    $('body').on('click', 'button[name="fav"]', function() {
-        var data = {
-            'fav': 'fav',
-            'const': $(this).val()
-        };
+    $('body').on('click', 'button[name="fav"], button[name="unfav"], button[name="watch"], button[name="unwatch"]', function() {
+        var data = {'const': $(this).val()};
+        var btnName = $(this).attr('name');
+        data[btnName] = btnName;
         ajax_request(data);
-        $(this).removeClass('watch-btn').addClass('unwatch-btn');
-        $(this).attr('name', 'unfav');
-        $(this).html('unfavourite');
-    });
-    $('body').on('click', 'button[name="unfav"]', function() {
-        var data = {
-            'unfav': 'unfav',
-            'const': $(this).val()
-        };
-        ajax_request(data);
-        $(this).removeClass('unwatch-btn').addClass('watch-btn');
-        $(this).attr('name', 'fav');
-        $(this).html('favourite');
-    });
 
-
-    $('body').on('click', 'button[name="watch"]', function() {
-        var data = {
-            'watch': 'watch',
-            'const': $(this).val()
-        };
-        ajax_request(data);
-        $(this).removeClass('watch-btn').addClass('unwatch-btn');
-        $(this).attr('name', 'unwatch');
-        $(this).html('Don\'t want to see again');
+        var btn = buttons[btnName];
+        $(this).removeClass(btn.class).addClass(btn.afterClass);
+        $(this).attr('name', btn.afterName);
+        $(this).html(btn.afterText);
     });
-    $('body').on('click', 'button[name="unwatch"]', function() {
-        var data = {
-            'unwatch': 'unwatch',
-            'const': $(this).val()
-        };
-        ajax_request(data);
-        $(this).removeClass('unwatch-btn').addClass('watch-btn');
-        $(this).attr('name', 'watch');
-        $(this).html('Want to see again');
-    });
-
 
 
 
@@ -103,7 +71,6 @@ function sortable() {
 function ajax_request(data, refresh=false) {
     data['csrfmiddlewaretoken'] = csrftoken; // attach csrf token
     var url = [location.protocol, '//', location.host, location.pathname].join('');
-    console.log(data, url);
     $.ajax({
         data: data,
         type: 'POST',
@@ -133,4 +100,29 @@ function getCookie(name) {
     return cookieValue;
 }
 
-
+var buttons = {
+    'fav': {
+        'class': 'watch-btn',
+        'afterClass': 'unwatch-btn',
+        'afterName': 'unfav',
+        'afterText': 'unfavourite',
+    },
+    'unfav': {
+        'class': 'unwatch-btn',
+        'afterClass': 'watch-btn',
+        'afterName': 'fav',
+        'afterText': 'favourite',
+    },
+    'watch': {
+        'class': 'watch-btn',
+        'afterClass': 'unwatch-btn',
+        'afterName': 'unwatch',
+        'afterText': 'Don\'t want to see again',
+    },
+    'unwatch': {
+        'class': 'unwatch-btn',
+        'afterClass': 'watch-btn',
+        'afterName': 'watch',
+        'afterText': 'Want to see again',
+    }
+}
