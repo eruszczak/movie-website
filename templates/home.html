@@ -12,10 +12,10 @@
 {% block content %}
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
-        <div id="home_summary" class="alert alert-success" role="alert">
+        <div id="home_summary" class="">
             {% if request.user.is_authenticated %}
-            <div class="row">
-                <div class="col-md-6">
+            <div class="row alert alert-success" role="alert">
+                <div class="col-sm-6">
                     <ul>
                     {% if last_movie %}
                         <li>Last movie: <a href="{{ last_movie.get_absolute_url }}">{{ last_movie.name }}</a></li>
@@ -24,11 +24,11 @@
                         <li>Last tv-show: <a href="{{ last_series.get_absolute_url }}">{{ last_series.name }}</a></li>
                     {% endif %}
                     {% if last_good_movie %}
-                        <li>Last movie rated 9-10: <a href="{{ last_good_movie.get_absolute_url }}">{{ last_good_movie.name }}</a></li>
+                        <li>Last movie rated 9-10: <a href="{{ last_good_movie.get_absolute_url }}">{{ last_good_movie.name|truncatechars:20 }}</a></li>
                     {% endif %}
                     </ul>
                 </div>
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <ul>
                         <li>Total series: <a href="{{ total_series }}">{{ series_count }}</a> (<a href="{{ search_series }}">{{ series_my_count }}</a> watched)</li>
                         <li>Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a> (<a href="{{ search_movies }}">{{ movies_my_count }}</a> watched)</li>
@@ -62,7 +62,7 @@
     <div class="col-md-6">
         <div class="last10 well well-sm {% cycle 'odd' 'even' %}">
             <!--<div class="pull-left num">{{ forloop.counter }}</div>-->
-            <a href="{{ entry.title }}">
+            <a href="{{ entry.title.get_absolute_url }}">
                 <img class="img-rounded pull-left" src="{% if entry.title.img %}{{ entry.title.img.url }}
                     {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="">
             </a>

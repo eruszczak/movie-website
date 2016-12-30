@@ -156,6 +156,10 @@ textarea {
     overflow: hidden;
 }
 
+.alert-success {
+    padding-bottom: 5px;
+}
+
 .fa-star, .fa-star-o {
     color: orange;
 }
