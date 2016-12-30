@@ -47,7 +47,12 @@
                         <li><a href="{% url 'register' %}">register</a></li>
                     {% else %}
                         {% if request.user.userprofile.picture %}
-                        <li class="text-center"><img class="img-responsive img-thumbnail" src="{{ request.user.userprofile.picture.url }}" alt="..." style="width: 100px"></li>
+                        <li class="text-center">
+                            <a href="{{ request.user.userprofile.get_absolute_url }}">
+                                <img class="img-responsive img-thumbnail" src="{{ request.user.userprofile.picture.url }}" alt="..." style="width: 100px">
+                            </a>
+                        </li>
+                        <li role="separator" class="divider"></li>
                         {% endif %}
                         <li class="text-center"><a href="{% url 'logout' %}">logout</a></li>
                     {% endif %}
