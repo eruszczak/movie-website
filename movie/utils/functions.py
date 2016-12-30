@@ -35,11 +35,11 @@ def alter_title_in_favourites(user, title, fav=None, unfav=None):
 def average_rating_of_title(title):
     from ..models import Rating
     # not sure about sum() - it would be better to do it with aggregate Avg, but for now it will do
-    current_ratings = Rating.objects.filter(title=title).order_by('user', '-rate_date').distinct('user').values_list(
-        'rate', flat=True)
+    current_ratings = Rating.objects.filter(title=title).order_by('user', '-rate_date').distinct('user')\
+        .values_list('rate', flat=True)
     if current_ratings.exists():
         avg_rate = sum(rate for rate in current_ratings) / current_ratings.count()
-        return '{} ({} users)'.format(round(avg_rate, 1), current_ratings.count())
+        return round(avg_rate, 1), current_ratings.count()
     return None
 
 
