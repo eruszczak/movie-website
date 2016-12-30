@@ -1,20 +1,22 @@
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractYear
 
-from rest_framework.generics import ListAPIView
+from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 
-from movie.models import Rating, Title
-from .pagination import SetPagination
+from movie.models import Rating
 from .serializers import RatingListSerializer
 
 
-class RatingListView(ListAPIView):
+class RatingsViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+    queryset = Rating.objects.all()
     serializer_class = RatingListSerializer
-    pagination_class = SetPagination
 
     def get_queryset(self):
-        queryset = Rating.objects.all()#.order_by('-rate_date')
+        #.order_by('-rate_date')
         # query = self.request.GET.get('q')
         # year = self.request.GET.get('year')
         # genre = self.request.GET.get('genre')
@@ -43,7 +45,7 @@ class RatingListView(ListAPIView):
         #     # queryset = Title.objects.filter(rate_date__year=rated_year, rate_date__month=rated_month)
         # if genre:
         #     queryset = Genre.objects.get(name=genre).entry_set.all()
-        return queryset
+        return self.queryset
 
 
 class Genres(ListAPIView):
@@ -53,7 +55,8 @@ class Genres(ListAPIView):
             genre_count = Rating.objects.filter(user__username=username).values('title__genre__name')\
                 .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
             return Response(genre_count)
-        return Response()
+        # return not filtered for user todo
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class Years(ListAPIView):
@@ -63,7 +66,8 @@ class Years(ListAPIView):
             year_count = Rating.objects.filter(user__username=username).values('title__year')\
                 .annotate(the_count=Count('title', distinct=True)).order_by('-the_count')
             return Response(year_count)
-        return Response()
+        # return not filtered for user todo
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class Rates(ListAPIView):
@@ -73,7 +77,7 @@ class Rates(ListAPIView):
             rate_count = Rating.objects.filter(user__username=username).values('rate')\
                 .annotate(the_count=Count('title', distinct=True)).order_by('rate')
             return Response(rate_count)
-        return Response()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class MonthlyRatings(ListAPIView):
@@ -83,8 +87,5 @@ class MonthlyRatings(ListAPIView):
             count_per_months = Rating.objects.annotate(month=ExtractMonth('rate_date'), year=ExtractYear('rate_date'))\
                 .values('month', 'year').order_by('year', 'month')\
                 .annotate(the_count=Count('title', distinct=True))
-            d = {}
-            for item in count_per_months:
-                print(item['month'], item['year'], item['the_count'])
             return Response(count_per_months)
-        return Response()
+        return Response(status=status.HTTP_204_NO_CONTENT)
