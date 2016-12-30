@@ -95,9 +95,18 @@ textarea {
 }*/
 
 .content {
-    margin-left: 158px;
+    margin-left: 130px;
 }
 
+#home_summary {
+    margin-top: 5%;
+    margin-bottom: -3%;
+}
+
+#home_summary ul {
+    padding: 0;
+    list-style-type: none;
+}
 .odd {
     background-color: silver;
 }
