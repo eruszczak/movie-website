@@ -86,9 +86,9 @@
             <td class="col-md-2 text-center">{{ obj.added_date|date:"Y-m-d" }}</td>
             <td class="col-md-1 text-center">
             {% if not obj.is_active %}
-                <i class="fa fa-check" aria-hidden="true"></i>{{ obj.rated_after }} days
+                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
             {% else %}
-                <i class="fa fa-times" aria-hidden="true"></i>
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
             {% endif %}
             </td>
             <td class="col-md-2 text-center" {% if obj.note %}data-toggle="tooltip" data-placement="left" title="{{ obj.note }}"{% endif %}>
@@ -101,7 +101,8 @@
             {% if is_owner and obj.is_active %}
             <td class="col-md-1 text-center">
                 <form action="" method="post">{% csrf_token %}
-                    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_recommend" value="delete_recommend">delete</button>
+                    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_recommend" value="delete_recommend"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                    <!--<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_recommend" value="delete_recommend">delete</button>-->
                     <input type="hidden" name="recommend_pk" value="{{ obj.pk }}">
                 </form>
             </td>

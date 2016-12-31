@@ -51,6 +51,10 @@
 		</div>
     </div>
 </div>
+last 5 titles
+{% if request.user.is_authenticated and not is_owner %}
+compare
+{% endif %}
 <div class="row">
 	<div class="text-center">
 		<div class="btn-group" role="group" aria-label="...">
