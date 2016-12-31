@@ -1,4 +1,3 @@
-    $('#graph_genres').click();
 $(document).ready(function() {
 
     /* display graphs for AllYears and AllGenres pages */
@@ -10,22 +9,33 @@ $(document).ready(function() {
         renderChart(charts.years, '#includeChartYears');
     }
 
-    $('#graph_genres').click(function() {
-        renderChart(charts.genres);;
+    $('#graph_genres').click(function(e) {
+        renderChart(charts.genres);
+        e.preventDefault();
+        return false;
     });
 
-    $('#graph_year').click(function() {
+    $('#graph_year').click(function(e) {
         renderChart(charts.years);
+        e.preventDefault();
+        return false;
     });
 
-    $('#graph_rated').click(function() {
+    $('#graph_rated').click(function(e) {
         renderChart(charts.rates);
+        e.preventDefault();
+        return false;
     });
 
-    $('#graph_months').click(function() {
+    $('#graph_months').click(function(e) {
         monthlyChart(charts.monthly);
+        e.preventDefault();
+        return false;
     });
+
+    $('#graph_genres').trigger('click');
 });
+
 
 function renderChart(chart, place='#graph') {
     /*If rendered in different place than #graph it means that I want global data, not for specific user*/
@@ -35,7 +45,7 @@ function renderChart(chart, place='#graph') {
             var values = $.map(data, function(dict) { return dict.the_count; });
             $(place).highcharts({
                 title: {
-                    text: chart.title,
+                    text: place === '#graph' ? chart.title : chart.title.replace('Rating', 'Title'),
                     x: -20
                 },
                 xAxis: {
