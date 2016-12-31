@@ -53,6 +53,9 @@ class UserProfile(models.Model):
     def ratings_url(self):
         return reverse('explore') + '?u={}'.format(self.user.username)
 
+    def ratings_exclude(self):
+        return reverse('explore') + '?u={}&exclude_mine=on'.format(self.user.username)
+
     @property
     def count_ratings(self):
         return Title.objects.filter(rating__user=self.user).distinct().count()

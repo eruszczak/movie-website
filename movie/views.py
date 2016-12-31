@@ -250,8 +250,8 @@ def title_details(request, slug):
             Rating.objects.filter(pk=request.POST.get('rating_pk'), user=request.user).delete()
         return redirect(title)
 
-    avg_rate, rate_count = 1,1
-    # avg_rate, rate_count = average_rating_of_title(title)
+    avg_rate, rate_count = average_rating_of_title(title)
+    rating_data = {'avg': avg_rate, 'count': rate_count} if avg_rate else None
     context = {
         'entry': title,
         'user_ratings_of_title': user_ratings_of_title,
@@ -259,7 +259,7 @@ def title_details(request, slug):
         'is_in_user_watchlist': is_in_user_watchlist,
         'followed_can_take_recommendation': followed_can_take_recommendation,
         'followed_saw_title': followed_saw_title,
-        'rate': {'avg': avg_rate, 'count': rate_count},
+        'rate': rating_data,
         'loop': (n for n in range(10, 0, -1)),
     }
     return render(request, 'title_details.html', context)

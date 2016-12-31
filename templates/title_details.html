@@ -22,7 +22,7 @@
 					</li>
 					<li class="list-group-item">director:
 					{% for director in entry.director.all %}
-						<a href="{{ director.get_absolute_url }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown director{% endif %}<br></a>
+						<a href="{{ director.get_absolute_url }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}<br></a>
 					{% endfor %}
 					</li>
 					{% if entry.votes %}
@@ -96,6 +96,7 @@
 			</div>
 		</div>
 		{% endif %}
+		{% if entry.plot %}
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				<hr>
@@ -105,13 +106,18 @@
 				</div>
 			</div>
 		</div>
+		{% else %}
+		<hr>
+		{% endif %}
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				<div class="row">
+
 					<div class="col-md-8">
 						<div class="panel panel-success">
 							<div class="panel-heading">History of ratings</div>
 							<div class="panel-body">
+								{% if user_ratings_of_title %}
 								<table class="table-bordered table-condensed">
 									<tbody>
 									{% for rating in user_ratings_of_title %}
@@ -142,9 +148,13 @@
 									{% endfor %}
 									<tbody>
 								</table>
+								{% else %}
+								<p>You never rated this title.</p>
+								{% endif %}
 							</div>
 						</div>
 					</div>
+
 					<div class="col-md-4">
 						<div class="panel panel-success">
 							<div class="panel-heading">More</div>
