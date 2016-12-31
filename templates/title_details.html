@@ -36,12 +36,31 @@
                     {% if rate %}
                     <li class="list-group-item">Avg ratings: {{ rate.avg }} <a href="{% url 'user_list' %}?s={{ entry.slug }}">({{ rate.count }} user{{ rate.count|pluralize }})</a></li>
                     {% endif %}
-
-					{% if request.user.is_authenticated %}
-					<li class="list-group-item">
-					{% if user_ratings_of_title %}
-						<a href="{% url 'title_edit' slug=entry.slug %}" class="label label-default">change current rating</a>
-					{% endif %}
+				</ul>
+			</div>
+		</div>
+		{% if request.user.is_authenticated %}
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<hr>
+				<div class="row">
+					<div class="col-md-6">
+						<form id="star_rating_form" action="" method="post">{% csrf_token %}
+							<span class="starRating">
+							{% for i in loop %}
+								<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if user_ratings_of_title.0.rate == i %}checked{% endif %}>
+								<label for="rating{{ i }}">{{ i }}</label>
+							{% endfor %}
+							</span>
+							{% if user_ratings_of_title %}
+							<span class="checkbox">
+								<label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>
+							</span>
+							<a href="{% url 'title_edit' slug=entry.slug %}" class="label label-default">change date of current rating</a>
+							{% endif %}
+						</form>
+					</div>
+					<div class="col-md-6">
 					{% if is_in_user_watchlist %}
 						<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="unwatch">Don't want to see again</button>
 					{% else %}
@@ -50,10 +69,14 @@
 						<br>
 					{% if is_favourite_for_user %}
 						<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="unfav">unfavourite</button>
+						<button id="fav-icon" type="submit" name="" value="fav">
+							<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
+						</button>
 					{% else %}
 						<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav">favourite <i class="fa fa-heart" aria-hidden="true"></i></button>
-						<button id="fav-icon" type="submit" name="fav" value="fav">
-							<i class="fa fa-heart" aria-hidden="true"></i>
+						<!--<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav">favourite <i class="fa fa-heart" aria-hidden="true"></i></button>-->
+						<button id="fav-icon" type="submit" name="" value="fav">
+							<span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>
 						</button>
 					{% endif %}
 					{% if followed_can_take_recommendation %}
@@ -68,28 +91,8 @@
 							<button class="btn btn-sm" type="submit" name="select_followed_users" value="select">Recommend</button>
 						</form>
 					{% endif %}
-					</li>
-					{% endif %}
-				</ul>
-			</div>
-		</div>
-		{% if request.user.is_authenticated %}
-		<div class="row">
-			<div class="col-md-6 col-md-offset-3">
-				<hr>
-				<form id="star_rating_form" action="" method="post">{% csrf_token %}
-					<span class="starRating">
-					{% for i in loop %}
-						<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if user_ratings_of_title.0.rate == i %}checked{% endif %}>
-						<label for="rating{{ i }}">{{ i }}</label>
-					{% endfor %}
-					</span>
-					{% if user_ratings_of_title %}
-					<div class="checkbox">
-						<label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>
 					</div>
-					{% endif %}
-				</form>
+				</div>
 			</div>
 		</div>
 		{% endif %}
@@ -105,7 +108,7 @@
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				<div class="row">
-					<div class="col-md-7">
+					<div class="col-md-8">
 						<div class="panel panel-success">
 							<div class="panel-heading">History of ratings</div>
 							<div class="panel-body">
@@ -130,6 +133,7 @@
 											<td class="text-center">duration: {{ rating.next_rating_days_diff }} days</td>
 											<td>
 												<form action="" method="post">{% csrf_token %}
+													<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
 													<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating">delete</button>
 													<input type="hidden" name="rating_pk" value="{{ rating.pk }}">
 												</form>
@@ -141,7 +145,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-md-5">
+					<div class="col-md-4">
 						<div class="panel panel-success">
 							<div class="panel-heading">More</div>
 							<div class="panel-body">
@@ -149,7 +153,8 @@
 									<li><a href="{{ entry.url_imdb }}">imdb</a></li>
 									<li><a href="{{ entry.url_tomato }}">rotten tomatoes</a></li>
 								</ul>
-								Title last updated: {{ entry.last_updated|date:"Y-m-d" }}
+								Title last updated:<br>
+								{{ entry.last_updated|date:"Y-m-d" }}
 							</div>
 						</div>
 					</div>
@@ -158,11 +163,25 @@
 		</div>
 		{% if followed_saw_title %}
 		<div class="row">
-		{% for user in followed_saw_title %}
-			{% if user.latest_rate %}
-			<p><img src="{{ user.user_followed.userprofile.picture }}">{{ user.user_followed.username }} -- {{ user.latest_rate }}</p>
-			{% endif %}
-		{% endfor %}
+			<div class="col-md-8 col-md-offset-2">
+				<div class="panel panel-success">
+					<div class="panel-heading">Followed users who saw this title too</div>
+					<div class="panel-body">
+						<div class="row">
+						{% for user in followed_saw_title %}
+							<div class="col-md-4">
+								<a href="{{ user.user_followed.userprofile.get_absolute_url }}">
+									<img class="img-responsive img-thumbnail"
+										 src="{% if user.user_followed.userprofile.picture %}{{ user.user_followed.userprofile.picture.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
+										 alt="..." style="width: 50px">
+									{{ user.user_followed.username }} rated this {{ user.latest_rate }}
+								</a>
+							</div>
+						{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 		{% endif %}
 

@@ -4,16 +4,16 @@
 {% block content %}
     <div id="favouritePage">
         <ul id="sortable">
-            {% for entry in ratings %}
+        {% for entry in ratings %}
             <li id="item-{{ entry.title.const }}" class="ui-state-default">
-                <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+                <!--<p class="glyphicon glyphicon-move" aria-hidden="true" style="float: left; line-height: 50px;"></p>-->
                 <p id="item-order" class="" style="float: left; line-height: 50px; margin-right: 10px;">{{ entry.order }}</p>
-                <img class="img-responsive"
+                <img class="img-responsive img-rounded"
                      src="{% if entry.title.img %}{{ entry.title.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
                      style="width: 35px; float: left; margin-right: 10px; " alt="...">
                 <a href="{{ entry.title.get_absolute_url }}" style="line-height: 50px;">{{ entry.title.name }}</a>
             </li>
-            {% endfor %}
+        {% endfor %}
         </ul>
     </div>
 {% endblock %}
