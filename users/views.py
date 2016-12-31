@@ -151,10 +151,10 @@ def user_profile(request, username):
                     messages.info(request, message, extra_tags='safe')
         return redirect(user.userprofile)
 
-    TITLES_SHOWED_IN_ROW = 5
+    TITLES_SHOWED_IN_ROW = 6
     is_owner = user == request.user
     user_ratings = Rating.objects.filter(user=user)
-    user_ratings_len = user_ratings.count()
+    user_ratings_len = user.userprofile.count_ratings
     if request.user.is_authenticated() and not is_owner:
         # common_ratings = Title.objects.filter(rating__user=request.user) & Title.objects.filter(rating__user=user)
         common_ratings = Title.objects.filter(rating__user=request.user).filter(rating__user=user)
@@ -199,7 +199,8 @@ def user_profile(request, username):
             'percentage': int(common_ratings_len / user_ratings_len * 100),
             'user_rate_avg': user_rate_avg,
             'req_user_rate_avg': req_user_rate_avg,
-            'not_rated_by_req_user': not_rated_by_req_user
+            'not_rated_by_req_user': not_rated_by_req_user[:TITLES_SHOWED_IN_ROW],
+            'not_rated_by_req_user_count': not_rated_by_req_user.count()
         }
         can_follow = not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists()
     else:
@@ -211,7 +212,6 @@ def user_profile(request, username):
         'is_owner': is_owner,
         'can_follow': can_follow,
         'user_ratings': {
-            'count': user_ratings_len,
             'last_seen': user_ratings[:TITLES_SHOWED_IN_ROW],
             'common_with_req_user': common
         }
