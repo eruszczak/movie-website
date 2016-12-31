@@ -339,6 +339,7 @@ def watchlist(request, username):
         'archive': [e for e in user_watchlist if e.is_rated_with_later_date],
         'is_owner': request.user == user,
         'deleted': user_watchlist.filter(imdb=True, deleted=True),
+        'username': username
     }
     return render(request, 'watchlist.html', context)
 

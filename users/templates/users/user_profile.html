@@ -15,12 +15,11 @@
 
 			<div class="col-xs-6 col-sm-3 col-md-3">
 				<ul class="list-group marginleft">
-					<li class="list-group-item"><a href="{{ choosen_user.userprofile.watchlist_url }}">watchlist</a></li>
-					<li class="list-group-item"><a href="{{ choosen_user.userprofile.favourite_url }}">favourites</a></li>
-					<li class="list-group-item"><a href="{{ choosen_user.userprofile.recommend_url }}">recommend</a></li>
-					<li class="list-group-item"><a href="{{ choosen_user.userprofile.ratings_url }}">ratings</a></li>
+					<li class="list-group-item"><a href="{{ choosen_user.userprofile.watchlist_url }}"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist</a></li>
+					<li class="list-group-item"><a href="{{ choosen_user.userprofile.favourite_url }}"><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> favourites</a></li>
+					<li class="list-group-item"><a href="{{ choosen_user.userprofile.recommend_url }}"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommendations</a></li>
 				{% if is_owner %}
-					<li class="list-group-item"><a href="{% url 'user_edit' choosen_user.username %}">edit</a></li>
+					<li class="list-group-item"><a href="{% url 'user_edit' choosen_user.username %}"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> edit</a></li>
 				{% endif %}
 				{% if request.user.is_authenticated and not is_owner %}
 					<li class="list-group-item">
@@ -51,9 +50,77 @@
 		</div>
     </div>
 </div>
-last 5 titles
+{% if user_ratings.last_seen %}
+<div class="row">
+	<div class="col-md-8 col-md-offset-2">
+		<div class="panel panel-success">
+			<div class="panel-heading">Most Recently Rated</div>
+			<div class="panel-body">
+				<div class="row">
+				{% for entry in user_ratings.last_seen %}
+				<div class="col-md-2">
+					<a href="{{ entry.title.get_absolute_url }}">
+						<img class="img-rounded" src="{% if entry.title.img %}{{ entry.title.img.url }}
+							{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="height: 100px">
+						{{ entry.title.name|truncatechars:10 }}
+						<br>
+						<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ entry.rate }}
+					</a>
+				</div>
+				{% endfor %}
+				</div>
+				See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ user_ratings.count }} ratings</a>
+			</div>
+		</div>
+	</div>
+</div>
+{% endif %}
 {% if request.user.is_authenticated and not is_owner %}
-compare
+<div class="row">
+	<div class="col-md-8 col-md-offset-2">
+		<div class="panel panel-success">
+			<div class="panel-heading">Compared to you</div>
+			<div class="panel-body">
+				<div class="row">
+					<b>Titles you rated higher</b><br>
+					{% for title in user_ratings.common_with_req_user.higher %}
+					<div class="col-md-2">
+						<a href="{{ entry.title.get_absolute_url }}">
+							<img class="img-rounded" src="{% if title.img %}{{ title.img.url }}
+								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="height: 100px">
+							{{ title.name|truncatechars:10 }}
+							<br>
+							<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ title.user_rate }}
+							<span class="glyphicon glyphicon-star" aria-hidden="true"></span> {{ title.req_user_rate }}
+						</a>
+					</div>
+					{% endfor %}
+				</div>
+				<div class="row">
+					<b>Titles you rated lower</b><br>
+					{% for title in user_ratings.common_with_req_user.lower %}
+					<div class="col-md-2">
+						<a href="{{ entry.title.get_absolute_url }}">
+							<img class="img-rounded" src="{% if title.img %}{{ title.img.url }}
+								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="height: 100px">
+							{{ title.name|truncatechars:10 }}
+							<br>
+							<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ title.user_rate }}
+							<span class="glyphicon glyphicon-star" aria-hidden="true"></span> {{ title.req_user_rate }}
+						</a>
+					</div>
+					{% endfor %}
+				</div>
+				You and {{ choosen_user.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>
+				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ choosen_user.username }}'s
+				<a href="{{ choosen_user.userprofile.ratings_url }}">{{ user_ratings.count }} ratings</a><br>
+				you saw 20% of his ratings<br>
+				you both saw 75 titles, you rated them 7.50 and test2 5.50
+				See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ user_ratings.count }} ratings</a>
+			</div>
+		</div>
+	</div>
+</div>
 {% endif %}
 <div class="row">
 	<div class="text-center">

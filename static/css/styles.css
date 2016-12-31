@@ -160,9 +160,15 @@ textarea {
     padding-bottom: 5px;
 }
 
-.fa-star, .fa-star-o {
+.glyphicon-star, .glyphicon-star-empty {
+    font-size: 15px;
     color: orange;
 }
+
+.green {
+    color: green;
+}
+
 
 .see-again-btn {
     border: 0;
