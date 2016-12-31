@@ -68,7 +68,7 @@
             <div class="content">
                 <h5>{{ forloop.counter }}. <a href="{{ entry.title.get_absolute_url }}">{{ entry.title.name }} ({{ entry.title.year }})</a></h5>
                 {% for i in 'xxxxxxxxxx' %}
-                    <i class="fa {% if forloop.counter <= entry.rate %}fa-star{% else %}fa-star-o{% endif %}" aria-hidden="true"></i>
+                    <span class="glyphicon glyphicon-star{% if forloop.counter > entry.rate %}-empty{% endif %}" aria-hidden="true"></span>
                 {% endfor %}
                 <h5>{{ entry.rate_date|date:"F d" }}</h5>
             </div>

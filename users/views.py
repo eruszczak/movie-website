@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from .models import UserProfile, UserFollow
 from common.prepareDB import update_from_csv, update_from_rss, get_watchlist
 from common.utils import build_html_string_for_titles
-from movie.models import Title
+from movie.models import Title, Rating
 from django.utils import timezone
 
 
@@ -148,15 +148,61 @@ def user_profile(request, username):
                         message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/watchlist">RSS</a>'.format(
                             user.userprofile.imdb_id)
                     messages.info(request, message, extra_tags='safe')
-
         return redirect(user.userprofile)
 
-    can_follow = not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists()\
-        if request.user.is_authenticated() else None
+    TITLES_SHOWED_IN_ROW = 5
+    is_owner = user == request.user
+    user_ratings = Rating.objects.filter(user=user)
+    if request.user.is_authenticated() and not is_owner:
+        common_ratings = Title.objects.filter(rating__user=request.user) & Title.objects.filter(rating__user=user)
+        print(common_ratings.distinct())
+        common_ratings = common_ratings.distinct().extra(select={
+            'user_rate': """SELECT rate FROM movie_rating as rating
+                WHERE rating.title_id = movie_title.id
+                AND rating.user_id = %s
+                ORDER BY rating.rate_date DESC LIMIT 1""",
+            'req_user_rate': """SELECT rate FROM movie_rating as rating
+                WHERE rating.title_id = movie_title.id
+                AND rating.user_id = %s
+                ORDER BY rating.rate_date DESC LIMIT 1""",
+        }, select_params=[user.id, request.user.id])
+
+        titles_req_user_rated_lower = []
+        titles_req_user_rated_higher = []
+        for title in common_ratings:
+            higher_is_max_size = len(titles_req_user_rated_higher) > TITLES_SHOWED_IN_ROW
+            lower_is_max_size = len(titles_req_user_rated_lower) > TITLES_SHOWED_IN_ROW
+            if title.req_user_rate > title.user_rate and not higher_is_max_size:
+                print(title.req_user_rate, title.user_rate, title)
+                titles_req_user_rated_higher.append(title)
+            elif title.req_user_rate < title.user_rate and not lower_is_max_size:
+                titles_req_user_rated_lower.append(title)
+            if lower_is_max_size and higher_is_max_size:
+                break
+        print(titles_req_user_rated_higher)
+        print(titles_req_user_rated_lower)
+        print(common_ratings)
+        common = {
+            'ratings': common_ratings,
+            'count': common_ratings.count(),
+            'higher': titles_req_user_rated_higher,
+            'lower': titles_req_user_rated_lower,
+            'percentage': int(common_ratings.count() / user_ratings.count() * 100)
+        }
+        can_follow = not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists()
+    else:
+        common = None
+        can_follow = None
     context = {
         'title': 'User profile: ' + user.username,
         'choosen_user': user,
-        'is_owner': user == request.user,
+        'is_owner': is_owner,
         'can_follow': can_follow,
+        'user_ratings': {
+            'count': user_ratings.count(),
+            'last_seen': user_ratings[:TITLES_SHOWED_IN_ROW],
+            'common_with_req_user': common
+
+        }
     }
     return render(request, 'users/user_profile.html', context)
