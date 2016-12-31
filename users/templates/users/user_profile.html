@@ -60,8 +60,8 @@
 				{% for entry in user_ratings.last_seen %}
 				<div class="col-md-2">
 					<a href="{{ entry.title.get_absolute_url }}">
-						<img class="img-rounded" src="{% if entry.title.img %}{{ entry.title.img.url }}
-							{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="height: 100px">
+						<img class="img-rounded posterMin" src="{% if entry.title.img %}{{ entry.title.img.url }}
+							{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
 						{{ entry.title.name|truncatechars:10 }}
 						<br>
 						<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ entry.rate }}
@@ -69,12 +69,13 @@
 				</div>
 				{% endfor %}
 				</div>
-				See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ user_ratings.count }} ratings</a>
+				See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_ratings }} ratings</a>
 			</div>
 		</div>
 	</div>
 </div>
 {% endif %}
+<!-- if common_with_req_user -->
 {% if request.user.is_authenticated and not is_owner %}
 <div class="row">
 	<div class="col-md-8 col-md-offset-2">
@@ -82,12 +83,27 @@
 			<div class="panel-heading">Compared to you</div>
 			<div class="panel-body">
 				<div class="row">
+					<b>Titles {{ choosen_user.username }} liked that you haven't rated</b><br>
+					{% for title in user_ratings.common_with_req_user.not_rated_by_req_user %}
+					<div class="col-md-2">
+						<a href="{{ entry.title.get_absolute_url }}">
+							<img class="img-rounded posterMin" src="{% if title.img %}{{ title.img.url }}
+								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
+							{{ title.name|truncatechars:10 }}
+							<br>
+							<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ title.user_rate }}
+						</a>
+					</div>
+					{% endfor %}
+					See more titles you haven't rated
+				</div>
+				<div class="row">
 					<b>Titles you rated higher</b><br>
 					{% for title in user_ratings.common_with_req_user.higher %}
 					<div class="col-md-2">
 						<a href="{{ entry.title.get_absolute_url }}">
-							<img class="img-rounded" src="{% if title.img %}{{ title.img.url }}
-								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="height: 100px">
+							<img class="img-rounded posterMin" src="{% if title.img %}{{ title.img.url }}
+								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
 							{{ title.name|truncatechars:10 }}
 							<br>
 							<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ title.user_rate }}
@@ -101,8 +117,8 @@
 					{% for title in user_ratings.common_with_req_user.lower %}
 					<div class="col-md-2">
 						<a href="{{ entry.title.get_absolute_url }}">
-							<img class="img-rounded" src="{% if title.img %}{{ title.img.url }}
-								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="height: 100px">
+							<img class="img-rounded posterMin" src="{% if title.img %}{{ title.img.url }}
+								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
 							{{ title.name|truncatechars:10 }}
 							<br>
 							<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ title.user_rate }}
@@ -112,11 +128,9 @@
 					{% endfor %}
 				</div>
 				You and {{ choosen_user.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>
+                You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg }} and {{ choosen_user.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg }}<br>
 				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ choosen_user.username }}'s
-				<a href="{{ choosen_user.userprofile.ratings_url }}">{{ user_ratings.count }} ratings</a><br>
-				you saw 20% of his ratings<br>
-				you both saw 75 titles, you rated them 7.50 and test2 5.50
-				See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ user_ratings.count }} ratings</a>
+				<a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_ratings }} ratings</a><br>
 			</div>
 		</div>
 	</div>
