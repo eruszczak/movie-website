@@ -1,18 +1,20 @@
 import re
-from django.contrib import messages
+from datetime import datetime
+
+from django.http import Http404
 from django.db.models import Count
-from django.shortcuts import render, redirect
-from django.shortcuts import get_object_or_404
-from .forms import EditRating
-from .models import Genre, Director, Title, Rating, Watchlist, Favourite
-from users.models import UserFollow
-from recommend.models import Recommendation
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import Q, When, Case, IntegerField
-from datetime import datetime
-from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites, paginate, average_rating_of_title
-from django.http import Http404
+from django.shortcuts import render, redirect, get_object_or_404
+
+from .forms import EditRating
+from common.utils import paginate
+from users.models import UserFollow
+from recommend.models import Recommendation
+from .models import Genre, Director, Title, Rating, Watchlist, Favourite
+from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites, average_rating_of_title
 
 
 def home(request):
@@ -156,7 +158,6 @@ def explore(request):
         'query': query,
         'selected_type': selected_type,
         'genres': Genre.objects.annotate(num=Count('title')).order_by('-num'),
-        # 'users': User.objects.annotate(num=Count('title')).order_by('-num'),
         'list_of_users': User.objects.all() if not request.user.is_authenticated() else User.objects.exclude(pk=request.user.pk),
         'query_string': query_string,
     }
@@ -249,7 +250,8 @@ def title_details(request, slug):
             Rating.objects.filter(pk=request.POST.get('rating_pk'), user=request.user).delete()
         return redirect(title)
 
-    avg_rate, rate_count = average_rating_of_title(title)
+    avg_rate, rate_count = 1,1
+    # avg_rate, rate_count = average_rating_of_title(title)
     context = {
         'entry': title,
         'user_ratings_of_title': user_ratings_of_title,

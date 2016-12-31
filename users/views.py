@@ -1,13 +1,14 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 from django.contrib import auth, messages
-from .forms import RegisterForm, LoginForm, EditProfileForm
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-from .models import UserProfile, UserFollow
-from common.prepareDB import update_from_csv, update_from_rss, get_watchlist
-from common.utils import build_html_string_for_titles
+from django.shortcuts import render, redirect, get_object_or_404
+
 from movie.models import Title, Rating
-from django.utils import timezone
+from .models import UserProfile, UserFollow
+from .forms import RegisterForm, LoginForm, EditProfileForm
+from common.utils import build_html_string_for_titles
+from common.prepareDB import update_from_csv, update_from_rss, get_watchlist
 
 
 def register(request):
@@ -153,9 +154,10 @@ def user_profile(request, username):
     TITLES_SHOWED_IN_ROW = 5
     is_owner = user == request.user
     user_ratings = Rating.objects.filter(user=user)
+    user_ratings_len = user_ratings.count()
     if request.user.is_authenticated() and not is_owner:
-        common_ratings = Title.objects.filter(rating__user=request.user) & Title.objects.filter(rating__user=user)
-        print(common_ratings.distinct())
+        # common_ratings = Title.objects.filter(rating__user=request.user) & Title.objects.filter(rating__user=user)
+        common_ratings = Title.objects.filter(rating__user=request.user).filter(rating__user=user)
         common_ratings = common_ratings.distinct().extra(select={
             'user_rate': """SELECT rate FROM movie_rating as rating
                 WHERE rating.title_id = movie_title.id
@@ -167,27 +169,37 @@ def user_profile(request, username):
                 ORDER BY rating.rate_date DESC LIMIT 1""",
         }, select_params=[user.id, request.user.id])
 
+        common_ratings_len = common_ratings.count()
         titles_req_user_rated_lower = []
         titles_req_user_rated_higher = []
         for title in common_ratings:
             higher_is_max_size = len(titles_req_user_rated_higher) > TITLES_SHOWED_IN_ROW
             lower_is_max_size = len(titles_req_user_rated_lower) > TITLES_SHOWED_IN_ROW
             if title.req_user_rate > title.user_rate and not higher_is_max_size:
-                print(title.req_user_rate, title.user_rate, title)
                 titles_req_user_rated_higher.append(title)
             elif title.req_user_rate < title.user_rate and not lower_is_max_size:
                 titles_req_user_rated_lower.append(title)
             if lower_is_max_size and higher_is_max_size:
                 break
-        print(titles_req_user_rated_higher)
-        print(titles_req_user_rated_lower)
-        print(common_ratings)
+
+        user_rate_avg = sum(x.user_rate for x in common_ratings) / common_ratings_len
+        req_user_rate_avg = sum(x.req_user_rate for x in common_ratings) / common_ratings_len
+        not_rated_by_req_user = Title.objects.filter(rating__user=user, rating__rate__gte=7).exclude(
+            rating__user=request.user).distinct().extra(select={
+                'user_rate': """SELECT rate FROM movie_rating as rating
+                WHERE rating.title_id = movie_title.id
+                AND rating.user_id = %s
+                ORDER BY rating.rate_date DESC LIMIT 1"""
+            }, select_params=[user.id])
+
         common = {
-            'ratings': common_ratings,
-            'count': common_ratings.count(),
+            'count': common_ratings_len,
             'higher': titles_req_user_rated_higher,
             'lower': titles_req_user_rated_lower,
-            'percentage': int(common_ratings.count() / user_ratings.count() * 100)
+            'percentage': int(common_ratings_len / user_ratings_len * 100),
+            'user_rate_avg': user_rate_avg,
+            'req_user_rate_avg': req_user_rate_avg,
+            'not_rated_by_req_user': not_rated_by_req_user
         }
         can_follow = not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists()
     else:
@@ -199,10 +211,9 @@ def user_profile(request, username):
         'is_owner': is_owner,
         'can_follow': can_follow,
         'user_ratings': {
-            'count': user_ratings.count(),
+            'count': user_ratings_len,
             'last_seen': user_ratings[:TITLES_SHOWED_IN_ROW],
             'common_with_req_user': common
-
         }
     }
     return render(request, 'users/user_profile.html', context)

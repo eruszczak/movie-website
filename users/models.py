@@ -1,12 +1,14 @@
 import os
-from django.db import models
-from django.contrib.auth.models import User
 from datetime import datetime
-from django.forms import ValidationError
-from recommend.models import Recommendation
-from movie.models import Rating
-from django.core.urlresolvers import reverse
+
+from django.db import models
 from django.utils import timezone
+from django.forms import ValidationError
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+
+from recommend.models import Recommendation
+from movie.models import Rating, Title
 
 
 def update_filename(instance, filename):
@@ -53,7 +55,7 @@ class UserProfile(models.Model):
 
     @property
     def count_ratings(self):
-        return Rating.objects.filter(user=self.user).values('title').order_by('-title').distinct().count()
+        return Title.objects.filter(rating__user=self.user).distinct().count()
 
     @property
     def can_update_csv_ratings(self):

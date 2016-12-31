@@ -169,6 +169,11 @@ textarea {
     color: green;
 }
 
+.posterMin {
+    height: 100px;
+    width: 65px;
+}
+
 
 .see-again-btn {
     border: 0;
