@@ -23,9 +23,9 @@ def alter_title_in_watchlist(user, title, watchlist_instance, watch=None, unwatc
 def alter_title_in_favourites(user, title, fav=None, unfav=None):
     from ..models import Favourite
     user_favourites = Favourite.objects.filter(user=user)
-    if fav:
+    if fav is not None:
         Favourite.objects.create(user=user, title=title, order=user_favourites.count() + 1)
-    elif unfav:
+    elif unfav is not None:
         favourite_instance = user_favourites.filter(title=title).first()
         user_favourites.filter(order__gt=favourite_instance.order).update(order=F('order') - 1)
         favourite_instance.delete()
