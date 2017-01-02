@@ -61,17 +61,26 @@ thead tr {
 }
 
 .well img {
- /* max-width: 200px;*/
- /*height: 100%;*/
- max-width: 120px;
+    max-width: 120px;
 }
-.img-thumbnail{background-color:white}
+
+.img-thumbnail {
+    background-color: white
+}
 
 .well {
-    height: 200px;
-    padding-top: -10px;
     overflow: hidden;
-   /* margin-bottom: -0px;*/
+    border: 1px solid #e4e4e4;
+}
+
+.last10 {
+    background-color: white;
+    height: 200px;
+}
+
+.usersList {
+    background-color: white;
+    height: 140px;
 }
 
 @media (min-width: 768px) {
@@ -107,9 +116,6 @@ textarea {
     padding: 0;
     list-style-type: none;
 }
-.odd {
-    background-color: silver;
-}
 
 .num {
     width: 20px;
@@ -139,10 +145,7 @@ textarea {
    margin-top: -28px;
 }
 
-.last10 {
-    background-color: white;
-    border: 1px solid #e4e4e4;
-}
+
 
 .search_summary {
     font-family: Arial;
@@ -161,7 +164,7 @@ textarea {
 }
 
 .glyphicon-star, .glyphicon-star-empty {
-    font-size: 15px;
+    font-size: 12px;
     color: orange;
 }
 
@@ -174,6 +177,9 @@ textarea {
     width: 65px;
 }
 
+.avatarMin {
+    height: 100px;
+}
 
 .see-again-btn {
     border: 0;

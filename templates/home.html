@@ -59,7 +59,7 @@
 </div>
 <div class="row">
 {% for entry in ratings %}
-    <div class="col-md-6">
+    <div class="col-sm-6">
         <div class="last10 well well-sm {% cycle 'odd' 'even' %}">
             <a href="{{ entry.title.get_absolute_url }}">
                 <img class="img-rounded pull-left" src="{% if entry.title.img %}{{ entry.title.img.url }}

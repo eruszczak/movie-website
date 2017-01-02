@@ -113,6 +113,7 @@ def explore(request):
 
     user = request.GET.get('u')
     if user is not None:
+        user_obj = get_object_or_404(User, username=user)
         query_string += '{}={}&'.format('u', user)
         if request.GET.get('exclude_his'):
             titles = titles.exclude(rating__user__username=user)
@@ -124,13 +125,24 @@ def explore(request):
             titles = titles.filter(rating__user__username=user)
             rating = request.GET.get('r')
             if rating:
-                titles = titles.filter(rating__rate=rating)
+                titles = titles.filter(rating__rate=rating) #distinct() is called later
+                rated_titles = titles.distinct().extra(select={
+                    'current_rating': """SELECT rate FROM movie_rating as rating
+                        WHERE rating.title_id = movie_title.id
+                        AND rating.user_id = %s
+                        AND rating.rate = %s
+                        ORDER BY rating.rate_date DESC LIMIT 1""",
+                }, select_params=[user_obj.id, rating])
+                print(rated_titles)
+                print(rated_titles.count())
                 query_string += '{}={}&'.format('r', rating)
     else:
+        user_obj = get_object_or_404(User, username=user)
         rating = request.GET.get('r')
         if rating and request.user.is_authenticated():
             titles = titles.filter(rating__user=request.user, rating__rate=rating)
             query_string += '{}={}&'.format('r', rating)
+
 
     # only if you specified ?u= or you are logged in
     rate_date_year, rate_date_month = request.GET.get('year'), request.GET.get('month')

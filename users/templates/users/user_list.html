@@ -1,5 +1,7 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% block title %}{{ title }}{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col-md-12">
@@ -19,6 +21,7 @@
                 {% endfor %}
             </tbody>
         </table>
+
     {% else %}
         Users who saw <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a>
         <table class="table table-hover table-bordered table-condensed">
@@ -42,6 +45,25 @@
             </tbody>
         </table>
     {% endif %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="row">
+            {% for user in user_list %}
+            <div class="col-md-12">
+                <div class="well usersList">
+                    <a href="{{ user.userprofile.get_absolute_url }}">
+                        <img class="img-responsive img-thumbnail avatarMin"
+                             src="{% if user.userprofile.picture %}{{ user.userprofile.picture.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
+                    </a>
+                    See all <a href="{{ user.userprofile.ratings_url }}">{{ user.userprofile.count_ratings }} ratings</a>
+                    <br>avg: {{ user.userprofile.avg_of_current_ratings }}
+                    <br>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}

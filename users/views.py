@@ -92,6 +92,29 @@ def user_list(request):
     elif request.user.is_authenticated():
         list_of_users = User.objects.exclude(pk=request.user.pk)
         context['user_list'] = list_of_users
+        # common_ratings = Title.objects.filter(rating__user=request.user).filter(rating__user=user)
+        # common_ratings = common_ratings.distinct().extra(select={
+        #     'user_rate': """SELECT rate FROM movie_rating as rating
+        #         WHERE rating.title_id = movie_title.id
+        #         AND rating.user_id = %s
+        #         ORDER BY rating.rate_date DESC LIMIT 1""",
+        #     'req_user_rate': """SELECT rate FROM movie_rating as rating
+        #         WHERE rating.title_id = movie_title.id
+        #         AND rating.user_id = %s
+        #         ORDER BY rating.rate_date DESC LIMIT 1""",
+        # }, select_params=[user.id, request.user.id])
+        # list_of_users = list_of_users.extra(select={
+        #     'avg_user_rate': """SELECT rate FROM movie_rating as rating
+        #         WHERE rating.title_id = movie_title.id
+        #         AND rating.user_id = %s
+        #         ORDER BY rating.rate_date DESC LIMIT 1""",
+        #     'avg_req_user_rate': """SELECT rate FROM movie_rating as rating
+        #         WHERE rating.title_id = movie_title.id
+        #         AND rating.user_id = %s
+        #         ORDER BY rating.rate_date DESC LIMIT 1""",
+        # }, select_params=[request.user.id])
+        # user avg howMuch%RequestUserRatedTheSame
+        # for every user annotate field with counted COMMONLY rated titles && count rated by request
     else:
         list_of_users = User.objects.all()
         context['user_list'] = list_of_users
@@ -157,6 +180,7 @@ def user_profile(request, username):
     user_ratings_len = user.userprofile.count_ratings
     if request.user.is_authenticated() and not is_owner:
         # common_ratings = Title.objects.filter(rating__user=request.user) & Title.objects.filter(rating__user=user)
+        # todo
         common_ratings = Title.objects.filter(rating__user=request.user).filter(rating__user=user)
         common_ratings = common_ratings.distinct().extra(select={
             'user_rate': """SELECT rate FROM movie_rating as rating
