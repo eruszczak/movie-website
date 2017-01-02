@@ -12,25 +12,21 @@ $(document).ready(function() {
     $('#graph_genres').click(function(e) {
         renderChart(charts.genres);
         e.preventDefault();
-        return false;
     });
 
     $('#graph_year').click(function(e) {
         renderChart(charts.years);
         e.preventDefault();
-        return false;
     });
 
     $('#graph_rated').click(function(e) {
         renderChart(charts.rates);
         e.preventDefault();
-        return false;
     });
 
     $('#graph_months').click(function(e) {
         monthlyChart(charts.monthly);
         e.preventDefault();
-        return false;
     });
 
     $('#graph_genres').trigger('click');
@@ -41,6 +37,9 @@ function renderChart(chart, place='#graph') {
     /*If rendered in different place than #graph it means that I want global data, not for specific user*/
     var queryParams = place === '#graph' ? {u: path_username} : {};
      $.getJSON(chart.endpoint, queryParams).done(function(data) {
+            if ('data_rates' in data) {
+                data = data['data_rates'];
+            }
             var categories = $.map(data, function(dict) { return dict[chart.fieldName]; });
             var values = $.map(data, function(dict) { return dict.the_count; });
             $(place).highcharts({
@@ -187,7 +186,7 @@ charts = {
     'rates': {
         'endpoint': '/api/r/',
         'title': 'Rating Distribution',
-        'fieldName': 'rating__rate',
+        'fieldName': 'rate',
         'queryParam': 'r=',
     },
     'monthly': {

@@ -1,14 +1,16 @@
 from django.db.models import Count
+from django.contrib.auth.models import User
 from django.db.models.functions import ExtractMonth, ExtractYear
 
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 
 from movie.models import Rating, Title
 from .serializers import RatingListSerializer
+from common.sql_queries import rating_distribution
 
 
 class RatingsViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
@@ -74,11 +76,9 @@ class Rates(ListAPIView):
     def get(self, request, *args, **kwargs):
         username = self.request.query_params.get('u')
         if username is not None:
-            rate_count = Rating.objects.filter(user__username=username).values('rate')\
-                .annotate(the_count=Count('title', distinct=True)).order_by('rate')
-            rate_count = Title.objects.filter(rating__user__username=username).values('rating__rate')\
-                .annotate(the_count=Count('pk', distinct=True)).order_by('rating__rate')
-            return Response(rate_count)
+            user = get_object_or_404(User, username=username)
+            data = {'data_rates': rating_distribution(user.id)}
+            return Response(data)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
