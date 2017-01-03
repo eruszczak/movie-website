@@ -31,17 +31,6 @@ def alter_title_in_favourites(user, title, fav=None, unfav=None):
         favourite_instance.delete()
 
 
-def average_rating_of_title(title):
-    from ..models import Rating
-    current_ratings = Rating.objects.filter(title=title).order_by('user', '-rate_date').distinct('user')\
-        .values_list('rate', flat=True)
-    if current_ratings.exists():
-        # avg_rate = 1
-        avg_rate = sum(rate for rate in current_ratings) / current_ratings.count()
-        return round(avg_rate, 1), current_ratings.count()
-    return None, None
-
-
 def create_slug(title, new_slug=None):
     from ..models import Title
     # recursive function to get unique slug (in case of 2 titles with the same name/year)
