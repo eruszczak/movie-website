@@ -124,16 +124,16 @@ def explore(request):
             titles = titles.filter(rating__user__username=user).exclude(rating__user=request.user)
             query_string += 'exclude_mine=on&'
         else:
+            req_user_id = request.user.id if request.user.is_authenticated() else 0
             titles = titles.filter(rating__user__username=user)
             rating = request.GET.get('r')
             if rating:
                 searched_for_user_and_rate = True
-                req_user_id = request.user.id if request.user.is_authenticated() else 0
                 titles = titles_user_saw_with_current_rating(user_obj.id, rating, req_user_id)
                 query_string += '{}={}&'.format('r', rating)
-            else:
+            elif request.user != user_obj:
                 titles = titles.distinct().extra(select={
-                    'current_rating': """SELECT rate FROM movie_rating as rating
+                    'user_curr_rating': """SELECT rate FROM movie_rating as rating
                         WHERE rating.title_id = movie_title.id
                         AND rating.user_id = %s
                         ORDER BY rating.rate_date DESC LIMIT 1""",
@@ -161,7 +161,15 @@ def explore(request):
                 query_string += '{}={}&'.format('year', rate_date_year)
 
     page = request.GET.get('page')
-    titles = titles.distinct() if not searched_for_user_and_rate else titles
+    if not searched_for_user_and_rate:  # because titles arent model instances if searched_for_user_and_rate
+        titles = titles.distinct()
+        if request.user.is_authenticated():
+            titles = titles.extra(select={
+                'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
+                    WHERE rating.title_id = movie_title.id
+                    AND rating.user_id = %s
+                    ORDER BY rating.rate_date DESC LIMIT 1""",
+            }, select_params=[request.user.id])
     ratings = paginate(titles, page)
 
     if query_string:

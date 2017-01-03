@@ -32,8 +32,14 @@
                     <td class="col-md-9 paddingleft">
                         <a href="{{ obj.get_absolute_url }}">{{ obj.name }} ({{ obj.year }})</a>
                         <span style="float: right;">
-                            {{ obj.current_rating }}
+                        {% if obj.user_curr_rating %}
+                            {{ obj.user_curr_rating }}
                             <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
+                        {% endif %}
+                        {% if obj.req_user_curr_rating %}
+                            {{ obj.req_user_curr_rating }}
+                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                        {% endif %}
                         </span>
                     </td>
                     {% if request.user.is_authenticated %}
