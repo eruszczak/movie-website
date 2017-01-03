@@ -87,36 +87,11 @@ def user_list(request):
             'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
                 WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s LIMIT 1""",
             }, select_params=[title.id])
-        context['users_who_saw_title'] = users_who_saw_title
+
+        context['user_list'] = users_who_saw_title
         context['searched_title'] = title
-    elif request.user.is_authenticated():
-        list_of_users = User.objects.exclude(pk=request.user.pk)
-        context['user_list'] = list_of_users
-        # common_ratings = Title.objects.filter(rating__user=request.user).filter(rating__user=user)
-        # common_ratings = common_ratings.distinct().extra(select={
-        #     'user_rate': """SELECT rate FROM movie_rating as rating
-        #         WHERE rating.title_id = movie_title.id
-        #         AND rating.user_id = %s
-        #         ORDER BY rating.rate_date DESC LIMIT 1""",
-        #     'req_user_rate': """SELECT rate FROM movie_rating as rating
-        #         WHERE rating.title_id = movie_title.id
-        #         AND rating.user_id = %s
-        #         ORDER BY rating.rate_date DESC LIMIT 1""",
-        # }, select_params=[user.id, request.user.id])
-        # list_of_users = list_of_users.extra(select={
-        #     'avg_user_rate': """SELECT rate FROM movie_rating as rating
-        #         WHERE rating.title_id = movie_title.id
-        #         AND rating.user_id = %s
-        #         ORDER BY rating.rate_date DESC LIMIT 1""",
-        #     'avg_req_user_rate': """SELECT rate FROM movie_rating as rating
-        #         WHERE rating.title_id = movie_title.id
-        #         AND rating.user_id = %s
-        #         ORDER BY rating.rate_date DESC LIMIT 1""",
-        # }, select_params=[request.user.id])
-        # user avg howMuch%RequestUserRatedTheSame
-        # for every user annotate field with counted COMMONLY rated titles && count rated by request
     else:
-        list_of_users = User.objects.all()
+        list_of_users = User.objects.exclude(pk=request.user.pk)
         context['user_list'] = list_of_users
     return render(request, 'users/user_list.html', context)
 
