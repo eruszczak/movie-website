@@ -131,6 +131,13 @@ def explore(request):
                 req_user_id = request.user.id if request.user.is_authenticated() else 0
                 titles = titles_user_saw_with_current_rating(user_obj.id, rating, req_user_id)
                 query_string += '{}={}&'.format('r', rating)
+            else:
+                titles = titles.distinct().extra(select={
+                    'current_rating': """SELECT rate FROM movie_rating as rating
+                        WHERE rating.title_id = movie_title.id
+                        AND rating.user_id = %s
+                        ORDER BY rating.rate_date DESC LIMIT 1""",
+                }, select_params=[user_obj.id])
     else:
         rating = request.GET.get('r')
         if rating and request.user.is_authenticated():

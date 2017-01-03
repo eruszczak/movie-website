@@ -24,7 +24,6 @@
                             <br>avg: {{ user_current_ratings.avg|floatformat:2 }}
                             <br>
                         {% endwith %}
-
                     </div>
                     {% for i in 'xxxxxxxxxx' %}
                         <span class="glyphicon glyphicon-star{% if forloop.counter > user.current_rating %}-empty{% endif %}" aria-hidden="true"></span>

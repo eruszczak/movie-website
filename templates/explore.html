@@ -21,6 +21,7 @@
                     {% if request.user.is_authenticated %}
                     <th class="text-center"><a href="{{ request.user.userprofile.favourite_url }}">favourite</a></th>
                     <th class="text-center"><a href="{{ request.user.userprofile.watchlist_url }}">watchlist</a></th>
+
                     {% endif %}
                 </tr>
             </thead>
@@ -28,7 +29,13 @@
                 {% for obj in ratings %}
                 <tr class="{% if obj.user == request.user %}taaaa{% endif %}">
                     <th scope="row" class="col-md-1 text-center {% if obj.seen_by_user %}color-watched{% endif %}">{{ forloop.counter0|add:ratings.start_index }}</th>
-                    <td class="col-md-9 paddingleft"><a href="{{ obj.get_absolute_url }}">{{ obj.name }} ({{ obj.year }})</a></td>
+                    <td class="col-md-9 paddingleft">
+                        <a href="{{ obj.get_absolute_url }}">{{ obj.name }} ({{ obj.year }})</a>
+                        <span style="float: right;">
+                            {{ obj.current_rating }}
+                            <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
+                        </span>
+                    </td>
                     {% if request.user.is_authenticated %}
                         <td class="text-center">
                         {% if obj.has_in_favourites %}
