@@ -100,7 +100,7 @@ class Title(models.Model):
 
     @property
     def rate(self):
-        return avg_of_title_current_ratings(self.id)
+        return avg_of_title_current_ratings(self.id)  # dict in this form: {count: 20, avg: 7.0}
 
 
 class Rating(models.Model):
@@ -186,7 +186,7 @@ class Watchlist(models.Model):
 
     @property
     def is_rated_with_later_date(self):
-        return Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.added_date).exists()  # , title__watchlist__imdb=True
+        return Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.added_date).exists()
 
     @property
     def rated_after_days_diff(self):

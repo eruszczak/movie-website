@@ -3,69 +3,58 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-    {% if not searched_title %}
-        List of users
-        <table class="table table-hover table-bordered table-condensed">
-            <thead>
-                <tr>
-                    <th class="text-center">username</th>
-                </tr>
-            </thead>
-            <tbody>
+    {% if searched_title %}
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="row">
+                Users who saw <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a>
+                {% with searched_title.rate as title_rate %}
+                    Avg ratings: {{ title_rate.avg|floatformat:2 }}
+                    ({{ title_rate.count }} user{{ rate.count|pluralize }})
+                {% endwith %}
                 {% for user in user_list %}
-                <tr>
-                    <td class="col-md-9 paddingleft"><a href="{{ user.userprofile }}">{{ user.username }}</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                <div class="col-md-12">
+                    <div class="well usersList">
+                        <a href="{{ user.userprofile.get_absolute_url }}">
+                            <img class="img-responsive img-thumbnail avatarMin"
+                                 src="{% if user.userprofile.picture %}{{ user.userprofile.picture.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
+                        </a>
+                        {% with user.userprofile.avg_of_current_ratings as user_current_ratings %}
+                            See all <a href="{{ user.userprofile.ratings_url }}">{{ user_current_ratings.count }} ratings</a>
+                            <br>avg: {{ user_current_ratings.avg|floatformat:2 }}
+                            <br>
+                        {% endwith %}
 
-    {% else %}
-        Users who saw <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a>
-        <table class="table table-hover table-bordered table-condensed">
-            <thead>
-                <tr>
-                    <th class="text-center">username</th>
-                    <th class="text-center">stars</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users_who_saw_title %}
-                <tr>
-                    <td class="col-md-9 paddingleft"><a href="{{ user.userprofile }}">{{ user.username }}</a></td>
-                    <td class="col-md-9">
+                    </div>
                     {% for i in 'xxxxxxxxxx' %}
-                        <i class="fa {% if forloop.counter <= user.current_rating %}fa-star{% else %}fa-star-o{% endif %}" aria-hidden="true"></i>
+                        <span class="glyphicon glyphicon-star{% if forloop.counter > user.current_rating %}-empty{% endif %}" aria-hidden="true"></span>
                     {% endfor %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-8 col-md-offset-2">
-        <div class="row">
-            {% for user in user_list %}
-            <div class="col-md-12">
-                <div class="well usersList">
-                    <a href="{{ user.userprofile.get_absolute_url }}">
-                        <img class="img-responsive img-thumbnail avatarMin"
-                             src="{% if user.userprofile.picture %}{{ user.userprofile.picture.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-                    </a>
-                    {% with user.userprofile.avg_of_current_ratings as user_current_ratings %}
-                        See all <a href="{{ user.userprofile.ratings_url }}">{{ user_current_ratings.count }} ratings</a>
-                        <br>avg: {{ user_current_ratings.avg|floatformat:2 }}
-                        <br>
-                    {% endwith %}
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
-</div>
+    {% else %}
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="row">
+                {% for user in user_list %}
+                <div class="col-md-12">
+                    <div class="well usersList">
+                        <a href="{{ user.userprofile.get_absolute_url }}">
+                            <img class="img-responsive img-thumbnail avatarMin"
+                                 src="{% if user.userprofile.picture %}{{ user.userprofile.picture.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
+                        </a>
+                        {% with user.userprofile.avg_of_current_ratings as user_current_ratings %}
+                            See all <a href="{{ user.userprofile.ratings_url }}">{{ user_current_ratings.count }} ratings</a>
+                            <br>avg: {{ user_current_ratings.avg|floatformat:2 }}
+                            <br>
+                        {% endwith %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
 {% endblock %}

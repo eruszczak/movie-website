@@ -2,14 +2,13 @@ import os
 from datetime import datetime
 
 from django.db import models
-from django.db.models import Avg
 from django.utils import timezone
 from django.forms import ValidationError
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from recommend.models import Recommendation
-from movie.models import Rating, Title
+from movie.models import Title
 from common.sql_queries import avg_of_user_current_ratings
 
 
