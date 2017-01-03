@@ -57,9 +57,11 @@
                         <img class="img-responsive img-thumbnail avatarMin"
                              src="{% if user.userprofile.picture %}{{ user.userprofile.picture.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
                     </a>
-                    See all <a href="{{ user.userprofile.ratings_url }}">{{ user.userprofile.count_ratings }} ratings</a>
-                    <br>avg: {{ user.userprofile.avg_of_current_ratings }}
-                    <br>
+                    {% with user.userprofile.avg_of_current_ratings as user_current_ratings %}
+                        See all <a href="{{ user.userprofile.ratings_url }}">{{ user_current_ratings.count }} ratings</a>
+                        <br>avg: {{ user_current_ratings.avg|floatformat:2 }}
+                        <br>
+                    {% endwith %}
                 </div>
             </div>
             {% endfor %}

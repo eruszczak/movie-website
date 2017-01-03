@@ -4,6 +4,7 @@ from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
 from .utils.functions import create_slug
+from common.sql_queries import avg_of_title_current_ratings
 
 
 class Genre(models.Model):
@@ -96,6 +97,10 @@ class Title(models.Model):
         if not self.url_imdb:
             self.url_imdb = 'http://www.imdb.com/title/{}/'.format(self.const)
         super(Title, self).save(*args, **kwargs)
+
+    @property
+    def rate(self):
+        return avg_of_title_current_ratings(self.id)
 
 
 class Rating(models.Model):

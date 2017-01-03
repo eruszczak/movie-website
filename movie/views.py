@@ -14,7 +14,7 @@ from common.utils import paginate
 from users.models import UserFollow
 from recommend.models import Recommendation
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite
-from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites, average_rating_of_title
+from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites
 from common.sql_queries import titles_user_saw_with_current_rating
 
 
@@ -114,7 +114,7 @@ def explore(request):
 
     searched_for_user_and_rate = False
     user = request.GET.get('u')
-    if user is not None:
+    if user:
         user_obj = get_object_or_404(User, username=user)
         query_string += '{}={}&'.format('u', user)
         if request.GET.get('exclude_his'):
@@ -257,8 +257,6 @@ def title_details(request, slug):
             Rating.objects.filter(pk=request.POST.get('rating_pk'), user=request.user).delete()
         return redirect(title)
 
-    avg_rate, rate_count = average_rating_of_title(title)
-    rating_data = {'avg': avg_rate, 'count': rate_count} if avg_rate else None
     context = {
         'entry': title,
         'user_ratings_of_title': user_ratings_of_title,
@@ -266,7 +264,6 @@ def title_details(request, slug):
         'is_in_user_watchlist': is_in_user_watchlist,
         'followed_can_take_recommendation': followed_can_take_recommendation,
         'followed_saw_title': followed_saw_title,
-        'rate': rating_data,
         'loop': (n for n in range(10, 0, -1)),
     }
     return render(request, 'title_details.html', context)

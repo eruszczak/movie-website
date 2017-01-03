@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 
 from recommend.models import Recommendation
 from movie.models import Rating, Title
+from common.sql_queries import avg_of_user_current_ratings
 
 
 def update_filename(instance, filename):
@@ -68,17 +69,7 @@ class UserProfile(models.Model):
 
     @property
     def avg_of_current_ratings(self):
-        rated_titles = Title.objects.filter(rating__user=self.id).distinct()
-        rated_titles = rated_titles.extra(select={
-            'current_rating': """SELECT rate FROM movie_rating as rating
-                WHERE rating.title_id = movie_title.id
-                AND rating.user_id = %s
-                ORDER BY rating.rate_date DESC LIMIT 1""",
-        }, select_params=[self.id])
-        print(rated_titles.query)
-        return round(sum(x.current_rating for x in rated_titles) / rated_titles.count(), 2)
-        # return rated_titles.values('current_rating').aggregate(Avg('current_rating'))
-        # return sum(x.current_rating for x in current_ratings) / 1
+        return avg_of_user_current_ratings(self.id)
 
     @property
     def can_update_csv_ratings(self):

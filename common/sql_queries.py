@@ -57,7 +57,42 @@ titles_rated_by_user_with_current_rating_equals = """
     WHERE "curr_rating" = %s
 """
 
+avg_of_current_user_ratings = """
+    SELECT AVG("current_rating") as "avg", COUNT("current_rating") as "count" FROM (
+        SELECT DISTINCT
+        (SELECT rate FROM movie_rating as rating
+        WHERE rating.title_id = movie_title.id
+        AND rating.user_id = %s
+        ORDER BY rating.rate_date DESC LIMIT 1
+        ) AS "current_rating",
 
+
+        "movie_title"."id"
+        FROM "auth_user"
+
+        JOIN "movie_rating" ON ("movie_rating"."user_id" = "auth_user"."id")
+        JOIN "movie_title" ON ("movie_title"."id" = "movie_rating"."title_id")
+        WHERE "auth_user"."id" = %s
+    ) as "forEveryTitleCurrentRating"
+"""
+
+avg_of_current_ratings_of_title = """
+    SELECT AVG("current_rating"), COUNT("current_rating") FROM (
+        SELECT DISTINCT
+        (SELECT rate FROM movie_rating as rating
+        WHERE rating.title_id = movie_title.id
+        AND rating.user_id = "auth_user"."id"
+        ORDER BY rating.rate_date DESC LIMIT 1
+        ) AS "current_rating",
+
+        "movie_title"."id", "auth_user"."id"
+        FROM "auth_user"
+
+        JOIN "movie_rating" ON ("movie_rating"."user_id" = "auth_user"."id")
+        JOIN "movie_title" ON ("movie_title"."id" = "movie_rating"."title_id")
+        WHERE "movie_title"."id" = %s
+    ) as "currentRatingsOfTitle"
+"""
 
 
 def dictfetchall(cursor):
@@ -77,6 +112,17 @@ def rating_distribution(user_id):
 
 def titles_user_saw_with_current_rating(user_id, rating, req_user):
     with connection.cursor() as cursor:
-        # cursor.execute(titles_rated_by_user_with_current_rating_equals, [user_id, user_id, rating])
         cursor.execute(titles_rated_by_user_with_current_rating_equals, [req_user] * 3 + [user_id] * 2 + [rating])
         return dictfetchall(cursor)
+
+
+def avg_of_user_current_ratings(user_id):
+    with connection.cursor() as cursor:
+        cursor.execute(avg_of_current_user_ratings, [user_id] * 2)
+        return dictfetchall(cursor)[0]
+
+
+def avg_of_title_current_ratings(title_id):
+    with connection.cursor() as cursor:
+        cursor.execute(avg_of_current_ratings_of_title, [title_id])
+        return dictfetchall(cursor)[0]
