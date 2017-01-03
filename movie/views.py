@@ -15,6 +15,7 @@ from users.models import UserFollow
 from recommend.models import Recommendation
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites, average_rating_of_title
+from common.sql_queries import titles_user_saw_with_current_rating
 
 
 def home(request):
@@ -111,6 +112,7 @@ def explore(request):
             titles = titles.filter(genre__name=genre)
             query_string += '{}={}&'.format('g', genre)
 
+    searched_for_user_and_rate = False
     user = request.GET.get('u')
     if user is not None:
         user_obj = get_object_or_404(User, username=user)
@@ -125,41 +127,34 @@ def explore(request):
             titles = titles.filter(rating__user__username=user)
             rating = request.GET.get('r')
             if rating:
-                titles = titles.filter(rating__rate=rating) #distinct() is called later
-                rated_titles = titles.distinct().extra(select={
-                    'current_rating': """SELECT rate FROM movie_rating as rating
-                        WHERE rating.title_id = movie_title.id
-                        AND rating.user_id = %s
-                        AND rating.rate = %s
-                        ORDER BY rating.rate_date DESC LIMIT 1""",
-                }, select_params=[user_obj.id, rating])
-                print(rated_titles)
-                print(rated_titles.count())
+                searched_for_user_and_rate = True
+                req_user_id = request.user.id if request.user.is_authenticated() else 0
+                titles = titles_user_saw_with_current_rating(user_obj.id, rating, req_user_id)
                 query_string += '{}={}&'.format('r', rating)
     else:
-        user_obj = get_object_or_404(User, username=user)
         rating = request.GET.get('r')
         if rating and request.user.is_authenticated():
-            titles = titles.filter(rating__user=request.user, rating__rate=rating)
+            searched_for_user_and_rate = True
+            titles = titles_user_saw_with_current_rating(request.user.id, rating, request.user.id)
             query_string += '{}={}&'.format('r', rating)
 
-
-    # only if you specified ?u= or you are logged in
-    rate_date_year, rate_date_month = request.GET.get('year'), request.GET.get('month')
-    if rate_date_year and (user or request.user.is_authenticated()):
-        # if user: ratings are already filtered for him
-        if not user:
-            titles = titles.filter(rating__user=request.user)
-        if rate_date_year and rate_date_month:
-            titles = titles.filter(rating__rate_date__year=rate_date_year, rating__rate_date__month=rate_date_month)
-            query_string += '{}={}&'.format('year', rate_date_year)
-            query_string += '{}={}&'.format('month', rate_date_month)
-        elif rate_date_year:
-            titles = titles.filter(rating__rate_date__year=rate_date_year)
-            query_string += '{}={}&'.format('year', rate_date_year)
+    if not searched_for_user_and_rate:
+        # only if you specified ?u= or you are logged in
+        rate_date_year, rate_date_month = request.GET.get('year'), request.GET.get('month')
+        if rate_date_year and (user or request.user.is_authenticated()):
+            # if user: ratings are already filtered for him
+            if not user:
+                titles = titles.filter(rating__user=request.user)
+            if rate_date_year and rate_date_month:
+                titles = titles.filter(rating__rate_date__year=rate_date_year, rating__rate_date__month=rate_date_month)
+                query_string += '{}={}&'.format('year', rate_date_year)
+                query_string += '{}={}&'.format('month', rate_date_month)
+            elif rate_date_year:
+                titles = titles.filter(rating__rate_date__year=rate_date_year)
+                query_string += '{}={}&'.format('year', rate_date_year)
 
     page = request.GET.get('page')
-    titles = titles.distinct()
+    titles = titles.distinct() if not searched_for_user_and_rate else titles
     ratings = paginate(titles, page)
 
     if query_string:
