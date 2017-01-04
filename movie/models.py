@@ -185,14 +185,13 @@ class Watchlist(models.Model):
         return reverse('watchlist', kwargs={'username': self.user.username})
 
     @property
-    def is_rated_with_later_date(self):
-        return Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.added_date).exists()
-
-    @property
     def rated_after_days_diff(self):
         rating = Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.added_date).last()
         if rating:
-            return rating.rate_date - self.added_date
+            return {
+                'rate': rating.rate,
+                'days_diff': (rating.rate_date - self.added_date.date()).days
+            }
         return None
 
 

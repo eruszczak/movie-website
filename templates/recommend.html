@@ -8,7 +8,6 @@
 <div class="row">
     <div class="col-md-6">
         <form id="recommend_form" method="post">{% csrf_token %}
-
             {{ form.non_field_errors }}
             <fieldset>
                 <div class="col-md-12">
@@ -80,12 +79,25 @@
     </thead>
     <tbody>
         {% for obj in obj_list %}
-        <tr class="">
+        <tr>
             <th scope="row" class="col-md-1 text-center">{{ forloop.counter }}</th>
-            <td class=""><a href="{{ obj.title.get_absolute_url }}" target="">{{ obj.title.name }}</a> ({{ obj.title.year }})</td>
+            <td class="">
+                <a href="{{ obj.title.get_absolute_url }}" target="">{{ obj.title.name }}</a> ({{ obj.title.year }})
+                <span style="float: right;">
+                {% if obj.user_curr_rating and not is_owner %}
+                    {{ obj.user_curr_rating }}
+                    <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
+                {% endif %}
+                {% if obj.req_user_curr_rating %}
+                    {{ obj.req_user_curr_rating }}
+                    <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                {% endif %}
+                </span>
+            </td>
             <td class="col-md-2 text-center">{{ obj.added_date|date:"Y-m-d" }}</td>
             <td class="col-md-1 text-center">
-            {% if not obj.is_active %}
+            {% if obj.days_diff %}
+                {{ obj.days_diff }}
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
             {% else %}
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
@@ -93,16 +105,17 @@
             </td>
             <td class="col-md-2 text-center" {% if obj.note %}data-toggle="tooltip" data-placement="left" title="{{ obj.note }}"{% endif %}>
             {% if obj.sender %}
-                <a href="{{ obj.sender.userprofile }}">{{ obj.sender }}</a>
+                <a href="{{ obj.sender.userprofile.get_absolute_url }}">{{ obj.sender }}</a>
             {% else %}
                 {{ obj.nick }}
             {% endif %}
             </td>
-            {% if is_owner and obj.is_active %}
+            {% if is_owner and not obj.days_diff %}
             <td class="col-md-1 text-center">
                 <form action="" method="post">{% csrf_token %}
-                    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_recommend" value="delete_recommend"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-                    <!--<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_recommend" value="delete_recommend">delete</button>-->
+                    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_recommend" value="delete_recommend">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </button>
                     <input type="hidden" name="recommend_pk" value="{{ obj.pk }}">
                 </form>
             </td>

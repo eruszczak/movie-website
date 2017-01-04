@@ -72,7 +72,7 @@
             </div>
         </div>
         {% endif %}
-        {% if history %}
+        {% if archive %}
         <div class="row">
             <div class="col-md-12">
                 <div class="col-md-12">
@@ -87,12 +87,17 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for obj in history %}
+                            {% for obj in archive %}
                             <tr>
                                 <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                                <td><a href="{{ obj.get_entry }}">{{ obj.get_entry.name }}</a></td>
-                                <td>{{ obj.rate }}</td>
-                                <td>{{ obj.rated_after_days_diff }} days</td>
+                                <td><a href="{{ obj.title.get_absolute_url }}">{{ obj.title.name }}</a></td>
+                            {% with obj.rated_after_days_diff as data %}
+                                <td>
+                                    <span class="glyphicon glyphicon-star {% if not is_owner %}green{% endif %}" aria-hidden="true"></span>
+                                    {{ data.rate }}
+                                </td>
+                                <td>{{ data.days_diff }} days</td>
+                            {% endwith %}
                             </tr>
                             {% endfor %}
                         </tbody>
