@@ -16,14 +16,11 @@ class Recommendation(models.Model):
         ordering = ('-added_date', )
         unique_together = ('user', 'title')
 
+    def __str__(self):
+        return '{} followed "{}" to {}'.format(self.sender.username if self.sender else self.nick,
+                                               self.title.name[:10],
+                                               self.user.username)
+
     @property
     def is_active(self):
         return not Rating.objects.filter(user=self.user, title=self.title, rate_date__gte=self.added_date).exists()
-
-    @property
-    def rated_after(self):
-        rating = Rating.objects.filter(user=self.user, title=self.title, rate_date__gte=self.added_date).last()
-        if rating:
-            return (rating.rate_date - self.added_date.date()).days
-        return False
-

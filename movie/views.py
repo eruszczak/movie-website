@@ -1,7 +1,6 @@
 import re
 from datetime import datetime
 
-from django.http import Http404
 from django.db.models import Count
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -227,7 +226,7 @@ def title_details(request, slug):
                     Recommendation.objects.create(user=choosen_user, sender=request.user, title=title)
                     messages.info(request, 'You recommended <a href="{}">{}</a> to <a href="{}">{}</a>'.format(
                         title.get_absolute_url(), title.name,
-                        request.user.userprofile.get_absolute_url(), request.user.username
+                        choosen_user.userprofile.get_absolute_url(), choosen_user.username
                     ), extra_tags='safe')
 
         current_rating = req_user_data['user_ratings_of_title'].first()
@@ -330,10 +329,11 @@ def watchlist(request, username):
         elif request.POST.get('watchlist_imdb_readd'):
             user_watchlist.filter(title__const=request.POST.get('const'), imdb=True, deleted=True).update(deleted=False)
         return redirect(user.userprofile.watchlist_url())
+
     context = {
         'ratings': user_watchlist.filter(deleted=False),
         'title': 'See again',
-        'archive': [e for e in user_watchlist if e.is_rated_with_later_date],
+        'archive': [e for e in user_watchlist if e.rated_after_days_diff],
         'is_owner': request.user == user,
         'deleted': user_watchlist.filter(imdb=True, deleted=True),
         'username': username
