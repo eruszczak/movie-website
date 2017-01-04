@@ -96,6 +96,5 @@ class UserFollow(models.Model):
     class Meta:
         unique_together = ('user_follower', 'user_followed')
 
-    @property
-    def has_in_recommendations(self):
-        return Recommendation.objects.filter(user=self.user_followed)
+    def __str__(self):
+        return '{} follows {}'.format(self.user_follower.username, self.user_followed.username)

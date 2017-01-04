@@ -135,7 +135,7 @@
 				</div>
 				<br>
 				You and {{ choosen_user.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>
-                You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg }} and {{ choosen_user.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg }}<br>
+                You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ choosen_user.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>
 				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ choosen_user.username }}'s
 				<a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_ratings }} ratings</a><br>
 			</div>

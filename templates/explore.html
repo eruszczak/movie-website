@@ -28,7 +28,7 @@
             <tbody>
                 {% for obj in ratings %}
                 <tr class="{% if obj.user == request.user %}taaaa{% endif %}">
-                    <th scope="row" class="col-md-1 text-center {% if obj.seen_by_user %}color-watched{% endif %}">{{ forloop.counter0|add:ratings.start_index }}</th>
+                    <th scope="row" class="col-md-1 text-center {% if obj.req_user_curr_rating %}color-watched{% endif %}">{{ forloop.counter0|add:ratings.start_index }}</th>
                     <td class="col-md-9 paddingleft">
                         <a href="{{ obj.get_absolute_url }}">{{ obj.name }} ({{ obj.year }})</a>
                         <span style="float: right;">
