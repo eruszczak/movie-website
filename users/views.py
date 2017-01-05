@@ -9,6 +9,7 @@ from .models import UserProfile, UserFollow
 from .forms import RegisterForm, LoginForm, EditProfileForm
 from common.utils import build_html_string_for_titles
 from common.prepareDB import update_from_csv, update_from_rss, get_watchlist
+from common.sql_queries import avgs_of_2_users_common_curr_ratings, titles_rated_higher_or_lower
 
 
 def register(request):
@@ -149,40 +150,18 @@ def user_profile(request, username):
                     messages.info(request, message, extra_tags='safe')
         return redirect(user.userprofile)
 
-    TITLES_SHOWED_IN_ROW = 6
+    titles_in_a_row = 6
     is_owner = user == request.user
     user_ratings = Rating.objects.filter(user=user)
-    user_ratings_len = user.userprofile.count_ratings
     if request.user.is_authenticated() and not is_owner:
-        # common_ratings = Title.objects.filter(rating__user=request.user) & Title.objects.filter(rating__user=user)
-        # todo
-        common_ratings = Title.objects.filter(rating__user=request.user).filter(rating__user=user)
-        common_ratings = common_ratings.distinct().extra(select={
-            'user_rate': """SELECT rate FROM movie_rating as rating
-                WHERE rating.title_id = movie_title.id
-                AND rating.user_id = %s
-                ORDER BY rating.rate_date DESC LIMIT 1""",
-            'req_user_rate': """SELECT rate FROM movie_rating as rating
-                WHERE rating.title_id = movie_title.id
-                AND rating.user_id = %s
-                ORDER BY rating.rate_date DESC LIMIT 1""",
-        }, select_params=[user.id, request.user.id])
+        titles_req_user_rated_higher = titles_rated_higher_or_lower(
+            user.id, request.user.id, sign='<', limit=titles_in_a_row)
+        titles_req_user_rated_lower = titles_rated_higher_or_lower(
+            user.id, request.user.id, sign='>', limit=titles_in_a_row)
 
-        common_ratings_len = common_ratings.count()
-        titles_req_user_rated_lower = []
-        titles_req_user_rated_higher = []
-        for title in common_ratings:
-            higher_is_max_size = len(titles_req_user_rated_higher) > TITLES_SHOWED_IN_ROW
-            lower_is_max_size = len(titles_req_user_rated_lower) > TITLES_SHOWED_IN_ROW
-            if title.req_user_rate > title.user_rate and not higher_is_max_size:
-                titles_req_user_rated_higher.append(title)
-            elif title.req_user_rate < title.user_rate and not lower_is_max_size:
-                titles_req_user_rated_lower.append(title)
-            if lower_is_max_size and higher_is_max_size:
-                break
+        common_titles_avgs = avgs_of_2_users_common_curr_ratings(user.id, request.user.id)
+        common_ratings_len = common_titles_avgs['count']
 
-        user_rate_avg = sum(x.user_rate for x in common_ratings) / common_ratings_len
-        req_user_rate_avg = sum(x.req_user_rate for x in common_ratings) / common_ratings_len
         not_rated_by_req_user = Title.objects.filter(rating__user=user, rating__rate__gte=7).exclude(
             rating__user=request.user).distinct().extra(select={
                 'user_rate': """SELECT rate FROM movie_rating as rating
@@ -195,23 +174,24 @@ def user_profile(request, username):
             'count': common_ratings_len,
             'higher': titles_req_user_rated_higher,
             'lower': titles_req_user_rated_lower,
-            'percentage': int(common_ratings_len / user_ratings_len * 100),
-            'user_rate_avg': user_rate_avg,
-            'req_user_rate_avg': req_user_rate_avg,
-            'not_rated_by_req_user': not_rated_by_req_user[:TITLES_SHOWED_IN_ROW],
+            'percentage': int(common_ratings_len / user.userprofile.count_ratings * 100),
+            'user_rate_avg': common_titles_avgs['avg_user'],
+            'req_user_rate_avg': common_titles_avgs['avg_req_user'],
+            'not_rated_by_req_user': not_rated_by_req_user[:titles_in_a_row],
             'not_rated_by_req_user_count': not_rated_by_req_user.count()
         }
         can_follow = not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists()
     else:
         common = None
-        can_follow = None
+        can_follow = False
+
     context = {
-        'title': 'User profile: ' + user.username,
+        'title': user.username + ' | profile',
         'choosen_user': user,
         'is_owner': is_owner,
         'can_follow': can_follow,
         'user_ratings': {
-            'last_seen': user_ratings[:TITLES_SHOWED_IN_ROW],
+            'last_seen': user_ratings[:titles_in_a_row],
             'common_with_req_user': common
         }
     }

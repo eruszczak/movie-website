@@ -63,7 +63,7 @@
 					<a href="{{ entry.title.get_absolute_url }}">
 						<img class="img-rounded posterMin" src="{% if entry.title.img %}{{ entry.title.img.url }}
 							{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-						{{ entry.title.name|truncatechars:10 }}
+						{{ entry.title.name|truncatechars:9 }}
 						<br>
 						<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ entry.rate }}
 					</a>
@@ -90,26 +90,26 @@
 						<a href="{{ title.get_absolute_url }}">
 							<img class="img-rounded posterMin" src="{% if title.img %}{{ title.img.url }}
 								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-							{{ title.name|truncatechars:10 }}
+							{{ title.name|truncatechars:9 }}
 							<br>
 							<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ title.user_rate }}
 						</a>
 					</div>
 					{% endfor %}
 				</div>
+				<!--todo-->
 				<!--{% if user_ratings.common_with_req_user.not_rated_by_req_user_count > 6 %}-->
-				See all <a href="{{ choosen_user.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
+				<!--See all <a href="{{ choosen_user.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated-->
 				<!--{% endif %}-->
-				<br>
 				<br>
 				<div class="row">
 					<b>Titles you rated higher</b><br>
 					{% for title in user_ratings.common_with_req_user.higher %}
 					<div class="col-md-2">
-						<a href="{{ title.get_absolute_url }}">
-							<img class="img-rounded posterMin" src="{% if title.img %}{{ title.img.url }}
+						<a href="{% url 'title_details' slug=title.slug %}">
+							<img class="img-rounded posterMin" src="{% if title.img %}/media/{{ title.img }}
 								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-							{{ title.name|truncatechars:10 }}
+							{{ title.name|truncatechars:9 }}
 							<br>
 							<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ title.user_rate }}
 							<span class="glyphicon glyphicon-star" aria-hidden="true"></span> {{ title.req_user_rate }}
@@ -122,10 +122,10 @@
 					<b>Titles you rated lower</b><br>
 					{% for title in user_ratings.common_with_req_user.lower %}
 					<div class="col-md-2">
-						<a href="{{ title.get_absolute_url }}">
-							<img class="img-rounded posterMin" src="{% if title.img %}{{ title.img.url }}
+						<a href="{% url 'title_details' slug=title.slug %}">
+							<img class="img-rounded posterMin" src="{% if title.img %}/media/{{ title.img }}
 								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-							{{ title.name|truncatechars:10 }}
+							{{ title.name|truncatechars:9 }}
 							<br>
 							<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ title.user_rate }}
 							<span class="glyphicon glyphicon-star" aria-hidden="true"></span> {{ title.req_user_rate }}
