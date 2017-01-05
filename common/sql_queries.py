@@ -94,6 +94,63 @@ avg_of_current_ratings_of_title = """
     ) as "currentRatingsOfTitle"
 """
 
+avg_for_2_user_of_only_common_curr_ratings = """
+    SELECT AVG("current_rating_user1") as "avg_user", AVG("current_rating_user2") as "avg_req_user", COUNT(*) FROM (
+        SELECT DISTINCT
+        (
+        SELECT rate FROM movie_rating as rating
+        WHERE rating.title_id = movie_title.id
+        AND rating.user_id = %s
+        ORDER BY rating.rate_date DESC LIMIT 1
+        ) AS "current_rating_user1",
+
+        (
+        SELECT rate FROM movie_rating as rating
+        WHERE rating.title_id = movie_title.id
+        AND rating.user_id = %s
+        ORDER BY rating.rate_date DESC LIMIT 1
+        ) AS "current_rating_user2",
+
+        "movie_title"."id"
+        FROM "movie_title"
+
+        --need to twice join the same table so in the where condition I can check for 2 ids
+        JOIN "movie_rating" ON ("movie_title"."id" = "movie_rating"."title_id")
+        JOIN "movie_rating" rating ON ("movie_title"."id" = rating."title_id")
+        WHERE ("movie_rating"."user_id" = %s AND rating."user_id" = %s)
+    ) as "forEveryTitleRatingFor2Users"
+"""
+
+rated_higher_or_lower_sorted_by_rate_diff = """
+    SELECT "req_user_rate" {} "user_rate" as "rate_diff", * FROM (
+        SELECT DISTINCT
+        (
+        SELECT rate FROM movie_rating as rating
+        WHERE rating.title_id = movie_title.id
+        AND rating.user_id = %s
+        ORDER BY rating.rate_date DESC LIMIT 1
+        ) AS "user_rate",
+
+        (
+        SELECT rate FROM movie_rating as rating
+        WHERE rating.title_id = movie_title.id
+        AND rating.user_id = %s
+        ORDER BY rating.rate_date DESC LIMIT 1
+        ) AS "req_user_rate",
+
+        "movie_title".*
+        FROM "movie_title"
+
+        --need to twice join the same table so in the where condition I can check for 2 ids
+        JOIN "movie_rating" rating1 ON ("movie_title"."id" = rating1."title_id")
+        JOIN "movie_rating" rating2 ON ("movie_title"."id" = rating2."title_id")
+        WHERE (rating1."user_id" = %s AND rating2."user_id" = %s)
+    ) as "titlesThaAreRatedByBothUsersAndShowTheirCurrentRatings"
+    WHERE "user_rate" {} "req_user_rate"
+    ORDER BY rate_diff DESC
+    LIMIT {}
+"""
+
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"
@@ -126,3 +183,17 @@ def avg_of_title_current_ratings(title_id):
     with connection.cursor() as cursor:
         cursor.execute(avg_of_current_ratings_of_title, [title_id])
         return dictfetchall(cursor)[0]
+
+
+def avgs_of_2_users_common_curr_ratings(user_id, req_user):
+    with connection.cursor() as cursor:
+        cursor.execute(avg_for_2_user_of_only_common_curr_ratings, [user_id, req_user, req_user, user_id])
+        return dictfetchall(cursor)[0]
+
+
+def titles_rated_higher_or_lower(user_id, req_user, sign, limit):
+    with connection.cursor() as cursor:
+        rate_diff_col_operation = '-' if sign == '<' else '+'
+        cursor.execute(rated_higher_or_lower_sorted_by_rate_diff.format(
+            rate_diff_col_operation, sign, limit), [user_id, req_user, req_user, user_id])
+        return dictfetchall(cursor)

@@ -23,6 +23,7 @@ EXTERNAL_APPS = [
     'crispy_forms',
     'rest_framework',
     'corsheaders',
+    'debug_toolbar',
 ]
 
 LOCAL_APPS = [
@@ -33,7 +34,9 @@ LOCAL_APPS = [
 
 INSTALLED_APPS = DJANGO_APPS + EXTERNAL_APPS + LOCAL_APPS
 
+
 MIDDLEWARE_CLASSES = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 
     'django.middleware.security.SecurityMiddleware',
