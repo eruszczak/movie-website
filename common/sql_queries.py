@@ -155,6 +155,26 @@ rated_higher_or_lower_sorted_by_rate_diff = """
     LIMIT {}
 """
 
+curr_rate_of_followed_user_for_title = """
+    SELECT
+    (SELECT rate
+    FROM movie_rating as rating, movie_title as title
+    WHERE rating.user_id = "DistinctTitlesRatedByFollowed".user_followed_id
+    AND title.id = "DistinctTitlesRatedByFollowed".id
+    ORDER BY rating.rate_date DESC LIMIT 1
+    ) AS "followed_curr_rating",
+    * FROM (
+    SELECT DISTINCT
+    "users_userfollow"."id", "users_userfollow"."user_follower_id", "users_userfollow"."user_followed_id",
+    T3.username, T5.picture
+    FROM "users_userfollow"
+    INNER JOIN "auth_user" T3 ON ("users_userfollow"."user_followed_id" = T3."id")
+    INNER JOIN "movie_rating" ON (T3."id" = "movie_rating"."user_id")
+    INNER JOIN "users_userprofile" T5 ON (T3."id" = T5."id")
+    WHERE ("users_userfollow"."user_follower_id" = %s AND "movie_rating"."title_id" = %s)
+    ) AS "DistinctTitlesRatedByFollowed"
+"""
+
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"
@@ -200,4 +220,10 @@ def titles_rated_higher_or_lower(user_id, req_user, sign, limit):
         rate_diff_col_operation = '-' if sign == '<' else '+'
         cursor.execute(rated_higher_or_lower_sorted_by_rate_diff.format(
             rate_diff_col_operation, sign, limit), [user_id, req_user, req_user, user_id])
+        return dictfetchall(cursor)
+
+
+def curr_title_rating_of_followed(follower_id, title_id):
+    with connection.cursor() as cursor:
+        cursor.execute(curr_rate_of_followed_user_for_title, [follower_id, title_id])
         return dictfetchall(cursor)
