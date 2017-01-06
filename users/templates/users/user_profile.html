@@ -53,19 +53,22 @@
 </div>
 {% if user_ratings.last_seen %}
 <div class="row">
-	<div class="col-md-8 col-md-offset-2">
+	<div class="col-sm-8 col-sm-offset-2">
 		<div class="panel panel-success">
 			<div class="panel-heading">Most Recently Rated</div>
 			<div class="panel-body">
 				<div class="row">
 				{% for entry in user_ratings.last_seen %}
-				<div class="col-md-2">
+				<div class="col-xs-6 col-sm-2">
 					<a href="{{ entry.title.get_absolute_url }}">
 						<img class="img-rounded posterMin" src="{% if entry.title.img %}{{ entry.title.img.url }}
 							{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-						{{ entry.title.name|truncatechars:9 }}
+						<br>{{ entry.title.name|truncatechars:9 }}
 						<br>
-						<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ entry.rate }}
+						<span class="glyphicon glyphicon-star {% if not is_owner %}green{% endif %}" aria-hidden="true"></span> {{ entry.rate }}
+						{% if entry.req_user_curr_rating %}
+						<span class="glyphicon glyphicon-star" aria-hidden="true"></span> {{ entry.req_user_curr_rating }}
+						{% endif %}
 					</a>
 				</div>
 				{% endfor %}
@@ -76,21 +79,20 @@
 	</div>
 </div>
 {% endif %}
-<!-- if common_with_req_user -->
-{% if request.user.is_authenticated and not is_owner %}
+{% if user_ratings.common_with_req_user %}
 <div class="row">
-	<div class="col-md-8 col-md-offset-2">
+	<div class="col-xs-12 col-sm-8 col-sm-offset-2">
 		<div class="panel panel-success">
 			<div class="panel-heading">Compared to you</div>
 			<div class="panel-body">
 				<div class="row">
 					<b>Titles {{ choosen_user.username }} liked that you haven't rated</b><br>
 					{% for title in user_ratings.common_with_req_user.not_rated_by_req_user %}
-					<div class="col-sm-2">
+					<div class="col-xs-6 col-sm-2">
 						<a href="{{ title.get_absolute_url }}">
 							<img class="img-rounded posterMin" src="{% if title.img %}{{ title.img.url }}
 								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-							{{ title.name|truncatechars:9 }}
+							<br>{{ title.name|truncatechars:9 }}
 							<br>
 							<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ title.user_rate }}
 						</a>
@@ -105,11 +107,11 @@
 				<div class="row">
 					<b>Titles you rated higher</b><br>
 					{% for title in user_ratings.common_with_req_user.higher %}
-					<div class="col-md-2">
+					<div class="col-xs-6 col-sm-2">
 						<a href="{% url 'title_details' slug=title.slug %}">
 							<img class="img-rounded posterMin" src="{% if title.img %}/media/{{ title.img }}
 								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-							{{ title.name|truncatechars:9 }}
+							<br>{{ title.name|truncatechars:9 }}
 							<br>
 							<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ title.user_rate }}
 							<span class="glyphicon glyphicon-star" aria-hidden="true"></span> {{ title.req_user_rate }}
@@ -121,11 +123,11 @@
 				<div class="row">
 					<b>Titles you rated lower</b><br>
 					{% for title in user_ratings.common_with_req_user.lower %}
-					<div class="col-md-2">
+					<div class="col-xs-6 col-sm-2">
 						<a href="{% url 'title_details' slug=title.slug %}">
 							<img class="img-rounded posterMin" src="{% if title.img %}/media/{{ title.img }}
 								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-							{{ title.name|truncatechars:9 }}
+							<br>{{ title.name|truncatechars:9 }}
 							<br>
 							<span class="glyphicon glyphicon-star green" aria-hidden="true"></span> {{ title.user_rate }}
 							<span class="glyphicon glyphicon-star" aria-hidden="true"></span> {{ title.req_user_rate }}
