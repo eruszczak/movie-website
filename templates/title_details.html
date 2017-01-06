@@ -8,6 +8,7 @@
 	<div class="col-md-12">
 		<div class="page-header">
 			<h2 class="text-center">{{ title.name }} (<a href="{% url 'explore' %}?y={{ title.year }}">{{ title.year }}</a>)</h2>
+            {{ title.pk }}
 		</div>
 		<div class="row">
 			<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
