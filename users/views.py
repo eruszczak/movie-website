@@ -186,7 +186,8 @@ def user_profile(request, username):
             'user_rate_avg': common_titles_avgs['avg_user'],
             'req_user_rate_avg': common_titles_avgs['avg_req_user'],
             'not_rated_by_req_user': not_rated_by_req_user[:titles_in_a_row],
-            'not_rated_by_req_user_count': not_rated_by_req_user.count()
+            'not_rated_by_req_user_count': Title.objects.filter(rating__user=user).exclude(
+                rating__user=request.user).distinct().count()
         }
         can_follow = not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists()
     else:

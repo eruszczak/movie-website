@@ -88,7 +88,7 @@
 			<div class="panel-heading">Compared to you</div>
 			<div class="panel-body">
 				<div class="row">
-					<b>Titles {{ choosen_user.username }} liked that you haven't rated</b><br>
+					<p class="text-center lead">Titles {{ choosen_user.username }} liked that you haven't rated</p>
 					{% for title in user_ratings.common_with_req_user.not_rated_by_req_user %}
 					<div class="col-xs-6 col-sm-2">
 						<a href="{{ title.get_absolute_url }}">
@@ -101,13 +101,12 @@
 					</div>
 					{% endfor %}
 				</div>
-				<!--todo-->
-				<!--{% if user_ratings.common_with_req_user.not_rated_by_req_user_count > 6 %}-->
-				<!--See all <a href="{{ choosen_user.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated-->
-				<!--{% endif %}-->
-				<br>
+				{% if user_ratings.common_with_req_user.not_rated_by_req_user_count > 6 %}
+				See all <a href="{{ choosen_user.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
+				{% endif %}
+				<hr>
 				<div class="row">
-					<b>Titles you rated higher</b><br>
+					<p class="text-center lead">Titles you rated higher</p>
 					{% for title in user_ratings.common_with_req_user.higher %}
 					<div class="col-xs-6 col-sm-2">
 						<a href="{% url 'title_details' slug=title.slug %}">
@@ -121,9 +120,9 @@
 					</div>
 					{% endfor %}
 				</div>
-				<br>
+				<hr>
 				<div class="row">
-					<b>Titles you rated lower</b><br>
+					<p class="text-center lead">Titles you rated lower</p>
 					{% for title in user_ratings.common_with_req_user.lower %}
 					<div class="col-xs-6 col-sm-2">
 						<a href="{% url 'title_details' slug=title.slug %}">
@@ -137,7 +136,7 @@
 					</div>
 					{% endfor %}
 				</div>
-				<br>
+				<hr>
 				You and {{ choosen_user.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>
                 You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ choosen_user.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>
 				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ choosen_user.username }}'s

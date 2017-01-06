@@ -42,6 +42,9 @@ body {
   color: #42da8e;
 }
 
+hr {
+     color: #dff0d8;
+}
 
 
 .active { font-weight: bold; }
