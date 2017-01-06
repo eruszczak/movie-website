@@ -20,7 +20,7 @@ get_count_of_current_rates = """
 """
 
 titles_rated_by_user_with_current_rating_equals = """
-    SELECT	*,
+    SELECT *,
         CASE WHEN EXISTS (
         SELECT 1 FROM "movie_rating" rating
             WHERE rating."user_id" = %s
@@ -43,12 +43,17 @@ titles_rated_by_user_with_current_rating_equals = """
         ) THEN 1 ELSE 0 END
         AS "has_in_favourites"
     FROM (
-        SELECT DISTINCT (
-            SELECT rate FROM movie_rating as rating
+        SELECT DISTINCT
+        (SELECT rate FROM movie_rating as rating
             WHERE rating.title_id = movie_title.id
             AND rating.user_id = %s
             ORDER BY rating.rate_date DESC LIMIT 1
         ) AS "curr_rating",
+        (SELECT rate FROM movie_rating as rating
+            WHERE rating.title_id = movie_title.id
+            AND rating.user_id = %s
+            ORDER BY rating.rate_date DESC LIMIT 1
+        ) AS "req_user_curr_rating",
 
         "movie_title".* FROM "movie_title"
 
@@ -65,7 +70,6 @@ avg_of_current_user_ratings = """
         AND rating.user_id = %s
         ORDER BY rating.rate_date DESC LIMIT 1
         ) AS "current_rating",
-
 
         "movie_title"."id"
         FROM "auth_user"
@@ -169,7 +173,7 @@ def rating_distribution(user_id):
 
 def titles_user_saw_with_current_rating(user_id, rating, req_user):
     with connection.cursor() as cursor:
-        cursor.execute(titles_rated_by_user_with_current_rating_equals, [req_user] * 3 + [user_id] * 2 + [rating])
+        cursor.execute(titles_rated_by_user_with_current_rating_equals, [req_user] * 3 + [user_id, req_user] + [user_id, rating])
         return dictfetchall(cursor)
 
 
