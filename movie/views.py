@@ -110,30 +110,29 @@ def explore(request):
 
     searched_for_user_and_rate = False
     user = request.GET.get('u')
+    excluded_searched_user = False
     if user:
+        req_user_id = request.user.id if request.user.is_authenticated() else 0
         searched_user = get_object_or_404(User, username=user)
+        rating = request.GET.get('r')
         query_string += '{}={}&'.format('u', user)
         if request.GET.get('exclude_his'):
             titles = titles.exclude(rating__user__username=user)
             query_string += 'exclude_his=on&'
-        elif request.GET.get('exclude_mine'):
-            titles = titles.filter(rating__user__username=user).exclude(rating__user=request.user)
-            query_string += 'exclude_mine=on&'
-        else:
-            req_user_id = request.user.id if request.user.is_authenticated() else 0
-            titles = titles.filter(rating__user__username=user)
-            rating = request.GET.get('r')
-            if rating:
-                searched_for_user_and_rate = True
-                titles = titles_user_saw_with_current_rating(searched_user.id, rating, req_user_id)
-                query_string += '{}={}&'.format('r', rating)
-            elif request.user != searched_user:
-                titles = titles.distinct().extra(select={
-                    'user_curr_rating': """SELECT rate FROM movie_rating as rating
-                        WHERE rating.title_id = movie_title.id
-                        AND rating.user_id = %s
-                        ORDER BY rating.rate_date DESC LIMIT 1""",
-                }, select_params=[searched_user.id])
+        elif req_user_id != searched_user and request.GET.get('exclude_mine'):
+            excluded_searched_user = True
+            titles = titles.filter(rating__user__username=user).distinct().extra(select={
+                'user_curr_rating': """SELECT rate FROM movie_rating as rating
+                    WHERE rating.title_id = movie_title.id
+                    AND rating.user_id = %s
+                    ORDER BY rating.rate_date DESC LIMIT 1""",
+            }, select_params=[searched_user.id])
+            if req_user_id:
+                titles = titles.exclude(rating__user=req_user_id)
+        elif rating:
+            searched_for_user_and_rate = True
+            titles = titles_user_saw_with_current_rating(searched_user.id, rating, req_user_id)
+            query_string += '{}={}&'.format('r', rating)
     else:
         rating = request.GET.get('r')
         if rating and request.user.is_authenticated():
@@ -159,7 +158,7 @@ def explore(request):
     page = request.GET.get('page')
     if not searched_for_user_and_rate:  # because titles arent model instances if searched_for_user_and_rate
         titles = titles.distinct()
-        if request.user.is_authenticated():
+        if request.user.is_authenticated() and not excluded_searched_user:
             titles = titles.extra(select={
                 'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
                     WHERE rating.title_id = movie_title.id
@@ -187,7 +186,6 @@ def title_details(request, slug):
     if not title:  # check if this is imdb const
         title = Title.objects.get(const=slug)
 
-    user_ratings_of_title = Rating.objects.filter(user=request.user, title=title)
     if request.method == 'POST':
         if not request.user.is_authenticated():
             messages.info(request, 'Only logged in users can add to watchlist or favourites')
@@ -214,7 +212,7 @@ def title_details(request, slug):
                         choosen_user.userprofile.get_absolute_url(), choosen_user.username
                     ), extra_tags='safe')
 
-        current_rating = user_ratings_of_title.first()
+        current_rating = Rating.objects.filter(user=request.user, title=title).first()
         new_rating = request.POST.get('rating')
         if new_rating:
             if current_rating and not request.POST.get('insert_as_new'):
@@ -238,7 +236,7 @@ def title_details(request, slug):
     req_user_data = {}
     if request.user.is_authenticated():
         req_user_data = {
-            'user_ratings_of_title': user_ratings_of_title,
+            'user_ratings_of_title': Rating.objects.filter(user=request.user, title=title),
             'is_favourite_for_user': Favourite.objects.filter(user=request.user, title=title).exists(),
             'is_in_user_watchlist': Watchlist.objects.filter(user=request.user, title=title).exists(),
             'followed_title_not_recommended': UserFollow.objects.filter(user_follower=request.user).exclude(
