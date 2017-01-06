@@ -157,8 +157,8 @@ def user_profile(request, username):
     if request.user.is_authenticated() and not is_owner:
         user_ratings = Rating.objects.filter(user=user).extra(select={
             'req_user_curr_rating': """SELECT rating.rate FROM movie_rating as rating
-            WHERE rating.title_id = movie_rating.title_id
-            AND rating.user_id = %s
+            WHERE rating.user_id = %s
+            AND rating.title_id = movie_rating.title_id
             ORDER BY rating.rate_date DESC LIMIT 1""",
         }, select_params=[request.user.id])
 

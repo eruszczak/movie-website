@@ -14,7 +14,7 @@ from users.models import UserFollow
 from recommend.models import Recommendation
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites
-from common.sql_queries import titles_user_saw_with_current_rating
+from common.sql_queries import titles_user_saw_with_current_rating, curr_title_rating_of_followed
 
 
 def home(request):
@@ -187,22 +187,7 @@ def title_details(request, slug):
     if not title:  # check if this is imdb const
         title = Title.objects.get(const=slug)
 
-    req_user_data = {}
-    if request.user.is_authenticated():
-        users_followed = UserFollow.objects.filter(user_follower=request.user)
-        req_user_data = {
-            'user_ratings_of_title': Rating.objects.filter(user=request.user, title=title),
-            'is_favourite_for_user': Favourite.objects.filter(user=request.user, title=title).exists(),
-            'is_in_user_watchlist': Watchlist.objects.filter(user=request.user, title=title).exists(),
-            'followed_title_not_recommended': users_followed.exclude(
-                user_followed__rating__title=title).exclude(user_followed__recommendation__title=title),
-            'followed_saw_title': users_followed.filter(user_followed__rating__title=title).extra(select={
-                'latest_rate': """
-                    SELECT rate from movie_rating as rating, movie_title as title
-                    WHERE rating.user_id = users_userfollow.user_followed_id
-                    ORDER BY rating.rate_date DESC LIMIT 1""",
-            })
-        }
+    user_ratings_of_title = Rating.objects.filter(user=request.user, title=title)
     if request.method == 'POST':
         if not request.user.is_authenticated():
             messages.info(request, 'Only logged in users can add to watchlist or favourites')
@@ -229,7 +214,7 @@ def title_details(request, slug):
                         choosen_user.userprofile.get_absolute_url(), choosen_user.username
                     ), extra_tags='safe')
 
-        current_rating = req_user_data['user_ratings_of_title'].first()
+        current_rating = user_ratings_of_title.first()
         new_rating = request.POST.get('rating')
         if new_rating:
             if current_rating and not request.POST.get('insert_as_new'):
@@ -250,6 +235,16 @@ def title_details(request, slug):
             Rating.objects.filter(pk=request.POST.get('rating_pk'), user=request.user).delete()
         return redirect(title)
 
+    req_user_data = {}
+    if request.user.is_authenticated():
+        req_user_data = {
+            'user_ratings_of_title': user_ratings_of_title,
+            'is_favourite_for_user': Favourite.objects.filter(user=request.user, title=title).exists(),
+            'is_in_user_watchlist': Watchlist.objects.filter(user=request.user, title=title).exists(),
+            'followed_title_not_recommended': UserFollow.objects.filter(user_follower=request.user).exclude(
+                user_followed__rating__title=title).exclude(user_followed__recommendation__title=title),
+            'followed_saw_title': curr_title_rating_of_followed(request.user.id, title.id)
+        }
     context = {
         'title': title,
         'data': req_user_data,

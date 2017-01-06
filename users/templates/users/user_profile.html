@@ -65,8 +65,10 @@
 							{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
 						<br>{{ entry.title.name|truncatechars:9 }}
 						<br>
+                        {% if entry.rate %}
 						<span class="glyphicon glyphicon-star {% if not is_owner %}green{% endif %}" aria-hidden="true"></span> {{ entry.rate }}
-						{% if entry.req_user_curr_rating %}
+                        {% endif %}
+						{% if entry.req_user_curr_rating and not is_owner %}
 						<span class="glyphicon glyphicon-star" aria-hidden="true"></span> {{ entry.req_user_curr_rating }}
 						{% endif %}
 					</a>
