@@ -158,14 +158,14 @@ rated_higher_or_lower_sorted_by_rate_diff = """
 curr_rate_of_followed_user_for_title = """
     SELECT
     (SELECT rate
-    FROM movie_rating as rating, movie_title as title
+    FROM movie_rating as rating
     WHERE rating.user_id = "DistinctTitlesRatedByFollowed".user_followed_id
-    AND title.id = "DistinctTitlesRatedByFollowed".id
+    AND rating.title_id = "DistinctTitlesRatedByFollowed"."title_id"
     ORDER BY rating.rate_date DESC LIMIT 1
     ) AS "followed_curr_rating",
     * FROM (
     SELECT DISTINCT
-    "users_userfollow"."id", "users_userfollow"."user_follower_id", "users_userfollow"."user_followed_id",
+    "movie_rating"."title_id", "users_userfollow"."user_follower_id", "users_userfollow"."user_followed_id",
     T3.username, T5.picture
     FROM "users_userfollow"
     INNER JOIN "auth_user" T3 ON ("users_userfollow"."user_followed_id" = T3."id")
