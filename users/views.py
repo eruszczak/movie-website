@@ -86,7 +86,8 @@ def user_list(request):
         users_who_saw_title = User.objects.filter(rating__title=title).distinct()
         users_who_saw_title = users_who_saw_title.extra(select={
             'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
-                WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s LIMIT 1""",
+                WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s
+                ORDER BY rating.rate_date DESC LIMIT 1""",
             }, select_params=[title.id])
 
         context['user_list'] = users_who_saw_title
@@ -152,8 +153,15 @@ def user_profile(request, username):
 
     titles_in_a_row = 6
     is_owner = user == request.user
-    user_ratings = Rating.objects.filter(user=user)
+
     if request.user.is_authenticated() and not is_owner:
+        user_ratings = Rating.objects.filter(user=user).extra(select={
+            'req_user_curr_rating': """SELECT rating.rate FROM movie_rating as rating
+            WHERE rating.title_id = movie_rating.title_id
+            AND rating.user_id = %s
+            ORDER BY rating.rate_date DESC LIMIT 1""",
+        }, select_params=[request.user.id])
+
         titles_req_user_rated_higher = titles_rated_higher_or_lower(
             user.id, request.user.id, sign='<', limit=titles_in_a_row)
         titles_req_user_rated_lower = titles_rated_higher_or_lower(
@@ -184,6 +192,7 @@ def user_profile(request, username):
     else:
         common = None
         can_follow = False
+        user_ratings = Rating.objects.filter(user=user)
 
     context = {
         'title': user.username + ' | profile',

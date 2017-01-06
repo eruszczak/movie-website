@@ -54,7 +54,7 @@ def recommend(request, username):
                 AND "movie_rating"."rate_date" >= "recommend_recommendation"."added_date"::timestamp::date
                 AND "movie_rating"."title_id" = "recommend_recommendation"."title_id"
             )
-            ORDER BY "movie_rating"."rate_date" ASC LIMIT 1
+            ORDER BY "movie_rating"."rate_date" DESC LIMIT 1
         """,
         'user_curr_rating': """
         SELECT "movie_rating"."rate"

@@ -201,7 +201,7 @@ def title_details(request, slug):
                     SELECT rate from movie_rating as rating, movie_title as title
                     WHERE rating.user_id = users_userfollow.user_followed_id
                     ORDER BY rating.rate_date DESC LIMIT 1""",
-            }, select_params=[request.user.id])
+            })
         }
     if request.method == 'POST':
         if not request.user.is_authenticated():
