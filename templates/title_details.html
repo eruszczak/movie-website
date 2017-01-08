@@ -8,7 +8,6 @@
 	<div class="col-md-12">
 		<div class="page-header">
 			<h2 class="text-center">{{ title.name }} (<a href="{% url 'explore' %}?y={{ title.year }}">{{ title.year }}</a>)</h2>
-            {{ title.pk }}
 		</div>
 		<div class="row">
 			<div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
@@ -42,7 +41,7 @@
 				</ul>
 			</div>
 		</div>
-		{% if request.user.is_authenticated %}
+		{% if data %}
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				<hr>
@@ -65,9 +64,9 @@
 					</div>
 					<div class="col-md-6">
 					{% if data.is_in_user_watchlist %}
-						<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="unwatch">Don't want to see again</button>
+						<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="{{ obj.const }}">Don't want to see again</button>
 					{% else %}
-						<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="watch">Want to see again</button>
+						<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="{{ obj.const }}">Want to see again</button>
 					{% endif %}
 						<br>
 					{% if data.is_favourite_for_user %}
@@ -166,7 +165,7 @@
 									<img class="img-rounded" src="{% static 'img/rt.png' %}" alt="..." style="width: 70px">
 								</a>
 								<br>Title last updated:<br>
-								{{ title.last_updated|date:"Y-m-d" }}
+								{{ title.last_updated|date:"Y-m-d" }} ({{ title.pk }})
 							</div>
 						</div>
 					</div>

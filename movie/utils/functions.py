@@ -3,16 +3,17 @@ from django.db.models import F
 # models are imported within functions to prevent circular dependencies
 
 
-def alter_title_in_watchlist(user, title, watchlist_instance, watch=None, unwatch=None):
+def alter_title_in_watchlist(user, title, watch=None, unwatch=None):
     from ..models import Watchlist
-    if watch:
+    watchlist_instance = Watchlist.objects.filter(user=user, title=title).first()
+    if watch is not None:
         if watchlist_instance and watchlist_instance.imdb:
             # this is when you delete title imdb=True and then you add it again
             watchlist_instance.deleted = False
             watchlist_instance.save(update_fields=['deleted'])
         else:
             Watchlist.objects.create(user=user, title=title)
-    elif unwatch:
+    elif unwatch is not None:
         if watchlist_instance.imdb:
             watchlist_instance.deleted = True
             watchlist_instance.save(update_fields=['deleted'])

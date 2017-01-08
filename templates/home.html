@@ -10,10 +10,10 @@
 {% block title %}home{% endblock %}
 
 {% block content %}
+{% if request.user.is_authenticated %}
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
         <div id="home_summary" class="">
-            {% if request.user.is_authenticated %}
             <div class="row alert alert-success" role="alert">
                 <div class="col-sm-6">
                     <ul>
@@ -35,20 +35,6 @@
                     </ul>
                 </div>
             </div>
-            {% else %}
-            <div class="row">
-                <div class="col-md-6">
-                    <ul>
-                    </ul>
-                </div>
-                <div class="col-md-6">
-                    <ul>
-                        <li>Total series: <a href="{{ total_series }}">{{ series_count }}</a></li>
-                        <li>Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a></li>
-                    </ul>
-                </div>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
@@ -72,11 +58,38 @@
                 {% endfor %}
                 <h5>{{ entry.rate_date|date:"F d" }}</h5>
             </div>
-
         </div>
     </div>
 {% endfor %}
 </div>
+{% else %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+    <h3 class="page-header text-center">Popular titles <small>(<a href="{% url 'explore' %}">see more</a>)</small></h3>
+    </div>
+</div>
+<div class="row">
+{% for entry in ratings %}
+    <div class="col-sm-6">
+        <div class="last10 well well-sm {% cycle 'odd' 'even' %}">
+            <a href="{{ entry.get_absolute_url }}">
+                <img class="img-rounded pull-left" src="{% if entry.img %}{{ entry.img.url }}
+                    {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="">
+            </a>
+            <div class="content">
+                <h5>{{ forloop.counter }}. <a href="{{ entry.get_absolute_url }}">{{ entry.name }} ({{ entry.year }})</a></h5>
+                <br>avg users
+                <br>avg imdb
+                <br>votes
+                <br>imdb votes
+                <br>stars
+                <br>genres
+            </div>
+        </div>
+    </div>
+{% endfor %}
+</div>
+{% endif %}
 
 
 {% endblock %}
