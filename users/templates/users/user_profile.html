@@ -87,6 +87,7 @@
 		<div class="panel panel-success">
 			<div class="panel-heading">Compared to you</div>
 			<div class="panel-body">
+				{% if user_ratings.common_with_req_user.not_rated_by_req_user %}
 				<div class="row">
 					<p class="text-center lead">Titles {{ choosen_user.username }} liked that you haven't rated</p>
 					{% for title in user_ratings.common_with_req_user.not_rated_by_req_user %}
@@ -100,11 +101,13 @@
 						</a>
 					</div>
 					{% endfor %}
+					{% if user_ratings.common_with_req_user.not_rated_by_req_user_count > 6 %}
+					See all <a href="{{ choosen_user.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
+					{% endif %}
 				</div>
-				{% if user_ratings.common_with_req_user.not_rated_by_req_user_count > 6 %}
-				See all <a href="{{ choosen_user.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
-				{% endif %}
 				<hr>
+				{% endif %}
+				{% if user_ratings.common_with_req_user.higher %}
 				<div class="row">
 					<p class="text-center lead">Titles you rated higher</p>
 					{% for title in user_ratings.common_with_req_user.higher %}
@@ -121,6 +124,8 @@
 					{% endfor %}
 				</div>
 				<hr>
+				{% endif %}
+				{% if user_ratings.common_with_req_user.lower %}
 				<div class="row">
 					<p class="text-center lead">Titles you rated lower</p>
 					{% for title in user_ratings.common_with_req_user.lower %}
@@ -137,6 +142,7 @@
 					{% endfor %}
 				</div>
 				<hr>
+				{% endif %}
 				You and {{ choosen_user.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>
                 You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ choosen_user.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>
 				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ choosen_user.username }}'s

@@ -18,46 +18,47 @@ from common.sql_queries import titles_user_saw_with_current_rating, curr_title_r
 
 
 def home(request):
-    all_movies = Rating.objects.filter(title__type__name='movie').order_by('-rate_date')
-    all_series = Rating.objects.filter(title__type__name='series').order_by('-rate_date')
-    movie_titles = Title.objects.filter(type__name='movie')
-    series_titles = Title.objects.filter(type__name='series')
     if request.user.is_authenticated():
+        all_movies = Rating.objects.filter(title__type__name='movie').order_by('-rate_date')
+        all_series = Rating.objects.filter(title__type__name='series').order_by('-rate_date')
+        movie_titles = Title.objects.filter(type__name='movie')
+        series_titles = Title.objects.filter(type__name='series')
+
         all_movies = all_movies.filter(user=request.user)
         all_series = all_series.filter(user=request.user)
-    context = {
-        'ratings': all_movies[:16],
-        'last_movie': all_movies.first().title if all_movies else None,
-        'last_series': all_series.first().title if all_series else None,
-        'last_good_movie': all_movies.filter(rate__gte=9).first().title if all_movies.filter(rate__gte=9) else None,
-        'movie_count': movie_titles.count(),
-        'series_count': series_titles.count(),
-        'movies_my_count': all_movies.values('title').distinct().count(),
-        'series_my_count': all_series.values('title').distinct().count(),
-        'total_movies': reverse('explore') + '?t=movie',
-        'total_series': reverse('explore') + '?t=series',
-    }
-    # can refactor += this but when template will be done. atm its not worth it bcs i use separate names for keys
-    if request.user.is_authenticated():
-        context['search_movies'] = reverse('explore') + '?u={}&t=movie'.format(request.user.username)
-        context['search_series'] = reverse('explore') + '?u={}&t=series'.format(request.user.username)
+        context = {
+            'ratings': all_movies[:16],
+            'last_movie': all_movies.first().title if all_movies else None,
+            'last_series': all_series.first().title if all_series else None,
+            'last_good_movie': all_movies.filter(rate__gte=9).first().title if all_movies.filter(rate__gte=9) else None,
+            'movie_count': movie_titles.count(),
+            'series_count': series_titles.count(),
+            'movies_my_count': all_movies.values('title').distinct().count(),
+            'series_my_count': all_series.values('title').distinct().count(),
+            'total_movies': reverse('explore') + '?t=movie', 'total_series': reverse('explore') + '?t=series',
+            'search_movies': reverse('explore') + '?u={}&t=movie'.format(request.user.username),
+            'search_series': reverse('explore') + '?u={}&t=series'.format(request.user.username)
+        }
     else:
-        context['total_movies'] = reverse('explore') + '?t=movie'
-        context['total_series'] = reverse('explore') + '?t=series'
+        all_movies = Title.objects.all().order_by('-votes')
+        context = {
+            'ratings': all_movies[:16],
+            'total_movies': reverse('explore') + '?t=movie',
+            'total_series': reverse('explore') + '?t=series'
+        }
     return render(request, 'home.html', context)
 
 
 def explore(request):
     if request.method == 'POST':
-        requested_obj = get_object_or_404(Title, const=request.POST.get('const'))
         if not request.user.is_authenticated():
             messages.info(request, 'Only logged in users can add to watchlist or favourites')
             return redirect(request.META.get('HTTP_REFERER'))
 
+        requested_obj = get_object_or_404(Title, const=request.POST.get('const'))
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
         if watch or unwatch:
-            obj_in_watchlist = Watchlist.objects.filter(user=request.user, title=requested_obj).first()
-            alter_title_in_watchlist(request.user, requested_obj, obj_in_watchlist, watch, unwatch)
+            alter_title_in_watchlist(request.user, requested_obj, watch, unwatch)
 
         fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
         if fav or unfav:
@@ -116,12 +117,12 @@ def explore(request):
         searched_user = get_object_or_404(User, username=user)
         rating = request.GET.get('r')
         query_string += '{}={}&'.format('u', user)
-        if request.GET.get('exclude_his'):
-            titles = titles.exclude(rating__user__username=user)
+        if req_user_id and request.GET.get('exclude_his'):
+            titles = titles.filter(rating__user=request.user).exclude(rating__user=searched_user)
             query_string += 'exclude_his=on&'
-        elif req_user_id != searched_user and request.GET.get('exclude_mine'):
+        elif req_user_id != searched_user.id and request.GET.get('exclude_mine'):
             excluded_searched_user = True
-            titles = titles.filter(rating__user__username=user).distinct().extra(select={
+            titles = titles.filter(rating__user=searched_user).distinct().extra(select={
                 'user_curr_rating': """SELECT rate FROM movie_rating as rating
                     WHERE rating.title_id = movie_title.id
                     AND rating.user_id = %s
@@ -133,6 +134,16 @@ def explore(request):
             searched_for_user_and_rate = True
             titles = titles_user_saw_with_current_rating(searched_user.id, rating, req_user_id)
             query_string += '{}={}&'.format('r', rating)
+        # elif req_user_id and req_user_id != searched_user.id:
+        elif req_user_id != searched_user.id:
+            titles = titles.filter(rating__user=searched_user).distinct().extra(select={
+                'user_curr_rating': """SELECT rate FROM movie_rating as rating
+                    WHERE rating.title_id = movie_title.id
+                    AND rating.user_id = %s
+                    ORDER BY rating.rate_date DESC LIMIT 1""",
+            }, select_params=[searched_user.id])
+        else:
+            titles = titles.filter(rating__user=searched_user)
     else:
         rating = request.GET.get('r')
         if rating and request.user.is_authenticated():
@@ -193,8 +204,7 @@ def title_details(request, slug):
 
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
         if watch or unwatch:
-            obj_in_watchlist = Watchlist.objects.filter(user=request.user, title=title).first()
-            alter_title_in_watchlist(request.user, title, obj_in_watchlist, watch, unwatch)
+            alter_title_in_watchlist(request.user, title, watch, unwatch)
 
         fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
         if fav or unfav:
@@ -233,16 +243,17 @@ def title_details(request, slug):
             Rating.objects.filter(pk=request.POST.get('rating_pk'), user=request.user).delete()
         return redirect(title)
 
-    req_user_data = {}
     if request.user.is_authenticated():
         req_user_data = {
             'user_ratings_of_title': Rating.objects.filter(user=request.user, title=title),
             'is_favourite_for_user': Favourite.objects.filter(user=request.user, title=title).exists(),
-            'is_in_user_watchlist': Watchlist.objects.filter(user=request.user, title=title).exists(),
+            'is_in_user_watchlist': Watchlist.objects.filter(user=request.user, title=title, deleted=False).exists(),
             'followed_title_not_recommended': UserFollow.objects.filter(user_follower=request.user).exclude(
                 user_followed__rating__title=title).exclude(user_followed__recommendation__title=title),
             'followed_saw_title': curr_title_rating_of_followed(request.user.id, title.id)
         }
+    else:
+        req_user_data = {}
     context = {
         'title': title,
         'data': req_user_data,
