@@ -33,9 +33,9 @@
 					<li class="list-group-item">Avg IMDb ratings: {{ title.rate_imdb }}</li>
 					{% endif %}
 
-					{% with title.rate as title_rate %}
-					<li class="list-group-item">Avg ratings: {{ title_rate.avg|floatformat:2 }}
-						<a href="{% url 'user_list' %}?s={{ title.slug }}">({{ title_rate.count }} user{{ rate.count|pluralize }})</a>
+					{% with title.rate as data %}
+					<li class="list-group-item">Avg ratings: {{ data.avg|floatformat:2 }}
+						<a href="{% url 'user_list' %}?s={{ title.slug }}">({{ data.count }} user{{ data.count|pluralize }})</a>
 					</li>
 					{% endwith %}
 				</ul>

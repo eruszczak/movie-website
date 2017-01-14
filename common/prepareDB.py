@@ -1,6 +1,7 @@
-import csv
 import os
+import csv
 import sys
+
 from django.conf import settings
 from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, get_title_data
 from django.contrib.auth.models import User
@@ -93,7 +94,7 @@ if __name__ == "__main__":
         command = sys.argv[1]
         if command == 'allrss':
             update_users_ratings_from_rss()
-        if command == 'allcsv':
+        elif command == 'allcsv':
             update_users_ratings_from_csv()
-        if command == 'allwatchlist':
+        elif command == 'allwatchlist':
             update_users_watchlist()

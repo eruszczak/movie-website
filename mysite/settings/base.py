@@ -30,6 +30,7 @@ LOCAL_APPS = [
     'movie',
     'recommend',
     'users',
+    # 'common'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + EXTERNAL_APPS + LOCAL_APPS
