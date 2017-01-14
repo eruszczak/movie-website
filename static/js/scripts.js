@@ -49,6 +49,43 @@ $(document).ready(function() {
         $("#star_rating_form").submit();
 //        ajax_request({'value': this.value, 'checkbox': $('input[name="insert_as_new"').val()}, true);
     });
+
+
+    $(document).on('change', ':file', function() {
+        var input = $(this),
+        numFiles = input.get(0).files ? input.get(0).files.length : 1,
+        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [numFiles, label]);
+    });
+
+    $(':file').on('fileselect', function(event, numFiles, label) {
+        var input = $(this).parents('.input-group').find(':text')
+        if( input.length ) {
+            input.val(label);
+        }
+    });
+
+    var previousAvatar = '';
+    var previousRatings = '';
+
+    $('#csv_ratings-clear_id').change(function() {
+//    $(document).on('change', '#csv_ratings-clear_id', function() {
+        if (this.checked) {
+            previousRatings = $('#previewRatings').val();
+            $('#previewRatings').val('');
+        } else {
+            $('#previewRatings').val(previousRatings);
+        }
+    });
+    $('#picture-clear_id').change(function() {
+//    $(document).on('change', '#picture-clear_id', function() {
+        if (this.checked) {
+            previousAvatar = $('#previewAvatar').val();
+            $('#previewAvatar').val('');
+        } else {
+            $('#previewAvatar').val(previousAvatar);
+        }
+    });
 });
 
 function sortable() {

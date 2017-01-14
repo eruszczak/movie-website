@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block image %}
 {% load staticfiles %}
+{% load humanize %}
 <div class="container-fluid wrapper">
   <div class="">
     <h1 class="text-center"></h1>
@@ -57,6 +58,16 @@
                     <span class="glyphicon glyphicon-star{% if forloop.counter > entry.rate %}-empty{% endif %}" aria-hidden="true"></span>
                 {% endfor %}
                 <h5>{{ entry.rate_date|date:"F d" }}</h5>
+
+                {% with entry.title.rate as data %}
+                {% if data.count and data.avg %}
+                <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user_list' %}?s={{ entry.title.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>
+                {% endif %}
+                {% endwith %}
+
+                {% if entry.title.rate_imdb %}
+                <br>Avg IMDb rating: {{ entry.title.rate_imdb }} ({{ entry.title.votes|intcomma }} votes)
+                {% endif %}
             </div>
         </div>
     </div>
@@ -78,12 +89,19 @@
             </a>
             <div class="content">
                 <h5>{{ forloop.counter }}. <a href="{{ entry.get_absolute_url }}">{{ entry.name }} ({{ entry.year }})</a></h5>
-                <br>avg users
-                <br>avg imdb
-                <br>votes
-                <br>imdb votes
-                <br>stars
-                <br>genres
+                {% for genre in entry.genre.all %}
+                    <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
+                {% endfor %}
+                <br>
+                {% with entry.rate as data %}
+                {% if data.count and data.avg %}
+                <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user_list' %}?s={{ entry.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>
+                {% endif %}
+                {% endwith %}
+
+                {% if entry.rate_imdb %}
+                <br>Avg IMDb rating: {{ entry.rate_imdb }} ({{ entry.votes|intcomma }} votes)
+                {% endif %}
             </div>
         </div>
     </div>

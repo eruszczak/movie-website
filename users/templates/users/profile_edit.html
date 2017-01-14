@@ -5,13 +5,60 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-4 col-md-offset-4">
-        <h2>Edit</h2>
+    <div class="col-md-6 col-md-offset-3">
+        <h2 class="text-center">Edit your profile</h2>
+        <hr>
 		<form action="" method="post" enctype="multipart/form-data">
 			{% csrf_token %}
-            {{ form|crispy }}
-			<input type="submit" value="Submit" class="btn btn-info"/>
+            <div id="div_id_imdb_id" class="form-group">
+                <div class="form-group">
+                <label class="sr-only" for="id_imdb_id">IMDb ID</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">IMDb ID</div>
+                        <input type="text" class="form-control textinput textInput form-control" id="id_imdb_id" placeholder="your imdb id"
+                               maxlength="15" name="imdb_id" value="{% if profile.imdb_id %}{{ profile.imdb_id }}{% endif %}">
+                    </div>
+                </div>
+
+            </div>
+
+            <br>
+            <div class="input-group">
+                <label class="input-group-btn">
+                    <span class="btn btn-success">
+                        Upload ratings.csv
+                        <input class="clearablefileinput hidden" id="id_csv_ratings" name="csv_ratings" type="file" accept=".csv">
+                    </span>
+
+                </label>
+                <input id="previewRatings" type="text" class="form-control" value="{{ profile.csv_ratings }}" readonly>
+            </div>
+            <div class="checkbox">
+                <label><input id="csv_ratings-clear_id" name="csv_ratings-clear" type="checkbox">Clear ratings.csv</label>
+            </div>
+
+            <br>
+            <div class="input-group">
+                <label class="input-group-btn">
+                    <span class="btn btn-success">
+                        Change avatar
+                        <input class="clearablefileinput hidden" id="id_picture" name="picture" type="file" accept=".jpg,.png,.gif">
+                    </span>
+                </label>
+                <input id="previewAvatar" type="text" class="form-control" value="{{ profile.picture_filename }}" readonly>
+            </div>
+            <div class="checkbox">
+                <label><input id="picture-clear_id" name="picture-clear" type="checkbox">Clear avatar</label>
+            </div>
+
+            <br>
+            <p class="text-center">
+                <input type="submit" value="Submit" class="btn btn-success"/>
+            </p>
 		</form>
     </div>
+    <!--no file chosen
+        show curr avatar
+    -->
 </div>
 {% endblock %}

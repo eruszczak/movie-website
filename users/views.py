@@ -57,7 +57,7 @@ def login(request):
 
 def user_edit(request, username):
     profile = UserProfile.objects.get(user__username=username)
-    if not request.user == profile.user:
+    if request.user != profile.user:
         messages.info(request, 'You can edit only your profile')
         return redirect(profile)
 
@@ -66,9 +66,18 @@ def user_edit(request, username):
         form = EditProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Profile updated')
+        else:
+            for field, message in form.errors.items():
+                print(field, message)
+            t = '\n'.join([message[0] for field, message in form.errors.items()])
+            print(t)
+            messages.warning(request, t)
+        return redirect(request.META.get('HTTP_REFERER'))
     context = {
         'form': form,
-        'title': 'profile edit'
+        'title': 'profile edit',
+        'profile': profile,
     }
     return render(request, 'users/profile_edit.html', context)
 

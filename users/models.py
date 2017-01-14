@@ -63,6 +63,10 @@ class UserProfile(models.Model):
         return reverse('explore') + '?u={}&exclude_mine=on'.format(self.user.username)
 
     @property
+    def picture_filename(self):
+        return str(self.picture).split('/')[-1] if self.picture else ''
+
+    @property
     def count_ratings(self):
         return Title.objects.filter(rating__user=self.user).distinct().count()
 

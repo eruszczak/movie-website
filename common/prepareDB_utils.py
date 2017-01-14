@@ -1,9 +1,10 @@
+import pytz
 import requests
 import urllib.request
-from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
+from datetime import datetime, timedelta
+
 from django.core.files import File
-import pytz
 from movie.models import Type, Genre, Actor, Director, Title
 
 
