@@ -64,26 +64,42 @@ def get_and_assign_poster(obj):
         obj.img.save(title, File(open(img, 'rb')), save=True)
 
 
-def get_title_data(const):
+def clear_relationships(title):
+    title.genre.clear()
+    title.actor.clear()
+    title.director.clear()
+
+
+def add_new_title(const, update=False):
     json = get_omdb(const)
     if json:
         json = prepare_json(json)
+        title_type = Type.objects.get_or_create(name=json['Type'].lower())[0]
         print('get_title_data, adding:', json['Title'])
+
         tomatoes = dict(
             tomato_meter=json['tomatoMeter'], tomato_rating=json['tomatoRating'], tomato_reviews=json['tomatoReviews'],
             tomato_fresh=json['tomatoFresh'], tomato_rotten=json['tomatoRotten'], url_tomato=json['tomatoURL'],
             tomato_user_meter=json['tomatoUserMeter'], tomato_user_rating=json['tomatoUserRating'],
             tomato_user_reviews=json['tomatoUserReviews'], tomatoConsensus=json['tomatoConsensus']
         )
-        title_type = Type.objects.get_or_create(name=json['Type'].lower())[0]
-        title = Title(
-            const=const, name=json['Title'], type=title_type, rate_imdb=json['imdbRating'],
+        imdb = dict(
+            name=json['Title'], type=title_type, rate_imdb=json['imdbRating'],
             runtime=json['Runtime'], year=json['Year'], url_poster=json['Poster'],
             release_date=convert_to_datetime(json['Released'], 'json'),
-            votes=json['imdbVotes'], plot=json['Plot'], **tomatoes
+            votes=json['imdbVotes'], plot=json['Plot']
         )
-        title.save()
+
+        if not update:
+            title = Title.objects.create(const=const, **imdb, **tomatoes)
+        else:
+            clear_relationships(Title.objects.get(const=const))
+            title, created = Title.objects.update_or_create(const=const, defaults=dict(tomatoes, **imdb))
+            print('created must be false', created)
+
         if title.url_poster:
+            # todo cant replace poster in the future because i think if file exists it's auto assigned
+            # if 'updated' should download new img if is available
             get_and_assign_poster(title)
         for genre in json['Genre'].split(', '):
             genre, created = Genre.objects.get_or_create(name=genre.lower())

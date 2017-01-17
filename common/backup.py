@@ -8,11 +8,14 @@ from movie.models import Title
 
 
 def backup():
+    fields = Title._meta.get_fields()
+    # my_field = Title._meta.get_field('my_field')
+    print(fields)
     # related fields separately
     # posters manually copied
-    x = 'const name rate_imdb runtime year release_date votes url_poster url_imdb '
-    x += 'url_tomato tomato_meter tomato_rating tomato_reviews tomato_fresh tomato_rotten '
-    x += 'tomato_user_meter tomato_user_rating tomato_user_reviews tomatoConsensus plot'
+    fields = 'const name rate_imdb runtime year release_date votes url_poster url_imdb '
+    fields += 'url_tomato tomato_meter tomato_rating tomato_reviews tomato_fresh tomato_rotten '
+    fields += 'tomato_user_meter tomato_user_rating tomato_user_reviews tomatoConsensus plot'
     # x += 'plot img'
     # no slug and inserted/updated
     # cant have img
@@ -20,21 +23,20 @@ def backup():
     data = {}
     for title in Title.objects.all():
         attrs = {}
-        for field in x.split():
+        for field in fields.split():
             attrs[field] = getattr(title, field)
         data[getattr(title, 'const')] = str(attrs)
 
         for field in complex_attrs.split():
-            if field == 'img':
-                pass
-                # img.url  attrs[field] = getattr(title, field).url
+            if field == 'img' and getattr(title, field):
+                data['img'] = getattr(title, field).url
             elif field == 'type':
                 pass
                 # one to many
                 # just check related field name
             else:
                 pass
-                # many to many
+                # director genre
                 # model._meta.many_to_many   all related field names
 
     print(data)

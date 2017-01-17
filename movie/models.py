@@ -102,6 +102,11 @@ class Title(models.Model):
     def rate(self):
         return avg_of_title_current_ratings(self.id)  # dict in this form: {count: 20, avg: 7.0}
 
+    @property
+    def can_be_updated(self):
+        # 3 minutes
+        return (timezone.now() - self.last_updated).seconds > 60 * 3
+
 
 class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

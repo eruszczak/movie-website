@@ -9,11 +9,12 @@ from django.db.models import Q, When, Case, IntegerField
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import EditRating
-from common.utils import paginate
 from users.models import UserFollow
 from recommend.models import Recommendation
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites
+from common.utils import paginate
+from common.prepareDB import update_title
 from common.sql_queries import titles_user_saw_with_current_rating, curr_title_rating_of_followed
 
 
@@ -199,7 +200,7 @@ def title_details(request, slug):
 
     if request.method == 'POST':
         if not request.user.is_authenticated():
-            messages.info(request, 'Only logged in users can add to watchlist or favourites')
+            messages.info(request, 'Only authenticated users can do this')
             return redirect(title)
 
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
@@ -209,6 +210,15 @@ def title_details(request, slug):
         fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
         if fav or unfav:
             alter_title_in_favourites(request.user, title, fav, unfav)
+
+        if request.POST.get('update_title'):
+            if title.can_be_updated:
+                if update_title(title.const):
+                    messages.success(request, 'Title updated sucessfully')
+                else:
+                    messages.warning(request, 'Error while updating')
+            # time will be later
+            # but it doesnt matter because updating will be once a day
 
         selected_users = request.POST.getlist('choose_followed_user')
         if selected_users:

@@ -28,7 +28,9 @@ $(document).ready(function() {
         var btn = buttons[btnName];
         $(this).removeClass(btn.class).addClass(btn.afterClass);
         $(this).attr('name', btn.afterName);
-        $(this).html(btn.afterText);
+        var span = $(this).find('span').attr('class', btn.afterSpanClass);
+        $(this).html(span);
+        $(this).append(' ' + btn.afterText);
     });
 
 
@@ -141,12 +143,14 @@ var buttons = {
         'afterClass': 'unwatch-btn',
         'afterName': 'unfav',
         'afterText': 'unfavourite',
+        'afterSpanClass': 'glyphicon glyphicon-heart'
     },
     'unfav': {
         'class': 'unwatch-btn',
         'afterClass': 'watch-btn',
         'afterName': 'fav',
         'afterText': 'favourite',
+        'afterSpanClass': 'glyphicon glyphicon-heart-empty'
     },
     'watch': {
         'class': 'watch-btn',
