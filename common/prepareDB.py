@@ -3,17 +3,21 @@ import csv
 import sys
 
 from django.conf import settings
-from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, get_title_data
+from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, add_new_title
 from django.contrib.auth.models import User
 from movie.models import Title, Watchlist, Rating
 
 
 def get_title_or_create(const):
     if not Title.objects.filter(const=const).exists():
-        is_added = get_title_data(const)
+        is_added = add_new_title(const)
         if not is_added:
             return False
     return Title.objects.get(const=const)
+
+
+def update_title(const):
+    return add_new_title(const, update=True)
 
 
 def get_watchlist(user):
