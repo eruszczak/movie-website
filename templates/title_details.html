@@ -162,10 +162,9 @@
 								<br>Title inserted:<br>
 								{{ title.inserted_date|date:"Y-m-d" }}
 								{% if request.user.is_authenticated and title.can_be_updated %}
-								<!--and if time spent? disable then. COUNTING DOWN-->
 								<form action="" method="post">{% csrf_token %}
 									<button class="btn btn-sm" type="submit" name="update_title" value="update_title">
-										update
+										<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> update
 									</button>
 								</form>
 								{% endif %}

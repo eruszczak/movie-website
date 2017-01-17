@@ -104,8 +104,7 @@ class Title(models.Model):
 
     @property
     def can_be_updated(self):
-        # 3 minutes
-        return (timezone.now() - self.last_updated).seconds > 60 * 3
+        return (timezone.now() - self.last_updated).days > 0
 
 
 class Rating(models.Model):
