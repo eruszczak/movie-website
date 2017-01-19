@@ -75,7 +75,7 @@ def add_new_title(const, update=False):
     if json:
         json = prepare_json(json)
         title_type = Type.objects.get_or_create(name=json['Type'].lower())[0]
-        print('get_title_data, adding:', json['Title'])
+        print('adding title:', json['Title'])
 
         tomatoes = dict(
             tomato_meter=json['tomatoMeter'], tomato_rating=json['tomatoRating'], tomato_reviews=json['tomatoReviews'],
@@ -98,8 +98,6 @@ def add_new_title(const, update=False):
             print('created must be false', created)
 
         if title.url_poster:
-            # todo cant replace poster in the future because i think if file exists it's auto assigned
-            # if 'updated' should download new img if is available
             get_and_assign_poster(title)
         for genre in json['Genre'].split(', '):
             genre, created = Genre.objects.get_or_create(name=genre.lower())
