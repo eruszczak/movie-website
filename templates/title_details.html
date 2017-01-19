@@ -25,6 +25,11 @@
 						<a href="{{ director.get_absolute_url }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}<br></a>
 					{% endfor %}
 					</li>
+
+					{% if title.runtime %}
+					<li class="list-group-item">Runtime: {{ title.runtime }} mins</li>
+					{% endif %}
+
 					{% if title.votes %}
 					<li class="list-group-item">IMDb votes: {{ title.votes|intcomma }}</li>
 					{% endif %}
