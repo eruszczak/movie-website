@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}test{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="text-center">
+            <a href="{% url 'groupby_year' %}" class="btn btn-info" role="button">All years</a>
+            <a href="{% url 'groupby_genre' %}" class="btn btn-info" role="button">All genres</a>
+        </div>
+        <p class="lead text-center search_summary">{{ ratings.paginator.count }}{% if query %} results for '{{ query }}' {% else %} titles{% endif %}
+        {% if selected_type %} ({{ selected_type }}){% endif %}</p>
+        {% if ratings.paginator.num_pages > 1 %}
+            {% include 'paginator.html' %}
+        {% endif %}
+        {% include 'search_form.html' %}
+        <table class="table table-hover table-bordered table-condensed">
+            <thead>
+                <tr>
+                    <th class="text-center"></th>
+                    <th class="text-center">title</th>
+                    {% if request.user.is_authenticated %}
+                    <th class="text-center"><a href="{{ request.user.userprofile.favourite_url }}">favourite</a></th>
+                    <th class="text-center"><a href="{{ request.user.userprofile.watchlist_url }}">watchlist</a></th>
+
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for obj in ratings %}
+                <tr class="{% if obj.user == request.user %}taaaa{% endif %}">
+                    <th scope="row" class="col-md-1 text-center {% if obj.req_user_curr_rating %}color-watched{% endif %}">{{ forloop.counter0|add:ratings.start_index }}</th>
+                    <td class="col-md-9 paddingleft">
+                        <a href="{% url 'title_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a>
+                        <span style="float: right;">
+                        {% if obj.user_curr_rating %}
+                            {{ obj.user_curr_rating }}
+                            <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
+                        {% endif %}
+                        {% if obj.req_user_curr_rating %}
+                            {{ obj.req_user_curr_rating }}
+                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                        {% endif %}
+                        </span>
+                    </td>
+                    {% if request.user.is_authenticated %}
+                        <td class="text-center">
+                        {% if obj.has_in_favourites %}
+                            <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="{{ obj.const }}"><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> unfavourite</button>
+                        {% else %}
+                            <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="{{ obj.const }}"><span class="glyphicon glyphicon-heart" aria-hidden="true"></span> favourite</button>
+                        {% endif %}
+                        </td>
+                        <td class="text-center">
+                        {% if obj.has_in_watchlist %}
+                            <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="{{ obj.const }}"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> don't want to see again</button>
+                        {% else %}
+                            <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="{{ obj.const }}"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> want to see again</button>
+                        {% endif %}
+
+
+
+                        </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if ratings.paginator.num_pages > 1 %}
+            {% include 'paginator.html' %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -190,6 +190,9 @@ def explore(request):
         'list_of_users': User.objects.all() if not request.user.is_authenticated() else User.objects.exclude(pk=request.user.pk),
         'query_string': query_string,
     }
+
+    if 'test' in request.path:
+        return render(request, 'explore1.html', context)
     return render(request, 'explore.html', context)
 
 
