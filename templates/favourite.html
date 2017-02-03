@@ -5,6 +5,7 @@
     {% if ratings %}
     <div id="favouritePage">
         <div class="container">
+            <p class="lead text-center">Your favourite titles.</p>
             <ul id="sortable">
             {% for entry in ratings %}
                 <li id="item-{{ entry.title.const }}" class="ui-state-default">
@@ -14,9 +15,17 @@
                          src="{% if entry.title.img %}{{ entry.title.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
                          style="width: 35px; float: left; margin-right: 10px; " alt="...">
                     <a href="{{ entry.title.get_absolute_url }}" style="line-height: 50px;">{{ entry.title.name }}</a>
+                    {% if is_owner %}
+                    <form method="post" style="float: right;">{% csrf_token %}
+                        <a href="#" data-toggle="tooltip" title="Delete from favourites!"><button class="glyphicon glyphicon-heart-empty" type="submit" name="unfav" value="{{ entry.title.const }}">
+                        </button></a>
+                        <input name="const" value="{{ entry.title.const }}" hidden>
+                    </form>
+                    {% endif %}
                 </li>
             {% endfor %}
             </ul>
+            <span class="text-center">You can reorder the list by dragging title while holding LMB.</span>
         </div>
     </div>
     {% else %}
