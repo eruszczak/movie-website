@@ -38,5 +38,21 @@ def restore_titles():
         call_command('loaddata', filename)
 
 
+# if sys.arg
 # backup_titles()
 # restore_titles()
+# import json
+# def java():
+#     titles = []
+#     for t in Title.objects.all():
+#         title = {
+#             'title': t.name,
+#             'year': str(t.year),
+#             'genre': ', '.join([g.name for g in t.genre.all()])
+#         }
+#         titles.append(title)
+#     with open('data.json', 'w') as outfile:
+#         json.dump({'data': titles}, outfile)
+#     return json.dumps({'data': titles})
+#
+# print(java())

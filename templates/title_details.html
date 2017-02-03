@@ -68,17 +68,12 @@
 						</form>
 					</div>
 					<div class="col-md-6">
-					{% if data.is_in_user_watchlist %}
-						<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="{{ obj.const }}"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> don't want to see again</button>
-					{% else %}
-						<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="{{ obj.const }}"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> want to see again</button>
-					{% endif %}
-						<br>
-					{% if data.is_favourite_for_user %}
-						<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="unfav"><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> unfavourite</button>
-					{% else %}
-						<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="fav"><span class="glyphicon glyphicon-heart" aria-hidden="true"></span> favourite</button>
-					{% endif %}
+					{% with condition=data.is_in_user_watchlist const=obj.const %}
+						{% include 'includes/watchlist.html' %}
+					{% endwith %}
+					{% with condition=data.is_favourite_for_user const=obj.const %}
+						{% include 'includes/favourites.html' %}
+					{% endwith %}
 					{% if data.followed_title_not_recommended %}
 						<form action="" method="post">{% csrf_token %}
 							<select class="selectpicker show-tick" name="choose_followed_user"
@@ -190,7 +185,7 @@
 							<div class="col-md-5">
 								<a href="{% url 'user_profile' user.username %}">
 									<img class="img-responsive img-thumbnail"
-										 src="{% if user.picture %}/media/{{ user.picture }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
+										 src="{% if user.picture %}/media/{{ user.picture }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}"
 										 alt="..." style="width: 50px">
 									{{ user.username }} rated this {{ user.followed_curr_rating }}
 								</a>

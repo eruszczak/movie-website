@@ -4,6 +4,7 @@ Django==1.10.4
 django-appconf==1.0.2
 django-cors-headers==1.1.0
 django-crispy-forms==1.6.0
+django-debug-toolbar==1.6
 django-filter==0.14.0
 djangorestframework==3.4.4
 geocoder==1.17.4
@@ -16,3 +17,4 @@ ratelim==0.1.6
 requests==2.10.0
 six==1.10.0
 South==1.0.2
+sqlparse==0.2.2
