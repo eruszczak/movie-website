@@ -44,6 +44,7 @@
     <h3 class="page-header text-center">recently seen <small>(<a href="{% url 'explore' %}{% if request.user.is_authenticated %}?u={{ request.user.username }}{% endif %}">see more</a>)</small></h3>
     </div>
 </div>
+{% if ratings %}
 <div class="row">
 {% for entry in ratings %}
     <div class="col-sm-6">
@@ -73,6 +74,9 @@
     </div>
 {% endfor %}
 </div>
+{% else %}
+<p class="text-center">You have no ratings yet. <a href="{% url 'explore' %}">Explore</a> titles.</p>
+{% endif %}
 {% else %}
 <div class="row">
     <div class="col-md-6 col-md-offset-3">

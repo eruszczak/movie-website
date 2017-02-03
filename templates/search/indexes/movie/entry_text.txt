@@ -1,3 +1,0 @@
-{{ object.name }}
-{{ object.rate }}
-{{ object.rate_imdb }}

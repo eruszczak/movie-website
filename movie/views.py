@@ -177,7 +177,7 @@ def explore(request):
                     AND rating.user_id = %s
                     ORDER BY rating.rate_date DESC LIMIT 1""",
             }, select_params=[request.user.id])
-    ratings = paginate(titles, page)
+    ratings = paginate(titles, page, 25)
 
     if query_string:
         query_string = '?' + query_string + 'page='

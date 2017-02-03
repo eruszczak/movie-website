@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.utils import timezone
 from django.contrib import auth, messages
 from django.core.urlresolvers import reverse
@@ -92,17 +93,17 @@ def user_list(request):
     context = {'title': 'User list'}
     if request.GET.get('s'):
         title = get_object_or_404(Title, slug=request.GET['s'])
-        users_who_saw_title = User.objects.filter(rating__title=title).distinct()
+        users_who_saw_title = User.objects.filter(rating__title=title).annotate(num=Count('rating__id')).distinct()
         users_who_saw_title = users_who_saw_title.extra(select={
             'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
                 WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s
                 ORDER BY rating.rate_date DESC LIMIT 1""",
             }, select_params=[title.id])
 
-        context['user_list'] = users_who_saw_title
+        context['user_list'] = users_who_saw_title.order_by('-num')[:30]
         context['searched_title'] = title
     else:
-        list_of_users = User.objects.exclude(pk=request.user.pk)
+        list_of_users = User.objects.exclude(pk=request.user.pk).annotate(num=Count('rating__id')).order_by('-num')[:30]
         context['user_list'] = list_of_users
     return render(request, 'users/user_list.html', context)
 
@@ -187,17 +188,20 @@ def user_profile(request, username):
                 ORDER BY rating.rate_date DESC LIMIT 1"""
             }, select_params=[user.id])
 
-        common = {
-            'count': common_ratings_len,
-            'higher': titles_req_user_rated_higher,
-            'lower': titles_req_user_rated_lower,
-            'percentage': int(common_ratings_len / user.userprofile.count_ratings * 100),
-            'user_rate_avg': common_titles_avgs['avg_user'],
-            'req_user_rate_avg': common_titles_avgs['avg_req_user'],
-            'not_rated_by_req_user': not_rated_by_req_user[:titles_in_a_row],
-            'not_rated_by_req_user_count': Title.objects.filter(rating__user=user).exclude(
-                rating__user=request.user).distinct().count()
-        }
+        if user_ratings.count() > 0:
+            common = {
+                'count': common_ratings_len,
+                'higher': titles_req_user_rated_higher,
+                'lower': titles_req_user_rated_lower,
+                'percentage': int(common_ratings_len / user.userprofile.count_ratings * 100),
+                'user_rate_avg': common_titles_avgs['avg_user'],
+                'req_user_rate_avg': common_titles_avgs['avg_req_user'],
+                'not_rated_by_req_user': not_rated_by_req_user[:titles_in_a_row],
+                'not_rated_by_req_user_count': Title.objects.filter(rating__user=user).exclude(
+                    rating__user=request.user).distinct().count()
+            }
+        else:
+            common = {}
         can_follow = not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists()
     else:
         common = None

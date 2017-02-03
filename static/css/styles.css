@@ -180,8 +180,8 @@ textarea {
     width: 65px;
 }
 
-.avatarMin {
-    height: 100px;
+#avatar {
+    max-height: 100px;
 }
 
 .see-again-btn {
@@ -338,5 +338,22 @@ p.item-order {float: right}
 }
 
 .decrease {
+    color: red;
+}
+
+#results {
+
+}
+
+#results .result {
+    height: 120px;
+    border: 1px solid orange;
+}
+
+#results .odd {
+    color: green;
+}
+
+#results .even {
     color: red;
 }

@@ -1,0 +1,9 @@
+{% if condition %}
+    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="{{ const }}">
+        <span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>
+    </button>
+{% else %}
+    <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="{{ const }}">
+        <span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
+    </button>
+{% endif %}

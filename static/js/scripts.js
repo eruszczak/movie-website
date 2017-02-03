@@ -142,26 +142,26 @@ var buttons = {
         'class': 'watch-btn',
         'afterClass': 'unwatch-btn',
         'afterName': 'unfav',
-        'afterText': 'unfavourite',
+        'afterText': '',
         'afterSpanClass': 'glyphicon glyphicon-heart-empty'
     },
     'unfav': {
         'class': 'unwatch-btn',
         'afterClass': 'watch-btn',
         'afterName': 'fav',
-        'afterText': 'favourite',
+        'afterText': '',
         'afterSpanClass': 'glyphicon glyphicon-heart'
     },
     'watch': {
         'class': 'watch-btn',
         'afterClass': 'unwatch-btn',
         'afterName': 'unwatch',
-        'afterText': 'don\'t want to see again',
+        'afterText': 'watchlist',
     },
     'unwatch': {
         'class': 'unwatch-btn',
         'afterClass': 'watch-btn',
         'afterName': 'watch',
-        'afterText': 'want to see again',
+        'afterText': 'add to watchlist',
     }
 }
