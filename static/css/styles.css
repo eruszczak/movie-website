@@ -51,7 +51,7 @@ hr {
 
 
 .table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
-  background-color: #f6f7f8;
+  background-color: #e8eef7;
 }
 
 table {
@@ -163,7 +163,7 @@ textarea {
 }
 
 .alert-success {
-    padding-bottom: 5px;
+   /* padding-bottom: 5px;*/
 }
 
 .glyphicon-star, .glyphicon-star-empty {
@@ -260,11 +260,9 @@ p.item-order {float: right}
 }
 
 
-
-
 .starRating:not(old){
   display        : inline-block;
-  width          : 20em;
+  width          : 15em;
   height         : 1.5em;
   overflow       : hidden;
   vertical-align : bottom;
@@ -341,8 +339,8 @@ p.item-order {float: right}
     color: red;
 }
 
-#results {
-
+.result {
+    padding: 5px;
 }
 
 #results .result {
@@ -350,10 +348,10 @@ p.item-order {float: right}
     border: 1px solid orange;
 }
 
-#results .odd {
-    color: green;
+.result-odd {
+    background-color: #f7f7f7;
 }
 
-#results .even {
-    color: red;
+.result-even {
+    background-color: #ffffff;
 }

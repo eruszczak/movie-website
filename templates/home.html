@@ -13,6 +13,7 @@
 {% block content %}
 {% if request.user.is_authenticated %}
 <div class="row">
+    {% if last_movie or last_series or last_good_movie %}
     <div class="col-md-8 col-md-offset-2">
         <div id="home_summary" class="">
             <div class="row alert alert-success" role="alert">
@@ -38,6 +39,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 <div class="row">
     <div class="col-md-6 col-md-offset-3">

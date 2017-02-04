@@ -68,12 +68,9 @@
 						</form>
 					</div>
 					<div class="col-md-6">
-					{% with condition=data.is_in_user_watchlist const=obj.const %}
-						{% include 'includes/watchlist.html' %}
-					{% endwith %}
-					{% with condition=data.is_favourite_for_user const=obj.const %}
-						{% include 'includes/favourites.html' %}
-					{% endwith %}
+					{% include 'includes/favourites.html' with condition=data.is_favourite_for_user const=obj.const %}
+					{% include 'includes/watchlist.html' with condition=data.is_in_user_watchlist const=obj.const %}
+
 					{% if data.followed_title_not_recommended %}
 						<form action="" method="post">{% csrf_token %}
 							<select class="selectpicker show-tick" name="choose_followed_user"
@@ -83,7 +80,7 @@
 								<option value="{{ user.user_followed.username }}" data-subtext="{{ user.user_followed.userprofile.count_ratings }} ratings">{{ user.user_followed.username }}</option>
 							{% endfor %}
 							</select>
-							<button class="btn btn-sm" type="submit" name="select_followed_users" value="select">Recommend</button>
+							<button class="btn btn-sm btn-default" type="submit" name="select_followed_users" value="select">Recommend</button>
 						</form>
 					{% endif %}
 					</div>
@@ -163,7 +160,7 @@
 								{{ title.inserted_date|date:"Y-m-d" }}
 								{% if request.user.is_authenticated and title.can_be_updated %}
 								<form action="" method="post">{% csrf_token %}
-									<button class="btn btn-sm" type="submit" name="update_title" value="update_title">
+									<button class="btn btn-sm btn-default" type="submit" name="update_title" value="update_title">
 										<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> update
 									</button>
 								</form>
