@@ -72,8 +72,6 @@ def update_from_rss(user):
                                                         defaults={'rate': rate})
             if created:
                 updated_titles.append(title)
-            if i > 50:
-                break
         return updated_titles
     return None
 

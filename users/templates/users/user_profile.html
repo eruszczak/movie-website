@@ -70,20 +70,20 @@
 			<div class="panel-body">
 				<div class="row">
 				{% for entry in user_ratings.last_seen %}
-				<div class="col-xs-6 col-sm-2">
-					<a href="{{ entry.title.get_absolute_url }}">
-						<img class="img-rounded posterMin" src="{% if entry.title.img %}{{ entry.title.img.url }}
-							{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
-						<br>{{ entry.title.name|truncatechars:9 }}
-						<br>
-                        {% if entry.rate %}
-						<span class="glyphicon glyphicon-star {% if not is_owner %}green{% endif %}" aria-hidden="true"></span> {{ entry.rate }}
-                        {% endif %}
-						{% if entry.req_user_curr_rating and not is_owner %}
-						<span class="glyphicon glyphicon-star" aria-hidden="true"></span> {{ entry.req_user_curr_rating }}
-						{% endif %}
-					</a>
-				</div>
+					<div class="col-xs-6 col-sm-2">
+						<a href="{{ entry.title.get_absolute_url }}">
+							<img class="img-rounded posterMin" src="{% if entry.title.img %}{{ entry.title.img.url }}
+								{% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
+							<br>{{ entry.title.name|truncatechars:9 }}
+							<br>
+							{% if entry.rate %}
+							<span class="glyphicon glyphicon-star {% if not is_owner %}green{% endif %}" aria-hidden="true"></span> {{ entry.rate }}
+							{% endif %}
+							{% if entry.req_user_curr_rating and not is_owner %}
+							<span class="glyphicon glyphicon-star" aria-hidden="true"></span> {{ entry.req_user_curr_rating }}
+							{% endif %}
+						</a>
+					</div>
 				{% endfor %}
 				</div>
 				See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_ratings }} ratings</a>
@@ -112,10 +112,10 @@
 						</a>
 					</div>
 					{% endfor %}
-					{% if user_ratings.common_with_req_user.not_rated_by_req_user_count > 6 %}
-					See all <a href="{{ choosen_user.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
-					{% endif %}
 				</div>
+				{% if user_ratings.common_with_req_user.not_rated_by_req_user_count > 6 %}
+				See all <a href="{{ choosen_user.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
+				{% endif %}
 				<hr>
 				{% endif %}
 				{% if user_ratings.common_with_req_user.higher %}
@@ -155,7 +155,9 @@
 				<hr>
 				{% endif %}
 				You and {{ choosen_user.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>
+				{% if user_ratings.common_with_req_user.req_user_rate_avg %}
                 You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ choosen_user.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>
+				{% endif %}
 				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ choosen_user.username }}'s
 				<a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_ratings }} ratings</a><br>
 			</div>

@@ -1,4 +1,5 @@
 import django, os
+import requests
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
@@ -16,10 +17,22 @@ from django.shortcuts import redirect
 user = User.objects.all().first()
 # user.userprofile.last_updated_csv_ratings = timezone.now()
 # user.userprofile.save()
-print(user.userprofile.can_update_csv_ratings)
-print(user.userprofile.can_update_rss_ratings)
-print(user.userprofile.can_update_rss_watchlist)
+# print(user.userprofile.can_update_csv_ratings)
+# print(user.userprofile.can_update_rss_ratings)
+# print(user.userprofile.can_update_rss_watchlist)
 
+def get_omdb(const):
+    params = {'i': const, 'plot': 'full', 'type': 'true', 'tomatoes': 'true', 'r': 'json'}
+    r = requests.get('http://www.omdbapi.com/', params=params)
+
+    if r.status_code == requests.codes.ok:
+        data_json = r.json()
+        if data_json.get('Response') == 'True':
+            return data_json
+    return False
+
+x = get_omdb('tt5661770')
+print(x)
 
 
 
@@ -37,22 +50,22 @@ print(user.userprofile.can_update_rss_watchlist)
 #         WHERE auth_user.id = user_id = %s AND movie_title.slug = %s LIMIT 1""",
 # }, select_params=[1, 'inferno-2016'])
 
-followed = User.objects.extra(select={
-    'seen_by_user': """
-        SELECT
-            rating.rate
-        FROM
-            movie_rating as rating,
-            movie_title as title
-        WHERE
-            rating.title_id = title.id
-        AND
-            rating.user_id = auth_user.id
-        AND
-            title.slug = 'inferno-2016'
-        LIMIT 1""",
-    }
-)
+# followed = User.objects.extra(select={
+#     'seen_by_user': """
+#         SELECT
+#             rating.rate
+#         FROM
+#             movie_rating as rating,
+#             movie_title as title
+#         WHERE
+#             rating.title_id = title.id
+#         AND
+#             rating.user_id = auth_user.id
+#         AND
+#             title.slug = 'inferno-2016'
+#         LIMIT 1""",
+#     }
+# )
 
 # a = Title.objects.annotate(
 #     seen_by_user=Count(

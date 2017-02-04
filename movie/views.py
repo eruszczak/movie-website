@@ -56,6 +56,20 @@ def explore(request):
             messages.info(request, 'Only logged in users can add to watchlist or favourites')
             return redirect(request.META.get('HTTP_REFERER'))
 
+        new_rating = request.POST.get('rating')
+        if new_rating is not None:
+            print(request.POST)
+            # print(new_rating)
+            # title = get_object_or_404(Title, const=request.POST.get('const'))
+            # current_rating = Rating.objects.filter(user=request.user, title=title).first()
+            # print(title)
+            # print(current_rating)
+            # if current_rating is not None:
+            #     current_rating.rate = new_rating
+            #     current_rating.save(update_fields=['rate'])
+            # else:
+            #     Rating.objects.create(user=request.user, title=title, rate=new_rating, rate_date=datetime.now())
+
         requested_obj = get_object_or_404(Title, const=request.POST.get('const'))
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
         if watch or unwatch:
@@ -189,10 +203,8 @@ def explore(request):
         'genres': Genre.objects.annotate(num=Count('title')).order_by('-num'),
         'list_of_users': User.objects.all() if not request.user.is_authenticated() else User.objects.exclude(pk=request.user.pk),
         'query_string': query_string,
+        'loop': [n for n in range(10, 0, -1)],
     }
-
-    if 'test' in request.path:
-        return render(request, 'explore1.html', context)
     return render(request, 'explore.html', context)
 
 
@@ -220,8 +232,6 @@ def title_details(request, slug):
                     messages.success(request, 'Title updated sucessfully')
                 else:
                     messages.warning(request, 'Error while updating')
-            # time will be later
-            # but it doesnt matter because updating will be once a day
 
         selected_users = request.POST.getlist('choose_followed_user')
         if selected_users:

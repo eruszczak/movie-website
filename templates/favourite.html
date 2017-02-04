@@ -17,7 +17,7 @@
                     <a href="{{ entry.title.get_absolute_url }}" style="line-height: 50px;">{{ entry.title.name }}</a>
                     {% if is_owner %}
                     <form method="post" style="float: right;">{% csrf_token %}
-                        <a href="#" data-toggle="tooltip" title="Delete from favourites!"><button class="glyphicon glyphicon-heart-empty" type="submit" name="unfav" value="{{ entry.title.const }}">
+                        <a href="#" data-toggle="tooltip" title="Delete from favourites!"><button class="btn-danger glyphicon glyphicon-heart-empty" type="submit" name="unfav" value="{{ entry.title.const }}">
                         </button></a>
                         <input name="const" value="{{ entry.title.const }}" hidden>
                     </form>

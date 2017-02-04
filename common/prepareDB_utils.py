@@ -1,3 +1,5 @@
+from json import JSONDecodeError
+
 import pytz
 import requests
 import urllib.request
@@ -37,8 +39,16 @@ def get_rss(imdb_id='ur44264813', source='ratings'):
 def get_omdb(const):
     params = {'i': const, 'plot': 'full', 'type': 'true', 'tomatoes': 'true', 'r': 'json'}
     r = requests.get('http://www.omdbapi.com/', params=params)
-    data_json = r.json()
-    return data_json if data_json.get('Response') == 'True' and r.status_code == requests.codes.ok else False
+
+    if r.status_code == requests.codes.ok:
+        try:
+            data_json = r.json()
+        except JSONDecodeError:
+            print('error')
+            return False
+        if data_json.get('Response') == 'True':
+            return data_json
+    return False
 
 
 def unpack_from_rss_item(obj, for_watchlist=False):
