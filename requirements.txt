@@ -9,6 +9,7 @@ django-filter==0.14.0
 djangorestframework==3.4.4
 geocoder==1.17.4
 geopy==1.11.0
+gunicorn==19.6.0
 Markdown==2.6.6
 Pillow==3.3.1
 psycopg2==2.6.2

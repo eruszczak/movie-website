@@ -47,11 +47,23 @@ $(document).ready(function() {
     });
 
     // when on title page you click 1 of 10 stars
-    $('input[name="rating"').change(function() {
-        $("#star_rating_form").submit();
-//        ajax_request({'value': this.value, 'checkbox': $('input[name="insert_as_new"').val()}, true);
-    });
+    if ( $( "#star_rating_form" ).length ) {
+        $('input[name="rating"').change(function() {
+            $("#star_rating_form").submit();
+        });
+    }
 
+    // when on explore page you click 1 of 10 stars
+    if ( $( ".star_rating_form_many" ).length ) {
+        $('input[name="rating"').change(function() {
+            var titleConst = $(this).parent().prev().val();
+            var rating = $(this).val();
+            console.log($(this).parent().attr('id'));
+            var data = {'const': titleConst, 'rating': rating};
+            console.log(data);
+//            ajax_request(data);
+        });
+    }
 
     $(document).on('change', ':file', function() {
         var input = $(this),
@@ -87,6 +99,9 @@ $(document).ready(function() {
         } else {
             $('#previewAvatar').val(previousAvatar);
         }
+    });
+    $('ul.dropdown-menu > li > a').on('click', function() {
+        $('#exclude_mine, #exclude_his').show();
     });
 });
 
