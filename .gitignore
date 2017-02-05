@@ -16,3 +16,4 @@ common/playingaround.py
 posters/
 bower_components/
 backup/
+mysite/settings_secret.py
