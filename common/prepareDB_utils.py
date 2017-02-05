@@ -44,10 +44,11 @@ def get_omdb(const):
         try:
             data_json = r.json()
         except JSONDecodeError:
-            print('error')
+            print('omdb err decode')
             return False
         if data_json.get('Response') == 'True':
             return data_json
+    print('omdb err')
     return False
 
 

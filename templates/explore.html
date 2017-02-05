@@ -54,14 +54,14 @@
                             {% endfor %}
                         </p>
 
-						<form id="star_rating_form" action="" method="post">{% csrf_token %}
-							<span class="starRating">
+						<form class="star_rating_form_many" action="" method="post">{% csrf_token %}
+                            <input name="const" value="{{ obj.const }}" hidden>
+							<span class="starRating" id="{{ obj.const }}">
 							{% for i in loop %}
 								<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if obj.req_user_curr_rating == i %}checked{% endif %}>
 								<label for="rating{{ i }}">{{ i }}</label>
 							{% endfor %}
 							</span>
-                            <input name="const" value="{{ obj.const }}" hidden>
 						</form>
 
                         {% if obj.plot %}
