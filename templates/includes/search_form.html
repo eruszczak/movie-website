@@ -1,27 +1,33 @@
 <form class="navbar-form navbar-right" role="search">
     <div class="form-group">
-        <input type="text" name='q' class="form-control" placeholder="search by title"><!--value='{{ request.GET.q }}'-->
+        <input type="text" name='q' class="form-control" placeholder="search by title" value="{{ request.GET.q }}">
+        <input type="text" name='p' class="form-control" placeholder="search by plot" value="{{ request.GET.p }}">
     </div>
 
-    <input type="text" name='y' class="form-control" placeholder="yyyy or yyyy-yyyy">
+    <input type="text" name='y' class="form-control" placeholder="yyyy or yyyy-yyyy" value="{{ request.GET.y }}">
     <div class="form-group">
       <select class="form-control" name="t">
-        <option value="movie">movie</option>
-        <option value="series">series</option>
-        <option value="" selected>movie & series</option>
+          <option value="">movie & series</option>
+          <option value="movie" {% ifequal request.GET.t "movie" %}selected{% endifequal %}>movie</option>
+          <option value="series" {% ifequal request.GET.t "series" %}selected{% endifequal %}>series</option>
       </select>
     </div>
 
     <select class="selectpicker show-tick" name="g" multiple title="Choose genre" data-width="auto" data-size="7" data-max-options="3">
     {% for g in genres %}
-        <option value="{{ g.name }}" data-subtext="{{ g.num }} titles">{{ g.name }}</option>
+        <option value="{{ g.name }}" data-subtext="{{ g.num }} titles" {% if g.name in searched_genres %}selected{% endif %}>{{ g.name }}</option>
     {% endfor %}
     </select>
-
-    {% if request.user.is_authenticated %}
-    <select class="selectpicker show-tick" name="u" title="Compare with others" data-width="auto" data-size="7" data-live-search="true">
-    {% for user in list_of_users %}
-        <option value="{{ user.username }}" data-subtext="{{ user.userprofile.count_ratings }} ratings">{{ user.username }}</option>
+    <br>
+    {% if request.user.is_authenticated and followed_users %}
+    <select id="selectCompareWithUser" class="selectpicker show-tick" name="u" multiple title="Compare with followed"
+            data-width="auto" data-size="7" data-max-options="1" data-live-search="true">
+    {% for followage in followed_users %}
+        {% with followage.user_followed as user %}
+        <option value="{{ user.username }}" data-subtext="{{ user.userprofile.count_ratings }} ratings" {% ifequal user.username request.GET.u %}selected{% endifequal %}>
+            {{ user.username }}
+        </option>
+        {% endwith %}
     {% endfor %}
     </select>
     <div id="exclude_mine" class="checkbox" style="display:none;">
@@ -31,6 +37,5 @@
       <label><input class="filter_results" type="checkbox" name="exclude_his">exclude his</label>
     </div>
     {% endif %}
-    <button type="submit" class="btn btn-success" style="float:right">Search</button>
-
+    <button type="submit" class="btn btn-success" style="float:right"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search</button>
 </form>

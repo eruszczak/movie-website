@@ -94,10 +94,10 @@
                 {% endif %}
                 </span>
             </td>
-            <td class="col-md-2 text-center">{{ obj.added_date|date:"Y-m-d" }}</td>
+            <td class="col-md-2 text-center">{{ obj.added_date|date:"Y-m-d" }} {% if obj.days_diff %}({{ obj.days_diff }} days){% endif %}</td>
             <td class="col-md-1 text-center">
             {% if obj.days_diff %}
-                {{ obj.days_diff }}
+
                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
             {% else %}
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>

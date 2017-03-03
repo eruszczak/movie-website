@@ -5,11 +5,25 @@
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
         <div class="text-center">
-            <a href="{% url 'groupby_year' %}" class="btn btn-info" role="button">All years</a>
-            <a href="{% url 'groupby_genre' %}" class="btn btn-info" role="button">All genres</a>
+            <a href="{% url 'groupby_year' %}" class="btn btn-sm btn-success" role="button">All years</a>
+            <a href="{% url 'groupby_genre' %}" class="btn btn-sm btn-success" role="button">All genres</a>
         </div>
-        <p class="lead text-center search_summary">{{ ratings.paginator.count }}{% if query %} results for '{{ query }}' {% else %} titles{% endif %}
-        {% if selected_type %} ({{ selected_type }}){% endif %}</p>
+        <br>
+        {% if search_result %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-success" role="alert">
+                    Search results for:
+                    <ul>
+                        {% for q in search_result %}
+                            <li>{{ q }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <p class="lead text-center search_summary">{{ ratings.paginator.count }} result{{ ratings.paginator.count|pluralize }}</p>
         {% if ratings.paginator.num_pages > 1 %}
             {% include 'includes/paginator.html' %}
         {% endif %}
