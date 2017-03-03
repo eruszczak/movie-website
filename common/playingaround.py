@@ -1,5 +1,8 @@
+import urllib.request
+
 import django, os
 import requests
+from django.core.files import File
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
@@ -21,18 +24,52 @@ user = User.objects.all().first()
 # print(user.userprofile.can_update_rss_ratings)
 # print(user.userprofile.can_update_rss_watchlist)
 
-def get_omdb(const):
-    params = {'i': const, 'plot': 'full', 'type': 'true', 'tomatoes': 'true', 'r': 'json'}
-    r = requests.get('http://www.omdbapi.com/', params=params)
+# def get_omdb(const):
+#     params = {'i': const, 'plot': 'full', 'type': 'true', 'tomatoes': 'true', 'r': 'json'}
+#     r = requests.get('http://www.omdbapi.com/', params=params)
+#
+#     if r.status_code == requests.codes.ok:
+#         data_json = r.json()
+#         if data_json.get('Response') == 'True':
+#             return data_json
+#     return False
+#
+# x = get_omdb('tt5661770')
+# print(x)
 
-    if r.status_code == requests.codes.ok:
-        data_json = r.json()
-        if data_json.get('Response') == 'True':
-            return data_json
-    return False
+from mysite.settings import MEDIA_ROOT
+posters_path = os.path.join(MEDIA_ROOT, 'poster')
+# if exists replace but never create with new name...
+# img_path = os.path.join(posters_path, '500-days-of-summer-2009.jpg')
+# poster_exists = os.path.isfile(img_path)
+# print(poster_exists)
 
-x = get_omdb('tt5661770')
-print(x)
+
+def get_and_assign_poster(obj):
+    title = obj.const + '.jpg'
+    posters_folder = os.path.join(MEDIA_ROOT, 'poster')
+    img_path = os.path.join(posters_folder, title)
+    poster_exists = os.path.isfile(img_path)
+    if not poster_exists:
+        try:
+            urllib.request.urlretrieve(obj.url_poster, img_path)
+        except Exception as e:
+            print(e, type(e))
+        else:
+            print(title, 'saving poster')
+            obj.img = os.path.join('poster', title)
+            obj.save()
+            # obj.img.save(title, File(open(img, 'rb')), save=True)
+    else:
+        print('saving')
+        obj.img = os.path.join('poster', title)
+        obj.save()
+
+
+t = Title.objects.get(slug="inferno-2016")
+print(t.name)
+get_and_assign_poster(t)
+
 
 
 

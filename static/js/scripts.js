@@ -100,9 +100,20 @@ $(document).ready(function() {
             $('#previewAvatar').val(previousAvatar);
         }
     });
-    $('ul.dropdown-menu > li > a').on('click', function() {
-        $('#exclude_mine, #exclude_his').show();
+
+    $('#selectCompareWithUser').on('change', function() {
+        if(this.value) {
+            $('#exclude_mine, #exclude_his').show();
+        } else {
+            $('#exclude_mine, #exclude_his').hide();
+        }
     });
+
+    var selectedUser = $('#selectCompareWithUser').val()[0];
+    if(selectedUser) {
+        $('#exclude_mine, #exclude_his').show();
+    }
+
 });
 
 function sortable() {
@@ -180,3 +191,7 @@ var buttons = {
         'afterText': 'add to watchlist',
     }
 }
+
+// to prevent search form flickering on page load
+$('.selectpicker').selectpicker({
+});

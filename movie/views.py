@@ -92,41 +92,58 @@ def explore(request):
     else:
         titles = Title.objects.all().order_by('-year', '-votes')
     query_string = ''   # this is needed for pagination buttons while searching
+    search_result = []
 
     year = request.GET.get('y')
     if year:
         find_years = re.match(r'(\d{4})-*(\d{4})*', year)
-        first_year, second_year = find_years.group(1), find_years.group(2)
-        if first_year and second_year:
-            titles = titles.filter(year__lte=second_year, year__gte=first_year)
-        elif first_year:
-            titles = titles.filter(year=first_year)
-            query_string += '{}={}&'.format('y', year)
+        if find_years is not None:
+            first_year, second_year = find_years.group(1), find_years.group(2)
+            if first_year and second_year:
+                if second_year < first_year:
+                    first_year, second_year = second_year, first_year
+                titles = titles.filter(year__lte=second_year, year__gte=first_year)
+                query_string += '{}={}-{}&'.format('y', first_year, second_year)
+                search_result.append('Released between {} and {}'.format(first_year, second_year))
+            elif first_year:
+                titles = titles.filter(year=first_year)
+                query_string += '{}={}&'.format('y', first_year)
+                search_result.append('Released in {}'.format(first_year))
 
     selected_type = request.GET.get('t', '')
     if selected_type in ('movie', 'series'):
         titles = titles.filter(Q(type__name=selected_type))
         query_string += '{}={}&'.format('t', selected_type)
+        search_result.append('Type: ' + selected_type)
 
     query = request.GET.get('q')
     if query:
-        titles = titles.filter(name__icontains=query) if len(query) > 2 else titles.filter(name__startswith=query)
+        titles = titles.filter(name__icontains=query) if len(query) > 2 else titles.filter(name__istartswith=query)
         query_string += '{}={}&'.format('q', query)
+        search_result.append('Title {} "{}"'.format('contains' if len(query) > 2 else 'starts with', query))
+
+    plot = request.GET.get('p')
+    if plot:
+        titles = titles.filter(plot__icontains=plot) if len(plot) > 2 else titles.filter(plot__istartswith=plot)
+        query_string += '{}={}&'.format('p', plot)
+        search_result.append('Plot {} "{}"'.format('contains' if len(plot) > 2 else 'starts with', plot))
 
     director = request.GET.get('d')
     if director:
         titles = titles.filter(director__id=director)
         query_string += '{}={}&'.format('d', director)
+        search_result.append('Directed by {}'.format(director))
 
     genres = request.GET.getlist('g')
     if genres:
         for genre in genres:
             titles = titles.filter(genre__name=genre)
             query_string += '{}={}&'.format('g', genre)
+        search_result.append('Genres: {}'.format(', '.join(genres)))
 
     searched_for_user_and_rate = False
-    user = request.GET.get('u')
     excluded_searched_user = False
+    user = request.GET.get('u')
     if user:
         req_user_id = request.user.id if request.user.is_authenticated() else 0
         searched_user = get_object_or_404(User, username=user)
@@ -135,6 +152,7 @@ def explore(request):
         if req_user_id and request.GET.get('exclude_his'):
             titles = titles.filter(rating__user=request.user).exclude(rating__user=searched_user)
             query_string += 'exclude_his=on&'
+            search_result.append('Seen by you and not by {}'.format(searched_user.username))
         elif req_user_id != searched_user.id and request.GET.get('exclude_mine'):
             excluded_searched_user = True
             titles = titles.filter(rating__user=searched_user).distinct().extra(select={
@@ -145,11 +163,14 @@ def explore(request):
             }, select_params=[searched_user.id])
             if req_user_id:
                 titles = titles.exclude(rating__user=req_user_id)
+                search_result.append('Seen by {} and not by me'.format(searched_user.username))
+            else:
+                search_result.append('Seen by {}'.format(searched_user.username))
         elif rating:
             searched_for_user_and_rate = True
             titles = titles_user_saw_with_current_rating(searched_user.id, rating, req_user_id)
             query_string += '{}={}&'.format('r', rating)
-        # elif req_user_id and req_user_id != searched_user.id:
+            search_result.append('Titles {} rated {}'.format(searched_user.username, rating))
         elif req_user_id != searched_user.id:
             titles = titles.filter(rating__user=searched_user).distinct().extra(select={
                 'user_curr_rating': """SELECT rate FROM movie_rating as rating
@@ -157,8 +178,10 @@ def explore(request):
                     AND rating.user_id = %s
                     ORDER BY rating.rate_date DESC LIMIT 1""",
             }, select_params=[searched_user.id])
+            search_result.append('Seen by {}'.format(searched_user.username))
         else:
             titles = titles.filter(rating__user=searched_user)
+            search_result.append('Seen by {}'.format(searched_user.username))
     else:
         rating = request.GET.get('r')
         if rating and request.user.is_authenticated():
@@ -198,10 +221,11 @@ def explore(request):
 
     context = {
         'ratings': ratings,
-        'query': query,
+        'searched_genres': genres,
+        'search_result': search_result,
         'selected_type': selected_type,
         'genres': Genre.objects.annotate(num=Count('title')).order_by('-num'),
-        'list_of_users': User.objects.all() if not request.user.is_authenticated() else User.objects.exclude(pk=request.user.pk),
+        'followed_users': UserFollow.objects.filter(user_follower=request.user) if request.user.is_authenticated() else [],
         'query_string': query_string,
         'loop': [n for n in range(10, 0, -1)],
     }
