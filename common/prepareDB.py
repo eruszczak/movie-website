@@ -68,10 +68,11 @@ def update_from_rss(user):
         for i, item in enumerate(itemlist):
             const, rate, rate_date = unpack_from_rss_item(item)
             title = get_title_or_create(const)
-            obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
-                                                        defaults={'rate': rate})
-            if created:
-                updated_titles.append(title)
+            if title:
+                obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
+                                                            defaults={'rate': rate})
+                if created:
+                    updated_titles.append(title)
         return updated_titles
     return None
 

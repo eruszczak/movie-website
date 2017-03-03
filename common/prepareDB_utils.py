@@ -1,13 +1,14 @@
-from json import JSONDecodeError
-
+import os
 import pytz
 import requests
 import urllib.request
+from json import JSONDecodeError
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
 from django.core.files import File
 from movie.models import Type, Genre, Actor, Director, Title
+from mysite.settings import MEDIA_ROOT
 
 
 def prepare_json(json):
@@ -21,14 +22,14 @@ def prepare_json(json):
 
 
 def convert_to_datetime(date_string, source):
-    if date_string is None:
-        return None
-    if source == 'xml':
-        return datetime.strptime(date_string, '%a, %d %b %Y %H:%M:%S GMT')
-    elif source == 'csv':
-        return datetime.strptime(date_string, '%a %b %d 00:00:00 %Y')
-    elif source == 'json':
-        return datetime.strptime(date_string, '%d %b %Y')
+    date_formats = {
+        'xml': '%a, %d %b %Y %H:%M:%S GMT',
+        'csv': '%a %b %d 00:00:00 %Y',
+        'json': '%d %b %Y'
+    }
+    if date_formats.get(source):
+        return datetime.strptime(date_string, date_formats[source])
+    return None
 
 
 def get_rss(imdb_id='ur44264813', source='ratings'):
@@ -64,15 +65,40 @@ def unpack_from_rss_item(obj, for_watchlist=False):
     return const, rate, date
 
 
+# def get_and_assign_poster(obj):
+#     title = obj.const + '.jpg'
+#     posters_folder = os.path.join(MEDIA_ROOT, 'poster')
+#     img_path = os.path.join(posters_folder, title)
+#     poster_exists = os.path.isfile(img_path)
+#     if not poster_exists:
+#         try:
+#             img = urllib.request.urlretrieve(obj.url_poster)[0]
+#         except Exception as e:
+#             print(e, type(e))
+#         else:
+#             print(title, 'saving poster')
+#             obj.img.save(title, File(open(img, 'rb')), save=True)
+#     else:
+#         obj.img = os.path.join('poster', title)
+#         obj.save()
+
 def get_and_assign_poster(obj):
-    title = obj.slug + '.jpg'
-    try:
-        img = urllib.request.urlretrieve(obj.url_poster)[0]
-    except Exception as e:
-        print(e, type(e))
+    title = obj.const + '.jpg'
+    posters_folder = os.path.join(MEDIA_ROOT, 'poster')
+    img_path = os.path.join(posters_folder, title)
+    poster_exists = os.path.isfile(img_path)
+    if not poster_exists:
+        try:
+            urllib.request.urlretrieve(obj.url_poster, img_path)
+        except Exception as e:
+            print(e, type(e))
+            return
+        else:
+            print(title, 'downloaded poster', title)
     else:
-        print(title, 'saving poster')
-        obj.img.save(title, File(open(img, 'rb')), save=True)
+        print('assigned poster', title)
+    obj.img = os.path.join('poster', title)
+    obj.save()
 
 
 def clear_relationships(title):

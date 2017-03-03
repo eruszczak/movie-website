@@ -355,3 +355,5 @@ p.item-order {float: right}
 .result-even {
     background-color: #ffffff;
 }
+
+.centered-row { margin: auto; max-width: 300px;}
