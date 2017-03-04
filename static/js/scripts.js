@@ -55,13 +55,11 @@ $(document).ready(function() {
 
     // when on explore page you click 1 of 10 stars
     if ( $( ".star_rating_form_many" ).length ) {
-        $('input[name="rating"').change(function() {
+        $('input[id^="rating"]').change(function() {
             var titleConst = $(this).parent().prev().val();
             var rating = $(this).val();
-            console.log($(this).parent().attr('id'));
             var data = {'const': titleConst, 'rating': rating};
-            console.log(data);
-//            ajax_request(data);
+            ajax_request(data);
         });
     }
 
@@ -109,7 +107,7 @@ $(document).ready(function() {
         }
     });
 
-    var selectedUser = $('#selectCompareWithUser').val()[0];
+    var selectedUser = $('#selectCompareWithUser').val();
     if(selectedUser) {
         $('#exclude_mine, #exclude_his').show();
     }

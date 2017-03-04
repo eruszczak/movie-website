@@ -36,7 +36,7 @@
                     <td class="col-md-9 paddingleft">
                         {{ forloop.counter0|add:ratings.start_index }}.
                         <img class="img-responsive img-rounded"
-                         src="{% if obj.img %}{{ obj.img.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
+                         src="{% if obj.img %}{%if obj.img.url %}{{ obj.img.url }}{% else %}/media/{{ obj.img }}{% endif %}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
                          style="width: 35px; float: left; margin-right: 10px; " alt="...">
                         <a href="{% url 'title_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a>
                         {% if obj.runtime %}{{ obj.runtime }} min{% endif %}
@@ -68,12 +68,12 @@
                             {% endfor %}
                         </p>
 
-						<form class="star_rating_form_many" action="" method="post">{% csrf_token %}
+						<form class="star_rating_form_many" action="" method="post" const="{{ obj.const }}">{% csrf_token %}
                             <input name="const" value="{{ obj.const }}" hidden>
-							<span class="starRating" id="{{ obj.const }}">
+							<span class="starRating">
 							{% for i in loop %}
-								<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if obj.req_user_curr_rating == i %}checked{% endif %}>
-								<label for="rating{{ i }}">{{ i }}</label>
+								<input id="rating{{ i }}{{ obj.const }}" type="radio" name="rating" value="{{ i }}" {% if obj.req_user_curr_rating == i %}checked{% endif %}>
+								<label for="rating{{ i }}{{ obj.const }}">{{ i }}</label>
 							{% endfor %}
 							</span>
 						</form>
