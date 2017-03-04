@@ -17,7 +17,6 @@ EXTERNAL_APPS = [
     'crispy_forms',
     'rest_framework',
     'corsheaders',
-    'debug_toolbar',
 ]
 
 LOCAL_APPS = [
@@ -26,10 +25,9 @@ LOCAL_APPS = [
     'users',
 ]
 
-INSTALLED_APPS = DJANGO_APPS + EXTERNAL_APPS + LOCAL_APPS
+INSTALLED_APPS = DJANGO_APPS + EXTERNAL_APPS + LOCAL_APPS + APPS_DEBUG
 
 MIDDLEWARE_CLASSES = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 
     'django.middleware.security.SecurityMiddleware',
@@ -40,8 +38,9 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 ]
+
+MIDDLEWARE_CLASSES += MIDDLEWARE_DEBUG
 
 ROOT_URLCONF = 'mysite.urls'
 

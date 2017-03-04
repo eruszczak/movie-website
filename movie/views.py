@@ -58,17 +58,13 @@ def explore(request):
 
         new_rating = request.POST.get('rating')
         if new_rating is not None:
-            print(request.POST)
-            # print(new_rating)
-            # title = get_object_or_404(Title, const=request.POST.get('const'))
-            # current_rating = Rating.objects.filter(user=request.user, title=title).first()
-            # print(title)
-            # print(current_rating)
-            # if current_rating is not None:
-            #     current_rating.rate = new_rating
-            #     current_rating.save(update_fields=['rate'])
-            # else:
-            #     Rating.objects.create(user=request.user, title=title, rate=new_rating, rate_date=datetime.now())
+            title = get_object_or_404(Title, const=request.POST.get('const'))
+            current_rating = Rating.objects.filter(user=request.user, title=title).first()
+            if current_rating is not None:
+                current_rating.rate = new_rating
+                current_rating.save(update_fields=['rate'])
+            else:
+                Rating.objects.create(user=request.user, title=title, rate=new_rating, rate_date=datetime.now())
 
         requested_obj = get_object_or_404(Title, const=request.POST.get('const'))
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
@@ -218,7 +214,6 @@ def explore(request):
 
     if query_string:
         query_string = '?' + query_string + 'page='
-
     context = {
         'ratings': ratings,
         'searched_genres': genres,
