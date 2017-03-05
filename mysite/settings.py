@@ -2,6 +2,7 @@ from .settings_secret import *
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BACKUP_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'backup')
 
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -96,3 +97,5 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
 }
+
+# SESSION_COOKIE_SECURE = True

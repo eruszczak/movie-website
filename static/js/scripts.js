@@ -109,7 +109,8 @@ $(document).ready(function() {
 
     var selectedUser = $('#selectCompareWithUser').val();
     if(selectedUser) {
-        $('#exclude_mine, #exclude_his').show();
+        if(selectedUser.length)
+            $('#exclude_mine, #exclude_his').show();
     }
 
 });

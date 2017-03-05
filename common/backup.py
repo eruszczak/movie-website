@@ -11,7 +11,7 @@ tables = ['movie.type', 'movie.director', 'movie.genre', 'movie.actor', 'movie.t
 
 def backup_titles():
     for table in tables:
-        filename = 'backup/{}.json'.format(table)
+        filename = '../../backup/{}.json'.format(table)
         with open(filename, 'w') as f:
             call_command('dumpdata', table, stdout=f)
 
@@ -37,7 +37,8 @@ def restore_titles():
         filename = 'backup/{}.json'.format(table)
         call_command('loaddata', filename)
 
-
+Title.objects.filter(name='T2 Trainspotting').delete()
+# backup_titles()
 # if sys.arg
 # backup_titles()
 # restore_titles()
