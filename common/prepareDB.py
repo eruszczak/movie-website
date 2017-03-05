@@ -39,7 +39,7 @@ def get_watchlist(user):
         deleted_titles = [w.title for w in no_longer_in_watchlist]
         no_longer_in_watchlist.delete()
         return updated_titles, deleted_titles
-    return None
+    return None, None
 
 
 def update_from_csv(user):
@@ -52,15 +52,16 @@ def update_from_csv(user):
             reader = csv.DictReader(f)
             for num, row in enumerate(reader):
                 title = get_title_or_create(row['const'])
-                rate_date = convert_to_datetime(row['created'], 'csv')
-                obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
-                                                            defaults={'rate': row['You rated']})
-                if created:
-                    count += 1
-                    if len(updated_titles) < 10:
-                        updated_titles.append(title)
+                if title:
+                    rate_date = convert_to_datetime(row['created'], 'csv')
+                    obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
+                                                                defaults={'rate': row['You rated']})
+                    if created:
+                        count += 1
+                        if len(updated_titles) < 10:
+                            updated_titles.append(title)
         return updated_titles, count
-    return None
+    return None, None
 
 
 def update_from_rss(user):
@@ -80,7 +81,7 @@ def update_from_rss(user):
                     if len(updated_titles) < 10:
                         updated_titles.append(title)
         return updated_titles, count
-    return None
+    return None, None
 
 
 def update_users_ratings_from_rss():

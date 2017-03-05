@@ -28,7 +28,7 @@ def home(request):
         all_movies = all_movies.filter(user=request.user)
         all_series = all_series.filter(user=request.user)
         context = {
-            'ratings': all_movies[:16],
+            'ratings': Rating.objects.filter(user=request.user).order_by('-rate_date')[:16],
             'last_movie': all_movies.first().title if all_movies else None,
             'last_series': all_series.first().title if all_series else None,
             'last_good_movie': all_movies.filter(rate__gte=9).first().title if all_movies.filter(rate__gte=9) else None,

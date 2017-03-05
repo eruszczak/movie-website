@@ -8,7 +8,7 @@ from .backup_titles import tables
 
 
 def clear_titles():
-    confirm = input('Do you want to clear the tables?\n')
+    confirm = input('Do you want to clear the tables? User data will be lost\n')
     if confirm in ('yes', 'y'):
         Watchlist.objects.all().delete()
         Favourite.objects.all().delete()
