@@ -27,12 +27,14 @@ def convert_to_datetime(date_string, source):
         'csv': '%a %b %d 00:00:00 %Y',
         'json': '%d %b %Y'
     }
-    if date_formats.get(source):
+    if date_string and date_formats.get(source):
         return datetime.strptime(date_string, date_formats[source])
     return None
 
 
 def get_rss(imdb_id='ur44264813', source='ratings'):
+    if not imdb_id.startswith('ur') or len(imdb_id) < 5:
+        return False
     r = requests.get('http://rss.imdb.com/user/{}/{}'.format(imdb_id, source))
     return ET.fromstring(r.text).findall('channel/item') if r.status_code == requests.codes.ok else False
 
@@ -112,7 +114,7 @@ def add_new_title(const, update=False):
     if json:
         json = prepare_json(json)
         title_type = Type.objects.get_or_create(name=json['Type'].lower())[0]
-        print('adding title:', json['Title'])
+        print('adding title:', json['imdbID'])
 
         tomatoes = dict(
             tomato_meter=json['tomatoMeter'], tomato_rating=json['tomatoRating'], tomato_reviews=json['tomatoReviews'],
