@@ -46,6 +46,7 @@ def update_from_csv(user):
     path = os.path.join(settings.MEDIA_ROOT, str(user.userprofile.csv_ratings))
     if os.path.isfile(path):
         updated_titles = []
+        count = 0
         print('update_from_csv:', user)
         with open(path, 'r') as f:
             reader = csv.DictReader(f)
@@ -55,8 +56,10 @@ def update_from_csv(user):
                 obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
                                                             defaults={'rate': row['You rated']})
                 if created:
-                    updated_titles.append(title)
-        return updated_titles
+                    count += 1
+                    if len(updated_titles) < 10:
+                        updated_titles.append(title)
+        return updated_titles, count
     return None
 
 
@@ -64,6 +67,7 @@ def update_from_rss(user):
     itemlist = get_rss(user.userprofile.imdb_id, 'ratings')
     if itemlist:
         updated_titles = []
+        count = 0
         print('update_from_rss:', user)
         for i, item in enumerate(itemlist):
             const, rate, rate_date = unpack_from_rss_item(item)
@@ -72,8 +76,10 @@ def update_from_rss(user):
                 obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
                                                             defaults={'rate': rate})
                 if created:
-                    updated_titles.append(title)
-        return updated_titles
+                    count += 1
+                    if len(updated_titles) < 10:
+                        updated_titles.append(title)
+        return updated_titles, count
     return None
 
 

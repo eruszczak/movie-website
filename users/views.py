@@ -124,11 +124,11 @@ def user_profile(request, username):
                 if user.userprofile.can_update_csv_ratings:
                     user.userprofile.last_updated_csv_ratings = timezone.now()
                     user.userprofile.save(update_fields=['last_updated_csv_ratings'])
-                    updated_titles = update_from_csv(user)
+                    updated_titles, count = update_from_csv(user)
                     message = None
                     if updated_titles:
                         message = '(csv) Updated {} titles: {}'.format(
-                            len(updated_titles), build_html_string_for_titles(updated_titles))
+                            count, build_html_string_for_titles(updated_titles))
                     if message is None:
                         message = 'Updated nothing using {}'.format(user.userprofile.csv_ratings)
                     messages.info(request, message, extra_tags='safe')
@@ -136,11 +136,11 @@ def user_profile(request, username):
                 if user.userprofile.can_update_rss_ratings:
                     user.userprofile.last_updated_rss_ratings = timezone.now()
                     user.userprofile.save(update_fields=['last_updated_rss_ratings'])
-                    updated_titles = update_from_rss(user)
+                    updated_titles, count = update_from_rss(user)
                     message = None
                     if updated_titles:
                         message = '(rss) Updated {} titles: {}'.format(
-                            len(updated_titles), build_html_string_for_titles(updated_titles))
+                            count, build_html_string_for_titles(updated_titles))
                     if message is None:
                         message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/ratings">RSS</a>'.format(
                             user.userprofile.imdb_id)

@@ -126,9 +126,11 @@ def explore(request):
 
     director = request.GET.get('d')
     if director:
-        titles = titles.filter(director__id=director)
-        query_string += '{}={}&'.format('d', director)
-        search_result.append('Directed by {}'.format(director))
+        d = Director.objects.filter(id=director).first()
+        if d is not None:
+            titles = titles.filter(director=d)
+            query_string += '{}={}&'.format('d', director)
+            search_result.append('Directed by {}'.format(d.name))
 
     genres = request.GET.getlist('g')
     if genres:
