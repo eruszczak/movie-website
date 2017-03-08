@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from .models import UserProfile
 from django.core.files.images import get_image_dimensions
 from django.core.files.uploadedfile import InMemoryUploadedFile
+import re
 
 
 class RegisterForm(forms.ModelForm):
@@ -40,6 +41,14 @@ class EditProfileForm(forms.ModelForm):
                 raise forms.ValidationError("File too large ( > 2mb )")
 
         return csv_ratings
+
+    def clean_imdb_id(self):
+        imdbid = self.cleaned_data.get('imdb_id')
+        valid_id = re.match('ur\d+', imdbid)
+        valid_id = valid_id.group() if valid_id else ''
+        if not valid_id.startswith('ur') or len(valid_id) < 6:
+            raise forms.ValidationError('IMDb ID must start with "ur" and has at least 6 characters')
+        return valid_id
 
 
 class LoginForm(forms.Form):

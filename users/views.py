@@ -68,6 +68,7 @@ def user_edit(request, username):
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated')
+            return redirect(profile)
         else:
             for field, message in form.errors.items():
                 print(field, message)
@@ -109,6 +110,15 @@ def user_list(request):
 
 
 def user_profile(request, username):
+    msgs = {
+        'updated': 'Used {}. Updated {} titles: {}.',
+        'updated_nothing': 'Updated nothing using {}',
+        'watchlist_updated': '(rss watchlist) Updated {} titles: {}',
+        'watchlist_deleted': '{}Deleted {} titles: {}',
+        'error': 'Problem with fetching data. IMDb may be down, you provided wrong IMDb Id or your list is private.',
+        'timeout': 'Wait a few minutes'
+    }
+
     user = get_object_or_404(User, username=username)
     if request.method == 'POST':
         if not request.user.is_authenticated():
@@ -125,40 +135,59 @@ def user_profile(request, username):
                     user.userprofile.last_updated_csv_ratings = timezone.now()
                     user.userprofile.save(update_fields=['last_updated_csv_ratings'])
                     updated_titles, count = update_from_csv(user)
-                    message = None
                     if updated_titles:
-                        message = '(csv) Updated {} titles: {}'.format(
-                            count, build_html_string_for_titles(updated_titles))
-                    if message is None:
-                        message = 'Updated nothing using {}'.format(user.userprofile.csv_ratings)
-                    messages.info(request, message, extra_tags='safe')
+                        message = msgs['updated'].format(user.userprofile.csv_ratings.split('/')[-1],
+                                                         count,
+                                                         build_html_string_for_titles(updated_titles))
+                    else:
+                        message = msgs['updated_nothing'].format(user.userprofile.csv_ratings)
+                else:
+                    message = msgs['timeout']
+                messages.info(request, message, extra_tags='safe')
             elif request.POST.get('update_rss') and user.userprofile.imdb_id:
                 if user.userprofile.can_update_rss_ratings:
                     user.userprofile.last_updated_rss_ratings = timezone.now()
                     user.userprofile.save(update_fields=['last_updated_rss_ratings'])
-                    updated_titles, count = update_from_rss(user)
-                    message = None
-                    if updated_titles:
-                        message = '(rss) Updated {} titles: {}'.format(
-                            count, build_html_string_for_titles(updated_titles))
-                    if message is None:
-                        message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/ratings">RSS</a>'.format(
+                    data = update_from_rss(user)
+                    if data is not None:
+                        updated_titles, count = data
+                        link = '<a href="http://rss.imdb.com/user/{}/ratings">ratings</a>'.format(
                             user.userprofile.imdb_id)
-                    messages.info(request, message, extra_tags='safe')
+                        if updated_titles:
+                            message = msgs['updated'].format(link, count, build_html_string_for_titles(updated_titles))
+                        else:
+                            message = msgs['updated_nothing'].format(link)
+                    else:
+                        message = msgs['error']
+                else:
+                    message = msgs['timeout']
+                messages.info(request, message, extra_tags='safe')
             elif request.POST.get('update_watchlist') and user.userprofile.imdb_id:
                 if user.userprofile.can_update_rss_watchlist:
                     user.userprofile.last_updated_rss_watchlist = timezone.now()
                     user.userprofile.save(update_fields=['last_updated_rss_watchlist'])
-                    updated_titles, deleted_titles = get_watchlist(user)
-                    message = None
-                    if updated_titles:
-                        message = '(rss watchlist) Updated {} titles: {}<br><br>Deleted {} titles: {}'.format(
-                            len(updated_titles), build_html_string_for_titles(updated_titles),
-                            len(deleted_titles), build_html_string_for_titles(deleted_titles))
-                    if message is None:
-                        message = 'Updated nothing using <a href="http://rss.imdb.com/user/{}/watchlist">RSS</a>'.format(
+                    data = get_watchlist(user)
+                    message = ''
+                    if data is not None:
+                        updated_titles, updated_titles_count = data['updated']
+                        deleted_titles, deleted_titles_count = data['deleted']
+                        link = '<a href="http://rss.imdb.com/user/{}/watchlist">watchlist</a>'.format(
                             user.userprofile.imdb_id)
-                    messages.info(request, message, extra_tags='safe')
+                        if updated_titles:
+                            message += msgs['updated'].format(link,
+                                                              updated_titles_count,
+                                                              build_html_string_for_titles(updated_titles))
+                        if deleted_titles:
+                            message += msgs['watchlist_deleted'].format('<br><br>' if message else '',
+                                                                        deleted_titles_count,
+                                                                        build_html_string_for_titles(deleted_titles))
+                        if not message:
+                            message = msgs['updated_nothing'].format(link)
+                    else:
+                        message = msgs['error']
+                else:
+                    message = msgs['timeout']
+                messages.info(request, message, extra_tags='safe')
         return redirect(user.userprofile)
 
     titles_in_a_row = 6

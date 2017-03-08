@@ -50,9 +50,10 @@
                                 {{ obj.req_user_curr_rating }}
                                 <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
                             {% endif %}
-
-                            {% include 'includes/favourites.html' with condition=obj.has_in_favourites const=obj.const %}
-                            {% include 'includes/watchlist.html' with condition=obj.has_in_watchlist const=obj.const %}
+                            {% if request.user.is_authenticated %}
+                                {% include 'includes/favourites.html' with condition=obj.has_in_favourites const=obj.const %}
+                                {% include 'includes/watchlist.html' with condition=obj.has_in_watchlist const=obj.const %}
+                            {% endif %}
                         </span>
                         <p style="font-style:italic; font-size:12px">
                             {% for genre in obj.genre.all %}
@@ -67,7 +68,7 @@
                                 {% include 'includes/comma.html' %}
                             {% endfor %}
                         </p>
-
+                        {% if request.user.is_authenticated %}
 						<form class="star_rating_form_many" action="" method="post" const="{{ obj.const }}">{% csrf_token %}
                             <input name="const" value="{{ obj.const }}" hidden>
 							<span class="starRating">
@@ -77,6 +78,7 @@
 							{% endfor %}
 							</span>
 						</form>
+                        {% endif %}
 
                         {% if obj.plot %}
                         <p style="padding-left: 10px">{{ obj.plot|truncatechars:250 }}</p>

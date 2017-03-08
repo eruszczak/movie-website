@@ -18,6 +18,14 @@ $(document).ready(function() {
         return false;
     });
 
+    $('[name="update_titles_form"').children().on('click', function() {
+        var secs = 60;
+        waitingDialog.show();
+        setTimeout(function () {
+            waitingDialog.hide();
+        }, secs * 1000);
+    });
+
     var selectors = 'button[name="fav"], button[name="unfav"], button[name="watch"], button[name="unwatch"]';
     $('body').on('click', selectors, function() {
         var data = {'const': $(this).val()};
@@ -130,7 +138,11 @@ function sortable() {
     $("#sortable").disableSelection();
 }
 
-function ajax_request(data, refresh=false) {
+//function ajax_request(data, refresh=false) {
+function ajax_request(data, refresh) {
+    if(!refresh) {
+        refresh = false;
+    }
     data['csrfmiddlewaretoken'] = csrftoken; // attach csrf token
     var url = [location.protocol, '//', location.host, location.pathname].join('');
     $.ajax({

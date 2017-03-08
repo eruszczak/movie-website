@@ -15,9 +15,10 @@ class Command(BaseCommand):
         general_count = 0
         users = User.objects.filter(userprofile__imdb_id__startswith='ur')
         for user in users:
-            # if user.username == 'test':
-            #     updated_titles, count = update_from_csv(user)
-            # continue
+            if user.username == 'test':
+                updated_titles, count = update_from_csv(user)
+                self.stdout.write(self.style.SUCCESS('{} updated {} {}'.format(user.username, count, updated_titles)))
+            continue
             titles, count = update_from_rss(user)
             if titles:
                 general_count += count

@@ -11,22 +11,22 @@ $(document).ready(function() {
 
     $('#graph_genres').click(function(e) {
         renderChart(charts.genres);
-        e.preventDefault();
+//        e.preventDefault();
     });
 
     $('#graph_year').click(function(e) {
         renderChart(charts.years);
-        e.preventDefault();
+//        e.preventDefault();
     });
 
     $('#graph_rated').click(function(e) {
         renderChart(charts.rates);
-        e.preventDefault();
+//        e.preventDefault();
     });
 
     $('#graph_months').click(function(e) {
         monthlyChart(charts.monthly);
-        e.preventDefault();
+//        e.preventDefault();
     });
 
     $('#graph_genres').trigger('click');
@@ -34,8 +34,12 @@ $(document).ready(function() {
 
 
 function renderChart(chart, place='#graph') {
+//function renderChart(chart, place) {
+//    place = place ? place : '#grahps';
     /*If rendered in different place than #graph it means that I want global data, not for specific user*/
     var queryParams = place === '#graph' ? {u: path_username} : {};
+//    var queryParams = place ? {u: path_username} : {};
+//    var queryParams = {u: path_username};
      $.getJSON(chart.endpoint, queryParams).done(function(data) {
             if ('data_rates' in data) {
                 data = data['data_rates'];
@@ -86,7 +90,8 @@ function renderChart(chart, place='#graph') {
         });
 };
 
-function monthlyChart(chart, place='#graph') {
+function monthlyChart(chart, place) {
+    place = place ? place : '#grahps';
     $('#select_year').show()
      $.getJSON(chart.endpoint, {
             u: path_username

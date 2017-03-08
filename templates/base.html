@@ -1,5 +1,4 @@
 {% load staticfiles %}
-{% load compress %}
 <!doctype html>
 <html>
 <head>
@@ -8,12 +7,10 @@
 	<link rel='shortcut icon' type='image/x-icon' href='{% static "img/favicon.png" %}'/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% compress css %}
     <link rel="stylesheet" href="{% static 'bower_components/jquery-ui/themes/base/jquery-ui.min.css' %}">
     <link rel="stylesheet" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'bower_components/bootstrap-select/dist/css/bootstrap-select.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    {% endcompress %}
 </head>
 
 <body>
@@ -33,7 +30,10 @@
         {% block content %}{% endblock %}
 	</div>
     <scripts>
-        {% compress js %}
+        {% if debug %}
+        <!--<script src="..\static\js\scripts.js"></script>-->
+        <!--<script src="..\static\js\graphs.js"></script>-->
+        <!--build:js js/main.min.js -->
         <script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
         <script src="{% static 'bower_components/jquery-ui/jquery-ui.min.js' %}"></script>
 
@@ -44,10 +44,27 @@
         <script src="{% static 'bower_components/highcharts/modules/exporting.js' %}"></script>
 
         <script src="{% static 'js/scripts.js' %}"></script>
-        <script src="{% static 'js/search.js' %}"></script>
         <script src="{% static 'js/graphs.js' %}"></script>
-        <script src="{% static 'js/school.js' %}"></script>
-        {% endcompress %}
+        <script src="{% static 'js/modaldialog.js' %}"></script>
+        <!-- endbuild -->
+
+
+        <!--<script src="../static/bower_components/jquery/dist/jquery.min.js"></script>-->
+        <!--<script src="../static/bower_components/jquery-ui/jquery-ui.min.js"></script>-->
+
+        <!--<script src="../static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>-->
+        <!--<script src="../static/bower_components/bootstrap-select/dist/js/bootstrap-select.js"></script>-->
+
+        <!--<script src="../static/bower_components/highcharts/highcharts.js"></script>-->
+        <!--<script src="../static/bower_components/highcharts/modules/exporting.js"></script>-->
+
+        <!--<script src="../static/js/scripts.js"></script>-->
+        <!--<script src="../static/js/graphs.js"></script>-->
+
+        <!--<script src="{% static 'js/main.min.js' %}"></script>-->
+        {% else %}
+        <script src="{% static 'js/main.min.js' %}"></script>
+        {% endif %}
     </scripts>
     <script>
         var request_username = '{{ request.user }}';

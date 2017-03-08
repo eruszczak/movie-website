@@ -16,7 +16,7 @@ def prepare_json(json):
     json['Runtime'] = json['Runtime'][:-4] if json['Runtime'] != 'N/A' else None
     json['Year'] = json['Year'][:4] if json['Year'] != 'N/A' else None
     for k, v in json.items():
-        if v == 'N/A' and k not in ['Genre', 'Director', 'Actors']:
+        if v in ('N/A', 'NA') and k not in ['Genre', 'Director', 'Actors']:
             json[k] = None
     return json
 

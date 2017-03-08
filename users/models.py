@@ -7,7 +7,6 @@ from django.forms import ValidationError
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from recommend.models import Recommendation
 from movie.models import Title
 from common.sql_queries import avg_of_user_current_ratings
 
@@ -22,11 +21,6 @@ def update_filename(instance, filename):
 def validate_file_extension(value):
     if not value.name.endswith('.csv'):
         raise ValidationError('Only csv files are supported')
-
-
-# class UserQuerySet(models.QuerySet):
-#     def authors(self):
-#         pass
 
 
 class UserProfile(models.Model):
