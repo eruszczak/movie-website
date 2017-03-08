@@ -70,6 +70,8 @@ def explore(request):
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
         if watch or unwatch:
             alter_title_in_watchlist(request.user, requested_obj, watch, unwatch)
+        # todo
+        #
 
         fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
         if fav or unfav:
@@ -178,7 +180,7 @@ def explore(request):
             }, select_params=[searched_user.id])
             search_result.append('Seen by {}'.format(searched_user.username))
         else:
-            titles = titles.filter(rating__user=searched_user)
+            titles = titles.filter(rating__user=searched_user).order_by('-rating__rate_date')
             search_result.append('Seen by {}'.format(searched_user.username))
     else:
         rating = request.GET.get('r')
