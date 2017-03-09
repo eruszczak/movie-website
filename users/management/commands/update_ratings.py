@@ -15,19 +15,19 @@ class Command(BaseCommand):
         general_count = 0
         users = User.objects.filter(userprofile__imdb_id__startswith='ur')
         for user in users:
-            if user.username == 'test':
-                updated_titles, count = update_from_csv(user)
-                self.stdout.write(self.style.SUCCESS('{} updated {} {}'.format(user.username, count, updated_titles)))
-            continue
-            titles, count = update_from_rss(user)
-            if titles:
-                general_count += count
-                self.stdout.write(self.style.SUCCESS('{} updated {}'.format(user.username, count)))
-                sleep(5)
-                # todo
-                # should set some attribute for that user
-                # and then while filtering, only get those users that weren't updated for a while
-                # i'm doing something similar to this in user views already
+            # if user.username == 'test':
+            #     updated_titles, count = update_from_csv(user)
+            #     self.stdout.write(self.style.SUCCESS('{} updated {} {}'.format(user.username, count, updated_titles)))
+            # continue
+            data = update_from_rss(user)
+            if data is not None:
+                titles, count = data
+                if titles:
+                    general_count += count
+                    self.stdout.write(self.style.SUCCESS('{} updated {}'.format(user.username, count)))
+                    sleep(5)
+                else:
+                    self.stdout.write(self.style.SUCCESS('nothing new'))
             else:
                 self.stdout.write(self.style.ERROR('{} not updated'.format(user.username)))
 

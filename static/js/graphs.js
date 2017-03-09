@@ -11,31 +11,27 @@ $(document).ready(function() {
 
     $('#graph_genres').click(function(e) {
         renderChart(charts.genres);
-//        e.preventDefault();
     });
 
     $('#graph_year').click(function(e) {
         renderChart(charts.years);
-//        e.preventDefault();
     });
 
     $('#graph_rated').click(function(e) {
         renderChart(charts.rates);
-//        e.preventDefault();
     });
 
     $('#graph_months').click(function(e) {
         monthlyChart(charts.monthly);
-//        e.preventDefault();
     });
 
     $('#graph_genres').trigger('click');
 });
 
 
-function renderChart(chart, place='#graph') {
+function renderChart(chart, place) {
+    place = '#graph' || place;
 //function renderChart(chart, place) {
-//    place = place ? place : '#grahps';
     /*If rendered in different place than #graph it means that I want global data, not for specific user*/
     var queryParams = place === '#graph' ? {u: path_username} : {};
 //    var queryParams = place ? {u: path_username} : {};
@@ -91,8 +87,7 @@ function renderChart(chart, place='#graph') {
 };
 
 function monthlyChart(chart, place) {
-    place = place ? place : '#grahps';
-    $('#select_year').show()
+    place = '#graph' || place;
      $.getJSON(chart.endpoint, {
             u: path_username
      }).done(function(data) {
@@ -106,7 +101,7 @@ function monthlyChart(chart, place) {
             var count = data[i].the_count;
             var objIndex = findObjectInArray(series, year);
 
-            if (objIndex > 0) {
+            if (objIndex > -1) {
                 var curr_months = series[objIndex].data;
                 curr_months[month - 1] = count;
                 series[objIndex].data = curr_months;
@@ -117,7 +112,6 @@ function monthlyChart(chart, place) {
                 series.push(d);
             }
         }
-
         $(place).highcharts({
             chart: {
                 animation: false,

@@ -144,10 +144,10 @@ def explore(request):
     searched_for_user_and_rate = False
     excluded_searched_user = False
     user = request.GET.get('u')
+    rating = request.GET.get('r')
+    req_user_id = request.user.id if request.user.is_authenticated() else 0
     if user:
-        req_user_id = request.user.id if request.user.is_authenticated() else 0
         searched_user = get_object_or_404(User, username=user)
-        rating = request.GET.get('r')
         query_string += '{}={}&'.format('u', user)
         if req_user_id and request.GET.get('exclude_his'):
             titles = titles.filter(rating__user=request.user).exclude(rating__user=searched_user)
@@ -182,27 +182,30 @@ def explore(request):
         else:
             titles = titles.filter(rating__user=searched_user).order_by('-rating__rate_date')
             search_result.append('Seen by {}'.format(searched_user.username))
-    else:
-        rating = request.GET.get('r')
-        if rating and request.user.is_authenticated():
-            searched_for_user_and_rate = True
-            titles = titles_user_saw_with_current_rating(request.user.id, rating, request.user.id)
-            query_string += '{}={}&'.format('r', rating)
+    elif rating and req_user_id:
+        searched_for_user_and_rate = True
+        titles = titles_user_saw_with_current_rating(request.user.id, rating, request.user.id)
+        query_string += '{}={}&'.format('r', rating)
+        search_result.append('Seen by you')
 
     if not searched_for_user_and_rate:
         # only if you specified ?u= or you are logged in
         rate_date_year, rate_date_month = request.GET.get('year'), request.GET.get('month')
-        if rate_date_year and (user or request.user.is_authenticated()):
+        if rate_date_year and (user or req_user_id):
             # if user: ratings are already filtered for him
             if not user:
                 titles = titles.filter(rating__user=request.user)
+                search_result.append('Seen by you')
             if rate_date_year and rate_date_month:
                 titles = titles.filter(rating__rate_date__year=rate_date_year, rating__rate_date__month=rate_date_month)
                 query_string += '{}={}&'.format('year', rate_date_year)
                 query_string += '{}={}&'.format('month', rate_date_month)
+                import calendar
+                search_result.append('Seen in {} {}'.format(calendar.month_name[int(rate_date_month)], rate_date_year))
             elif rate_date_year:
                 titles = titles.filter(rating__rate_date__year=rate_date_year)
                 query_string += '{}={}&'.format('year', rate_date_year)
+                search_result.append('Seen in ' + rate_date_year)
 
     page = request.GET.get('page')
     if not searched_for_user_and_rate:  # because titles arent model instances if searched_for_user_and_rate
