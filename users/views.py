@@ -135,12 +135,13 @@ def user_profile(request, username):
                     user.userprofile.last_updated_csv_ratings = timezone.now()
                     user.userprofile.save(update_fields=['last_updated_csv_ratings'])
                     updated_titles, count = update_from_csv(user)
+                    csv_filename = str(user.userprofile.csv_ratings).split('/')[-1]
                     if updated_titles:
-                        message = msgs['updated'].format(user.userprofile.csv_ratings.split('/')[-1],
+                        message = msgs['updated'].format(csv_filename,
                                                          count,
                                                          build_html_string_for_titles(updated_titles))
                     else:
-                        message = msgs['updated_nothing'].format(user.userprofile.csv_ratings)
+                        message = msgs['updated_nothing'].format(csv_filename)
                 else:
                     message = msgs['timeout']
                 messages.info(request, message, extra_tags='safe')
