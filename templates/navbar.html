@@ -39,14 +39,16 @@
                         <li><a href="{% url 'login' %}">login</a></li>
                         <li><a href="{% url 'register' %}">register</a></li>
                     {% else %}
-                        {% if request.user.userprofile.picture %}
                         <li class="text-center">
                             <a href="{{ request.user.userprofile.get_absolute_url }}">
+                                {% if request.user.userprofile.picture %}
                                 <img id="avatar" class="img-responsive img-thumbnail" src="{{ request.user.userprofile.picture.url }}" alt="..." style="width: 100px">
+                                {% else %}
+                                <img id="avatar" class="img-responsive img-thumbnail" src="{% static 'img/placeholderavatar.png' %}" alt="..." style="width: 100px">
+                                {% endif %}
                             </a>
                         </li>
                         <li role="separator" class="divider"></li>
-                        {% endif %}
                         <li class="text-center"><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-off" aria-hidden="true"></span> logout</a></li>
                     {% endif %}
                     </ul>

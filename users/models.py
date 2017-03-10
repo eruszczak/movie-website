@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 
 from movie.models import Title
 from common.sql_queries import avg_of_user_current_ratings
+from mysite.settings import MEDIA_ROOT
 
 
 def update_filename(instance, filename):
@@ -23,6 +24,12 @@ def validate_file_extension(value):
         raise ValidationError('Only csv files are supported')
 
 
+# todo
+def validate_picture_extension(value):
+    if not value.name.endswith('.jpg') or not value.name.endswith('.png'):
+        raise ValidationError('Only jpg & png files are supported')
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
 
@@ -34,6 +41,27 @@ class UserProfile(models.Model):
     last_updated_rss_ratings = models.DateTimeField(null=True, blank=True)
     last_updated_rss_watchlist = models.DateTimeField(null=True, blank=True)
     last_updated_profile = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+    __original_picture = None
+    __original_csv = None
+
+    def __init__(self, *args, **kwargs):
+        super(UserProfile, self).__init__(*args, **kwargs)
+        self.__original_picture = self.picture
+        self.__original_csv = self.csv_ratings
+        self.user_folder = os.path.join(MEDIA_ROOT, 'user_files', self.user.username)
+
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        picture_changed = self.picture != self.__original_picture
+        csv_changed = self.csv_ratings != self.__original_csv
+        if picture_changed:
+            self.delete_previous_file('picture')
+        if csv_changed:
+            self.delete_previous_file('csv')
+
+        super(UserProfile, self).save(force_insert, force_update, *args, **kwargs)
+        self.__original_picture = self.picture
+        self.__original_csv = self.csv_ratings
 
     def __str__(self):
         return self.user.username
@@ -85,6 +113,20 @@ class UserProfile(models.Model):
         if not time:
             return True
         return (timezone.now() - time).seconds > 60 * 3
+
+    def delete_previous_file(self, what_to_delete):
+        for file in os.listdir(self.user_folder):
+            if UserProfile.get_extension_condition(file, what_to_delete):
+                path = os.path.join(self.user_folder, file)
+                os.remove(path)
+
+    @staticmethod
+    def get_extension_condition(file, what_to_delete):
+        if what_to_delete == 'picture':
+            return file.endswith('.jpg') or file.endswith('.png')
+        elif what_to_delete == 'csv':
+            return file.endswith('.csv')
+        return False
 
 
 class UserFollow(models.Model):

@@ -73,7 +73,6 @@ def user_edit(request, username):
             for field, message in form.errors.items():
                 print(field, message)
             t = '\n'.join([message[0] for field, message in form.errors.items()])
-            print(t)
             messages.warning(request, t)
         return redirect(request.META.get('HTTP_REFERER'))
     context = {
@@ -116,6 +115,7 @@ def user_profile(request, username):
         'watchlist_updated': '(rss watchlist) Updated {} titles: {}',
         'watchlist_deleted': '{}Deleted {} titles: {}',
         'error': 'Problem with fetching data. IMDb may be down, you provided wrong IMDb Id or your list is private.',
+        'csv_error': 'Csv file seem incorrect (headers do not match) or file was not found.',
         'timeout': 'Wait a few minutes'
     }
 
@@ -134,14 +134,18 @@ def user_profile(request, username):
                 if user.userprofile.can_update_csv_ratings:
                     user.userprofile.last_updated_csv_ratings = timezone.now()
                     user.userprofile.save(update_fields=['last_updated_csv_ratings'])
-                    updated_titles, count = update_from_csv(user)
-                    csv_filename = str(user.userprofile.csv_ratings).split('/')[-1]
-                    if updated_titles:
-                        message = msgs['updated'].format(csv_filename,
-                                                         count,
-                                                         build_html_string_for_titles(updated_titles))
+                    data = update_from_csv(user)
+                    if data is not None:
+                        updated_titles, count = data
+                        csv_filename = str(user.userprofile.csv_ratings).split('/')[-1]
+                        if updated_titles:
+                            message = msgs['updated'].format(csv_filename,
+                                                             count,
+                                                             build_html_string_for_titles(updated_titles))
+                        else:
+                            message = msgs['updated_nothing'].format(csv_filename)
                     else:
-                        message = msgs['updated_nothing'].format(csv_filename)
+                        message = msgs['csv_error']
                 else:
                     message = msgs['timeout']
                 messages.info(request, message, extra_tags='safe')
