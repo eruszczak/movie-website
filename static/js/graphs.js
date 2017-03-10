@@ -30,7 +30,7 @@ $(document).ready(function() {
 
 
 function renderChart(chart, place) {
-    place = '#graph' || place;
+    place = place || '#graph';
 //function renderChart(chart, place) {
     /*If rendered in different place than #graph it means that I want global data, not for specific user*/
     var queryParams = place === '#graph' ? {u: path_username} : {};
@@ -87,7 +87,7 @@ function renderChart(chart, place) {
 };
 
 function monthlyChart(chart, place) {
-    place = '#graph' || place;
+    place = place || '#graph';
      $.getJSON(chart.endpoint, {
             u: path_username
      }).done(function(data) {
