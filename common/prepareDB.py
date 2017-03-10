@@ -56,6 +56,15 @@ def update_from_csv(user):
         count = 0
         print('update_from_csv:', user)
         with open(path, 'r') as f:
+            csv_reader = csv.reader(f)
+            csv_headings = next(csv_reader)
+            expected_headers = ["position", "const", "created", "modified", "description", "Title", "Title type", "Directors",
+                 "You rated", "IMDb Rating", "Runtime (mins)", "Year", "Genres", "Num. Votes",
+                 "Release Date (month/day/year)", "URL"]
+            if csv_headings != expected_headers:
+                return None
+
+        with open(path, 'r') as f:
             reader = csv.DictReader(f)
             for num, row in enumerate(reader):
                 title = get_title_or_create(row['const'])

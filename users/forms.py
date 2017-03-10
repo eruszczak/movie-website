@@ -17,13 +17,16 @@ class RegisterForm(forms.ModelForm):
 
 class EditProfileForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        self.user_profile = kwargs.get('instance')
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+
     class Meta:
         model = UserProfile
         fields = ('imdb_id', 'csv_ratings', 'picture')
 
     def clean_picture(self):
         picture = self.cleaned_data.get('picture')
-        print(picture, type(picture))
         if isinstance(picture, InMemoryUploadedFile):
             w, h = get_image_dimensions(picture)
             if (w > 200 or h > 200) or (w < 100 or h < 100):
@@ -39,7 +42,6 @@ class EditProfileForm(forms.ModelForm):
         if isinstance(csv_ratings, InMemoryUploadedFile):
             if csv_ratings._size > 1024 * 1024 * 2:
                 raise forms.ValidationError("File too large ( > 2mb )")
-
         return csv_ratings
 
     def clean_imdb_id(self):
