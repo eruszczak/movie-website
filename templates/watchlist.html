@@ -25,7 +25,8 @@
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
                             <td><a href="{{ obj.title.get_absolute_url }}">{{ obj.title.name }}</a></td>
-                            <td>{{ obj.added_date|date:"e y-m-d G:i" }}</td>
+                            <td>{{ obj.added_date|date:"Y-m-d G:i" }}</td>
+                            <!--<td>{{ obj.added_date|date:"e y-m-d G:i" }}</td>-->
                             {% if is_owner %}
                                 <td class="text-center">
                                     <form action="" method="post">{% csrf_token %}
@@ -55,7 +56,7 @@
                         <tr>
                             <th class="text-center"></th>
                             <th class="text-center">title</th>
-                                <th class="text-center">delete</th>
+                            <th class="text-center">delete</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -28,7 +28,7 @@ def home(request):
         all_movies = all_movies.filter(user=request.user)
         all_series = all_series.filter(user=request.user)
         context = {
-            'ratings': Rating.objects.filter(user=request.user).order_by('-rate_date')[:16],
+            'ratings': Rating.objects.filter(user=request.user).select_related('title').order_by('-rate_date')[:16],
             'last_movie': all_movies.first().title if all_movies else None,
             'last_series': all_series.first().title if all_series else None,
             'last_good_movie': all_movies.filter(rate__gte=9).first().title if all_movies.filter(rate__gte=9) else None,
@@ -209,7 +209,7 @@ def explore(request):
 
     page = request.GET.get('page')
     if not searched_for_user_and_rate:  # because titles arent model instances if searched_for_user_and_rate
-        titles = titles.distinct()
+        titles = titles.prefetch_related('director', 'genre').distinct()
         if request.user.is_authenticated() and not excluded_searched_user:
             titles = titles.extra(select={
                 'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
@@ -225,9 +225,8 @@ def explore(request):
         'ratings': ratings,
         'searched_genres': genres,
         'search_result': search_result,
-        'selected_type': selected_type,
         'genres': Genre.objects.annotate(num=Count('title')).order_by('-num'),
-        'followed_users': UserFollow.objects.filter(user_follower=request.user) if request.user.is_authenticated() else [],
+        'followed_users': UserFollow.objects.filter(user_follower=request.user) if req_user_id else [],
         'query_string': query_string,
         'loop': [n for n in range(10, 0, -1)],
     }
@@ -384,11 +383,15 @@ def watchlist(request, username):
         return redirect(user.userprofile.watchlist_url())
 
     context = {
-        'ratings': user_watchlist.filter(deleted=False),
+        'ratings': user_watchlist.filter(deleted=False).select_related('title').all(),
+        # 'ratings': Title.objects.filter(watchlist__user=user, watchlist__deleted=False),
+        # 'ratings': [],
         'title': 'See again',
-        'archive': [e for e in user_watchlist if e.rated_after_days_diff],
+        # 'archive': [e for e in user_watchlist if e.rated_after_days_diff],
+        # 'archive': Watchlist.objects.filter(user=user, rating__rate_date__),
         'is_owner': request.user == user,
-        'deleted': user_watchlist.filter(imdb=True, deleted=True),
+        'deleted': user_watchlist.filter(imdb=True, deleted=True).select_related('title').all(),
+        # 'deleted': [],
         'username': username
     }
     return render(request, 'watchlist.html', context)

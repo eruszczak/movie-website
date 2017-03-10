@@ -188,6 +188,7 @@ class Watchlist(models.Model):
     def get_absolute_url(self):
         return reverse('watchlist', kwargs={'username': self.user.username})
 
+    # todo
     @property
     def rated_after_days_diff(self):
         rating = Rating.objects.filter(user=self.user).filter(title=self.title, rate_date__gt=self.added_date).last()

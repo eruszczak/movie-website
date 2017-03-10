@@ -4,6 +4,7 @@ from .models import UserProfile
 from django.core.files.images import get_image_dimensions
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import re
+import os
 
 
 class RegisterForm(forms.ModelForm):
@@ -17,9 +18,9 @@ class RegisterForm(forms.ModelForm):
 
 class EditProfileForm(forms.ModelForm):
 
-    def __init__(self, *args, **kwargs):
-        self.user_profile = kwargs.get('instance')
-        super(EditProfileForm, self).__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    #     self.user_profile = kwargs.get('instance')
+    #     super(EditProfileForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = UserProfile
@@ -29,6 +30,9 @@ class EditProfileForm(forms.ModelForm):
         picture = self.cleaned_data.get('picture')
         if isinstance(picture, InMemoryUploadedFile):
             w, h = get_image_dimensions(picture)
+            name, ext = os.path.splitext(str(picture))
+            if ext not in ('.png', '.jpg'):
+                raise forms.ValidationError("Avatar must be either .jpg or .png")
             if (w > 200 or h > 200) or (w < 100 or h < 100):
                 raise forms.ValidationError("The picture is {}x{}. Size allowed 100x100px - 200x200px".format(w, h))
             elif picture._size > 1024 * 150:
