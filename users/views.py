@@ -11,6 +11,25 @@ from .forms import RegisterForm, LoginForm, EditProfileForm
 from common.utils import build_html_string_for_titles
 from common.prepareDB import update_from_csv, update_from_rss, get_watchlist
 from common.sql_queries import avgs_of_2_users_common_curr_ratings, titles_rated_higher_or_lower
+import csv
+from django.http import HttpResponse
+
+
+def export_ratings(request, username):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="myratings.csv"'
+
+    user_ratings = Rating.objects.filter(user__username=username).select_related('title')
+    headers = ['const', 'rate_date', 'rate']
+    writer = csv.DictWriter(response, fieldnames=headers, lineterminator='\n')
+    writer.writeheader()
+    for r in user_ratings:
+        writer.writerow({
+            'const': r.title.const,
+            'rate_date': r.rate_date,
+            'rate': r.rate
+        })
+    return response
 
 
 def register(request):
@@ -240,7 +259,7 @@ def user_profile(request, username):
     else:
         common = None
         can_follow = False
-        user_ratings = Rating.objects.filter(user=user)
+        user_ratings = Rating.objects.filter(user=user).select_related('title')
 
     context = {
         'title': user.username + ' | profile',
