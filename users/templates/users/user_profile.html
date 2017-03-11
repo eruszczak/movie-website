@@ -81,6 +81,10 @@
 				{% endfor %}
 				</div>
 				See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_ratings }} ratings</a>
+				<span style="float: right;">
+					<a href="">import</a>
+					<a href="{% url 'export_ratings' choosen_user.username %}">export</a>
+				</span>
 			</div>
 		</div>
 	</div>
