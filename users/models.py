@@ -24,12 +24,6 @@ def validate_file_extension(value):
         raise ValidationError('Only csv files are supported')
 
 
-# todo
-def validate_picture_extension(value):
-    if not value.name.endswith('.jpg') or not value.name.endswith('.png'):
-        raise ValidationError('Only jpg & png files are supported')
-
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
 
