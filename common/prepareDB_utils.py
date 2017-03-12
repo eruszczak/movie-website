@@ -7,7 +7,6 @@ from json import JSONDecodeError
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
-from django.core.files import File
 from movie.models import Type, Genre, Actor, Director, Title
 from mysite.settings import MEDIA_ROOT
 
@@ -45,30 +44,22 @@ def validate_rate(rate):
     return rate if 0 < rate < 11 else False
 
 
-def get_csv_headers(path, iostring=False):
-    if iostring:
-        # when I want to check InMemoryUploadedFile, not actual file
-        csv_reader = csv.reader(iostring)
-        csv_headings = next(csv_reader)
-        return csv_headings
-    elif path:
-        with open(path, 'r') as f:
-            csv_reader = csv.reader(f)
-            csv_headings = next(csv_reader)
-            return csv_headings
+def get_csv_headers(file_or_iostring):
+    csv_reader = csv.reader(file_or_iostring)
+    csv_headings = next(csv_reader)
+    return csv_headings
 
 
-def valid_csv_headers(path):
+def valid_csv_headers(file):
     expected_headers = ["position", "const", "created", "modified", "description", "Title", "Title type",
-                        "Directors",
-                        "You rated", "IMDb Rating", "Runtime (mins)", "Year", "Genres", "Num. Votes",
+                        "Directors", "You rated", "IMDb Rating", "Runtime (mins)", "Year", "Genres", "Num. Votes",
                         "Release Date (month/day/year)", "URL"]
-    return get_csv_headers(path) == expected_headers
+    return get_csv_headers(file) == expected_headers
 
 
 def valid_imported_csv_headers(iostring):
     expected_headers = ["const", "rate_date", "rate"]
-    return get_csv_headers(False, iostring) == expected_headers
+    return get_csv_headers(iostring) == expected_headers
 
 
 def get_rss(imdb_id='ur44264813', source='ratings'):
@@ -106,23 +97,6 @@ def unpack_from_rss_item(obj, for_watchlist=False):
     return const, validate_rate(rate), date
 
 
-# def get_and_assign_poster(obj):
-#     title = obj.const + '.jpg'
-#     posters_folder = os.path.join(MEDIA_ROOT, 'poster')
-#     img_path = os.path.join(posters_folder, title)
-#     poster_exists = os.path.isfile(img_path)
-#     if not poster_exists:
-#         try:
-#             img = urllib.request.urlretrieve(obj.url_poster)[0]
-#         except Exception as e:
-#             print(e, type(e))
-#         else:
-#             print(title, 'saving poster')
-#             obj.img.save(title, File(open(img, 'rb')), save=True)
-#     else:
-#         obj.img = os.path.join('poster', title)
-#         obj.save()
-
 def get_and_assign_poster(obj):
     title = obj.const + '.jpg'
     posters_folder = os.path.join(MEDIA_ROOT, 'poster')
@@ -134,10 +108,7 @@ def get_and_assign_poster(obj):
         except Exception as e:
             print(e, type(e))
             return
-        else:
-            print(title, 'downloaded poster', title)
-    else:
-        print('assigned poster', title)
+    # poster already existed or was just downloaded
     obj.img = os.path.join('poster', title)
     obj.save()
 

@@ -51,28 +51,29 @@ def import_ratings(request):
         return redirect(profile)
 
     f = uploaded_file.read().decode('utf-8')
-    if not valid_imported_csv_headers(io.StringIO(f)):
+    io_string = io.StringIO(f)
+    if not valid_imported_csv_headers(io_string):
         messages.info(request, 'Not valid format. Headers do not match.')
         return redirect(profile)
 
-    reader = csv.DictReader(io.StringIO(f))
+    io_string.seek(0)
+    reader = csv.DictReader(io_string)
     updated = ''
     total_rows = 0
     created_count = 0
-    for num, row in enumerate(reader):
+    for row in reader:
         total_rows += 1
         const, rate_date, rate = row['const'], row['rate_date'], row['rate']
         title = Title.objects.filter(const=const).first()
         rate = validate_rate(rate)
         rate_date = convert_to_datetime(row['rate_date'], 'exported_from_db')
-        if not title or not rate or not rate_date:
-            continue
 
-        obj, created = Rating.objects.get_or_create(user=request.user, title=title, rate_date=rate_date, defaults={'rate': rate})
-        print(created, obj)
-        if created:
-            updated += const + ', '
-            created_count += 1
+        if title and rate and rate_date:
+            obj, created = Rating.objects.get_or_create(user=request.user, title=title, rate_date=rate_date,
+                                                        defaults={'rate': rate})
+            if created:
+                updated += const + ', '
+                created_count += 1
     messages.info(request, '{} imported {} out of {} ratings'.format(updated, created_count, total_rows))
     return redirect(profile)
 
@@ -138,7 +139,7 @@ def user_edit(request, username):
                 print(field, message)
             t = '\n'.join([message[0] for field, message in form.errors.items()])
             messages.warning(request, t)
-        return redirect(request.META.get('HTTP_REFERER'))
+        return redirect(profile.edit_url())
     context = {
         'form': form,
         'title': 'profile edit',
