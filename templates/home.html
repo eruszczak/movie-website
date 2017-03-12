@@ -1,12 +1,13 @@
 {% extends "base.html" %}
-{% block image %}
 {% load staticfiles %}
 {% load humanize %}
-<div class="container-fluid wrapper">
-  <div class="">
-    <h1 class="text-center"></h1>
-  </div>
-</div>
+
+{% block image %}
+    <div class="container-fluid wrapper" style="background-image:url({% static 'img/odyssey.png' %});">
+      <div class="">
+        <h1 class="text-center"></h1>
+      </div>
+    </div>
 {% endblock %}
 {% block title %}home{% endblock %}
 

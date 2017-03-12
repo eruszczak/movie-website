@@ -27,15 +27,17 @@ $(document).ready(function() {
         $("#import").trigger('click');
     });
 
-    document.getElementById("import").onchange = function() {
-        var max_size = 2 * 1024 * 1024;
-        if(max_size < document.getElementById("import").files[0].size) {
-            alert('File is too big. Max 2MB.');
-            return;
-        }
-        document.getElementById("import_form").submit();
-        showWaitingDialog(60);
-    };
+    if ( $( "#import").length ) {
+        document.getElementById("import").onchange = function() {
+            var max_size = 2 * 1024 * 1024;
+            if(max_size < document.getElementById("import").files[0].size) {
+                alert('File is too big. Max 2MB.');
+                return;
+            }
+            document.getElementById("import_form").submit();
+            showWaitingDialog(60);
+        };
+    }
 
     var selectors = 'button[name="fav"], button[name="unfav"], button[name="watch"], button[name="unwatch"]';
     $('body').on('click', selectors, function() {

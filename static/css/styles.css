@@ -140,8 +140,6 @@ textarea {
 
 .wrapper {
   min-height: 180px;
-  /*background-image:url('http://i.imgur.com/yx5LjH9.png');*/
-  background-image:url('../img/odyssey.png');
   background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
