@@ -3,14 +3,18 @@ var gulpIf = require('gulp-if');
 
 var sass = require('gulp-sass');
 var useref = require('gulp-useref');
-var uglify = require('gulp-uglify');
 var cssnano = require('gulp-cssnano');
 
 var imagemin = require('gulp-imagemin');
 var imageResize = require('gulp-image-resize');
-var concat = require('gulp-concat');
 var replace = require('gulp-replace');
 var gutil = require('gulp-util');
+
+var concat = require('gulp-concat');
+var uglify = require('gulp-uglify');
+var concatCss = require('gulp-concat-css');
+var cleanCSS = require('gulp-clean-css');
+
 
 gulp.task('sass', function() {
     return gulp.src('static/**/*.scss')
@@ -23,8 +27,6 @@ gulp.task('sass', function() {
 
 gulp.task('useref', function(){
   return gulp.src('templates/base.html')
-    .pipe(replace(/{% static/g, ''))
-    .pipe(replace(/ %}/g, ''))
     .pipe(useref())
     .pipe(gulpIf('*.js', uglify().on('error', function(err) {
         gutil.log(gutil.colors.red('[Error]'), err.toString());
@@ -58,26 +60,46 @@ gulp.task('img', () =>
         .pipe(gulp.dest('../dist/images'))
 );
 
-//var files = [
-//    'bower_components/jquery/dist/jquery.min.js'
-//    'bower_components/jquery-ui/jquery-ui.min.js'
-//    'bower_components/bootstrap/dist/js/bootstrap.min.js'
-//    'bower_components/bootstrap-select/dist/js/bootstrap-select.js'
-//    'bower_components/highcharts/highcharts.js'
-//    'bower_components/highcharts/modules/exporting.js'
-//    'js/scripts.js'
-//    'js/graphs.js'
-//]
-//
+jsFiles = [
+    'static/bower_components/jquery/dist/jquery.min.js',
+    'static/bower_components/jquery-ui/jquery-ui.min.js',
+    'static/bower_components/bootstrap/dist/js/bootstrap.min.js',
+    'static/bower_components/bootstrap-select/dist/js/bootstrap-select.js',
+    'static/bower_components/highcharts/highcharts.js',
+    'static/bower_components/highcharts/modules/exporting.js',
+    'static/js/scripts.js',
+    'static/js/graphs.js',
+    'static/js/modaldialog.js',
+]
+
+cssFiles = [
+    'static/bower_components/jquery-ui/themes/base/jquery-ui.min.css',
+    'static/bower_components/bootstrap/dist/css/bootstrap.min.css',
+    'static/bower_components/bootstrap-select/dist/css/bootstrap-select.min.css',
+	'static/css/styles.css'
+]
+
 //files.filter(function(f) {
 //    return 'static/' + f;
 //})
-//
-//gulp.task('scripts', function() {
-//  return gulp.src(files)
-//    .pipe(concat('all.js'))
-//    .pipe(gulp.dest('static/js/'));
-//});
+
+gulp.task('scripts', function() {
+  return gulp.src(jsFiles)
+    .pipe(concat('allscripts.min.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest('../dist'));
+});
+
+gulp.task('styles', function () {
+  return gulp.src(cssFiles)
+    .pipe(concatCss('allstyles.min.css'))
+    .pipe(cleanCSS({compatibility: 'ie8'}))
+    .pipe(gulp.dest('../dist'));
+});
+
+gulp.task('static', ['styles', 'scripts']);
+
+
 
 gulp.task('clearCache', function() {
   // Still pass the files to clear cache for
