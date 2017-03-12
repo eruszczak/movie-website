@@ -56,12 +56,13 @@ def update_from_csv(user):
         updated_titles = []
         count = 0
         print('update_from_csv:', user)
-        if not valid_csv_headers(path):
-            return None
-
         with open(path, 'r') as f:
+            if not valid_csv_headers(f):
+                return None
+
+            f.seek(0)
             reader = csv.DictReader(f)
-            for num, row in enumerate(reader):
+            for row in reader:
                 title = get_title_or_create(row['const'])
                 rate = validate_rate(row['You rated'])
                 rate_date = convert_to_datetime(row['created'], 'csv')
