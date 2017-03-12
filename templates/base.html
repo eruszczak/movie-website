@@ -6,13 +6,14 @@
     <meta charset="utf-8">
 	<link rel='shortcut icon' type='image/x-icon' href='{% static "img/favicon.png" %}'/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    {% if debug %}
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% if debug %}
     <link rel="stylesheet" href="{% static 'bower_components/jquery-ui/themes/base/jquery-ui.min.css' %}">
     <link rel="stylesheet" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'bower_components/bootstrap-select/dist/css/bootstrap-select.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/styles.css' %}">
     {% else %}
+    <link rel="stylesheet" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'allstyles.min.css' %}">
     {% endif %}
 </head>

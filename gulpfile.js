@@ -74,7 +74,7 @@ jsFiles = [
 
 cssFiles = [
     'static/bower_components/jquery-ui/themes/base/jquery-ui.min.css',
-    'static/bower_components/bootstrap/dist/css/bootstrap.min.css',
+//    'static/bower_components/bootstrap/dist/css/bootstrap.min.css',
     'static/bower_components/bootstrap-select/dist/css/bootstrap-select.min.css',
 	'static/css/styles.css'
 ]
