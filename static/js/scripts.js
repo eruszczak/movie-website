@@ -19,12 +19,23 @@ $(document).ready(function() {
     });
 
     $('[name="update_titles_form"').children().on('click', function() {
-        var secs = 60;
-        waitingDialog.show();
-        setTimeout(function () {
-            waitingDialog.hide();
-        }, secs * 1000);
+        showWaitingDialog(60);
     });
+
+    $("#import_ratings").on('click', function(e){
+        e.preventDefault();
+        $("#import").trigger('click');
+    });
+
+    document.getElementById("import").onchange = function() {
+        var max_size = 2 * 1024 * 1024;
+        if(max_size < document.getElementById("import").files[0].size) {
+            alert('File is too big. Max 2MB.');
+            return;
+        }
+        document.getElementById("import_form").submit();
+        showWaitingDialog(60);
+    };
 
     var selectors = 'button[name="fav"], button[name="unfav"], button[name="watch"], button[name="unwatch"]';
     $('body').on('click', selectors, function() {
@@ -206,3 +217,10 @@ var buttons = {
 // to prevent search form flickering on page load
 $('.selectpicker').selectpicker({
 });
+
+function showWaitingDialog(secs) {
+    waitingDialog.show();
+    setTimeout(function () {
+        waitingDialog.hide();
+    }, secs * 1000);
+}

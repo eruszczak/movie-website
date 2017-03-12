@@ -99,3 +99,4 @@ REST_FRAMEWORK = {
 }
 
 # SESSION_COOKIE_SECURE = True
+LOGIN_URL = 'login'

@@ -81,8 +81,13 @@
 				{% endfor %}
 				</div>
 				See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_ratings }} ratings</a>
+				<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import_ratings' %}" style="display:none">{% csrf_token %}
+					<input id="import" name="csv_ratings" type="file" accept=".csv" />
+				</form>
 				<span style="float: right;">
-					<a href="">import</a>
+					{% if is_owner %}
+						<a id="import_ratings" href="{% url 'import_ratings' %}">import</a>
+					{% endif %}
 					<a href="{% url 'export_ratings' choosen_user.username %}">export</a>
 				</span>
 			</div>
