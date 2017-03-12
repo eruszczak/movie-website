@@ -46,7 +46,6 @@ def import_ratings(request):
         return redirect(profile)
 
     if not uploaded_file.name.endswith('.csv'):
-        # todo magic
         messages.info(request, 'Not csv file')
         return redirect(profile)
 
