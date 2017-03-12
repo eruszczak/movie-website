@@ -15,6 +15,7 @@ from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites
 from common.utils import paginate
 from common.prepareDB import update_title
+from common.prepareDB_utils import validate_rate
 from common.sql_queries import titles_user_saw_with_current_rating, curr_title_rating_of_followed
 
 
@@ -57,7 +58,7 @@ def explore(request):
             return redirect(request.META.get('HTTP_REFERER'))
 
         new_rating = request.POST.get('rating')
-        if new_rating is not None:
+        if new_rating is not None and validate_rate(new_rating):
             title = get_object_or_404(Title, const=request.POST.get('const'))
             current_rating = Rating.objects.filter(user=request.user, title=title).first()
             if current_rating is not None:
@@ -272,7 +273,7 @@ def title_details(request, slug):
 
         current_rating = Rating.objects.filter(user=request.user, title=title).first()
         new_rating = request.POST.get('rating')
-        if new_rating:
+        if new_rating and validate_rate(new_rating):
             if current_rating and not request.POST.get('insert_as_new'):
                 current_rating.rate = new_rating
                 current_rating.save(update_fields=['rate'])

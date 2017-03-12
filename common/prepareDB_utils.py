@@ -1,5 +1,6 @@
 import os
 import pytz
+import csv
 import requests
 import urllib.request
 from json import JSONDecodeError
@@ -25,11 +26,49 @@ def convert_to_datetime(date_string, source):
     date_formats = {
         'xml': '%a, %d %b %Y %H:%M:%S GMT',
         'csv': '%a %b %d 00:00:00 %Y',
-        'json': '%d %b %Y'
+        'json': '%d %b %Y',
+        'exported_from_db': '%Y-%m-%d'
     }
     if date_string and date_formats.get(source):
-        return datetime.strptime(date_string, date_formats[source])
+        try:
+            return datetime.strptime(date_string, date_formats[source])
+        except ValueError:
+            return None
     return None
+
+
+def validate_rate(rate):
+    try:
+        rate = int(rate)
+    except ValueError:
+        return False
+    return rate if 0 < rate < 11 else False
+
+
+def get_csv_headers(path, iostring=False):
+    if iostring:
+        # when I want to check InMemoryUploadedFile, not actual file
+        csv_reader = csv.reader(iostring)
+        csv_headings = next(csv_reader)
+        return csv_headings
+    elif path:
+        with open(path, 'r') as f:
+            csv_reader = csv.reader(f)
+            csv_headings = next(csv_reader)
+            return csv_headings
+
+
+def valid_csv_headers(path):
+    expected_headers = ["position", "const", "created", "modified", "description", "Title", "Title type",
+                        "Directors",
+                        "You rated", "IMDb Rating", "Runtime (mins)", "Year", "Genres", "Num. Votes",
+                        "Release Date (month/day/year)", "URL"]
+    return get_csv_headers(path) == expected_headers
+
+
+def valid_imported_csv_headers(iostring):
+    expected_headers = ["const", "rate_date", "rate"]
+    return get_csv_headers(False, iostring) == expected_headers
 
 
 def get_rss(imdb_id='ur44264813', source='ratings'):
@@ -64,7 +103,7 @@ def unpack_from_rss_item(obj, for_watchlist=False):
         name = obj.find('title').text
         return const, name, date
     rate = obj.find('description').text.strip()[-3:-1].lstrip()
-    return const, rate, date
+    return const, validate_rate(rate), date
 
 
 # def get_and_assign_poster(obj):

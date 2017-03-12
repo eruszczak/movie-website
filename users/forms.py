@@ -35,7 +35,7 @@ class EditProfileForm(forms.ModelForm):
                 raise forms.ValidationError("Avatar must be either .jpg or .png")
             if (w > 200 or h > 200) or (w < 100 or h < 100):
                 raise forms.ValidationError("The picture is {}x{}. Size allowed 100x100px - 200x200px".format(w, h))
-            elif picture._size > 1024 * 150:
+            elif picture.size > 1024 * 150:
                 raise forms.ValidationError("Image file too large ( > 150kB )")
             elif w != h:
                 raise forms.ValidationError("Width and height must be the same")
@@ -44,8 +44,8 @@ class EditProfileForm(forms.ModelForm):
     def clean_csv_ratings(self):
         csv_ratings = self.cleaned_data.get('csv_ratings')
         if isinstance(csv_ratings, InMemoryUploadedFile):
-            if csv_ratings._size > 1024 * 1024 * 2:
-                raise forms.ValidationError("File too large ( > 2mb )")
+            if csv_ratings.size > 1024 * 1024 * 2:
+                raise forms.ValidationError("File too large ( > 2MB )")
         return csv_ratings
 
     def clean_imdb_id(self):

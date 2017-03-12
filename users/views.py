@@ -13,6 +13,8 @@ from common.prepareDB import update_from_csv, update_from_rss, get_watchlist
 from common.sql_queries import avgs_of_2_users_common_curr_ratings, titles_rated_higher_or_lower
 import csv
 from django.http import HttpResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 
 
 def export_ratings(request, username):
@@ -30,6 +32,49 @@ def export_ratings(request, username):
             'rate': r.rate
         })
     return response
+
+
+@login_required
+@require_POST
+def import_ratings(request):
+    import io
+    from common.prepareDB_utils import valid_imported_csv_headers, validate_rate, convert_to_datetime
+    profile = UserProfile.objects.get(user=request.user)
+    uploaded_file = request.FILES['csv_ratings']
+    if uploaded_file.size > 2 * 1024 * 1024:
+        messages.info(request, 'File is too big. Max 2MB.')
+        return redirect(profile)
+
+    if not uploaded_file.name.endswith('.csv'):
+        # todo magic
+        messages.info(request, 'Not csv file')
+        return redirect(profile)
+
+    f = uploaded_file.read().decode('utf-8')
+    if not valid_imported_csv_headers(io.StringIO(f)):
+        messages.info(request, 'Not valid format. Headers do not match.')
+        return redirect(profile)
+
+    reader = csv.DictReader(io.StringIO(f))
+    updated = ''
+    total_rows = 0
+    created_count = 0
+    for num, row in enumerate(reader):
+        total_rows += 1
+        const, rate_date, rate = row['const'], row['rate_date'], row['rate']
+        title = Title.objects.filter(const=const).first()
+        rate = validate_rate(rate)
+        rate_date = convert_to_datetime(row['rate_date'], 'exported_from_db')
+        if not title or not rate or not rate_date:
+            continue
+
+        obj, created = Rating.objects.get_or_create(user=request.user, title=title, rate_date=rate_date, defaults={'rate': rate})
+        print(created, obj)
+        if created:
+            updated += const + ', '
+            created_count += 1
+    messages.info(request, '{} imported {} out of {} ratings'.format(updated, created_count, total_rows))
+    return redirect(profile)
 
 
 def register(request):

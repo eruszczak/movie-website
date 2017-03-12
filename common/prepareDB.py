@@ -3,7 +3,8 @@ import csv
 import sys
 
 from django.conf import settings
-from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, add_new_title
+from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, add_new_title,\
+    validate_rate, valid_csv_headers
 from django.contrib.auth.models import User
 from movie.models import Title, Watchlist, Rating
 
@@ -55,23 +56,18 @@ def update_from_csv(user):
         updated_titles = []
         count = 0
         print('update_from_csv:', user)
-        with open(path, 'r') as f:
-            csv_reader = csv.reader(f)
-            csv_headings = next(csv_reader)
-            expected_headers = ["position", "const", "created", "modified", "description", "Title", "Title type", "Directors",
-                 "You rated", "IMDb Rating", "Runtime (mins)", "Year", "Genres", "Num. Votes",
-                 "Release Date (month/day/year)", "URL"]
-            if csv_headings != expected_headers:
-                return None
+        if not valid_csv_headers(path):
+            return None
 
         with open(path, 'r') as f:
             reader = csv.DictReader(f)
             for num, row in enumerate(reader):
                 title = get_title_or_create(row['const'])
-                if title:
-                    rate_date = convert_to_datetime(row['created'], 'csv')
+                rate = validate_rate(row['You rated'])
+                rate_date = convert_to_datetime(row['created'], 'csv')
+                if title and rate and rate_date:
                     obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
-                                                                defaults={'rate': row['You rated']})
+                                                                defaults={'rate': rate})
                     if created:
                         count += 1
                         if len(updated_titles) < 10:
@@ -89,7 +85,7 @@ def update_from_rss(user):
         for i, item in enumerate(itemlist):
             const, rate, rate_date = unpack_from_rss_item(item)
             title = get_title_or_create(const)
-            if title:
+            if title and rate and rate_date:
                 obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
                                                             defaults={'rate': rate})
                 if created:
