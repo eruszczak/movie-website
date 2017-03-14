@@ -46,6 +46,11 @@ class UserProfile(models.Model):
         self.user_folder = os.path.join(MEDIA_ROOT, 'user_files', self.user.username)
 
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        # if user still doesn't have a folder - create it
+        directory = os.path.join(MEDIA_ROOT, 'user_files', self.user.username)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
         picture_changed = self.picture != self.__original_picture
         csv_changed = self.csv_ratings != self.__original_csv
         if picture_changed:

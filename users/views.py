@@ -39,6 +39,7 @@ def export_ratings(request, username):
 def import_ratings(request):
     import io
     from common.prepareDB_utils import valid_imported_csv_headers, validate_rate, convert_to_datetime
+
     profile = UserProfile.objects.get(user=request.user)
     uploaded_file = request.FILES['csv_ratings']
     if uploaded_file.size > 2 * 1024 * 1024:
@@ -57,7 +58,6 @@ def import_ratings(request):
 
     io_string.seek(0)
     reader = csv.DictReader(io_string)
-    updated = ''
     total_rows = 0
     created_count = 0
     for row in reader:
@@ -71,9 +71,8 @@ def import_ratings(request):
             obj, created = Rating.objects.get_or_create(user=request.user, title=title, rate_date=rate_date,
                                                         defaults={'rate': rate})
             if created:
-                updated += const + ', '
                 created_count += 1
-    messages.info(request, '{} imported {} out of {} ratings'.format(updated, created_count, total_rows))
+    messages.info(request, 'imported {} out of {} ratings'.format(created_count, total_rows))
     return redirect(profile)
 
 
@@ -139,10 +138,13 @@ def user_edit(request, username):
             t = '\n'.join([message[0] for field, message in form.errors.items()])
             messages.warning(request, t)
         return redirect(profile.edit_url())
+
+    profile.csv_ratings = str(profile.csv_ratings).split('/')[-1]
     context = {
         'form': form,
         'title': 'profile edit',
         'profile': profile,
+        'profile_ratings_name': str(profile.csv_ratings).split('/')[-1]
     }
     return render(request, 'users/profile_edit.html', context)
 
@@ -194,7 +196,7 @@ def user_profile(request, username):
         elif request.POST.get('unfollow'):
             UserFollow.objects.filter(user_follower=request.user, user_followed=user).delete()
         elif user == request.user:
-            if request.POST.get('update_csv') and user.userprofile.csv_ratings:
+            if request.POST.get('update_csv'):
                 if user.userprofile.can_update_csv_ratings:
                     user.userprofile.last_updated_csv_ratings = timezone.now()
                     user.userprofile.save(update_fields=['last_updated_csv_ratings'])
