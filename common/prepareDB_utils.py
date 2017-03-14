@@ -101,27 +101,24 @@ def unpack_from_rss_item(obj, for_watchlist=False):
     return const, validate_rate(rate), date
 
 
-def resize_image(width, img_path, dest_path):
-    file_name = ntpath.basename(img_path)
-    file_path = os.path.join(dest_path, file_name)
-    if os.path.isfile(file_path):
-        print('file exists')
-        return False
+def resize_image(width, img_to_resize, dest_path):
+    if os.path.isfile(dest_path):
+        return
 
     basewidth = width
-    img = Image.open(img_path)
+    img = Image.open(img_to_resize)
     width, height = img.size
     wpercent = basewidth / float(width)
     hsize = int((float(height) * float(wpercent)))
     img = img.resize((basewidth, hsize), PIL.Image.ANTIALIAS)
-    img.save(file_path)
-    return True
+    img.save(dest_path)
 
 
 def get_and_assign_poster(obj):
     title = obj.const + '.jpg'
     posters_folder = os.path.join(MEDIA_ROOT, 'poster')
     img_path = os.path.join(posters_folder, title)
+
     poster_exists = os.path.isfile(img_path)
     if not poster_exists and obj.url_poster:
         try:
@@ -131,22 +128,23 @@ def get_and_assign_poster(obj):
             print(e, type(e))
             return
 
-    poster_exists = os.path.isfile(img_path)
-    if not obj.img and poster_exists:
+    # here poster must exist because it already existed or was just downloaded
+    if not obj.img:
         print('assigned poster', title)
         obj.img = os.path.join('poster', title)
         obj.save(update_fields=['img'])
 
-    if poster_exists:
-        width = 120
-        dest_dir = os.path.join(posters_folder, str(width))
-        if not os.path.exists(dest_dir):
-            os.mkdir(dest_dir)
-        created = resize_image(width, img_path, dest_dir)
-        if created:
-            # resized img's path is the same as previous but it's in a subfolder
-            obj.img_thumbnail = os.path.join('poster', str(width), title)
-            obj.save(update_fields=['img_thumbnail'])
+    # resized poster
+    width = 120
+    posters_folder_resized = os.path.join(posters_folder, str(width))
+    if not os.path.exists(posters_folder_resized):
+        os.mkdir(posters_folder_resized)
+
+    img_path_resized = os.path.join(posters_folder_resized, title)
+    resize_image(width, img_path, img_path_resized)
+    if not obj.img_thumbnail:
+        obj.img_thumbnail = os.path.join('poster', str(width), title)
+        obj.save(update_fields=['img_thumbnail'])
 
 
 def clear_relationships(title):

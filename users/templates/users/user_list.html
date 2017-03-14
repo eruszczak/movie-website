@@ -8,9 +8,14 @@
         <div class="col-md-8 col-md-offset-2">
             <div class="row">
                 <p class="lead text-center">
-                    Users who saw <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a>
                     {% with searched_title.rate as title_rate %}
-                        ({{ title_rate.avg|floatformat:2 }} by {{ title_rate.count }} user{{ rate.count|pluralize }})
+                        {% if title_rate.count %}
+                            {{ title_rate.count }} user{{ title_rate.count|pluralize }}
+                            who saw <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a> ({{ searched_title.year }})
+                            <br>average rating: {{ title_rate.avg|floatformat:2 }}
+                        {% else %}
+                            No one has rated <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a> yet.
+                        {% endif %}
                     {% endwith %}
                 </p>
                 {% for user in user_list %}
@@ -20,7 +25,7 @@
                             <img id="avatar" class="img-responsive img-thumbnail avatarMin" style="float:left;margin-right: 10px"
                                  src="{% if user.userprofile.picture %}{{ user.userprofile.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}" alt="...">
                         </a>
-                        <p class="lead">{{ user.username }}</p>
+                        <p class="lead"><a href="{{ user.userprofile.get_absolute_url }}">{{ user.username }}</a></p>
                         {% with user.userprofile.avg_of_current_ratings as user_current_ratings %}
                         {% if user_current_ratings.count %}
                             See all <a href="{{ user.userprofile.ratings_url }}">{{ user_current_ratings.count }} ratings</a> (avg: {{ user_current_ratings.avg|floatformat:2 }})

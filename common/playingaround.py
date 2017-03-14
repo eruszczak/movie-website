@@ -18,24 +18,7 @@ from recommend.models import *
 from django.shortcuts import redirect
 
 user = User.objects.all().first()
-# user.userprofile.last_updated_csv_ratings = timezone.now()
-# user.userprofile.save()
-# print(user.userprofile.can_update_csv_ratings)
-# print(user.userprofile.can_update_rss_ratings)
-# print(user.userprofile.can_update_rss_watchlist)
 
-# def get_omdb(const):
-#     params = {'i': const, 'plot': 'full', 'type': 'true', 'tomatoes': 'true', 'r': 'json'}
-#     r = requests.get('http://www.omdbapi.com/', params=params)
-#
-#     if r.status_code == requests.codes.ok:
-#         data_json = r.json()
-#         if data_json.get('Response') == 'True':
-#             return data_json
-#     return False
-#
-# x = get_omdb('tt5661770')
-# print(x)
 
 from mysite.settings import MEDIA_ROOT
 posters_path = os.path.join(MEDIA_ROOT, 'poster')
@@ -50,12 +33,13 @@ from common.prepareDB_utils import get_and_assign_poster
 
 # t = Title.objects.get(const="tt0114369")
 # print(t.name)
-for t in Title.objects.all():
+for t in Title.objects.filter(const='tt0475784'):
     # if t.const in ('tt0471019', 'tt0296554', 'tt2318453', 'tt5661770'):
     #     t.img = None
     #     t.save()
     #     print(t.img is None)
-    get_and_assign_poster(t)
+    # get_and_assign_poster(t)
+    print()
 
 # import PIL
 # from PIL import Image
