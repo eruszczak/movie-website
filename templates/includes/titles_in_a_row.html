@@ -1,7 +1,7 @@
 {% load staticfiles %}
 <div class="col-xs-3 col-sm-2">
     <a href="{{ title.get_absolute_url }}">
-        <img class="img-rounded posterMin" src="{% if title.img %}{% if title.img.url %}{{ title.img.url }}{% else %}/media/{{ title.img }}{% endif %}
+        <img class="img-rounded posterMin" src="{% if title.img_thumbnail %}{% if title.img_thumbnail.url %}{{ title.img_thumbnail.url }}{% else %}/media/{{ title.img }}{% endif %}
             {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
         <br>{{ title.name|slice:":8" }}
     </a>

@@ -45,35 +45,32 @@ posters_path = os.path.join(MEDIA_ROOT, 'poster')
 # print(poster_exists)
 
 
-def get_and_assign_poster(obj):
-    title = obj.const + '.jpg'
-    posters_folder = os.path.join(MEDIA_ROOT, 'poster')
-    img_path = os.path.join(posters_folder, title)
-    poster_exists = os.path.isfile(img_path)
-    if not poster_exists:
-        try:
-            urllib.request.urlretrieve(obj.url_poster, img_path)
-        except Exception as e:
-            print(e, type(e))
-        else:
-            print(title, 'saving poster')
-            obj.img = os.path.join('poster', title)
-            obj.save()
-            # obj.img.save(title, File(open(img, 'rb')), save=True)
-    else:
-        print('saving')
-        obj.img = os.path.join('poster', title)
-        obj.save()
+from common.prepareDB_utils import get_and_assign_poster
 
 
-t = Title.objects.get(slug="inferno-2016")
-print(t.name)
-get_and_assign_poster(t)
+# t = Title.objects.get(const="tt0114369")
+# print(t.name)
+for t in Title.objects.all():
+    # if t.const in ('tt0471019', 'tt0296554', 'tt2318453', 'tt5661770'):
+    #     t.img = None
+    #     t.save()
+    #     print(t.img is None)
+    get_and_assign_poster(t)
+
+# import PIL
+# from PIL import Image
+#
+# basewidth = 120
+# img = Image.open('tt0114369.jpg')
+# wpercent = basewidth / float(img.size[0])
+# hsize = int((float(img.size[1]) * float(wpercent)))
+# img = img.resize((basewidth, hsize), PIL.Image.ANTIALIAS)
+# img.save('tt0114369-120.jpg')
 
 
 
 
-# titles = Title.objects.extra(select={
+        # titles = Title.objects.extra(select={
 #     'seen_by_user': """SELECT rating.rate FROM movie_rating as rating
 #         WHERE rating.title_id = movie_title.id AND rating.user_id = %s LIMIT 1""",
 #     'has_in_watchlist': """SELECT 1 FROM movie_watchlist as watchlist

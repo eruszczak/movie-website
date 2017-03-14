@@ -36,7 +36,8 @@
                     <td class="col-md-9 paddingleft">
                         {{ forloop.counter0|add:ratings.start_index }}.
                         <img class="img-responsive img-rounded"
-                         src="{% if obj.img %}{%if obj.img.url %}{{ obj.img.url }}{% else %}/media/{{ obj.img }}{% endif %}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
+                         src="{% if obj.img_thumbnail %}{% if obj.img_thumbnail.url %}{{ obj.img_thumbnail.url }}{% else %}/media/{{ obj.img }}{% endif %}
+                            {% else %}{% static 'img/holderbigger.png' %}{% endif %}"
                          style="width: 35px; float: left; margin-right: 10px; " alt="...">
                         <a href="{% url 'title_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a>
                         {% if obj.runtime %}{{ obj.runtime }} min{% endif %}

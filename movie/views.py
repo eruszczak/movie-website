@@ -21,8 +21,8 @@ from common.sql_queries import titles_user_saw_with_current_rating, curr_title_r
 
 def home(request):
     if request.user.is_authenticated():
-        all_movies = Rating.objects.filter(title__type__name='movie').order_by('-rate_date')
-        all_series = Rating.objects.filter(title__type__name='series').order_by('-rate_date')
+        all_movies = Rating.objects.filter(title__type__name='movie')
+        all_series = Rating.objects.filter(title__type__name='series')
         movie_titles = Title.objects.filter(type__name='movie')
         series_titles = Title.objects.filter(type__name='series')
 
@@ -30,11 +30,16 @@ def home(request):
         all_series = all_series.filter(user=request.user)
         context = {
             'ratings': Rating.objects.filter(user=request.user).select_related('title').order_by('-rate_date')[:16],
-            'last_movie': all_movies.first().title if all_movies else None,
-            'last_series': all_series.first().title if all_series else None,
+            # 'last_movie': all_movies.first().title if all_movies else None,  # select_related  .first() and in template
+            # 'last_movie': Rating.objects.filter(title__type__name='movie').select_related('title').first(),  # select_related  .first() and in template
+            'last_movie': Rating.objects.filter(title__type__name='movie', user=request.user).select_related('title').first(),  # select_related  .first() and in template
+            # 'last_series': all_series.first().title if all_series else None,
+            'last_series': Rating.objects.filter(title__type__name='series', user=request.user).select_related('title').first(),
             'last_good_movie': all_movies.filter(rate__gte=9).first().title if all_movies.filter(rate__gte=9) else None,
-            'movie_count': movie_titles.count(),
-            'series_count': series_titles.count(),
+            # 'movie_count': movie_titles.count(),
+            'movie_count': Title.objects.filter(type__name='movie').count(),
+            # 'series_count': series_titles.count(),
+            'series_count': Title.objects.filter(type__name='series').count(),
             'movies_my_count': all_movies.values('title').distinct().count(),
             'series_my_count': all_series.values('title').distinct().count(),
             'total_movies': reverse('explore') + '?t=movie', 'total_series': reverse('explore') + '?t=series',

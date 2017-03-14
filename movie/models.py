@@ -81,6 +81,7 @@ class Title(models.Model):
     plot = models.TextField(blank=True, null=True)
     slug = models.SlugField(unique=True, max_length=255)
     img = models.ImageField(upload_to='poster', null=True, blank=True)
+    img_thumbnail = models.ImageField(null=True, blank=True)
 
     class Meta:
         ordering = ('-inserted_date', )
@@ -112,10 +113,11 @@ class Rating(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     rate = models.IntegerField()
     rate_date = models.DateField()
+    inserted_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
         unique_together = ('user', 'title', 'rate_date')
-        ordering = ('-rate_date', )
+        ordering = ('-rate_date', '-inserted_date')
 
     def __str__(self):
         return '{} {}'.format(self.title.name, self.rate_date)

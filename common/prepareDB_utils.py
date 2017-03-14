@@ -1,4 +1,5 @@
 import os
+import ntpath
 import pytz
 import csv
 import requests
@@ -6,6 +7,9 @@ import urllib.request
 from json import JSONDecodeError
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
+
+import PIL
+from PIL import Image
 
 from movie.models import Type, Genre, Actor, Director, Title
 from mysite.settings import MEDIA_ROOT
@@ -97,20 +101,52 @@ def unpack_from_rss_item(obj, for_watchlist=False):
     return const, validate_rate(rate), date
 
 
+def resize_image(width, img_path, dest_path):
+    file_name = ntpath.basename(img_path)
+    file_path = os.path.join(dest_path, file_name)
+    if os.path.isfile(file_path):
+        print('file exists')
+        return False
+
+    basewidth = width
+    img = Image.open(img_path)
+    width, height = img.size
+    wpercent = basewidth / float(width)
+    hsize = int((float(height) * float(wpercent)))
+    img = img.resize((basewidth, hsize), PIL.Image.ANTIALIAS)
+    img.save(file_path)
+    return True
+
+
 def get_and_assign_poster(obj):
     title = obj.const + '.jpg'
     posters_folder = os.path.join(MEDIA_ROOT, 'poster')
     img_path = os.path.join(posters_folder, title)
     poster_exists = os.path.isfile(img_path)
-    if not poster_exists:
+    if not poster_exists and obj.url_poster:
         try:
+            print('downloading poster', title)
             urllib.request.urlretrieve(obj.url_poster, img_path)
         except Exception as e:
             print(e, type(e))
             return
-    # poster already existed or was just downloaded
-    obj.img = os.path.join('poster', title)
-    obj.save()
+
+    poster_exists = os.path.isfile(img_path)
+    if not obj.img and poster_exists:
+        print('assigned poster', title)
+        obj.img = os.path.join('poster', title)
+        obj.save(update_fields=['img'])
+
+    if poster_exists:
+        width = 120
+        dest_dir = os.path.join(posters_folder, str(width))
+        if not os.path.exists(dest_dir):
+            os.mkdir(dest_dir)
+        created = resize_image(width, img_path, dest_dir)
+        if created:
+            # resized img's path is the same as previous but it's in a subfolder
+            obj.img_thumbnail = os.path.join('poster', str(width), title)
+            obj.save(update_fields=['img_thumbnail'])
 
 
 def clear_relationships(title):
