@@ -263,6 +263,8 @@ def title_details(request, slug):
                     messages.success(request, 'Title updated sucessfully')
                 else:
                     messages.warning(request, 'Error while updating')
+            else:
+                messages.warning(request, 'Too soon!')
 
         selected_users = request.POST.getlist('choose_followed_user')
         if selected_users:

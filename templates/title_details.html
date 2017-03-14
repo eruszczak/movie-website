@@ -39,9 +39,11 @@
 					{% endif %}
 
 					{% with title.rate as data %}
-					<li class="list-group-item">Avg ratings: {{ data.avg|floatformat:2 }}
-						<a href="{% url 'user_list' %}?s={{ title.slug }}">({{ data.count }} user{{ data.count|pluralize }})</a>
-					</li>
+						{% if data.count %}
+							<li class="list-group-item">Avg ratings: {{ data.avg|floatformat:2 }}
+								<a href="{% url 'user_list' %}?s={{ title.slug }}">({{ data.count }} user{{ data.count|pluralize }})</a>
+							</li>
+						{% endif %}
 					{% endwith %}
 				</ul>
 			</div>
@@ -106,6 +108,7 @@
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				<div class="row">
+					{% if request.user.is_authenticated %}
 					<div class="col-md-8">
 						<div class="panel panel-success">
 							<div class="panel-heading">History of ratings</div>
@@ -146,6 +149,7 @@
 							</div>
 						</div>
 					</div>
+					{% endif %}
 					<div class="col-md-4">
 						<div class="panel panel-success">
 							<div class="panel-heading">More</div>
