@@ -129,10 +129,9 @@ def get_and_assign_poster(obj):
             return
 
     # here poster must exist because it already existed or was just downloaded
-    if not obj.img:
-        print('assigned poster', title)
-        obj.img = os.path.join('poster', title)
-        obj.save(update_fields=['img'])
+    print('assigned poster', title)
+    obj.img = os.path.join('poster', title)
+    obj.save(update_fields=['img'])
 
     # resized poster
     width = 120
@@ -142,9 +141,8 @@ def get_and_assign_poster(obj):
 
     img_path_resized = os.path.join(posters_folder_resized, title)
     resize_image(width, img_path, img_path_resized)
-    if not obj.img_thumbnail:
-        obj.img_thumbnail = os.path.join('poster', str(width), title)
-        obj.save(update_fields=['img_thumbnail'])
+    obj.img_thumbnail = os.path.join('poster', str(width), title)
+    obj.save(update_fields=['img_thumbnail'])
 
 
 def clear_relationships(title):
