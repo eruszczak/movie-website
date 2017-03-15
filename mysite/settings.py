@@ -3,6 +3,7 @@ from .settings_secret import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BACKUP_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'backup')
+LOGS_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'logs.txt')
 
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -100,3 +101,24 @@ REST_FRAMEWORK = {
 
 # SESSION_COOKIE_SECURE = True
 LOGIN_URL = 'login'
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOGS_ROOT,
+            # 'maxBytes': 10000
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
