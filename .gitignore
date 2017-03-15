@@ -11,7 +11,7 @@ ratings.csv
 mysite/static/
 mysite/settings/info.py
 /mysite/settings/__init__.py
-common/playingaround.py
+/common/playingaround.py
 
 posters/
 bower_components/

@@ -38,8 +38,8 @@ for t in Title.objects.filter(const='tt0475784'):
     #     t.img = None
     #     t.save()
     #     print(t.img is None)
+    pass
     # get_and_assign_poster(t)
-    print()
 
 # import PIL
 # from PIL import Image

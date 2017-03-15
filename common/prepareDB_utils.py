@@ -1,5 +1,4 @@
 import os
-import ntpath
 import pytz
 import csv
 import requests
@@ -13,6 +12,9 @@ from PIL import Image
 
 from movie.models import Type, Genre, Actor, Director, Title
 from mysite.settings import MEDIA_ROOT
+
+import logging
+logger = logging.getLogger('django')
 
 
 def prepare_json(json):
@@ -81,11 +83,11 @@ def get_omdb(const):
         try:
             data_json = r.json()
         except JSONDecodeError:
-            print('omdb err decode')
+            logger.exception()
             return False
         if data_json.get('Response') == 'True':
             return data_json
-    print('omdb err')
+    logger.error('omdb wrong status code')
     return False
 
 
@@ -97,6 +99,7 @@ def unpack_from_rss_item(obj, for_watchlist=False):
         date = date.replace(tzinfo=pytz.timezone('UTC'))
         name = obj.find('title').text
         return const, name, date
+
     rate = obj.find('description').text.strip()[-3:-1].lstrip()
     return const, validate_rate(rate), date
 
@@ -112,24 +115,27 @@ def resize_image(width, img_to_resize, dest_path):
     hsize = int((float(height) * float(wpercent)))
     img = img.resize((basewidth, hsize), PIL.Image.ANTIALIAS)
     img.save(dest_path)
+    logger.info('created resized poster:' + dest_path)
 
 
 def get_and_assign_poster(obj):
     title = obj.const + '.jpg'
     posters_folder = os.path.join(MEDIA_ROOT, 'poster')
     img_path = os.path.join(posters_folder, title)
+    if not obj.url_poster:
+        logger.info('tried to get poster but no url_poster ' + obj.const)
+        return
 
     poster_exists = os.path.isfile(img_path)
-    if not poster_exists and obj.url_poster:
+    if not poster_exists:
         try:
-            print('downloading poster', title)
             urllib.request.urlretrieve(obj.url_poster, img_path)
-        except Exception as e:
-            print(e, type(e))
+            logger.info('poster downloaded: ' + title)
+        except (PermissionError, TypeError, ValueError) as e:
+            logger.exception(e)
             return
 
     # here poster must exist because it already existed or was just downloaded
-    print('assigned poster', title)
     obj.img = os.path.join('poster', title)
     obj.save(update_fields=['img'])
 
@@ -156,7 +162,6 @@ def add_new_title(const, update=False):
     if json:
         json = prepare_json(json)
         title_type = Type.objects.get_or_create(name=json['Type'].lower())[0]
-        print('adding title:', json['imdbID'])
 
         tomatoes = dict(
             tomato_meter=json['tomatoMeter'], tomato_rating=json['tomatoRating'], tomato_reviews=json['tomatoReviews'],
@@ -173,10 +178,14 @@ def add_new_title(const, update=False):
 
         if not update:
             title = Title.objects.create(const=const, **imdb, **tomatoes)
+            logger.info('added title:', title.const)
+
         else:
             clear_relationships(Title.objects.get(const=const))
             title, created = Title.objects.update_or_create(const=const, defaults=dict(tomatoes, **imdb))
-            print('created must be false', created)
+            logger.info('updated title', title.const)
+            if created:
+                logger.error('this should never happen')
 
         if title.url_poster:
             get_and_assign_poster(title)
@@ -189,5 +198,6 @@ def add_new_title(const, update=False):
         for actor in json['Actors'].split(', '):
             actor, created = Actor.objects.get_or_create(name=actor)
             title.actor.add(actor)
+
         return True
     return False
