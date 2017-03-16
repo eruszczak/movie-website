@@ -1,15 +1,15 @@
 {% load staticfiles %}
-<div class="col-xs-3 col-sm-2">
+<div class="col-xs-4 col-sm-2">
     <a href="{{ title.get_absolute_url }}">
         <img class="img-rounded posterMin" src="{% if title.img_thumbnail %}{% if title.img_thumbnail.url %}{{ title.img_thumbnail.url }}{% else %}/media/{{ title.img }}{% endif %}
             {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
         <br>{{ title.name|slice:":8" }}
     </a>
-        <br>
-        {% if rate %}
-        <span class="glyphicon glyphicon-star {% if not is_owner %}green{% endif %}" aria-hidden="true"></span> {{ rate }}
-        {% endif %}
-        {% if req_user_rate and not owner %}
-        <span class="glyphicon glyphicon-star" aria-hidden="true"></span> {{ req_user_rate }}
-        {% endif %}
+    <br>
+    {% if rate %}
+    <span class="glyphicon glyphicon-star {% if not is_owner %}green{% endif %}" aria-hidden="true"></span> {{ rate }}
+    {% endif %}
+    {% if req_user_rate and not owner %}
+    <span class="glyphicon glyphicon-star" aria-hidden="true"></span> {{ req_user_rate }}
+    {% endif %}
 </div>
