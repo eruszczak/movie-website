@@ -24,7 +24,7 @@
             data-width="auto" data-size="7" data-max-options="1" data-live-search="true">
     {% for followage in followed_users %}
         {% with followage.user_followed as user %}
-        <option value="{{ user.username }}" data-subtext="{{ user.userprofile.count_ratings }} ratings" {% ifequal user.username request.GET.u %}selected{% endifequal %}>
+        <option value="{{ user.username }}" data-subtext="{{ user.userprofile.count_titles }} ratings" {% ifequal user.username request.GET.u %}selected{% endifequal %}>
             {{ user.username }}
         </option>
         {% endwith %}

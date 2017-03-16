@@ -178,12 +178,12 @@ def add_new_title(const, update=False):
 
         if not update:
             title = Title.objects.create(const=const, **imdb, **tomatoes)
-            logger.info('added title:', title.const)
+            logger.info('added title:' + title.const)
 
         else:
             clear_relationships(Title.objects.get(const=const))
             title, created = Title.objects.update_or_create(const=const, defaults=dict(tomatoes, **imdb))
-            logger.info('updated title', title.const)
+            logger.info('updated title ' + title.const)
             if created:
                 logger.error('this should never happen')
 

@@ -76,8 +76,6 @@ def explore(request):
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
         if watch or unwatch:
             alter_title_in_watchlist(request.user, requested_obj, watch, unwatch)
-        # todo
-        #
 
         fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
         if fav or unfav:
@@ -151,6 +149,7 @@ def explore(request):
     excluded_searched_user = False
     user = request.GET.get('u')
     rating = request.GET.get('r')
+    show_all_ratings = request.GET.get('all_ratings')
     req_user_id = request.user.id if request.user.is_authenticated() else 0
     if user:
         searched_user = get_object_or_404(User, username=user)
@@ -185,6 +184,12 @@ def explore(request):
                     ORDER BY rating.rate_date DESC LIMIT 1""",
             }, select_params=[searched_user.id])
             search_result.append('Seen by {}'.format(searched_user.username))
+        elif show_all_ratings:
+            titles = Title.objects.filter(rating__user__username='test')\
+                .order_by('-rating__rate_date', '-rating__inserted_date')
+            query_string += '{}={}&'.format('all_ratings', 'on')
+            search_result.append('Seen by {}'.format(searched_user.username))
+            search_result.append('Showing all ratings (duplicated titles)')
         else:
             titles = titles.filter(rating__user=searched_user).order_by('-rating__rate_date')
             search_result.append('Seen by {}'.format(searched_user.username))
@@ -194,6 +199,8 @@ def explore(request):
         query_string += '{}={}&'.format('r', rating)
         search_result.append('Seen by you')
 
+    # todo? below is the same condition. this must work for only model instances? if so, merge it with below
+    # todo searched_for_user_and_rate rename
     if not searched_for_user_and_rate:
         # only if you specified ?u= or you are logged in
         rate_date_year, rate_date_month = request.GET.get('year'), request.GET.get('month')
@@ -215,7 +222,10 @@ def explore(request):
 
     page = request.GET.get('page')
     if not searched_for_user_and_rate:  # because titles arent model instances if searched_for_user_and_rate
-        titles = titles.prefetch_related('director', 'genre').distinct()
+        print(titles.count())
+        titles = titles.prefetch_related('director', 'genre')
+        # titles = titles.prefetch_related('director', 'genre').distinct()
+        print(titles.count())
         if request.user.is_authenticated() and not excluded_searched_user:
             titles = titles.extra(select={
                 'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
@@ -223,6 +233,7 @@ def explore(request):
                     AND rating.user_id = %s
                     ORDER BY rating.rate_date DESC LIMIT 1""",
             }, select_params=[request.user.id])
+            print(titles.count())
     ratings = paginate(titles, page, 25)
 
     if query_string:

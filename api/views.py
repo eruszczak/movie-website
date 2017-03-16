@@ -57,7 +57,6 @@ class Genres(ListAPIView):
             genre_count = Title.objects.filter(rating__user__username=username).values('genre__name')\
                 .annotate(the_count=Count('pk', distinct=True)).filter(genre__name__isnull=False).order_by('the_count')
             return Response(genre_count)
-        print('global')
         genre_count = Title.objects.all().values('genre__name')\
             .annotate(the_count=Count('pk', distinct=True)).filter(genre__name__isnull=False).order_by('the_count')
         return Response(genre_count)

@@ -91,8 +91,12 @@ class UserProfile(models.Model):
         return str(self.picture).split('/')[-1] if self.picture else ''
 
     @property
-    def count_ratings(self):
+    def count_titles(self):
         return Title.objects.filter(rating__user=self.user).distinct().count()
+
+    @property
+    def count_ratings(self):
+        return Title.objects.filter(rating__user=self.user).count()
 
     @property
     def avg_of_current_ratings(self):

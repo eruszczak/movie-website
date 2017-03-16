@@ -293,7 +293,7 @@ def user_profile(request, username):
                 'count': common_ratings_len,
                 'higher': titles_req_user_rated_higher,
                 'lower': titles_req_user_rated_lower,
-                'percentage': int(common_ratings_len / user.userprofile.count_ratings * 100),
+                'percentage': int(common_ratings_len / user.userprofile.count_titles * 100),
                 'user_rate_avg': common_titles_avgs['avg_user'],
                 'req_user_rate_avg': common_titles_avgs['avg_req_user'],
                 'not_rated_by_req_user': not_rated_by_req_user[:titles_in_a_row],
