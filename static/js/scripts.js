@@ -60,8 +60,11 @@ $(document).ready(function() {
         var path_username = pathArray[pathArray.length - 3];
         if (path_username == request_username) {
             sortable();
+            $('tbody').sortable()
         }
     }
+
+
 
     $('input.filter_results').on('change', function() {
        $('input.filter_results').not(this).prop('checked', false);

@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'allstyles.min.css' %}">
     {% endif %}
+    {% block styles %}{% endblock %}
     <style type="text/css">
         .starRating:not(old){
           display        : inline-block;
@@ -93,7 +94,7 @@
     </scripts>
     <script>
         var request_username = '{{ request.user }}';
+        {% block scripts %}{% endblock %}
     </script>
-    {% block scripts %}{% endblock %}
 </body>
 </html>

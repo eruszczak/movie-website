@@ -9,7 +9,7 @@
       </div>
     </div>
 {% endblock %}
-{% block title %}home{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block content %}
 {% if request.user.is_authenticated %}

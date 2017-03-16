@@ -2,17 +2,46 @@
 {% load crispy_forms_tags %}
 {% block title %}edit {{ entry.name }}{% endblock %}
 {% block content %}
+{% block styles %}
+<style>
+
+</style>
+{% endblock %}
 
 <div class="row lower">
 	<div class="col-md-8 col-md-offset-2">
-		<h1 class="page-header text-center"><a href="{{ entry.get_absolute_url }}">{{ entry.name }}</a></h1>
+		<h1 class="page-header text-center"><a href="{{ entry.title.get_absolute_url }}">{{ entry.title.name }}</a></h1>
 	</div>
-	<div class="col-md-4 col-md-offset-4">
-		<form action="" method="post">
-			{% csrf_token %}
-			{{ form|crispy }}
-			<input type="submit" value="Submit" class="btn btn-info"/>
+	<div class="col-md-4 col-md-offset-4 text-center">
+		<form action="" method="post">{% csrf_token %}
+			<div class="controlgroup">
+				<p>Rate: <select id="car-type" name="rate">
+					{% for i in 'xxxxxxxxxx' %}
+						<option value="{{ forloop.counter }}" {% if entry.rate == forloop.counter %}selected{% endif %}>{{ forloop.counter }}</option>
+					{% endfor %}
+				</select></p>
+			</div>
+			<input name="newDateValue" value="{{ entry.rate_date }}" hidden>
+			<div id="datepicker"></div>
+			<input type="submit" value="Submit" class="btn btn-success" style="margin-top: 20px"/>
 		</form>
 	</div>
 </div>
+<!--|date:"Y-m-d"-->
+{% endblock %}
+{% block scripts %}
+$( function() {
+	$( ".controlgroup" ).controlgroup();
+
+	$( "#datepicker" ).datepicker({
+		changeMonth: true,
+		changeYear: true,
+		maxDate: "+0D",
+		dateFormat: "yy-mm-dd",
+		defaultDate: "{{ entry.rate_date|date:"Y-m-d" }}",
+		onSelect: function(dateText) {
+			$('[name="newDateValue"').val(this.value);
+		}
+	});
+} );
 {% endblock %}

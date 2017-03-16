@@ -15,7 +15,7 @@ from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 from .utils.functions import alter_title_in_watchlist, alter_title_in_favourites
 from common.utils import paginate
 from common.prepareDB import update_title
-from common.prepareDB_utils import validate_rate
+from common.prepareDB_utils import validate_rate, convert_to_datetime
 from common.sql_queries import titles_user_saw_with_current_rating, curr_title_rating_of_followed
 
 
@@ -51,8 +51,9 @@ def home(request):
         context = {
             'ratings': all_movies[:16],
             'total_movies': reverse('explore') + '?t=movie',
-            'total_series': reverse('explore') + '?t=series'
+            'total_series': reverse('explore') + '?t=series',
         }
+    context['title'] = 'home'
     return render(request, 'home.html', context)
 
 
@@ -222,10 +223,8 @@ def explore(request):
 
     page = request.GET.get('page')
     if not searched_for_user_and_rate:  # because titles arent model instances if searched_for_user_and_rate
-        print(titles.count())
         titles = titles.prefetch_related('director', 'genre')
         # titles = titles.prefetch_related('director', 'genre').distinct()
-        print(titles.count())
         if request.user.is_authenticated() and not excluded_searched_user:
             titles = titles.extra(select={
                 'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
@@ -336,29 +335,37 @@ def title_edit(request, slug):
         messages.info(request, 'You can edit titles you have rated, you must be logged in')
         return redirect(title)
 
-    form = EditRating(instance=current_rating)
     if request.method == 'POST':
-        form = EditRating(request.POST)
-        if form.is_valid():
-            new_rate = form.cleaned_data.get('rate')
-            new_date = form.cleaned_data.get('rate_date')
+        new_rate = request.POST.get('rate')
+        new_date = convert_to_datetime(request.POST.get('newDateValue'), 'exported_from_db')
+
+        if validate_rate(new_rate) and new_date:
             message = ''
-            if current_rating.rate != int(new_rate):
-                message += 'rating: {} changed for {}'.format(current_rating.rate, new_rate)
-                current_rating.rate = new_rate
-            if current_rating.rate_date != new_date:
-                message += ', ' if message else ''
-                message += 'date: {} changed for {}'.format(current_rating.rate_date, new_date)
-                current_rating.rate_date = new_date
-            if message:
-                messages.success(request, message)
-                current_rating.save(update_fields=['rate', 'rate_date'])
+            new_date = new_date.date()
+            if new_date <= datetime.today().date() and not Rating.objects.filter(
+                    user=request.user, title=title, rate_date=new_date).exists():
+                if current_rating.rate != int(new_rate):
+                    message += 'rating: {} changed for {}'.format(current_rating.rate, new_rate)
+                    current_rating.rate = new_rate
+                if current_rating.rate_date != new_date:
+                    message += ', ' if message else ''
+                    message += 'date: {} changed for {}'.format(current_rating.rate_date, new_date)
+                    current_rating.rate_date = new_date
+
+                if message:
+                    messages.success(request, message)
+                    current_rating.save(update_fields=['rate', 'rate_date'])
+                else:
+                    messages.info(request, 'Nothing changed')
             else:
-                messages.info(request, 'Nothing changed')
-            return redirect(title)
+                messages.warning(request, 'Future date or you already have a rating for this title with this date')
+        else:
+            messages.warning(request, 'Invalid values')
+
+        return redirect(title)
+
     context = {
-        'form': form,
-        'entry': title,
+        'entry': current_rating,
     }
     return render(request, 'title_edit.html', context)
 
@@ -393,6 +400,7 @@ def watchlist(request, username):
         if not request.user == user:
             messages.info(request, 'You can change only your list')
             return redirect(user.userprofile.watchlist_url())
+
         if request.POST.get('watchlist_imdb_delete'):
             user_watchlist.filter(title__const=request.POST.get('const'), imdb=True, deleted=False).update(deleted=True)
         elif request.POST.get('watchlist_delete'):
@@ -406,7 +414,7 @@ def watchlist(request, username):
         # 'ratings': Title.objects.filter(watchlist__user=user, watchlist__deleted=False),
         # 'ratings': [],
         'title': 'See again',
-        # 'archive': [e for e in user_watchlist if e.rated_after_days_diff],
+        'archive': [e for e in user_watchlist if e.rated_after_days_diff],
         # 'archive': Watchlist.objects.filter(user=user, rating__rate_date__),
         'is_owner': request.user == user,
         'deleted': user_watchlist.filter(imdb=True, deleted=True).select_related('title').all(),
@@ -434,6 +442,7 @@ def favourite(request, username):
             const = request.POST.get('const')
             user_favourites.filter(title__const=const).delete()
             return redirect(user.userprofile.favourite_url())
+
     context = {
         'ratings': user_favourites,
         'is_owner': request.user.username == username
