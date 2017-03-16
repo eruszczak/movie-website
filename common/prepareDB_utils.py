@@ -47,7 +47,7 @@ def validate_rate(rate):
         rate = int(rate)
     except ValueError:
         return False
-    return rate if 0 < rate < 11 else False
+    return 0 < rate < 11
 
 
 def get_csv_headers(file_or_iostring):

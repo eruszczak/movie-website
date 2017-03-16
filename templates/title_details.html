@@ -52,7 +52,7 @@
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				<hr>
-				<div class="row">
+				<div class="row text-center">
 					<div class="col-md-6">
 						<form id="star_rating_form" action="" method="post">{% csrf_token %}
 							<span class="starRating">
@@ -66,27 +66,28 @@
 								<label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>
 							</span>
 							<a href="{% url 'title_edit' slug=title.slug %}" class="label label-default">
-								<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> change date of current rating
+								<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> modify current rating
 							</a>
 							{% endif %}
 						</form>
 					</div>
+					<hr class="visible-sm visible-xs">
 					<div class="col-md-6">
-					{% include 'includes/favourites.html' with condition=data.is_favourite_for_user const=obj.const %}
-					{% include 'includes/watchlist.html' with condition=data.is_in_user_watchlist const=obj.const %}
-
-					{% if data.followed_title_not_recommended %}
-						<form action="" method="post">{% csrf_token %}
-							<select class="selectpicker show-tick" name="choose_followed_user"
-									multiple title="Recommend to" data-width="auto" data-size="5"
-									data-actions-box="true" data-live-search="true">
-							{% for user in data.followed_title_not_recommended %}
-								<option value="{{ user.user_followed.username }}" data-subtext="{{ user.user_followed.userprofile.count_titles }} ratings">{{ user.user_followed.username }}</option>
-							{% endfor %}
-							</select>
-							<button class="btn btn-sm btn-default" type="submit" name="select_followed_users" value="select">Recommend</button>
-						</form>
-					{% endif %}
+						{% include 'includes/favourites.html' with condition=data.is_favourite_for_user const=obj.const %}
+						{% include 'includes/watchlist.html' with condition=data.is_in_user_watchlist const=obj.const %}
+						<hr class="visible-sm visible-xs">
+						{% if data.followed_title_not_recommended %}
+							<form action="" method="post">{% csrf_token %}
+								<select class="selectpicker show-tick" name="choose_followed_user"
+										multiple title="Recommend to" data-width="auto" data-size="5"
+										data-actions-box="true" data-live-search="true">
+								{% for user in data.followed_title_not_recommended %}
+									<option value="{{ user.user_followed.username }}" data-subtext="{{ user.user_followed.userprofile.count_titles }} ratings">{{ user.user_followed.username }}</option>
+								{% endfor %}
+								</select>
+								<button class="btn btn-xs btn-default" type="submit" name="select_followed_users" value="select">Recommend</button>
+							</form>
+						{% endif %}
 					</div>
 				</div>
 			</div>
