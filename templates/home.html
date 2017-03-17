@@ -12,12 +12,13 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+
 {% if request.user.is_authenticated %}
 <div class="row">
-    {% if last_movie or last_series or last_good_movie %}
     <div class="col-md-8 col-md-offset-2">
         <div id="home_summary" class="">
             <div class="row alert alert-success" role="alert">
+                {% if ratings %}
                 <div class="col-sm-6">
                     <ul>
                     {% if last_movie %}
@@ -27,94 +28,114 @@
                         <li>Last tv-show: <a href="{{ last_series.title.get_absolute_url }}">{{ last_series.title.name }}</a></li>
                     {% endif %}
                     {% if last_good_movie %}
-                        <li>Last movie rated 9-10: <a href="{{ last_good_movie.get_absolute_url }}">{{ last_good_movie.name|truncatechars:20 }}</a></li>
+                        <li>Last movie rated 9-10: <a href="{{ last_good_movie.title.get_absolute_url }}">{{ last_good_movie.title.name|truncatechars:20 }}</a></li>
                     {% endif %}
                     </ul>
                 </div>
                 <div class="col-sm-6">
                     <ul>
-                        <li>Total series: <a href="{{ total_series }}">{{ series_count }}</a> (<a href="{{ search_series }}">{{ series_my_count }}</a> watched)</li>
-                        <li>Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a> (<a href="{{ search_movies }}">{{ movies_my_count }}</a> watched)</li>
+                        <li>Total series: <a href="{{ total_series }}">{{ series_count }}</a>
+                            (<a href="{{ search_series }}">{{ series_my_count }}</a> watched)
+                        </li>
+                        <li>Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a>
+                            (<a href="{{ search_movies }}">{{ movies_my_count }}</a> watched)
+                        </li>
+                        <li>Watched titles: <a href="{{ request.user.userprofile.ratings_url }}">{{ rated_titles }}</a>
+                            (<a href="{{ request.user.userprofile.ratings_url }}&all_ratings=on">{{ total_ratings }}</a> total ratings)
+                        </li>
                     </ul>
                 </div>
+                {% else %}
+                <div class="col-sm-12 text-center">
+                    <ul>
+                        <li>Total series: <a href="{{ total_series }}">{{ series_count }}</a>
+                            (<a href="{{ search_series }}">{{ series_my_count }}</a> watched)
+                        </li>
+                        <li>Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a>
+                            (<a href="{{ search_movies }}">{{ movies_my_count }}</a> watched)
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
-    {% endif %}
 </div>
+
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
     <h3 class="page-header text-center">recently seen <small>(<a href="{% url 'explore' %}{% if request.user.is_authenticated %}?u={{ request.user.username }}&all_ratings=on{% endif %}">see more</a>)</small></h3>
     </div>
 </div>
+
 {% if ratings %}
 <div class="row">
-{% for entry in ratings %}
-    <div class="col-sm-6">
-        <div class="last10 well well-sm {% cycle 'odd' 'even' %}">
-            <a href="{{ entry.title.get_absolute_url }}">
-                <img class="img-rounded pull-left" src="{% if entry.title.img_thumbnail %}{{ entry.title.img_thumbnail.url }}
-                    {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="">
-            </a>
-            <div class="content">
-                <h5>{{ forloop.counter }}. <a href="{{ entry.title.get_absolute_url }}">{{ entry.title.name }} ({{ entry.title.year }})</a></h5>
-                {% for i in 'xxxxxxxxxx' %}
-                    <span class="glyphicon glyphicon-star{% if forloop.counter > entry.rate %}-empty{% endif %}" aria-hidden="true"></span>
-                {% endfor %}
-                <h5>{{ entry.rate_date|date:"F d" }}</h5>
+    {% for entry in ratings %}
+        <div class="col-sm-6">
+            <div class="last10 well well-sm {% cycle 'odd' 'even' %}">
+                <a href="{{ entry.title.get_absolute_url }}">
+                    <img class="img-rounded pull-left" src="{% if entry.title.img_thumbnail %}{{ entry.title.img_thumbnail.url }}
+                        {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="">
+                </a>
+                <div class="content">
+                    <h5>{{ forloop.counter }}. <a href="{{ entry.title.get_absolute_url }}">{{ entry.title.name }} ({{ entry.title.year }})</a></h5>
+                    {% for i in 'xxxxxxxxxx' %}
+                        <span class="glyphicon glyphicon-star{% if forloop.counter > entry.rate %}-empty{% endif %}" aria-hidden="true"></span>
+                    {% endfor %}
+                    <h5>{{ entry.rate_date|date:"F d" }}</h5>
 
-                {% with entry.title.rate as data %}
-                {% if data.count and data.avg %}
-                <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user_list' %}?s={{ entry.title.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>
-                {% endif %}
-                {% endwith %}
+                    {% with entry.title.rate as data %}
+                    {% if data.count and data.avg %}
+                    <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user_list' %}?s={{ entry.title.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>
+                    {% endif %}
+                    {% endwith %}
 
-                {% if entry.title.rate_imdb %}
-                <br>Avg IMDb rating: {{ entry.title.rate_imdb }} ({{ entry.title.votes|intcomma }} votes)
-                {% endif %}
+                    {% if entry.title.rate_imdb %}
+                    <br>Avg IMDb rating: {{ entry.title.rate_imdb }} ({{ entry.title.votes|intcomma }} votes)
+                    {% endif %}
+                </div>
             </div>
         </div>
-    </div>
-{% endfor %}
+    {% endfor %}
 </div>
 {% else %}
 <p class="text-center">You have no ratings yet. <a href="{% url 'explore' %}">Explore</a> titles.</p>
 {% endif %}
 {% else %}
+<!--not authenticated-->
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
     <h3 class="page-header text-center">Popular titles <small>(<a href="{% url 'explore' %}">see more</a>)</small></h3>
     </div>
 </div>
 <div class="row">
-{% for entry in ratings %}
-    <div class="col-sm-6">
-        <div class="last10 well well-sm {% cycle 'odd' 'even' %}">
-            <a href="{{ entry.get_absolute_url }}">
-                <img class="img-rounded pull-left" src="{% if entry.img %}{{ entry.img.url }}
-                    {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="">
-            </a>
-            <div class="content">
-                <h5>{{ forloop.counter }}. <a href="{{ entry.get_absolute_url }}">{{ entry.name }} ({{ entry.year }})</a></h5>
-                {% for genre in entry.genre.all %}
-                    <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
-                {% endfor %}
-                <br>
-                {% with entry.rate as data %}
-                {% if data.count and data.avg %}
-                <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user_list' %}?s={{ entry.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>
-                {% endif %}
-                {% endwith %}
+    {% for entry in ratings %}
+        <div class="col-sm-6">
+            <div class="last10 well well-sm {% cycle 'odd' 'even' %}">
+                <a href="{{ entry.get_absolute_url }}">
+                    <img class="img-rounded pull-left" src="{% if entry.img %}{{ entry.img.url }}
+                        {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="">
+                </a>
+                <div class="content">
+                    <h5>{{ forloop.counter }}. <a href="{{ entry.get_absolute_url }}">{{ entry.name }} ({{ entry.year }})</a></h5>
+                    {% for genre in entry.genre.all %}
+                        <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
+                    {% endfor %}
+                    <br>
+                    {% with entry.rate as data %}
+                    {% if data.count and data.avg %}
+                    <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user_list' %}?s={{ entry.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>
+                    {% endif %}
+                    {% endwith %}
 
-                {% if entry.rate_imdb %}
-                <br>Avg IMDb rating: {{ entry.rate_imdb }} ({{ entry.votes|intcomma }} votes)
-                {% endif %}
+                    {% if entry.rate_imdb %}
+                    <br>Avg IMDb rating: {{ entry.rate_imdb }} ({{ entry.votes|intcomma }} votes)
+                    {% endif %}
+                </div>
             </div>
         </div>
-    </div>
-{% endfor %}
+    {% endfor %}
 </div>
 {% endif %}
-
 
 {% endblock %}

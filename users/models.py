@@ -99,6 +99,14 @@ class UserProfile(models.Model):
         return Title.objects.filter(rating__user=self.user).count()
 
     @property
+    def count_movies(self):
+        return Title.objects.filter(rating__user=self.user, type__name='movie').distinct().count()
+
+    @property
+    def count_series(self):
+        return Title.objects.filter(rating__user=self.user, type__name='series').distinct().count()
+
+    @property
     def avg_of_current_ratings(self):
         return avg_of_user_current_ratings(self.id)
 
