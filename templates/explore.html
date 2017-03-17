@@ -72,12 +72,13 @@
                         {% if request.user.is_authenticated %}
 						<form class="star_rating_form_many" action="" method="post" const="{{ obj.const }}">{% csrf_token %}
                             <input name="const" value="{{ obj.const }}" hidden>
-							<span class="starRating">
-							{% for i in loop %}
-								<input id="rating{{ i }}{{ obj.const }}" type="radio" name="rating" value="{{ i }}" {% if obj.req_user_curr_rating == i %}checked{% endif %}>
-								<label for="rating{{ i }}{{ obj.const }}">{{ i }}</label>
-							{% endfor %}
-							</span>
+                            {% include 'includes/stars.html' with const=obj.const rate=obj.req_user_curr_rating %}
+							<!--<span class="starRating">-->
+							<!--{% for i in loop %}-->
+								<!--<input id="rating{{ i }}{{ obj.const }}" type="radio" name="rating" value="{{ i }}" {% if obj.req_user_curr_rating == i %}checked{% endif %}>-->
+								<!--<label for="rating{{ i }}{{ obj.const }}">{{ i }}</label>-->
+							<!--{% endfor %}-->
+							<!--</span>-->
 						</form>
                         {% endif %}
 
