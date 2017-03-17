@@ -60,7 +60,7 @@ $(document).ready(function() {
         var path_username = pathArray[pathArray.length - 3];
         if (path_username == request_username) {
             sortable();
-            $('tbody').sortable()
+//            $('tbody').sortable()
         }
     }
 
@@ -83,7 +83,7 @@ $(document).ready(function() {
             var titleConst = $(this).parent().prev().val();
             var rating = $(this).val();
             var data = {'const': titleConst, 'rating': rating};
-            ajax_request(data);
+            ajax_request(data, {url: '/post_rate_title'});
         });
     }
 
@@ -105,7 +105,6 @@ $(document).ready(function() {
     var previousRatings = '';
 
     $('#csv_ratings-clear_id').change(function() {
-//    $(document).on('change', '#csv_ratings-clear_id', function() {
         if (this.checked) {
             previousRatings = $('#previewRatings').val();
             $('#previewRatings').val('');
@@ -114,7 +113,6 @@ $(document).ready(function() {
         }
     });
     $('#picture-clear_id').change(function() {
-//    $(document).on('change', '#picture-clear_id', function() {
         if (this.checked) {
             previousAvatar = $('#previewAvatar').val();
             $('#previewAvatar').val('');
@@ -140,7 +138,7 @@ $(document).ready(function() {
 });
 
 function sortable() {
-    $('#sortable').sortable({
+    $('tbody').sortable({
         placeholder: 'sort-placeholder',
         axis: 'y',
         update: function (event, ui) {
@@ -154,13 +152,14 @@ function sortable() {
     $("#sortable").disableSelection();
 }
 
-//function ajax_request(data, refresh=false) {
-function ajax_request(data, refresh) {
-    if(!refresh) {
-        refresh = false;
-    }
-    data['csrfmiddlewaretoken'] = csrftoken; // attach csrf token
-    var url = [location.protocol, '//', location.host, location.pathname].join('');
+function ajax_request(data, options) {
+    data.csrfmiddlewaretoken = csrftoken;
+    var sourceUrl = [location.protocol, '//', location.host, location.pathname].join('');
+
+    options = options || {};
+    var refresh = options.refresh || false;
+    var url = options.url || sourceUrl;
+
     $.ajax({
         data: data,
         type: 'POST',
@@ -220,8 +219,7 @@ var buttons = {
 }
 
 // to prevent search form flickering on page load
-$('.selectpicker').selectpicker({
-});
+$('.selectpicker').selectpicker({});
 
 function showWaitingDialog(secs) {
     waitingDialog.show();

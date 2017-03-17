@@ -38,7 +38,7 @@ def convert_to_datetime(date_string, source):
         try:
             return datetime.strptime(date_string, date_formats[source])
         except ValueError:
-            return None
+            pass
     return None
 
 
@@ -85,8 +85,10 @@ def get_omdb(const):
         except JSONDecodeError:
             logger.exception()
             return False
+
         if data_json.get('Response') == 'True':
             return data_json
+
     logger.error('omdb wrong status code')
     return False
 
@@ -101,7 +103,7 @@ def unpack_from_rss_item(obj, for_watchlist=False):
         return const, name, date
 
     rate = obj.find('description').text.strip()[-3:-1].lstrip()
-    return const, validate_rate(rate), date
+    return const, rate, date
 
 
 def resize_image(width, img_to_resize, dest_path):
@@ -189,6 +191,7 @@ def add_new_title(const, update=False):
 
         if title.url_poster:
             get_and_assign_poster(title)
+
         for genre in json['Genre'].split(', '):
             genre, created = Genre.objects.get_or_create(name=genre.lower())
             title.genre.add(genre)

@@ -17,8 +17,16 @@ def get_title_or_create(const):
     return Title.objects.get(const=const)
 
 
-def update_title(const):
-    return add_new_title(const, update=True)
+def update_title(title):
+    if title.can_be_updated:
+        if add_new_title(title.const, update=True):
+            message = 'Title updated sucessfully'
+            return True, message
+        else:
+            message = 'Title wasn\'t updated'
+    else:
+        message = 'Too soon!'
+    return False, message
 
 
 def get_watchlist(user):

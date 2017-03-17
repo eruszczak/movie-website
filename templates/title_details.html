@@ -55,6 +55,7 @@
 				<div class="row text-center">
 					<div class="col-md-6">
 						<form id="star_rating_form" action="" method="post">{% csrf_token %}
+                            <!--{% include 'includes/stars.html' with const='' rate=data.user_ratings_of_title.0.rate %}-->
 							<span class="starRating">
 							{% for i in loop %}
 								<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if data.user_ratings_of_title.0.rate == i %}checked{% endif %}>
