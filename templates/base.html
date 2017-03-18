@@ -11,57 +11,17 @@
     <link rel="stylesheet" href="{% static 'bower_components/jquery-ui/themes/base/jquery-ui.min.css' %}">
     <link rel="stylesheet" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'bower_components/bootstrap-select/dist/css/bootstrap-select.min.css' %}">
-	<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'bower_components/bootstrap-star-rating/css/star-rating.css' %}" media="all">
     {% else %}
     <link rel="stylesheet" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bower_components/bootstrap-star-rating/css/star-rating.css' %}" media="all">
     <link rel="stylesheet" href="{% static 'allstyles.min.css' %}">
     {% endif %}
     {% block styles %}{% endblock %}
     <style type="text/css">
-        .starRating:not(old){
-          display        : inline-block;
-          width          : 15em;
-          height         : 1.5em;
-          overflow       : hidden;
-          vertical-align : bottom;
-        }
-
-        .starRating:not(old) > input{
-          margin-right : -100%;
-          opacity      : 0;
-        }
-
-        .starRating:not(old) > label{
-          display         : block;
-          float           : right;
-          position        : relative;
-          background      : url('{% static "img/star-off.svg" %}');
-          background-size : contain;
-        }
-
-        .starRating:not(old) > label:before{
-          content         : '';
-          display         : block;
-          width           : 1.5em;
-          height          : 1.5em;
-          background      : url('{% static "img/star-on.svg" %}');
-          background-size : contain;
-          opacity         : 0;
-          transition      : opacity 0.2s linear;
-        }
-
-        .starRating:not(old) > label:hover:before,
-        .starRating:not(old) > label:hover ~ label:before,
-        .starRating:not(:hover) > :checked ~ label:before{
-          opacity : 1;
-        }
-
         #sortable {
             width: 100%;
-        }
-
-        .ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited, a.ui-button, a:link.ui-button, a:visited.ui-button, .ui-button {
-            color: #337ab7;
         }
     </style>
 </head>
@@ -96,6 +56,7 @@
         <script src="{% static 'js/scripts.js' %}"></script>
         <script src="{% static 'js/graphs.js' %}"></script>
         <script src="{% static 'js/modaldialog.js' %}"></script>
+        <script src="{% static 'js/jquery.raty.js' %}"></script>
         {% else %}
         <script src="{% static 'allscripts.min.js' %}"></script>
         {% endif %}

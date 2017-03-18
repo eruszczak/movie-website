@@ -1,5 +1,7 @@
-from django.template.defaultfilters import slugify
+from datetime import datetime
+
 from django.db.models import F
+from django.template.defaultfilters import slugify
 # models are imported within functions to prevent circular dependencies
 
 
@@ -49,8 +51,6 @@ def create_slug(title, new_slug=None):
     return slug
 
 
-# todo check circual depend
-# this can be used in recommend form?
 def recommend_title(title, sender, usernames):
     from django.contrib.auth.models import User
     from movie.models import Rating
@@ -74,7 +74,6 @@ def recommend_title(title, sender, usernames):
 
 def create_or_update_rating(title, user, rate, insert_as_new=False):
     from movie.models import Rating
-    from datetime import datetime
     from common.prepareDB_utils import validate_rate
 
     today = datetime.now().date()
@@ -88,3 +87,6 @@ def create_or_update_rating(title, user, rate, insert_as_new=False):
             todays_rating.update(rate=rate)
         else:
             Rating.objects.create(user=user, title=title, rate=rate, rate_date=today)
+    elif rate == '0' and title and current_rating:
+        # this is for 'cancel' button in Raty. It deletes current rating
+        current_rating.delete()

@@ -24,6 +24,7 @@
         </div>
         {% endif %}
         <p class="lead text-center search_summary">{{ ratings.paginator.count }} result{{ ratings.paginator.count|pluralize }}</p>
+
         {% if ratings.paginator.num_pages > 1 %}
             {% include 'includes/paginator.html' %}
         {% endif %}
@@ -32,61 +33,7 @@
         <table class="table table-hover table-bordered table-condensed">
             <tbody>
                 {% for obj in ratings %}
-                <tr class="result result-{% cycle 'odd' 'even' %}">
-                    <td class="col-md-9 paddingleft">
-                        {{ forloop.counter0|add:ratings.start_index }}.
-                        <img class="img-responsive img-rounded"
-                         src="{% if obj.img_thumbnail %}{% if obj.img_thumbnail.url %}{{ obj.img_thumbnail.url }}{% else %}/media/{{ obj.img }}{% endif %}
-                            {% else %}{% static 'img/holderbigger.png' %}{% endif %}"
-                         style="width: 35px; float: left; margin-right: 10px; " alt="...">
-                        <a href="{% url 'title_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a>
-                        {% if obj.runtime %}{{ obj.runtime }} min{% endif %}
-                        <span style="float: right;">
-                            {% if obj.user_curr_rating %}
-                                {{ obj.user_curr_rating }}
-                                <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
-                            {% endif %}
-
-                            {% if obj.req_user_curr_rating %}
-                                {{ obj.req_user_curr_rating }}
-                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                            {% endif %}
-                            {% if request.user.is_authenticated %}
-                                {% include 'includes/favourites.html' with condition=obj.has_in_favourites const=obj.const %}
-                                {% include 'includes/watchlist.html' with condition=obj.has_in_watchlist const=obj.const %}
-                            {% endif %}
-                        </span>
-                        <p style="font-style:italic; font-size:12px">
-                            {% for genre in obj.genre.all %}
-                                <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
-                                {% include 'includes/comma.html' %}
-                            {% endfor %}
-                            dir:
-                            {% for director in obj.director.all %}
-                                <a href="{{ director.get_absolute_url }}">
-                                    {% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}
-                                </a>
-                                {% include 'includes/comma.html' %}
-                            {% endfor %}
-                        </p>
-                        {% if request.user.is_authenticated %}
-						<form class="star_rating_form_many" action="" method="post" const="{{ obj.const }}">{% csrf_token %}
-                            <input name="const" value="{{ obj.const }}" hidden>
-                            {% include 'includes/stars.html' with const=obj.const rate=obj.req_user_curr_rating %}
-							<!--<span class="starRating">-->
-							<!--{% for i in loop %}-->
-								<!--<input id="rating{{ i }}{{ obj.const }}" type="radio" name="rating" value="{{ i }}" {% if obj.req_user_curr_rating == i %}checked{% endif %}>-->
-								<!--<label for="rating{{ i }}{{ obj.const }}">{{ i }}</label>-->
-							<!--{% endfor %}-->
-							<!--</span>-->
-						</form>
-                        {% endif %}
-
-                        {% if obj.plot %}
-                        <p style="padding-left: 10px">{{ obj.plot|truncatechars:250 }}</p>
-                        {% endif %}
-                    </td>
-                </tr>
+                    {% include 'includes/title.html' with index=ratings.start_index obj=obj curr_rating=obj.req_user_curr_rating %}
                 {% endfor %}
             </tbody>
         </table>

@@ -10,15 +10,16 @@ from .backup_titles import tables
 def clear_titles():
     confirm = input('Do you want to clear the tables? User data will be lost\n')
     if confirm in ('yes', 'y'):
-        Watchlist.objects.all().delete()
-        Favourite.objects.all().delete()
-        Recommendation.objects.all().delete()
+        if input('sure???') in ('yes', 'y'):
+            Watchlist.objects.all().delete()
+            Favourite.objects.all().delete()
+            Recommendation.objects.all().delete()
 
-        Title.objects.all().delete()
-        Type.objects.all().delete()
-        Director.objects.all().delete()
-        Genre.objects.all().delete()
-        Actor.objects.all().delete()
+            Title.objects.all().delete()
+            Type.objects.all().delete()
+            Director.objects.all().delete()
+            Genre.objects.all().delete()
+            Actor.objects.all().delete()
 
 
 class Command(BaseCommand):

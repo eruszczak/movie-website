@@ -1,96 +1,34 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block content %}
     {% if ratings %}
-    <div id="favouritePage">
-        <div class="container">
-            <div class="col-md-10 col-md-offset-1">
-                <p class="lead text-center">Your favourite titles.</p>
-                <p class="text-center">You can reorder the list by dragging a title while holding LMB.</p>
-                <!--<ul id="sortable">-->
-                <!--{% for entry in ratings %}-->
-                    <!--<li id="item-{{ entry.title.const }}" class="ui-state-default">-->
-                        <!--&lt;!&ndash;<p class="glyphicon glyphicon-move" aria-hidden="true" style="float: left; line-height: 50px;"></p>&ndash;&gt;-->
-                        <!--<p id="item-order" class="" style="float: left; line-height: 50px; margin-right: 10px;">{{ entry.order }}</p>-->
-                        <!--<img class="img-responsive img-rounded"-->
-                             <!--src="{% if entry.title.img_thumbnail %}{{ entry.title.img_thumbnail.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"-->
-                             <!--style="width: 35px; float: left; margin-right: 10px; " alt="...">-->
-                        <!--<a href="{{ entry.title.get_absolute_url }}" style="line-height: 50px;">{{ entry.title.name }}</a>-->
-                        <!--{% if is_owner %}-->
-                        <!--<form method="post" style="float: right;">{% csrf_token %}-->
-                            <!--<a href="#" data-toggle="tooltip" title="Delete from favourites!">-->
-                                <!--<button class="btn-danger glyphicon glyphicon-heart-empty" type="submit" name="unfav" value="{{ entry.title.const }}"></button>-->
-                            <!--</a>-->
-                            <!--<input name="const" value="{{ entry.title.const }}" hidden>-->
-                        <!--</form>-->
-                        <!--{% endif %}-->
-                    <!--</li>-->
-                <!--{% endfor %}-->
-                <!--</ul>-->
+        <div id="favouritePage">
+            <div class="container">
+                <div class="col-md-10 col-md-offset-1">
+                    <p class="lead text-center">Your favourite titles.</p>
+                    <p class="text-center">You can reorder the list by dragging a title while holding LMB.</p>
 
-                <table id="sortable" class="table table-hover table-bordered table-condensed">
-                    <tbody>
-                        {% for title in faved_titles %}
-                        <tr id="item-{{ title.const }}" class="ui-state-default result result-{% cycle 'odd' 'even' %}">
-                            <td class="col-md-9 paddingleft">
-                                <img class="img-responsive img-rounded"
-                                 src="{% if title.img_thumbnail %}{{ title.img_thumbnail.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
-                                 style="width: 35px; float: left; margin-right: 10px; " alt="...">
-                                <a href="{% url 'title_details' slug=title.slug %}">{{ title.name }} ({{ title.year }})</a>
-                                {% if title.runtime %}{{ title.runtime }} min{% endif %}
-                                <span style="float: right;">
-                                    <!--{% if user_curr_rating %}-->
-                                        <!--{{ user_curr_rating }}-->
-                                        <!--<span class="glyphicon glyphicon-star green" aria-hidden="true"></span>-->
-                                    <!--{% endif %}-->
-
-                                    {% if title.req_user_curr_rating %}
-                                        {{ title.req_user_curr_rating }}
-                                        <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                                    {% endif %}
-                                    {% if request.user.is_authenticated %}
-                                        {% include 'includes/favourites.html' with condition=title.has_in_favourites const=title.const %}
-                                        {% include 'includes/watchlist.html' with condition=title.has_in_watchlist const=title.const %}
-                                    {% endif %}
-                                </span>
-                                <p style="font-style:italic; font-size:12px">
-                                    {% for genre in title.genre.all %}
-                                        <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
-                                        {% include 'includes/comma.html' %}
-                                    {% endfor %}
-                                    dir:
-                                    {% for director in title.director.all %}
-                                        <a href="{{ director.get_absolute_url }}">
-                                            {% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}
-                                        </a>
-                                        {% include 'includes/comma.html' %}
-                                    {% endfor %}
-                                </p>
-                                {% if request.user.is_authenticated %}
-                                <form class="star_rating_form_many" action="" method="post" const="{{ title.const }}">{% csrf_token %}
-                                    <input name="const" value="{{ title.const }}" hidden>
-                                    <span class="starRating">
-                                    {% for i in 'xxxxxxxxxx' %}
-                                        <input id="rating{{ forloop.counter }}{{ title.const }}" type="radio" name="rating" value="{{ forloop.counter }}" {% if title.req_user_curr_rating == forloop.counter %}checked{% endif %}>
-                                        <label for="rating{{ forloop.counter }}{{ title.const }}">{{ forloop.counter }}</label>
-                                    {% endfor %}
-                                    </span>
-                                </form>
-                                {% endif %}
-
-                                {% if title.plot %}
-                                <p style="padding-left: 10px">{{ title.plot|truncatechars:250 }}</p>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                    {% if ratings.paginator.num_pages > 1 %}
+                        {% include 'includes/paginator.html' %}
+                    {% endif %}
+                    <table id="sortable" class="table table-hover table-bordered table-condensed">
+                        <tbody>
+                            {% for obj in ratings %}
+                            {% with 'item-'|add:obj.const as row_id %}
+                                {% include 'includes/title.html' with index=ratings.start_index row_id=row_id obj=obj curr_rating=obj.req_user_curr_rating %}
+                            {% endwith %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if ratings.paginator.num_pages > 1 %}
+                        {% include 'includes/paginator.html' %}
+                    {% endif %}
+                </div>
             </div>
         </div>
-    </div>
     {% else %}
-    <p class="text-center">You have no favourite titles!</p>
+        <p class="text-center">You have no favourite titles!</p>
     {% endif %}
 {% endblock %}
