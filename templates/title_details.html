@@ -55,13 +55,11 @@
 				<div class="row text-center">
 					<div class="col-md-6">
 						<form id="star_rating_form" action="" method="post">{% csrf_token %}
-                            <!--{% include 'includes/stars.html' with const='' rate=data.user_ratings_of_title.0.rate %}-->
-							<span class="starRating">
-							{% for i in loop %}
-								<input id="rating{{ i }}" type="radio" name="rating" value="{{ i }}" {% if data.user_ratings_of_title.0.rate == i %}checked{% endif %}>
-								<label for="rating{{ i }}">{{ i }}</label>
-							{% endfor %}
-							</span>
+							<div id="{{ title.const }}" style="display: inline-block" class="raty-stars"
+								 data-score="{{ data.user_ratings_of_title.0.rate }}" data-path="{% static 'img' %}" data-source="details_page">
+							</div>
+							<span id="descr-{{ title.const }}" style="display: inline-block"></span>
+							<input name="rating" value="{{ data.user_ratings_of_title.0.rate }}" hidden>
 							{% if data.user_ratings_of_title %}
 							<span class="checkbox">
 								<label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>

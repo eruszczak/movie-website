@@ -22,7 +22,7 @@ $(document).ready(function() {
         showWaitingDialog(60);
     });
 
-    $("#import_ratings").on('click', function(e){
+    $("#import_ratings").on('click', function(e) {
         e.preventDefault();
         $("#import").trigger('click');
     });
@@ -44,7 +44,7 @@ $(document).ready(function() {
         var data = {'const': $(this).val()};
         var btnName = $(this).attr('name');
         data[btnName] = btnName;
-        ajax_request(data);
+        ajax_request(data, {url: '/explore/'});
 
         var btn = buttons[btnName];
         $(this).removeClass(btn.class).addClass(btn.afterClass);
@@ -64,6 +64,62 @@ $(document).ready(function() {
         }
     }
 
+    $('.raty-stars').raty({
+        path: function() {
+            return this.getAttribute('data-path');
+        },
+        starOn: 'star-on.png',
+        starOff: 'star-off.png',
+
+        score: function() {
+            return $(this).attr('data-score');
+        },
+
+        click: function(score, evt) {
+            score = score || 0;
+            var data = {
+                'const': this.id,
+                'rating': score
+            }
+            $(this).parent().find('[name="rating"]').val(score);
+            var sourcePage = $(this).attr('data-source');
+
+            if (sourcePage == 'details_page') {
+                $(this).parent().submit();
+            } else {
+                ajax_request(data, {url: '/explore/'});
+            }
+
+        },
+
+        number: 10,
+        cancel: true,
+        cancelHint: '',
+
+        target: function() {
+            return '#descr-' + this.id;
+        },
+        targetType: 'score',
+        targetKeep: true
+    });
+
+
+
+//    $("#input-id").rating({min:1, max:10, step:1, size:'lg'});
+//
+//
+//    $('#input-id').on('rating.change', function(event, value, caption) {
+//        alert(value);
+//    });
+//
+//
+//    $('#input-id').on('rating.clear', function(event) {
+//        alert("rating.clear");
+//    });
+
+
+
+$(".input-id").rating();
 
 
     $('input.filter_results').on('change', function() {
@@ -71,21 +127,21 @@ $(document).ready(function() {
     });
 
     // when on title page you click 1 of 10 stars
-    if ( $( "#star_rating_form" ).length ) {
-        $('input[name="rating"').change(function() {
-            $("#star_rating_form").submit();
-        });
-    }
+//    if ( $( "#star_rating_form" ).length ) {
+//        $('input[name="rating"').change(function() {
+//            $("#star_rating_form").submit();
+//        });
+//    }
 
     // when on explore page you click 1 of 10 stars
-    if ( $( ".star_rating_form_many" ).length ) {
-        $('input[id^="rating"]').change(function() {
-            var titleConst = $(this).parent().prev().val();
-            var rating = $(this).val();
-            var data = {'const': titleConst, 'rating': rating};
-            ajax_request(data, {url: '/post_rate_title'});
-        });
-    }
+//    if ( $( ".star_rating_form_many" ).length ) {
+//        $('input[id^="rating"]').change(function() {
+//            var titleConst = $(this).parent().prev().val();
+//            var rating = $(this).val();
+//            var data = {'const': titleConst, 'rating': rating};
+//            ajax_request(data);
+//        });
+//    }
 
     $(document).on('change', ':file', function() {
         var input = $(this),
@@ -165,9 +221,9 @@ function ajax_request(data, options) {
         type: 'POST',
         url: url,
         success: function() {
-//            if (refresh) {
-//                window.location.reload(false);
-//            }
+            if (refresh) {
+                window.location.reload(false);
+            }
         }
     });
 }

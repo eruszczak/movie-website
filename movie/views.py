@@ -1,16 +1,16 @@
 import re
 from datetime import datetime
+import calendar
 
 from django.db.models import Count
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db.models import F
 from django.db.models import Q, When, Case, IntegerField
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .forms import EditRating
 from users.models import UserFollow
-from recommend.models import Recommendation
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 from .utils.functions import toggle_title_in_watchlist, toggle_title_in_favourites, recommend_title, create_or_update_rating
 from common.utils import paginate
@@ -209,7 +209,6 @@ def explore(request):
                 titles = titles.filter(rating__rate_date__year=rate_date_year, rating__rate_date__month=rate_date_month)
                 query_string += '{}={}&'.format('year', rate_date_year)
                 query_string += '{}={}&'.format('month', rate_date_month)
-                import calendar
                 search_result.append('Seen in {} {}'.format(calendar.month_name[int(rate_date_month)], rate_date_year))
             elif rate_date_year:
                 titles = titles.filter(rating__rate_date__year=rate_date_year)
@@ -295,7 +294,7 @@ def title_details(request, slug):
     context = {
         'title': title,
         'data': req_user_data,
-        'loop': (n for n in range(10, 0, -1)),
+        # 'loop': (n for n in range(10, 0, -1)),
     }
     return render(request, 'title_details.html', context)
 
@@ -379,13 +378,14 @@ def watchlist(request, username):
             user_watchlist.filter(title__const=request.POST.get('const'), imdb=False).delete()
         elif request.POST.get('watchlist_imdb_readd'):
             user_watchlist.filter(title__const=request.POST.get('const'), imdb=True, deleted=True).update(deleted=False)
+
         return redirect(user.userprofile.watchlist_url())
 
     context = {
         'ratings': user_watchlist.filter(deleted=False).select_related('title').all(),
-        'title': 'See again',
-        'archive': [e for e in user_watchlist if e.rated_after_days_diff],
-        # 'archive': Watchlist.objects.filter(user=user, rating__rate_date__),
+        'title': 'Watchlist of ' + username,
+        'archive': user_watchlist.filter(
+            title__rating__title=F('title'), title__rating__rate_date__gte=F('added_date')).distinct(),
         'is_owner': request.user == user,
         'deleted': user_watchlist.filter(imdb=True, deleted=True).select_related('title').all(),
         'username': username
@@ -408,11 +408,6 @@ def favourite(request, username):
             for new_position, const in enumerate(new_title_order, 1):
                 user_favourites.filter(title__const=const).update(order=new_position)
 
-        if request.POST.get('unfav') is not None:
-            const = request.POST.get('const')
-            user_favourites.filter(title__const=const).delete()
-            return redirect(user.userprofile.favourite_url())
-
     faved_titles = Title.objects.filter(favourite__user=user).annotate(
         has_in_watchlist=Count(
             Case(When(watchlist__user=user, watchlist__deleted=False, then=1), output_field=IntegerField())
@@ -427,10 +422,15 @@ def favourite(request, username):
         ORDER BY rating.rate_date DESC LIMIT 1"""
     }, select_params=[user.id]).prefetch_related('genre', 'director').order_by('favourite__order')
 
+    page = request.GET.get('page')
+    paginated_titles = paginate(faved_titles, page, 50)
+    # if query_string:
+    #     query_string = '?' + query_string + 'page='
+
     context = {
-        'ratings': user_favourites,
-        'faved_titles': faved_titles,
-        'is_owner': request.user.username == username
+        'ratings': paginated_titles,
+        'is_owner': request.user.username == username,
+        'title': 'Favourites of ' + username
     }
     return render(request, 'favourite.html', context)
 

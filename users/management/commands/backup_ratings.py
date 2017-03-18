@@ -13,21 +13,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         now = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        # u = args[0] if len(args) == 1 else None
-        users = User.objects.all()
-        # print(u)
-        # if u is not None:
-        #     try:
-        #         users = [User.objects.get(username=u)]
-        #     except User.DoesNotExist:
-        #         raise CommandError('User "%s" does not exist' % u)
-        for a in args:
-            print(a)
 
-        for user in users:
+        for user in User.objects.all():
             directory = os.path.join(BACKUP_ROOT, user.username)
             if not os.path.exists(directory):
                 os.makedirs(directory)
+
             user_ratings = Rating.objects.filter(user=user).select_related('title')
             filename = os.path.join(directory, '{}ratings{}.csv'.format(user_ratings.count(), now))
             with open(filename, 'w') as f:
