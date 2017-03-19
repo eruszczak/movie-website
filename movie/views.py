@@ -95,7 +95,7 @@ def explore(request):
     director = request.GET.get('d')
     genres = request.GET.getlist('g')
     user = request.GET.get('u')
-    rating = request.GET.get('r')
+    rating = request.GET.get('r') if validate_rate(request.GET.get('r')) else None
     page = request.GET.get('page')
     show_all_ratings = request.GET.get('all_ratings')
     rate_date_year = request.GET.get('year')
@@ -180,7 +180,7 @@ def explore(request):
             }, select_params=[searched_user.id])
             search_result.append('Seen by {}'.format(searched_user.username))
         elif show_all_ratings:
-            titles = titles.filter(rating__user__username='test')\
+            titles = Title.objects.filter(rating__user__username='test')\
                 .order_by('-rating__rate_date', '-rating__inserted_date')
             query_string += '{}={}&'.format('all_ratings', 'on')
             search_result.append('Seen by {}'.format(searched_user.username))
@@ -192,7 +192,7 @@ def explore(request):
         titles = titles.annotate(max_date=Max('rating__rate_date')).filter(
             rating__user=request.user, rating__rate_date=F('max_date'), rating__rate=rating)
         query_string += '{}={}&'.format('r', rating)
-        search_result.append('Seen by you')
+        search_result.append('Titles you rated {}'.format(rating))
 
     if rate_date_year and (user or req_user_id):
         # if user: ratings are already filtered for him
