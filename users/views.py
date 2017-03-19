@@ -139,8 +139,6 @@ def user_edit(request, username):
             messages.success(request, 'Profile updated')
             return redirect(profile)
         else:
-            for field, message in form.errors.items():
-                print(field, message)
             t = '\n'.join([message[0] for field, message in form.errors.items()])
             messages.warning(request, t)
         return redirect(profile.edit_url())

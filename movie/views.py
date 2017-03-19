@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 import calendar
 
-from django.db.models import Count
+from django.db.models import Count, Max
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -16,7 +16,7 @@ from .utils.functions import toggle_title_in_watchlist, toggle_title_in_favourit
 from common.utils import paginate
 from common.prepareDB import update_title
 from common.prepareDB_utils import validate_rate, convert_to_datetime
-from common.sql_queries import titles_user_saw_with_current_rating, curr_title_rating_of_followed
+from common.sql_queries import curr_title_rating_of_followed, select_current_rating
 
 
 def home(request):
@@ -60,19 +60,17 @@ def explore(request):
             messages.info(request, 'Only logged in users can add to watchlist or favourites')
             return redirect(request.META.get('HTTP_REFERER'))
 
+        title = get_object_or_404(Title, const=request.POST.get('const'))
         new_rating = request.POST.get('rating')
-        if new_rating:
-            title = get_object_or_404(Title, const=request.POST.get('const'))
-            create_or_update_rating(title, request.user, new_rating)
-
-        requested_obj = get_object_or_404(Title, const=request.POST.get('const'))
         watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
-        if watch or unwatch:
-            toggle_title_in_watchlist(request.user, requested_obj, watch, unwatch)
-
         fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
+
+        if new_rating:
+            create_or_update_rating(title, request.user, new_rating)
+        if watch or unwatch:
+            toggle_title_in_watchlist(request.user, title, watch, unwatch)
         if fav or unfav:
-            toggle_title_in_favourites(request.user, requested_obj, fav, unfav)
+            toggle_title_in_favourites(request.user, title, fav, unfav)
 
         return redirect(request.META.get('HTTP_REFERER'))
 
@@ -91,7 +89,19 @@ def explore(request):
     query_string = ''
     search_result = []
 
+    selected_type = request.GET.get('t', '')
+    query = request.GET.get('q')
+    plot = request.GET.get('p')
+    director = request.GET.get('d')
+    genres = request.GET.getlist('g')
+    user = request.GET.get('u')
+    rating = request.GET.get('r')
+    page = request.GET.get('page')
+    show_all_ratings = request.GET.get('all_ratings')
+    rate_date_year = request.GET.get('year')
+    rate_date_month = request.GET.get('month')
     year = request.GET.get('y')
+
     if year:
         find_years = re.match(r'(\d{4})-*(\d{4})*', year)
         if find_years is not None:
@@ -107,18 +117,8 @@ def explore(request):
                 query_string += '{}={}&'.format('y', first_year)
                 search_result.append('Released in {}'.format(first_year))
 
-    selected_type = request.GET.get('t', '')
-    query = request.GET.get('q')
-    plot = request.GET.get('p')
-    director = request.GET.get('d')
-    genres = request.GET.getlist('g')
-    user = request.GET.get('u')
-    rating = request.GET.get('r')
-    page = request.GET.get('page')
-    show_all_ratings = request.GET.get('all_ratings')
-
     if selected_type in ('movie', 'series'):
-        titles = titles.filter(Q(type__name=selected_type))
+        titles = titles.filter(type__name=selected_type)
         query_string += '{}={}&'.format('t', selected_type)
         search_result.append('Type: ' + selected_type)
 
@@ -145,7 +145,6 @@ def explore(request):
             query_string += '{}={}&'.format('g', genre)
         search_result.append('Genres: {}'.format(', '.join(genres)))
 
-    searched_for_user_and_rate = False
     excluded_searched_user = False
 
     req_user_id = request.user.id if request.user.is_authenticated() else 0
@@ -159,10 +158,7 @@ def explore(request):
         elif req_user_id != searched_user.id and request.GET.get('exclude_mine'):
             excluded_searched_user = True
             titles = titles.filter(rating__user=searched_user).distinct().extra(select={
-                'user_curr_rating': """SELECT rate FROM movie_rating as rating
-                    WHERE rating.title_id = movie_title.id
-                    AND rating.user_id = %s
-                    ORDER BY rating.rate_date DESC LIMIT 1""",
+                'user_curr_rating': select_current_rating,
             }, select_params=[searched_user.id])
             if req_user_id:
                 titles = titles.exclude(rating__user=req_user_id)
@@ -170,20 +166,21 @@ def explore(request):
             else:
                 search_result.append('Seen by {}'.format(searched_user.username))
         elif rating:
-            searched_for_user_and_rate = True
-            titles = titles_user_saw_with_current_rating(searched_user.id, rating, req_user_id)
+            titles = titles.annotate(max_date=Max('rating__rate_date')).filter(
+                rating__user=searched_user, rating__rate_date=F('max_date'), rating__rate=rating)\
+                .extra(select={
+                    'user_curr_rating': select_current_rating,
+                }, select_params=[searched_user.id])
+
             query_string += '{}={}&'.format('r', rating)
             search_result.append('Titles {} rated {}'.format(searched_user.username, rating))
         elif req_user_id != searched_user.id:
             titles = titles.filter(rating__user=searched_user).distinct().extra(select={
-                'user_curr_rating': """SELECT rate FROM movie_rating as rating
-                    WHERE rating.title_id = movie_title.id
-                    AND rating.user_id = %s
-                    ORDER BY rating.rate_date DESC LIMIT 1""",
+                'user_curr_rating': select_current_rating,
             }, select_params=[searched_user.id])
             search_result.append('Seen by {}'.format(searched_user.username))
         elif show_all_ratings:
-            titles = Title.objects.filter(rating__user__username='test')\
+            titles = titles.filter(rating__user__username='test')\
                 .order_by('-rating__rate_date', '-rating__inserted_date')
             query_string += '{}={}&'.format('all_ratings', 'on')
             search_result.append('Seen by {}'.format(searched_user.username))
@@ -192,37 +189,31 @@ def explore(request):
             titles = titles.filter(rating__user=searched_user).order_by('-rating__rate_date')
             search_result.append('Seen by {}'.format(searched_user.username))
     elif rating and req_user_id:
-        searched_for_user_and_rate = True
-        titles = titles_user_saw_with_current_rating(request.user.id, rating, request.user.id)
+        titles = titles.annotate(max_date=Max('rating__rate_date')).filter(
+            rating__user=request.user, rating__rate_date=F('max_date'), rating__rate=rating)
         query_string += '{}={}&'.format('r', rating)
         search_result.append('Seen by you')
 
-    if not searched_for_user_and_rate:  # because titles arent model instances if searched_for_user_and_rate
-        # only if you specified ?u= or you are logged in
-        rate_date_year, rate_date_month = request.GET.get('year'), request.GET.get('month')
-        if rate_date_year and (user or req_user_id):
-            # if user: ratings are already filtered for him
-            if not user:
-                titles = titles.filter(rating__user=request.user)
-                search_result.append('Seen by you')
-            if rate_date_year and rate_date_month:
-                titles = titles.filter(rating__rate_date__year=rate_date_year, rating__rate_date__month=rate_date_month)
-                query_string += '{}={}&'.format('year', rate_date_year)
-                query_string += '{}={}&'.format('month', rate_date_month)
-                search_result.append('Seen in {} {}'.format(calendar.month_name[int(rate_date_month)], rate_date_year))
-            elif rate_date_year:
-                titles = titles.filter(rating__rate_date__year=rate_date_year)
-                query_string += '{}={}&'.format('year', rate_date_year)
-                search_result.append('Seen in ' + rate_date_year)
+    if rate_date_year and (user or req_user_id):
+        # if user: ratings are already filtered for him
+        if not user:
+            titles = titles.filter(rating__user=request.user)
+            search_result.append('Seen by you')
+        if rate_date_year and rate_date_month:
+            titles = titles.filter(rating__rate_date__year=rate_date_year, rating__rate_date__month=rate_date_month)
+            query_string += '{}={}&'.format('year', rate_date_year)
+            query_string += '{}={}&'.format('month', rate_date_month)
+            search_result.append('Seen in {} {}'.format(calendar.month_name[int(rate_date_month)], rate_date_year))
+        elif rate_date_year:
+            titles = titles.filter(rating__rate_date__year=rate_date_year)
+            query_string += '{}={}&'.format('year', rate_date_year)
+            search_result.append('Seen in ' + rate_date_year)
 
-        titles = titles.prefetch_related('director', 'genre')  # .distinct()
-        if request.user.is_authenticated() and not excluded_searched_user:
-            titles = titles.extra(select={
-                'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
-                    WHERE rating.title_id = movie_title.id
-                    AND rating.user_id = %s
-                    ORDER BY rating.rate_date DESC LIMIT 1""",
-            }, select_params=[request.user.id])
+    titles = titles.prefetch_related('director', 'genre')  # .distinct()
+    if request.user.is_authenticated() and not excluded_searched_user:
+        titles = titles.extra(select={
+            'req_user_curr_rating': select_current_rating,
+        }, select_params=[request.user.id])
 
     ratings = paginate(titles, page, 25)
     if query_string:
@@ -248,14 +239,6 @@ def title_details(request, slug):
         if not request.user.is_authenticated():
             messages.info(request, 'Only authenticated users can do this')
             return redirect(title)
-
-        watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
-        if watch or unwatch:
-            toggle_title_in_watchlist(request.user, title, watch, unwatch)
-
-        fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
-        if fav or unfav:
-            toggle_title_in_favourites(request.user, title, fav, unfav)
 
         if request.POST.get('update_title'):
             is_updated, message = update_title(title)

@@ -72,8 +72,8 @@
 					</div>
 					<hr class="visible-sm visible-xs">
 					<div class="col-md-6">
-						{% include 'includes/favourites.html' with condition=data.is_favourite_for_user const=obj.const %}
-						{% include 'includes/watchlist.html' with condition=data.is_in_user_watchlist const=obj.const %}
+						{% include 'includes/favourites.html' with condition=data.is_favourite_for_user const=title.const %}
+						{% include 'includes/watchlist.html' with condition=data.is_in_user_watchlist const=title.const %}
 						<hr class="visible-sm visible-xs">
 						{% if data.followed_title_not_recommended %}
 							<form action="" method="post">{% csrf_token %}
