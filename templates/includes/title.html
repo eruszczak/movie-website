@@ -7,10 +7,9 @@
                 {{ forloop.counter0|add:index }}.
             {% endwith %}
             <img class="img-responsive img-rounded"
-             src="{% if obj.img_thumbnail %}{% if obj.img_thumbnail.url %}{{ obj.img_thumbnail.url }}{% else %}/media/{{ obj.img }}{% endif %}
-                {% else %}{% static 'img/holderbigger.png' %}{% endif %}"
+             src="{% if obj.img_thumbnail %}{{ obj.img_thumbnail.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
              style="width: 35px; float: left; margin-right: 10px; " alt="...">
-            <a href="{% url 'title_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a>
+            <a href="{{ obj.get_absolute_url }}">{{ obj.name }} ({{ obj.year }})</a>
             {% if obj.runtime %}{{ obj.runtime }} min{% endif %}
             <span style="float: right;">
                 {% if obj.user_curr_rating %}

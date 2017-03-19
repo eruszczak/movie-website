@@ -45,7 +45,7 @@ def convert_to_datetime(date_string, source):
 def validate_rate(rate):
     try:
         rate = int(rate)
-    except ValueError:
+    except (ValueError, TypeError):
         return False
     return 0 < rate < 11
 

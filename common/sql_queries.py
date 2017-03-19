@@ -133,10 +133,10 @@ curr_rate_of_followed_user_for_title = """
 """
 
 select_current_rating = """
-SELECT rate FROM movie_rating as rating
-WHERE rating.title_id = movie_title.id
-AND rating.user_id = %s
-ORDER BY rating.rate_date DESC LIMIT 1
+    SELECT rate FROM movie_rating as rating
+    WHERE rating.title_id = movie_title.id
+    AND rating.user_id = %s
+    ORDER BY rating.rate_date DESC LIMIT 1
 """
 
 
