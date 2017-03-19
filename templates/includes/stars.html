@@ -1,6 +1,0 @@
-<span class="starRating">
-{% for i in 'xxxxxxxxxx' %}
-    <input id="rating{{ forloop.revcounter }}{{ id }}" type="radio" name="rating" value="{{ forloop.revcounter }}" {% if rate == forloop.revcounter  %}checked{% endif %}>
-    <label for="rating{{ forloop.revcounter }}{{ id }}">{{ forloop.revcounter }}</label>
-{% endfor %}
-</span>

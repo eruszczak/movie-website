@@ -235,7 +235,6 @@ def explore(request):
         'genres': Genre.objects.annotate(num=Count('title')).order_by('-num'),
         'followed_users': UserFollow.objects.filter(user_follower=request.user) if req_user_id else [],
         'query_string': query_string,
-        'loop': [n for n in range(10, 0, -1)],
     }
     return render(request, 'explore.html', context)
 
@@ -294,7 +293,6 @@ def title_details(request, slug):
     context = {
         'title': title,
         'data': req_user_data,
-        # 'loop': (n for n in range(10, 0, -1)),
     }
     return render(request, 'title_details.html', context)
 
@@ -408,27 +406,44 @@ def favourite(request, username):
             for new_position, const in enumerate(new_title_order, 1):
                 user_favourites.filter(title__const=const).update(order=new_position)
 
-    faved_titles = Title.objects.filter(favourite__user=user).annotate(
-        has_in_watchlist=Count(
-            Case(When(watchlist__user=user, watchlist__deleted=False, then=1), output_field=IntegerField())
-        ),
-        has_in_favourites=Count(
-            Case(When(favourite__user=user, then=1), output_field=IntegerField())
-        )
-    ).extra(select={
-        'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
-        WHERE rating.title_id = movie_title.id
-        AND rating.user_id = %s
-        ORDER BY rating.rate_date DESC LIMIT 1"""
-    }, select_params=[user.id]).prefetch_related('genre', 'director').order_by('favourite__order')
+    if request.user == user:
+        faved_titles = Title.objects.filter(favourite__user=user).annotate(
+            has_in_watchlist=Count(
+                Case(When(watchlist__user=user, watchlist__deleted=False, then=1), output_field=IntegerField())
+            ),
+            has_in_favourites=Count(
+                Case(When(favourite__user=user, then=1), output_field=IntegerField())
+            )
+        ).extra(select={
+            'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
+            WHERE rating.title_id = movie_title.id
+            AND rating.user_id = %s
+            ORDER BY rating.rate_date DESC LIMIT 1"""
+        }, select_params=[request.user.id]).prefetch_related('genre', 'director').order_by('favourite__order')
+    else:
+        faved_titles = Title.objects.filter(favourite__user=user).annotate(
+            has_in_watchlist=Count(
+                Case(When(watchlist__user=user, watchlist__deleted=False, then=1), output_field=IntegerField())
+            ),
+            has_in_favourites=Count(
+                Case(When(favourite__user=user, then=1), output_field=IntegerField())
+            )
+        ).extra(select={
+            'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
+            WHERE rating.title_id = movie_title.id
+            AND rating.user_id = %s
+            ORDER BY rating.rate_date DESC LIMIT 1""",
+            'user_curr_rating': """SELECT rate FROM movie_rating as rating
+            WHERE rating.title_id = movie_title.id
+            AND rating.user_id = %s
+            ORDER BY rating.rate_date DESC LIMIT 1"""
+        }, select_params=[request.user.id, user.id]).prefetch_related('genre', 'director').order_by('favourite__order')
 
-    page = request.GET.get('page')
-    paginated_titles = paginate(faved_titles, page, 50)
-    # if query_string:
-    #     query_string = '?' + query_string + 'page='
+    # page = request.GET.get('page')
+    # paginated_titles = paginate(faved_titles, page, 50)
 
     context = {
-        'ratings': paginated_titles,
+        'ratings': faved_titles,
         'is_owner': request.user.username == username,
         'title': 'Favourites of ' + username
     }

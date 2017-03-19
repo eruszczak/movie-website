@@ -186,8 +186,7 @@ def add_new_title(const, update=False):
             clear_relationships(Title.objects.get(const=const))
             title, created = Title.objects.update_or_create(const=const, defaults=dict(tomatoes, **imdb))
             logger.info('updated title ' + title.const)
-            if created:
-                logger.error('this should never happen')
+            assert not created
 
         if title.url_poster:
             get_and_assign_poster(title)
