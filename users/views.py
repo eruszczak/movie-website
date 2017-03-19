@@ -1,9 +1,15 @@
+import csv
+from datetime import datetime
+
+from django.http import HttpResponse
 from django.db.models import Count
 from django.utils import timezone
 from django.contrib import auth, messages
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 
 from movie.models import Title, Rating
 from .models import UserProfile, UserFollow
@@ -11,17 +17,12 @@ from .forms import RegisterForm, LoginForm, EditProfileForm
 from common.utils import build_html_string_for_titles
 from common.prepareDB import update_from_csv, update_from_rss, get_watchlist
 from common.sql_queries import avgs_of_2_users_common_curr_ratings, titles_rated_higher_or_lower
-import csv
-from django.http import HttpResponse
-from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
 
 
 def export_ratings(request, username):
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="myratings.csv"'
-
     user_ratings = Rating.objects.filter(user__username=username).select_related('title')
+
     headers = ['const', 'rate_date', 'rate']
     writer = csv.DictWriter(response, fieldnames=headers, lineterminator='\n')
     writer.writeheader()
@@ -31,6 +32,11 @@ def export_ratings(request, username):
             'rate_date': r.rate_date,
             'rate': r.rate
         })
+
+    filename = '{}_ratings_for_{}_titles_{}'.format(user_ratings.count(),
+                                                    user_ratings.values_list('title').distinct().count(),
+                                                    datetime.now().strftime('%Y-%m-%d'))
+    response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
     return response
 
 
