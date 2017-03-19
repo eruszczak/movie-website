@@ -68,13 +68,9 @@ $(document).ready(function() {
         path: function() {
             return this.getAttribute('data-path');
         },
-        starOn: 'star-on.png',
-        starOff: 'star-off.png',
-
         score: function() {
             return $(this).attr('data-score');
         },
-
         click: function(score, evt) {
             score = score || 0;
             var data = {
@@ -93,7 +89,10 @@ $(document).ready(function() {
         },
 
         number: 10,
-        cancel: true,
+        cancel: function() {
+            console.log($(this).attr('data-score'));
+            return $(this).attr('data-score');
+        },
         cancelHint: '',
 
         target: function() {
@@ -103,45 +102,9 @@ $(document).ready(function() {
         targetKeep: true
     });
 
-
-
-//    $("#input-id").rating({min:1, max:10, step:1, size:'lg'});
-//
-//
-//    $('#input-id').on('rating.change', function(event, value, caption) {
-//        alert(value);
-//    });
-//
-//
-//    $('#input-id').on('rating.clear', function(event) {
-//        alert("rating.clear");
-//    });
-
-
-
-$(".input-id").rating();
-
-
     $('input.filter_results').on('change', function() {
        $('input.filter_results').not(this).prop('checked', false);
     });
-
-    // when on title page you click 1 of 10 stars
-//    if ( $( "#star_rating_form" ).length ) {
-//        $('input[name="rating"').change(function() {
-//            $("#star_rating_form").submit();
-//        });
-//    }
-
-    // when on explore page you click 1 of 10 stars
-//    if ( $( ".star_rating_form_many" ).length ) {
-//        $('input[id^="rating"]').change(function() {
-//            var titleConst = $(this).parent().prev().val();
-//            var rating = $(this).val();
-//            var data = {'const': titleConst, 'rating': rating};
-//            ajax_request(data);
-//        });
-//    }
 
     $(document).on('change', ':file', function() {
         var input = $(this),

@@ -1,45 +1,51 @@
 {% load staticfiles %}
-<tr id="{{ row_id }}" class="result result-{% cycle 'odd' 'even' %}">
-    <td class="col-md-9 paddingleft">
-        {{ forloop.counter0|add:index }}.
-        <img class="img-responsive img-rounded"
-         src="{% if obj.img_thumbnail %}{% if obj.img_thumbnail.url %}{{ obj.img_thumbnail.url }}{% else %}/media/{{ obj.img }}{% endif %}
-            {% else %}{% static 'img/holderbigger.png' %}{% endif %}"
-         style="width: 35px; float: left; margin-right: 10px; " alt="...">
-        <a href="{% url 'title_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a>
-        {% if obj.runtime %}{{ obj.runtime }} min{% endif %}
-        <span style="float: right;">
-            {% if obj.user_curr_rating %}
-                {{ obj.user_curr_rating }}
-                <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
-            {% endif %}
+<tbody>
+    {% for obj in objs %}
+    <tr {% if sortable %}id="item-{{ obj.const }}"{% endif %} class="result result-{% cycle 'odd' 'even' %}">
+        <td class="col-md-9 paddingleft">
+            {% with objs.start_index|default:1 as index %}
+                {{ forloop.counter0|add:index }}.
+            {% endwith %}
+            <img class="img-responsive img-rounded"
+             src="{% if obj.img_thumbnail %}{% if obj.img_thumbnail.url %}{{ obj.img_thumbnail.url }}{% else %}/media/{{ obj.img }}{% endif %}
+                {% else %}{% static 'img/holderbigger.png' %}{% endif %}"
+             style="width: 35px; float: left; margin-right: 10px; " alt="...">
+            <a href="{% url 'title_details' slug=obj.slug %}">{{ obj.name }} ({{ obj.year }})</a>
+            {% if obj.runtime %}{{ obj.runtime }} min{% endif %}
+            <span style="float: right;">
+                {% if obj.user_curr_rating %}
+                    {{ obj.user_curr_rating }}
+                    <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
+                {% endif %}
+                {% if request.user.is_authenticated %}
+                    {% include 'includes/favourites.html' with condition=obj.has_in_favourites const=obj.const %}
+                    {% include 'includes/watchlist.html' with condition=obj.has_in_watchlist const=obj.const %}
+                {% endif %}
+            </span>
+            <p style="font-style:italic; font-size:12px">
+                {% for genre in obj.genre.all %}
+                    <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
+                    {% include 'includes/comma.html' %}
+                {% endfor %}
+                dir:
+                {% for director in obj.director.all %}
+                    <a href="{{ director.get_absolute_url }}">
+                        {% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}
+                    </a>
+                    {% include 'includes/comma.html' %}
+                {% endfor %}
+            </p>
             {% if request.user.is_authenticated %}
-                {% include 'includes/favourites.html' with condition=obj.has_in_favourites const=obj.const %}
-                {% include 'includes/watchlist.html' with condition=obj.has_in_watchlist const=obj.const %}
+            <div id="{{ obj.const }}" style="display: inline-block" class="raty-stars"
+                 data-score="{{ obj.req_user_curr_rating }}" data-path="{% static 'img' %}">
+            </div>
+            <span id="descr-{{ obj.const }}" style="display: inline-block"></span>
             {% endif %}
-        </span>
-        <p style="font-style:italic; font-size:12px">
-            {% for genre in obj.genre.all %}
-                <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
-                {% include 'includes/comma.html' %}
-            {% endfor %}
-            dir:
-            {% for director in obj.director.all %}
-                <a href="{{ director.get_absolute_url }}">
-                    {% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}
-                </a>
-                {% include 'includes/comma.html' %}
-            {% endfor %}
-        </p>
-        {% if request.user.is_authenticated %}
-        <div id="{{ obj.const }}" style="display: inline-block" class="raty-stars"
-             data-score="{{ curr_rating }}" data-path="{% static 'img' %}">
-        </div>
-        <span id="descr-{{ obj.const }}" style="display: inline-block"></span>
-        {% endif %}
 
-        {% if obj.plot %}
-        <p style="padding-left: 10px">{{ obj.plot|truncatechars:250 }}</p>
-        {% endif %}
-    </td>
-</tr>
+            {% if obj.plot %}
+            <p style="padding-left: 10px">{{ obj.plot|truncatechars:250 }}</p>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>

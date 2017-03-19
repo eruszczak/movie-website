@@ -7,24 +7,12 @@
         <div id="favouritePage">
             <div class="container">
                 <div class="col-md-10 col-md-offset-1">
-                    <p class="lead text-center">Your favourite titles.</p>
+                    <p class="lead text-center">Your {{ ratings.count }} favourite title{{ ratings.count|pluralize }}.</p>
                     <p class="text-center">You can reorder the list by dragging a title while holding LMB.</p>
 
-                    {% if ratings.paginator.num_pages > 1 %}
-                        {% include 'includes/paginator.html' %}
-                    {% endif %}
                     <table id="sortable" class="table table-hover table-bordered table-condensed">
-                        <tbody>
-                            {% for obj in ratings %}
-                            {% with 'item-'|add:obj.const as row_id %}
-                                {% include 'includes/title.html' with index=ratings.start_index row_id=row_id obj=obj curr_rating=obj.req_user_curr_rating %}
-                            {% endwith %}
-                            {% endfor %}
-                        </tbody>
+                        {% include 'includes/title.html' with objs=ratings sortable=True %}
                     </table>
-                    {% if ratings.paginator.num_pages > 1 %}
-                        {% include 'includes/paginator.html' %}
-                    {% endif %}
                 </div>
             </div>
         </div>
