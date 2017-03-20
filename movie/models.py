@@ -3,8 +3,8 @@ from django.utils import timezone
 from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
-from .utils.functions import create_slug
 from common.sql_queries import avg_of_title_current_ratings
+from django.template.defaultfilters import slugify
 
 
 class Genre(models.Model):
@@ -94,7 +94,7 @@ class Title(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.slug = create_slug(self)
+            self.slug = self.create_slug()
         if not self.url_imdb:
             self.url_imdb = 'http://www.imdb.com/title/{}/'.format(self.const)
         super(Title, self).save(*args, **kwargs)
@@ -106,6 +106,20 @@ class Title(models.Model):
     @property
     def can_be_updated(self):
         return (timezone.now() - self.last_updated).seconds > 60 * 10
+
+    def create_slug(self, new_slug=None):
+        """
+        recursive function to get unique slug (in case of 2 titles with the same name/year)
+        """
+        if new_slug is None:
+            slug = slugify('{} {}'.format(self.name, self.year))[:70]
+        else:
+            slug = new_slug
+
+        if Title.objects.filter(slug=slug).exists():
+            slug += 'i'
+            self.create_slug(slug)
+        return slug
 
 
 class Rating(models.Model):

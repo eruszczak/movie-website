@@ -1,13 +1,14 @@
 from datetime import datetime
 
 from django.db.models import F
-from django.template.defaultfilters import slugify
-# models are imported within functions to prevent circular dependencies
+from django.contrib.auth.models import User
+from recommend.models import Recommendation
+from ..models import Watchlist, Favourite, Rating
+
+from common.prepareDB_utils import validate_rate
 
 
 def toggle_title_in_watchlist(user, title, watch=None, unwatch=None):
-    from ..models import Watchlist
-
     watchlist_instance = Watchlist.objects.filter(user=user, title=title).first()
     if watch is not None:
         if watchlist_instance and watchlist_instance.imdb:
@@ -25,8 +26,6 @@ def toggle_title_in_watchlist(user, title, watch=None, unwatch=None):
 
 
 def toggle_title_in_favourites(user, title, fav=None, unfav=None):
-    from ..models import Favourite
-
     user_favourites = Favourite.objects.filter(user=user)
     if fav is not None:
         Favourite.objects.create(user=user, title=title, order=user_favourites.count() + 1)
@@ -36,26 +35,7 @@ def toggle_title_in_favourites(user, title, fav=None, unfav=None):
         favourite_instance.delete()
 
 
-# recursive function to get unique slug (in case of 2 titles with the same name/year)
-def create_slug(title, new_slug=None):
-    from ..models import Title
-
-    if new_slug is None:
-        slug = slugify('{} {}'.format(title.name, title.year))[:70]
-    else:
-        slug = new_slug
-
-    if Title.objects.filter(slug=slug).exists():
-        slug += 'i'
-        create_slug(title, slug)
-    return slug
-
-
 def recommend_title(title, sender, usernames):
-    from django.contrib.auth.models import User
-    from movie.models import Rating
-    from recommend.models import Recommendation
-
     users = []
     message = ''
     for username in usernames:
@@ -73,9 +53,6 @@ def recommend_title(title, sender, usernames):
 
 
 def create_or_update_rating(title, user, rate, insert_as_new=False):
-    from movie.models import Rating
-    from common.prepareDB_utils import validate_rate
-
     today = datetime.now().date()
     current_rating = Rating.objects.filter(user=user, title=title).first()
     todays_rating = Rating.objects.filter(user=user, title=title, rate_date=today)
