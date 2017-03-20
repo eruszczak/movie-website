@@ -7,11 +7,11 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import F
-from django.db.models import Q, When, Case, IntegerField
+from django.db.models import When, Case, IntegerField
 from django.shortcuts import render, redirect, get_object_or_404
-
 from users.models import UserFollow
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite
+
 from .utils.functions import toggle_title_in_watchlist, toggle_title_in_favourites, recommend_title, create_or_update_rating
 from common.utils import paginate
 from common.prepareDB import update_title
@@ -174,17 +174,17 @@ def explore(request):
 
             query_string += '{}={}&'.format('r', rating)
             search_result.append('Titles {} rated {}'.format(searched_user.username, rating))
-        elif req_user_id != searched_user.id:
-            titles = titles.filter(rating__user=searched_user).distinct().extra(select={
-                'user_curr_rating': select_current_rating,
-            }, select_params=[searched_user.id])
-            search_result.append('Seen by {}'.format(searched_user.username))
         elif show_all_ratings:
             titles = Title.objects.filter(rating__user__username='test')\
                 .order_by('-rating__rate_date', '-rating__inserted_date')
             query_string += '{}={}&'.format('all_ratings', 'on')
             search_result.append('Seen by {}'.format(searched_user.username))
             search_result.append('Showing all ratings (duplicated titles)')
+        elif req_user_id != searched_user.id:
+            titles = titles.filter(rating__user=searched_user).distinct().extra(select={
+                'user_curr_rating': select_current_rating,
+            }, select_params=[searched_user.id])
+            search_result.append('Seen by {}'.format(searched_user.username))
         else:
             titles = titles.filter(rating__user=searched_user).order_by('-rating__rate_date')
             search_result.append('Seen by {}'.format(searched_user.username))
