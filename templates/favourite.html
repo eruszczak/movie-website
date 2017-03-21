@@ -5,11 +5,11 @@
 {% block content %}
     {% if ratings %}
         <div id="favouritePage">
-            <div class="container">
+            <div class="row">
                 <div class="col-md-10 col-md-offset-1">
                     <p class="lead text-center">Your {{ ratings.count }} favourite title{{ ratings.count|pluralize }}.</p>
-                    <p class="text-center">You can reorder the list by dragging a title while holding LMB.</p>
-
+                    <p class="text-center"><em>You can reorder the list by dragging a title while holding LMB.</em></p>
+                    <br>
                     <table id="sortable" class="table table-hover table-bordered table-condensed">
                         {% include 'includes/title.html' with objs=ratings sortable=True %}
                     </table>

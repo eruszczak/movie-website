@@ -83,7 +83,6 @@ thead tr {
 
 .usersList {
     background-color: white;
-    height: 140px;
 }
 
 @media (min-width: 768px) {
@@ -181,6 +180,11 @@ textarea {
 .posterMin {
     height: 100px;
     width: 65px;
+}
+
+.inactiveLink a {
+   cursor: default;
+   text-decoration: none;
 }
 
 #avatar {

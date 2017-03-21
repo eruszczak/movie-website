@@ -3,69 +3,27 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-    {% if searched_title %}
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="row">
-                <p class="lead text-center">
-                    {% with searched_title.rate as title_rate %}
-                        {% if title_rate.count %}
-                            {{ title_rate.count }} user{{ title_rate.count|pluralize }}
-                            who saw <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a> ({{ searched_title.year }})
-                            <br>average rating: {{ title_rate.avg|floatformat:2 }}
-                        {% else %}
-                            No one has rated <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a> yet.
-                        {% endif %}
-                    {% endwith %}
-                </p>
-                {% for user in user_list %}
-                <div class="col-md-12">
-                    <div class="well usersList">
-                        <a href="{{ user.userprofile.get_absolute_url }}">
-                            <img id="avatar" class="img-responsive img-thumbnail avatarMin" style="float:left;margin-right: 10px"
-                                 src="{% if user.userprofile.picture %}{{ user.userprofile.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}" alt="...">
-                        </a>
-                        <p class="lead"><a href="{{ user.userprofile.get_absolute_url }}">{{ user.username }}</a></p>
-                        {% with user.userprofile.avg_of_current_ratings as user_current_ratings %}
-                        {% if user_current_ratings.count %}
-                            See all <a href="{{ user.userprofile.ratings_url }}">{{ user_current_ratings.count }} ratings</a> (avg: {{ user_current_ratings.avg|floatformat:2 }})
-                        {% endif %}
-                        {% endwith %}
-                        <p>
-                        {% for i in 'xxxxxxxxxx' %}
-                            <span class="glyphicon glyphicon-star{% if forloop.counter > user.current_rating %}-empty{% endif %}" aria-hidden="true"></span>
-                        {% endfor %}
-                        </p>
-                    </div>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="row">
+            {% if searched_title %}
+            <p class="lead text-center">
+                {% with searched_title.rate as title_rate %}
+                    {% if title_rate.count %}
+                        {{ title_rate.count }} user{{ title_rate.count|pluralize }}
+                        who saw <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a> ({{ searched_title.year }})
+                        <p class="text-center"><em>average rating: {{ title_rate.avg|floatformat:2 }}</em></p>
+                    {% else %}
+                        No one has rated <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a> yet.
+                    {% endif %}
+                {% endwith %}
+            </p>
+            {% else %}
+            <p class="lead text-center">Top 30 users who have the most ratings</p>
+            {% endif %}
 
-                </div>
-                {% endfor %}
-            </div>
+            {% include 'includes/user.html' with user=user_list %}
         </div>
     </div>
-    {% else %}
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="row">
-                <p class="lead text-center">Top 30 users who have the most ratings</p>
-                {% for user in user_list %}
-                <div class="col-md-12">
-                    <div class="well usersList">
-                        <a href="{{ user.userprofile.get_absolute_url }}">
-                            <img id="avatar" class="img-responsive img-thumbnail avatarMin" style="float:left;margin-right: 10px"
-                                 src="{% if user.userprofile.picture %}{{ user.userprofile.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}" alt="...">
-                        </a>
-                        <p class="lead"><a href="{{ user.userprofile.get_absolute_url }}">{{ user.username }}</a></p>
-                        {% with user.userprofile.avg_of_current_ratings as user_current_ratings %}
-                        {% if user_current_ratings.count %}
-                            See all <a href="{{ user.userprofile.ratings_url }}">{{ user_current_ratings.count }} ratings</a> (avg: {{ user_current_ratings.avg|floatformat:2 }})
-                        {% endif %}
-                        {% endwith %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
+</div>
 {% endblock %}

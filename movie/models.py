@@ -137,9 +137,18 @@ class Rating(models.Model):
         return '{} {}'.format(self.title.name, self.rate_date)
 
     def save(self, *args, **kwargs):
+        # todo should do it when updating too?
+        """
+        before creating new Rating, check if this title is in user's watchlist, if it is - delete it
+        """
+        if not self.id:
+            pass
+        print(self.id)
         in_watchlist = Watchlist.objects.filter(user=self.user, title=self.title,
                                                 added_date__date__lte=self.rate_date, deleted=False).first()
         if in_watchlist:
+            # i think its refactorable
+            # TODO this must be reversed if rating is deleted
             if in_watchlist.imdb:
                 in_watchlist.deleted = True
                 in_watchlist.save(update_fields=['deleted'])
@@ -163,20 +172,6 @@ class Rating(models.Model):
         if previous:
             return self.rate - previous.rate
         return None
-
-
-# class Season(models.Model):
-#     entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
-#     number = models.IntegerField(blank=True, null=True)
-#
-#
-# class Episode(models.Model):
-#     season = models.ForeignKey(Season, on_delete=models.CASCADE)
-#     const = models.CharField(max_length=150, unique=True)
-#     number = models.FloatField(blank=True, null=True)
-#     name = models.TextField(blank=True, null=True)
-#     release_date = models.CharField(blank=True, null=True, max_length=150)
-#     rate_imdb = models.CharField(max_length=150, blank=True, null=True)
 
 
 class Watchlist(models.Model):
