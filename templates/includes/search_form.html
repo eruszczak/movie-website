@@ -37,11 +37,16 @@
         {% endwith %}
     {% endfor %}
     </select>
-    <div id="exclude_mine" class="checkbox" style="display:none;">
-      <label><input class="filter_results" type="checkbox" name="exclude_mine">exclude mine</label>
-    </div>
-    <div id="exclude_his" class="checkbox" style="display:none;">
-      <label><input class="filter_results" type="checkbox" name="exclude_his">exclude his</label>
+    <div id="search_form_checkboxes" style="display:inline">
+        <div id="exclude_mine" class="checkbox" style="display:none;">
+          <label><input class="filter_results" type="checkbox" name="exclude_mine">exclude mine</label>
+        </div>
+        <div id="exclude_his" class="checkbox" style="display:none;">
+          <label><input class="filter_results" type="checkbox" name="exclude_his">exclude his</label>
+        </div>
+        <div id="common" class="checkbox" style="display:none;">
+          <label><input class="filter_results" type="checkbox" name="common">common</label>
+        </div>
     </div>
     {% endif %}
     <button type="submit" class="btn btn-success" style="float:right"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search</button>

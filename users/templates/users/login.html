@@ -5,13 +5,18 @@
 
 {% block content %}
 <div class="row">
+    <div class="page-header">
+        <h2 class="text-center">Login</h2>
+    </div>
     <div class="col-md-4 col-md-offset-4">
-        <h2>Login</h2>
-		<form action="" method="post">
-			{% csrf_token %}
+        <form action="" method="post">
+            {% csrf_token %}
             {{ form|crispy }}
-			<input type="submit" value="Submit" class="btn btn-info"/>
-		</form>
+            <div class="text-center">
+                <input type="submit" value="Submit" class="btn btn-success"/>
+            </div>
+        </form>
+        <!--todo disable button in empty values-->
     </div>
 </div>
 {% endblock %}

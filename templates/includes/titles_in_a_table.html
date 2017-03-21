@@ -13,7 +13,7 @@
             <a href="{{ obj.get_absolute_url }}">{{ obj.name }} ({{ obj.year }})</a>
 
             <span class="label label-info">{% if obj.runtime %}{{ obj.runtime }} min{% endif %}</span>
-            <span class="label label-info">{% if obj.votes %}{{ obj.votes|intcomma }} IMDb votes{% endif %}</span>
+            <span class="label label-info">{% if obj.votes %}{{ obj.votes|intcomma }} votes{% endif %}</span>
             <span style="float: right;">
                 {% if obj.user_curr_rating %}
                     {{ obj.user_curr_rating }}

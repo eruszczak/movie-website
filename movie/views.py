@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import F
+from django.db.models import Q
 from django.db.models import When, Case, IntegerField
 from django.shortcuts import render, redirect, get_object_or_404
 from users.models import UserFollow
@@ -105,6 +106,9 @@ def explore(request):
     rate_date_year = request.GET.get('year')
     rate_date_month = request.GET.get('month')
     year = request.GET.get('y')
+    common = request.GET.get('common')
+    exclude_his = request.GET.get('exclude_his')
+    exclude_mine = request.GET.get('exclude_mine')
 
     if year:
         find_years = re.match(r'(\d{4})-*(\d{4})*', year)
@@ -149,26 +153,35 @@ def explore(request):
             query_string += '{}={}&'.format('g', genre)
         search_result.append('Genres: {}'.format(', '.join(genres)))
 
-    excluded_searched_user = False
+    want_req_user_rate = True
 
     req_user_id = request.user.id if request.user.is_authenticated() else 0
     if user:
         searched_user = get_object_or_404(User, username=user)
         query_string += '{}={}&'.format('u', user)
-        if req_user_id and request.GET.get('exclude_his'):
+        if exclude_his and req_user_id:
             titles = titles.filter(rating__user=request.user).exclude(rating__user=searched_user)
             query_string += 'exclude_his=on&'
             search_result.append('Seen by you and not by {}'.format(searched_user.username))
-        elif req_user_id != searched_user.id and request.GET.get('exclude_mine'):
-            excluded_searched_user = True
+        elif exclude_mine and req_user_id and req_user_id != searched_user.id:
+            want_req_user_rate = False
+
             titles = titles.filter(rating__user=searched_user).distinct().extra(select={
                 'user_curr_rating': select_current_rating,
             }, select_params=[searched_user.id])
-            if req_user_id:
-                titles = titles.exclude(rating__user=req_user_id)
-                search_result.append('Seen by {} and not by me'.format(searched_user.username))
-            else:
-                search_result.append('Seen by {}'.format(searched_user.username))
+            titles = titles.exclude(rating__user=req_user_id)
+            search_result.append('Seen by {} and not by me'.format(searched_user.username))
+            query_string += 'exclude_mine=on&'
+        elif common and req_user_id and req_user_id != searched_user.id:
+            # todo
+            seen_by_searched_user = Q(rating__user=searched_user)
+            seen_by_req_user = Q(rating__user=request.user)
+            # titles = titles.filter(seen_by_searched_user & seen_by_req_user).distinct().extra(select={
+            titles = titles.filter(rating__user=searched_user).filter(rating__user=request.user).distinct().extra(select={
+                'user_curr_rating': select_current_rating,
+            }, select_params=[searched_user.id])
+            search_result.append('Seen by you and {}'.format(searched_user.username))
+            query_string += 'common=on&'
         elif rating:
             titles = titles.annotate(max_date=Max('rating__rate_date')).filter(
                 rating__user=searched_user, rating__rate_date=F('max_date'), rating__rate=rating)\
@@ -214,7 +227,7 @@ def explore(request):
             search_result.append('Seen in ' + rate_date_year)
 
     titles = titles.prefetch_related('director', 'genre')  # .distinct()
-    if request.user.is_authenticated() and not excluded_searched_user:
+    if request.user.is_authenticated() and want_req_user_rate:
         titles = titles.extra(select={
             'req_user_curr_rating': select_current_rating,
         }, select_params=[request.user.id])
