@@ -175,7 +175,7 @@ def explore(request):
             query_string += '{}={}&'.format('r', rating)
             search_result.append('Titles {} rated {}'.format(searched_user.username, rating))
         elif show_all_ratings:
-            titles = Title.objects.filter(rating__user__username='test')\
+            titles = Title.objects.filter(rating__user__username=searched_user.username)\
                 .order_by('-rating__rate_date', '-rating__inserted_date')
             query_string += '{}={}&'.format('all_ratings', 'on')
             search_result.append('Seen by {}'.format(searched_user.username))
@@ -428,7 +428,8 @@ def favourite(request, username):
     context = {
         'ratings': faved_titles,
         'is_owner': request.user.username == username,
-        'title': 'Favourites of ' + username
+        'title': 'Favourites of ' + username,
+        'username': username
     }
     return render(request, 'favourite.html', context)
 

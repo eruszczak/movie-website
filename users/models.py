@@ -43,7 +43,6 @@ class UserProfile(models.Model):
         super(UserProfile, self).__init__(*args, **kwargs)
         self.__original_picture = self.picture
         self.__original_csv = self.csv_ratings
-        self.user_folder = os.path.join(MEDIA_ROOT, 'user_files', self.user.username)
 
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         # if user still doesn't have a folder - create it
@@ -129,9 +128,10 @@ class UserProfile(models.Model):
         return (timezone.now() - time).seconds > 60 * 3
 
     def delete_previous_file(self, what_to_delete):
-        for file in os.listdir(self.user_folder):
+        user_folder = os.path.join(MEDIA_ROOT, 'user_files', self.user.username)
+        for file in os.listdir(user_folder):
             if UserProfile.get_extension_condition(file, what_to_delete):
-                path = os.path.join(self.user_folder, file)
+                path = os.path.join(user_folder, file)
                 os.remove(path)
 
     @staticmethod
