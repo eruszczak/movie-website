@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load humanize %}
 <tbody>
     {% for obj in objs %}
     <tr {% if sortable %}id="item-{{ obj.const }}"{% endif %} class="result result-{% cycle 'odd' 'even' %}">
@@ -10,7 +11,9 @@
              src="{% if obj.img_thumbnail %}{{ obj.img_thumbnail.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
              style="width: 35px; float: left; margin-right: 10px; " alt="...">
             <a href="{{ obj.get_absolute_url }}">{{ obj.name }} ({{ obj.year }})</a>
-            {% if obj.runtime %}{{ obj.runtime }} min{% endif %}
+
+            <span class="label label-info">{% if obj.runtime %}{{ obj.runtime }} min{% endif %}</span>
+            <span class="label label-info">{% if obj.votes %}{{ obj.votes|intcomma }} IMDb votes{% endif %}</span>
             <span style="float: right;">
                 {% if obj.user_curr_rating %}
                     {{ obj.user_curr_rating }}

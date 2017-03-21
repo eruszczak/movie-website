@@ -6,10 +6,11 @@
 {% block content %}
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
-        <h2 class="text-center">Edit your profile</h2>
+        <h2 class="text-center">Edit your <a href="{{ profile.get_absolute_url }}">profile</a></h2>
         <hr>
 		<form action="" method="post" enctype="multipart/form-data">
 			{% csrf_token %}
+            <p class="inactiveLink"><a data-toggle="tooltip" title="" data-original-title="If you will provide your IMDb Id and your lists are public, you will be able to update your ratings/watchlist using buttons on your profile page.">Why?</a></p>
             <div id="div_id_imdb_id" class="form-group">
                 <div class="form-group">
                 <label class="sr-only" for="id_imdb_id">IMDb ID</label>
@@ -23,6 +24,8 @@
             </div>
 
             <br>
+            <p class="inactiveLink"><a data-toggle="tooltip" data-original-title="Do you want to import your existing IMDb ratings? If so, go to your IMDb Ratings List and at the bottom of the page you can export your ratings, then upload it here and you will be able to update your ratings using a button on your profile page.">Why?</a>
+            </p>
             <div class="input-group">
                 <label class="input-group-btn">
                     <span class="btn btn-success">

@@ -30,9 +30,6 @@ def home(request):
             'last_series': user_ratings.filter(title__type__name='series').select_related('title').first(),
             'last_good_movie': user_ratings.filter(title__type__name='movie', rate__gte=9).select_related('title').first(),
 
-            'movie_count': Title.objects.filter(type__name='movie').count(),
-            'series_count': Title.objects.filter(type__name='series').count(),
-
             'movies_my_count': request.user.userprofile.count_movies,
             'series_my_count': request.user.userprofile.count_series,
 
@@ -48,9 +45,16 @@ def home(request):
             'ratings': Title.objects.all().order_by('-votes')[:16],
             'total_movies': reverse('explore') + '?t=movie',
             'total_series': reverse('explore') + '?t=series',
+
         }
 
-    context['title'] = 'home'
+    common_context = {
+        'title': 'home',
+        'movie_count': Title.objects.filter(type__name='movie').count(),
+        'series_count': Title.objects.filter(type__name='series').count(),
+    }
+
+    context.update(common_context)
     return render(request, 'home.html', context)
 
 

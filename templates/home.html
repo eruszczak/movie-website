@@ -108,9 +108,19 @@
 {% endif %}
 {% else %}
 <!--not authenticated-->
+<div class="row" style="margin-top:20px">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="row alert alert-success" role="alert">
+                <ul>
+                    <li class="li-item">Total series: <a href="{{ total_series }}">{{ series_count }}</a></li>
+                    <li class="li-item2">Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a></li>
+                </ul>
+        </div>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
-    <h3 class="page-header text-center">Popular titles <small>(<a href="{% url 'explore' %}">see more</a>)</small></h3>
+        <h3 class="page-header text-center">Popular titles <small>(<a href="{% url 'explore' %}">see more</a>)</small></h3>
     </div>
 </div>
 <div class="row">

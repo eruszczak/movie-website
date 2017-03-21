@@ -13,14 +13,9 @@ class RegisterForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('username', 'password')
-        # fields = ('username', 'password', 'email')
 
 
 class EditProfileForm(forms.ModelForm):
-
-    # def __init__(self, *args, **kwargs):
-    #     self.user_profile = kwargs.get('instance')
-    #     super(EditProfileForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = UserProfile

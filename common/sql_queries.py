@@ -172,7 +172,7 @@ def avgs_of_2_users_common_curr_ratings(user_id, req_user):
         cursor.execute(avg_for_2_user_of_only_common_curr_ratings, [user_id, req_user, req_user, user_id])
         return dictfetchall(cursor)[0]
 
-
+# todo
 def titles_rated_higher_or_lower(user_id, req_user, sign, limit):
     with connection.cursor() as cursor:
         rate_diff_col_operation = '-' if sign == '<' else '+'
