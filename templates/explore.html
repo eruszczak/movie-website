@@ -33,7 +33,7 @@
 
         <br>
         <table class="table table-hover table-bordered table-condensed">
-            {% include 'includes/title.html' with objs=ratings %}
+            {% include 'includes/titles_in_a_table.html' with objs=ratings %}
         </table>
 
         {% if ratings.paginator.num_pages > 1 %}

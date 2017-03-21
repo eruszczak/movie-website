@@ -83,7 +83,7 @@ avg_for_2_user_of_only_common_curr_ratings = """
 """
 
 rated_higher_or_lower_sorted_by_rate_diff = """
-    SELECT "req_user_rate" {} "user_rate" as "rate_diff", * FROM (
+    SELECT {} as "rate_diff", * FROM (
         SELECT DISTINCT
         (
         SELECT rate FROM movie_rating as rating
@@ -112,6 +112,7 @@ rated_higher_or_lower_sorted_by_rate_diff = """
     LIMIT {}
 """
 
+# todo this can be done in similar way as I fixed getting archived watchlist
 curr_rate_of_followed_user_for_title = """
     SELECT
     (SELECT rate
@@ -174,10 +175,18 @@ def avgs_of_2_users_common_curr_ratings(user_id, req_user):
 
 # todo
 def titles_rated_higher_or_lower(user_id, req_user, sign, limit):
+    """
+    :param user_id:
+    :param req_user:
+    :param sign:
+    :param limit:
+    :return:
+    """
     with connection.cursor() as cursor:
         rate_diff_col_operation = '-' if sign == '<' else '+'
+        q = '"req_user_rate" + "user_rate"' if rate_diff_col_operation == '-' else '"user_rate" - "req_user_rate"'
         cursor.execute(rated_higher_or_lower_sorted_by_rate_diff.format(
-            rate_diff_col_operation, sign, limit), [user_id, req_user, req_user, user_id])
+            q, sign, limit), [user_id, req_user, req_user, user_id])
         return dictfetchall(cursor)
 
 

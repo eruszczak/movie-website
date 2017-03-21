@@ -80,8 +80,8 @@
 						{% include 'includes/titles_in_a_row.html' with title=entry.title owner=is_owner rate=entry.rate req_user_rate=entry.req_user_curr_rating %}
 					{% endfor %}
 					</div>
+					<hr>
 					{% endif %}
-
 					See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_titles }} titles</a>
 					or <a href="{{ choosen_user.userprofile.ratings_url }}&all_ratings=on">{{ choosen_user.userprofile.count_ratings }} ratings</a>
 					<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import_ratings' %}" style="display:none">{% csrf_token %}
@@ -111,11 +111,8 @@
 								{% include 'includes/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate %}
 							{% endfor %}
 						</div>
-						<a href="{% url 'explore' %}?u={{ choosen_user.username }}&exclude_mine=on">see more</a>
+						See all <a href="{{ choosen_user.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
 					</div>
-					{% if user_ratings.common_with_req_user.not_rated_by_req_user_count > 6 %}
-					See all <a href="{{ choosen_user.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
-					{% endif %}
 					<hr>
 					{% endif %}
 					{% if user_ratings.common_with_req_user.higher %}
@@ -136,6 +133,7 @@
 					</div>
 					<hr>
 					{% endif %}
+                    <p class="text-center lead">Summary</p>
 					You and {{ choosen_user.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>
 					{% if user_ratings.common_with_req_user.req_user_rate_avg %}
 						You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ choosen_user.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>

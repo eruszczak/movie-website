@@ -34,7 +34,7 @@
 	<div class="container">
         {% if messages %}
             {% for message in messages %}
-            <div class="margintop alert {% if 'safe' in message.tags %}alert-warning{% else %}alert-{{ message.tags }}{% endif %}">
+            <div class="text-center margintop alert {% if 'safe' in message.tags %}alert-warning{% else %}alert-{{ message.tags }}{% endif %}">
                 {% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}
             </div>
             {% endfor %}

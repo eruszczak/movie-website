@@ -92,12 +92,15 @@ def register(request):
         profile = UserProfile()
         profile.user = user
         profile.save()
-        message = 'Successful registration'
+        message = 'Successful registration. '
         if request.POST.get('login_after'):
             created_user = auth.authenticate(username=user.username, password=request.POST.get('password'))
             auth.login(request, created_user)
-            message += '. You have been logged in'
-        messages.success(request, '{}, {}'.format(message, user.username))
+            message += 'You have been logged in, {}'.format(user.username)
+        else:
+            message += 'You may <a href="{}">log in</a> now.'.format(reverse('login'))
+
+        messages.warning(request, message, extra_tags='safe')
         return redirect(reverse('home'))
     return render(request, 'users/register.html', {'form': form})
 
@@ -112,7 +115,7 @@ def login(request):
         if user:
             if user.is_active:
                 auth.login(request, user)
-                messages.success(request, 'You have been logged in: ' + user.username)
+                messages.warning(request, 'You have been logged in: ' + user.username)
                 return redirect(reverse('home'))
             else:
                 messages.warning(request, 'User not active')
@@ -160,7 +163,6 @@ def logout(request):
 
 
 def user_list(request):
-    context = {'title': 'User list'}
     if request.GET.get('s'):
         title = get_object_or_404(Title, slug=request.GET['s'])
         users_who_saw_title = User.objects.filter(rating__title=title).annotate(num=Count('rating__id')).distinct()
@@ -170,11 +172,17 @@ def user_list(request):
                 ORDER BY rating.rate_date DESC LIMIT 1""",
             }, select_params=[title.id])
 
-        context['user_list'] = users_who_saw_title.order_by('-num')[:30]
-        context['searched_title'] = title
+        context = {
+            'user_list': users_who_saw_title.order_by('-num')[:30],
+            'searched_title': title
+        }
     else:
         list_of_users = User.objects.exclude(pk=request.user.pk).annotate(num=Count('rating__id')).order_by('-num')[:30]
-        context['user_list'] = list_of_users
+        context = {
+            'user_list': list_of_users
+        }
+
+    context.update({'title': 'User list'})
     return render(request, 'users/user_list.html', context)
 
 
@@ -292,20 +300,19 @@ def user_profile(request, username):
                 ORDER BY rating.rate_date DESC LIMIT 1"""
             }, select_params=[user.id])
 
+        common = {}
         if user_ratings.count() > 0:
             common = {
                 'count': common_ratings_len,
                 'higher': titles_req_user_rated_higher,
                 'lower': titles_req_user_rated_lower,
-                'percentage': int(common_ratings_len / user.userprofile.count_titles * 100),
+                'percentage': round(common_ratings_len / user.userprofile.count_titles, 2),
                 'user_rate_avg': common_titles_avgs['avg_user'],
                 'req_user_rate_avg': common_titles_avgs['avg_req_user'],
                 'not_rated_by_req_user': not_rated_by_req_user[:titles_in_a_row],
                 'not_rated_by_req_user_count': Title.objects.filter(rating__user=user).exclude(
                     rating__user=request.user).distinct().count()
             }
-        else:
-            common = {}
         can_follow = not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists()
     else:
         common = None

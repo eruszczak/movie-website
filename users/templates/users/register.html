@@ -5,16 +5,21 @@
 
 {% block content %}
 <div class="row">
+    <div class="page-header">
+        <h2 class="text-center">Register</h2>
+    </div>
     <div class="col-md-4 col-md-offset-4">
-        <h2>Register</h2>
-		<form action="" method="post">
-			{% csrf_token %}
-			{{ form|crispy }}
-			<input type="submit" value="Submit" class="btn btn-info"/>
-            <div class="checkbox">
-              <label><input type="checkbox" name="login_after" value="login_after">login after?</label>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div class="text-center">
+                <input type="submit" value="Submit" class="btn btn-success"/>
             </div>
-		</form>
+            <div class="checkbox">
+                <label><input type="checkbox" name="login_after" value="login_after">login after</label>
+            </div>
+        </form>
+        <!--todo disable button in empty values-->
     </div>
 </div>
 {% endblock %}

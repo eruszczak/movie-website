@@ -140,18 +140,19 @@ $(document).ready(function() {
         }
     });
 
+    var elems = $('#search_form_checkboxes').children();
     $('#selectCompareWithUser').on('change', function() {
         if(this.value) {
-            $('#exclude_mine, #exclude_his').show();
+            elems.show();
         } else {
-            $('#exclude_mine, #exclude_his').hide();
+            elems.hide();
         }
     });
 
     var selectedUser = $('#selectCompareWithUser').val();
     if(selectedUser) {
         if(selectedUser.length)
-            $('#exclude_mine, #exclude_his').show();
+            elems.show();
     }
 
 });
