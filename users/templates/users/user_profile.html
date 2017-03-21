@@ -61,107 +61,123 @@
 				{% endif %}
 			</form>
 		</div>
-		{% else %}
-		<p>Go ahead and <a href="{% url 'user_edit' user.username %}">edit</a> your profile to sync your account with IMDb.</p>
 		{% endif %}
 	</div>
 </div>
 {% endif %}
 
 <br>
-<div class="row">
-	<div class="col-md-8 col-md-offset-2">
-		<div class="panel panel-success">
-			<div class="panel-heading text-center">Most Recently Rated</div>
-			<div class="panel-body">
-				{% if user_ratings.last_seen %}
-				<div class="row">
+{% if user.ratings.last_seen %}
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<div class="panel panel-success">
+				<div class="panel-heading text-center">Most Recently Rated</div>
+				<div class="panel-body">
+					{% if user_ratings.last_seen %}
+					<div class="row">
 
-				{% for entry in user_ratings.last_seen %}
-					{% include 'includes/titles_in_a_row.html' with title=entry.title owner=is_owner rate=entry.rate req_user_rate=entry.req_user_curr_rating %}
-				{% endfor %}
-				</div>
-				{% endif %}
-
-				See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_titles }} titles</a>
-                or <a href="{{ choosen_user.userprofile.ratings_url }}&all_ratings=on">{{ choosen_user.userprofile.count_ratings }} ratings</a>
-				<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import_ratings' %}" style="display:none">{% csrf_token %}
-					<input id="import" name="csv_ratings" type="file" accept=".csv" />
-				</form>
-				<span style="float: right;">
-					{% if is_owner %}
-						<a id="import_ratings" href="{% url 'import_ratings' %}">import</a>
+					{% for entry in user_ratings.last_seen %}
+						{% include 'includes/titles_in_a_row.html' with title=entry.title owner=is_owner rate=entry.rate req_user_rate=entry.req_user_curr_rating %}
+					{% endfor %}
+					</div>
 					{% endif %}
-					<a href="{% url 'export_ratings' choosen_user.username %}">export</a>
-				</span>
+
+					See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_titles }} titles</a>
+					or <a href="{{ choosen_user.userprofile.ratings_url }}&all_ratings=on">{{ choosen_user.userprofile.count_ratings }} ratings</a>
+					<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import_ratings' %}" style="display:none">{% csrf_token %}
+						<input id="import" name="csv_ratings" type="file" accept=".csv" />
+					</form>
+					<span style="float: right;">
+						{% if is_owner %}
+							<a id="import_ratings" href="{% url 'import_ratings' %}">import</a>
+						{% endif %}
+						<a href="{% url 'export_ratings' choosen_user.username %}">export</a>
+					</span>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
-{% if user_ratings.common_with_req_user %}
-<div class="row">
-	<div class="col-md-8 col-md-offset-2">
-		<div class="panel panel-success">
-			<div class="panel-heading text-center">Compared to you</div>
-			<div class="panel-body">
-				{% if user_ratings.common_with_req_user.not_rated_by_req_user %}
-				<div>
+	{% if user_ratings.common_with_req_user %}
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<div class="panel panel-success">
+				<div class="panel-heading text-center">Compared to you</div>
+				<div class="panel-body">
+					{% if user_ratings.common_with_req_user.not_rated_by_req_user %}
+					<div>
+						<div class="row">
+							<p class="text-center lead">Titles {{ choosen_user.username }} liked that you haven't rated</p>
+							{% for title in user_ratings.common_with_req_user.not_rated_by_req_user %}
+								{% include 'includes/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate %}
+							{% endfor %}
+						</div>
+						<a href="{% url 'explore' %}?u={{ choosen_user.username }}&exclude_mine=on">see more</a>
+					</div>
+					{% if user_ratings.common_with_req_user.not_rated_by_req_user_count > 6 %}
+					See all <a href="{{ choosen_user.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
+					{% endif %}
+					<hr>
+					{% endif %}
+					{% if user_ratings.common_with_req_user.higher %}
 					<div class="row">
-						<p class="text-center lead">Titles {{ choosen_user.username }} liked that you haven't rated</p>
-						{% for title in user_ratings.common_with_req_user.not_rated_by_req_user %}
-							{% include 'includes/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate %}
+						<p class="text-center lead">Titles you rated higher</p>
+						{% for title in user_ratings.common_with_req_user.higher %}
+							{% include 'includes/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}
 						{% endfor %}
 					</div>
-					<a href="{% url 'explore' %}?u={{ choosen_user.username }}&exclude_mine=on">see more</a>
+					<hr>
+					{% endif %}
+					{% if user_ratings.common_with_req_user.lower %}
+					<div class="row">
+						<p class="text-center lead">Titles you rated lower</p>
+						{% for title in user_ratings.common_with_req_user.lower %}
+							{% include 'includes/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}
+						{% endfor %}
+					</div>
+					<hr>
+					{% endif %}
+					You and {{ choosen_user.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>
+					{% if user_ratings.common_with_req_user.req_user_rate_avg %}
+						You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ choosen_user.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>
+					{% endif %}
+					You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ choosen_user.username }}'s
+					<a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_titles }} ratings</a><br>
+					<a href="{% url 'explore' %}?u={{ choosen_user.username }}&exclude_his=on">See titles</a> that only you have seen
 				</div>
-				{% if user_ratings.common_with_req_user.not_rated_by_req_user_count > 6 %}
-				See all <a href="{{ choosen_user.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
-				{% endif %}
-				<hr>
-				{% endif %}
-				{% if user_ratings.common_with_req_user.higher %}
-				<div class="row">
-					<p class="text-center lead">Titles you rated higher</p>
-					{% for title in user_ratings.common_with_req_user.higher %}
-						{% include 'includes/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}
-					{% endfor %}
-				</div>
-				<hr>
-				{% endif %}
-				{% if user_ratings.common_with_req_user.lower %}
-				<div class="row">
-					<p class="text-center lead">Titles you rated lower</p>
-					{% for title in user_ratings.common_with_req_user.lower %}
-						{% include 'includes/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}
-					{% endfor %}
-				</div>
-				<hr>
-				{% endif %}
-				You and {{ choosen_user.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>
-				{% if user_ratings.common_with_req_user.req_user_rate_avg %}
-                	You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ choosen_user.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>
-				{% endif %}
-				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ choosen_user.username }}'s
-				<a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_titles }} ratings</a><br>
-				<a href="{% url 'explore' %}?u={{ choosen_user.username }}&exclude_his=on">See titles</a> that only you have seen
 			</div>
 		</div>
 	</div>
-</div>
-{% endif %}
-{% if user_ratings.last_seen %}
-<div class="row">
-    <div class="col-md-10 col-md-offset-1">
-        <div class="text-center">
-            <div class="btn-group" role="group" aria-label="...">
-                <a id="graph_genres" class="btn btn-default">genres</a>
-                <a id="graph_months" class="btn btn-default">months</a>
-                <a id="graph_rated" class="btn btn-default">rated</a>
-                <a id="graph_year" class="btn btn-default">year</a>
-            </div>
-        </div>
-        <div id="graph" style="margin-top: 3%"></div>
-    </div>
-</div>
+	{% endif %}
+	{% if user_ratings.last_seen %}
+	<div class="row">
+		<div class="col-md-10 col-md-offset-1">
+			<div class="text-center">
+				<div class="btn-group" role="group" aria-label="...">
+					<a id="graph_genres" class="btn btn-default">genres</a>
+					<a id="graph_months" class="btn btn-default">months</a>
+					<a id="graph_rated" class="btn btn-default">rated</a>
+					<a id="graph_year" class="btn btn-default">year</a>
+				</div>
+			</div>
+			<div id="graph" style="margin-top: 3%"></div>
+		</div>
+	</div>
+	{% endif %}
+{% else %}
+	{% if is_owner %}
+		<div class="text-center">
+			<div class="alert alert-success alert-resize" role="alert">
+				<p>You have no ratings yet.</p>
+				<p><a href="{% url 'explore' %}">Explore</a> titles or go ahead and <a href="{% url 'user_edit' user.username %}">edit</a> your profile to sync your account with IMDb.</p>
+			</div>
+		</div>
+	{% else %}
+		<br>
+		<div class="text-center">
+			<div class="alert alert-success alert-resize" role="alert">
+				<p>This user hasn't rated anything yet.</p>
+			</div>
+		</div>
+	{% endif %}
 {% endif %}
 {% endblock %}

@@ -17,6 +17,10 @@
             </div>
         </div>
     {% else %}
-        <p class="text-center">You have no favourite titles!</p>
+		<div class="text-center">
+			<div class="alert alert-success alert-resize" role="alert">
+                <p class="text-center">{{ username }} doesn't have any favourite titles!</p>
+			</div>
+		</div>
     {% endif %}
 {% endblock %}

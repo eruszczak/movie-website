@@ -152,16 +152,21 @@ textarea {
     font-family: Arial;
 }
 
-.subheader {
-    width: 100%;
-    height: 30px;
-    background-color: #4CAF50;
-    margin-top: -28px;
-    overflow: hidden;
+.alert-resize {
+    /*resize alert's width to content's length*/
+    display:inline-block;
 }
 
-.alert-success {
-   /* padding-bottom: 5px;*/
+@media screen and (min-width: 480px) {
+    .li-item {
+        display: inline;
+        float: left;
+    }
+
+    .li-item2 {
+        display: inline;
+        float: right;
+    }
 }
 
 .glyphicon-star, .glyphicon-star-empty {
