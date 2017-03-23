@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load l10n %}
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
@@ -25,7 +26,7 @@
                         <tr>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
                             <td><a href="{{ obj.title.get_absolute_url }}">{{ obj.title.name }}</a></td>
-                            <td>{{ obj.added_date|date:"Y-m-d G:i" }}</td>
+                            <td>{{ obj.added_date|date:"Y-m-d G:i"|localize }}</td>
                             <!--<td>{{ obj.added_date|date:"e y-m-d G:i" }}</td>-->
                             {% if is_owner %}
                                 <td class="text-center">

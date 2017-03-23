@@ -3,33 +3,33 @@ from datetime import datetime
 from django.db.models import F
 from django.contrib.auth.models import User
 from recommend.models import Recommendation
-from ..models import Watchlist, Favourite, Rating
+from movie.models import Watchlist, Favourite, Rating
 
 from common.prepareDB_utils import validate_rate
 
 
-def toggle_title_in_watchlist(user, title, watch=None, unwatch=None):
-    watchlist_instance = Watchlist.objects.filter(user=user, title=title).first()
-    if watch is not None:
-        if watchlist_instance and watchlist_instance.imdb:
-            # this is when you delete title imdb=True and then you add it again
-            watchlist_instance.deleted = False
-            watchlist_instance.save(update_fields=['deleted'])
-        else:
+def toggle_title_in_watchlist(user=None, title=None, watch=None, unwatch=None, instance=None):
+    """
+    adds or deletes title from user's watchlist. if title comes from IMDb's watchlist, it is only marked as 'deleted',
+    because it would be added again with another watchlist update anyway
+    """
+    watchlist_instance = Watchlist.objects.filter(user=user, title=title).first() if instance is None else instance
+
+    if watchlist_instance and watchlist_instance.imdb:
+        watchlist_instance.deleted = False if watch else True
+        watchlist_instance.save(update_fields=['deleted'])
+    else:
+        if watch:
             Watchlist.objects.create(user=user, title=title)
-    elif unwatch is not None:
-        if watchlist_instance.imdb:
-            watchlist_instance.deleted = True
-            watchlist_instance.save(update_fields=['deleted'])
-        else:
+        elif unwatch and watchlist_instance:
             watchlist_instance.delete()
 
 
 def toggle_title_in_favourites(user, title, fav=None, unfav=None):
     user_favourites = Favourite.objects.filter(user=user)
-    if fav is not None:
+    if fav:
         Favourite.objects.create(user=user, title=title, order=user_favourites.count() + 1)
-    elif unfav is not None:
+    elif unfav:
         favourite_instance = user_favourites.filter(title=title).first()
         user_favourites.filter(order__gt=favourite_instance.order).update(order=F('order') - 1)
         favourite_instance.delete()
