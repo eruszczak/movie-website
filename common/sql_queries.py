@@ -99,7 +99,7 @@ rated_higher_or_lower_sorted_by_rate_diff = """
         ORDER BY rating.rate_date DESC LIMIT 1
         ) AS "req_user_rate",
 
-        "movie_title".*
+        "movie_title".const, "movie_title".name, "movie_title".img_thumbnail, "movie_title".img
         FROM "movie_title"
 
         --need to twice join the same table so in the where condition I can check for 2 ids

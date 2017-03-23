@@ -55,12 +55,11 @@ $(document).ready(function() {
     });
 
 
-    if ($('div').is('#favouritePage')) {
+    if ($('table').is('#sortable')) {
         var pathArray = window.location.pathname.split('/');
         var path_username = pathArray[pathArray.length - 3];
         if (path_username == request_username) {
             sortable();
-//            $('tbody').sortable()
         }
     }
 
@@ -155,16 +154,33 @@ $(document).ready(function() {
             elems.show();
     }
 
+
+    $("#btnSubmit").attr("disabled", "disabled");
+    $('#id_username, #id_password').keyup(function() {
+        var validated = false;
+        var username = $('#id_username').val();
+        var password = $('#id_password').val();
+
+        if (username.length && password.length) {
+            validated = true;
+        }
+
+        if (validated) {
+            $("#btnSubmit").removeAttr("disabled");
+        } else {
+            $("#btnSubmit").attr("disabled", "disabled");
+        }
+    });
 });
 
 function sortable() {
-    $('tbody').sortable({
+    $('#sortable tbody').sortable({
         placeholder: 'sort-placeholder',
         axis: 'y',
         update: function (event, ui) {
             var ordering = $(this).sortable('serialize');
-            $(this).find('li').each(function(i){
-                $(this).find('p#item-order').text(i+1);
+            $(this).find('tr').each(function(i) {
+                $(this).find('.item-order').text(i+1);
             });
             ajax_request({'item_order': ordering});
         }

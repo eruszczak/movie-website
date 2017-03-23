@@ -1,23 +1,23 @@
+import calendar
 import re
 from datetime import datetime
-import calendar
 
-from django.db.models import Count, Max
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db.models import Count, Max
 from django.db.models import F
 from django.db.models import Q
 from django.db.models import When, Case, IntegerField
 from django.shortcuts import render, redirect, get_object_or_404
-from users.models import UserFollow
-from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 
-from .utils.functions import toggle_title_in_watchlist, toggle_title_in_favourites, recommend_title, create_or_update_rating
-from common.utils import paginate
 from common.prepareDB import update_title
 from common.prepareDB_utils import validate_rate, convert_to_datetime
 from common.sql_queries import curr_title_rating_of_followed, select_current_rating
+from common.utils import paginate
+from movie.functions import toggle_title_in_watchlist, toggle_title_in_favourites, recommend_title, create_or_update_rating
+from users.models import UserFollow
+from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 
 
 def home(request):
@@ -276,7 +276,13 @@ def title_details(request, slug):
 
         delete_rating = request.POST.get('delete_rating')
         if delete_rating:
-            Rating.objects.filter(pk=request.POST.get('rating_pk'), user=request.user).delete()
+            to_delete = Rating.objects.filter(pk=request.POST.get('rating_pk'), user=request.user).first()
+            if to_delete:
+                in_watchlist = Watchlist.objects.filter(user=request.user, title=title,
+                                                        added_date__date__lte=to_delete.rate_date, deleted=True).first()
+                if in_watchlist:
+                    toggle_title_in_watchlist(watch=True, instance=in_watchlist)
+                to_delete.delete()
         return redirect(title)
 
     req_user_data = {}
@@ -320,7 +326,6 @@ def title_edit(request, slug):
                     message += ', ' if message else ''
                     message += 'date: {} changed for {}'.format(current_rating.rate_date, new_date)
                     current_rating.rate_date = new_date
-
                 if message:
                     messages.success(request, message)
                     current_rating.save(update_fields=['rate', 'rate_date'])

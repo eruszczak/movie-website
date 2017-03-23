@@ -13,7 +13,7 @@
             {% csrf_token %}
             {{ form|crispy }}
             <div class="text-center">
-                <input type="submit" value="Submit" class="btn btn-success"/>
+                <input id="btnSubmit" type="submit" value="Submit" class="btn btn-success"/>
             </div>
         </form>
         <!--todo disable button in empty values-->

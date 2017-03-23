@@ -1,19 +1,15 @@
 import os
 import csv
-import sys
 
 from django.conf import settings
 from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, add_new_title,\
     validate_rate, valid_csv_headers
-from django.contrib.auth.models import User
 from movie.models import Title, Watchlist, Rating
 
 
 def get_title_or_create(const):
     if not Title.objects.filter(const=const).exists():
-        is_added = add_new_title(const)
-        if not is_added:
-            return False
+        return add_new_title(const)
     return Title.objects.get(const=const)
 
 
@@ -38,7 +34,7 @@ def get_watchlist(user):
         user_watchlist = Watchlist.objects.filter(user=user)
         print('get_watchlist', user)
         for obj in itemlist:
-            const, name, date = unpack_from_rss_item(obj, for_watchlist=True)
+            const, date = unpack_from_rss_item(obj, for_watchlist=True)
             title = get_title_or_create(const)
             if title:
                 current_watchlist.append(const)
@@ -68,7 +64,6 @@ def update_from_csv(user):
             if not valid_csv_headers(f):
                 return None
 
-            f.seek(0)
             reader = csv.DictReader(f)
             for row in reader:
                 title = get_title_or_create(row['const'])
@@ -92,7 +87,7 @@ def update_from_rss(user):
         count = 0
         print('update_from_rss:', user)
         for i, item in enumerate(itemlist):
-            const, rate, rate_date = unpack_from_rss_item(item)
+            const, rate_date, rate = unpack_from_rss_item(item)
             title = get_title_or_create(const)
             if title and rate and rate_date:
                 obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
@@ -105,27 +100,27 @@ def update_from_rss(user):
     return None
 
 
-def update_users_ratings_from_rss():
-    for user in User.objects.filter(userprofile__imdb_id__isnull=False):
-        update_from_rss(user)
-
-
-def update_users_ratings_from_csv():
-    for user in User.objects.exclude(userprofile__csv_ratings=''):
-        update_from_csv(user)
-
-
-def update_users_watchlist():
-    for user in User.objects.filter(userprofile__imdb_id__isnull=False):
-        get_watchlist(user)
-
-
-if __name__ == "__main__":
-    if len(sys.argv) == 2:
-        command = sys.argv[1]
-        if command == 'allrss':
-            update_users_ratings_from_rss()
-        elif command == 'allcsv':
-            update_users_ratings_from_csv()
-        elif command == 'allwatchlist':
-            update_users_watchlist()
+# def update_users_ratings_from_rss():
+#     for user in User.objects.filter(userprofile__imdb_id__isnull=False):
+#         update_from_rss(user)
+#
+#
+# def update_users_ratings_from_csv():
+#     for user in User.objects.exclude(userprofile__csv_ratings=''):
+#         update_from_csv(user)
+#
+#
+# def update_users_watchlist():
+#     for user in User.objects.filter(userprofile__imdb_id__isnull=False):
+#         get_watchlist(user)
+#
+#
+# if __name__ == "__main__":
+#     if len(sys.argv) == 2:
+#         command = sys.argv[1]
+#         if command == 'allrss':
+#             update_users_ratings_from_rss()
+#         elif command == 'allcsv':
+#             update_users_ratings_from_csv()
+#         elif command == 'allwatchlist':
+#             update_users_watchlist()

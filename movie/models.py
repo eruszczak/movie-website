@@ -1,10 +1,12 @@
-from django.core.urlresolvers import reverse
-from django.utils import timezone
-from django.db import models
 from datetime import datetime
+
 from django.contrib.auth.models import User
-from common.sql_queries import avg_of_title_current_ratings
+from django.core.urlresolvers import reverse
+from django.db import models
 from django.template.defaultfilters import slugify
+from django.utils import timezone
+
+from common.sql_queries import avg_of_title_current_ratings
 
 
 class Genre(models.Model):
@@ -41,7 +43,7 @@ class Type(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
     def get_absolute_url(self):
-        return reverse('explore') + '?t={}'.format(self.name)   # todo
+        return reverse('explore') + '?t={}'.format(self.name)
 
     def __str__(self):
         return self.name
@@ -137,23 +139,15 @@ class Rating(models.Model):
         return '{} {}'.format(self.title.name, self.rate_date)
 
     def save(self, *args, **kwargs):
-        # todo should do it when updating too?
+        from movie.functions import toggle_title_in_watchlist
         """
         before creating new Rating, check if this title is in user's watchlist, if it is - delete it
         """
-        if not self.id:
-            pass
-        print(self.id)
         in_watchlist = Watchlist.objects.filter(user=self.user, title=self.title,
                                                 added_date__date__lte=self.rate_date, deleted=False).first()
         if in_watchlist:
-            # i think its refactorable
-            # TODO this must be reversed if rating is deleted
-            if in_watchlist.imdb:
-                in_watchlist.deleted = True
-                in_watchlist.save(update_fields=['deleted'])
-            else:
-                in_watchlist.delete()
+            toggle_title_in_watchlist(unwatch=True, instance=in_watchlist)
+
         super(Rating, self).save(*args, **kwargs)
 
     @property

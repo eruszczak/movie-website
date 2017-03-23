@@ -5,7 +5,7 @@
     <tr {% if sortable %}id="item-{{ obj.const }}"{% endif %} class="result result-{% cycle 'odd' 'even' %}">
         <td class="col-md-9 paddingleft">
             {% with objs.start_index|default:1 as index %}
-                {{ forloop.counter0|add:index }}.
+                <span class="item-order">{{ forloop.counter0|add:index }}</span>.
             {% endwith %}
             <img class="img-responsive img-rounded"
              src="{% if obj.img_thumbnail %}{{ obj.img_thumbnail.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
