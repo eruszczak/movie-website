@@ -28,6 +28,12 @@ def prepare_json(json):
 
 
 def convert_to_datetime(date_string, source):
+    """
+    xml is IMDb's RSS format (for getting current ratings and watchlist)
+    csv is for ratings.csv file exported from IMDb list
+    json is OMDb's API format
+    exported_from_db is my format, used when ratings are exported or imported (user profile)
+    """
     date_formats = {
         'xml': '%a, %d %b %Y %H:%M:%S GMT',
         'csv': '%a %b %d 00:00:00 %Y',
@@ -43,6 +49,9 @@ def convert_to_datetime(date_string, source):
 
 
 def validate_rate(rate):
+    """
+    rating must be integer 1-10
+    """
     try:
         rate = int(rate)
     except (ValueError, TypeError):
@@ -180,7 +189,7 @@ def get_and_assign_poster(obj):
 
 def clear_relationships(title):
     """
-    title's relations must be cleared when title is being updated
+    title's many to many relations must be cleared when title is being updated (because it's not deleted and added again)
     """
     title.genre.clear()
     title.actor.clear()
@@ -188,6 +197,9 @@ def clear_relationships(title):
 
 
 def create_m2m_relationships(title, genres=None, directors=None, actors=None):
+    """
+    creates many to many relations between title and its genres/directors/actors
+    """
     if genres is not None:
         for genre in genres.split(', '):
             genre, created = Genre.objects.get_or_create(name=genre.lower())
@@ -229,9 +241,6 @@ def add_new_title(const, update=False):
             title, created = Title.objects.update_or_create(const=const, defaults=dict(tomatoes, **imdb))
             print('updated title ' + title.const)
             assert not created
-            # count = Title.objects.filter(const=const).update(dict(tomatoes, **imdb))
-            # print(count)
-            # assert count in (0, 1)
         else:
             title = Title.objects.create(const=const, **imdb, **tomatoes)
             print('added title:' + title.const)

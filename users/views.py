@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from movie.models import Title, Rating
 from .models import UserProfile, UserFollow
 from .forms import RegisterForm, LoginForm, EditProfileForm
-from .functions import update_csv, update_rss, update_watchlist, validate_imported_ratings, create_csv_with_user_ratings
+from .functions import update_ratings_using_csv, update_ratings, update_watchlist, validate_imported_ratings, create_csv_with_user_ratings
 from common.sql_queries import avgs_of_2_users_common_curr_ratings, titles_rated_higher_or_lower
 from common.prepareDB_utils import validate_rate, convert_to_datetime
 
@@ -158,7 +158,8 @@ def user_list(request):
             'searched_title': title
         }
     else:
-        list_of_users = User.objects.exclude(pk=request.user.pk).annotate(num=Count('rating__id')).order_by('-num')[:30]
+        # todo
+        list_of_users = User.objects.annotate(num=Count('rating')).order_by('-num')[:20]
         context = {
             'user_list': list_of_users
         }
@@ -181,9 +182,9 @@ def user_profile(request, username):
         elif user == request.user:
             message = ''
             if request.POST.get('update_csv'):
-                message = update_csv(user)
+                message = update_ratings_using_csv(user)
             elif request.POST.get('update_rss') and user.userprofile.imdb_id:
-                message = update_rss(user)
+                message = update_ratings(user)
             elif request.POST.get('update_watchlist') and user.userprofile.imdb_id:
                 message = update_watchlist(user)
             messages.info(request, message, extra_tags='safe')

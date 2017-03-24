@@ -25,14 +25,17 @@ def update_title(title):
     return False, message
 
 
-def get_watchlist(user):
+def update_user_watchlist(user):
+    """
+    updates user's watchlist rss.imdb.com/user/<userid>/watchlist
+    """
     itemlist = get_rss(user.userprofile.imdb_id, 'watchlist')
     if itemlist:
         updated_titles = []
         current_watchlist = []
         count = 0
         user_watchlist = Watchlist.objects.filter(user=user)
-        print('get_watchlist', user)
+        print('update_user_watchlist', user)
         for obj in itemlist:
             const, date = unpack_from_rss_item(obj, for_watchlist=True)
             title = get_title_or_create(const)
@@ -54,12 +57,15 @@ def get_watchlist(user):
     return None
 
 
-def update_from_csv(user):
+def update_user_ratings_csv(user):
+    """
+    updates user's ratings using ratings.csv exported from IMDb's list
+    """
     path = os.path.join(settings.MEDIA_ROOT, str(user.userprofile.csv_ratings))
     if os.path.isfile(path):
         updated_titles = []
         count = 0
-        print('update_from_csv:', user)
+        print('update_user_ratings_csv:', user)
         with open(path, 'r') as f:
             if not valid_csv_headers(f):
                 return None
@@ -80,12 +86,15 @@ def update_from_csv(user):
     return None
 
 
-def update_from_rss(user):
+def update_user_ratings(user):
+    """
+    updates user's ratings using rss.imdb.com/user/<userid>/ratings
+    """
     itemlist = get_rss(user.userprofile.imdb_id, 'ratings')
     if itemlist:
         updated_titles = []
         count = 0
-        print('update_from_rss:', user)
+        print('update_user_ratings:', user)
         for i, item in enumerate(itemlist):
             const, rate_date, rate = unpack_from_rss_item(item)
             title = get_title_or_create(const)

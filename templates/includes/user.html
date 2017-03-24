@@ -2,7 +2,7 @@
 
 {% for user in user_list %}
 <div class="col-md-12">
-    <div class="well usersList">
+    <div class="well usersList{% if request.user == user %} userListOwner{% endif %}">
         <a href="{{ user.userprofile.get_absolute_url }}">
             <img id="avatar" class="img-responsive img-thumbnail avatarMin" style="float:left;margin-right: 10px"
                  src="{% if user.userprofile.picture %}{{ user.userprofile.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}" alt="...">
@@ -16,15 +16,18 @@
             {% endfor %}
         {% endif %}
 
+        {% comment %}
         {% with user.userprofile.avg_of_current_ratings as user_current_ratings %}
             {% if user_current_ratings.count %}
                 <p>See all <a href="{{ user.userprofile.ratings_url }}">{{ user_current_ratings.count }} rated titles</a>
                     (avg: {{ user_current_ratings.avg|floatformat:2 }})
                 </p>
+            {% else %}
+                <p style="font-size:11px"><em>User hasn't rated anything yet.</em></p>
             {% endif %}
         {% endwith %}
-
-
+        {% endcomment %}
+        <p>See all {{ user.num }} <a href="{{ user.userprofile.ratings_url }}">{{ user.userprofile.count_titles }} rated titles</a>
 
         <div>
             <a href="{{ user.userprofile.watchlist_url }}" class="btn btn-xs btn-default">

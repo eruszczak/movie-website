@@ -85,6 +85,10 @@ thead tr {
     background-color: white;
 }
 
+.userListOwner {
+    border-color: #159957;
+}
+
 @media (min-width: 768px) {
     .navbar .navbar-nav {
         display: inline-block;
