@@ -83,15 +83,15 @@
 					<hr>
 					{% endif %}
 					See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_titles }} titles</a>
-					or <a href="{{ choosen_user.userprofile.ratings_url }}&all_ratings=on">{{ choosen_user.userprofile.count_ratings }} ratings</a>
+					or <a href="{{ choosen_user.userprofile.all_ratings_url }}">{{ choosen_user.userprofile.count_ratings }} ratings</a>
 					<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import_ratings' %}" style="display:none">{% csrf_token %}
 						<input id="import" name="csv_ratings" type="file" accept=".csv" />
 					</form>
 					<span style="float: right;">
 						{% if is_owner %}
-							<a id="import_ratings" href="{% url 'import_ratings' %}">import</a>
+							<a id="import_ratings" href="{% url 'import_ratings' %}" style="margin-right:10px" data-toggle="tooltip" title="You can add ratings from exported file.">import</a>
 						{% endif %}
-						<a href="{% url 'export_ratings' choosen_user.username %}">export</a>
+						<a href="{% url 'export_ratings' choosen_user.username %}" data-toggle="tooltip" title="You can export all of your ratings as a form of backup. If you will lose some of your ratings, you will be able to import them.">export</a>
 					</span>
 				</div>
 			</div>

@@ -82,6 +82,9 @@ class UserProfile(models.Model):
     def ratings_url(self):
         return reverse('explore') + '?u={}'.format(self.user.username)
 
+    def all_ratings_url(self):
+        return reverse('explore') + '?u={}'.format(self.user.username) + '&all_ratings=on'
+
     def ratings_exclude(self):
         return reverse('explore') + '?u={}&exclude_mine=on'.format(self.user.username)
 
@@ -107,6 +110,7 @@ class UserProfile(models.Model):
 
     @property
     def avg_of_current_ratings(self):
+        # todo
         return avg_of_user_current_ratings(self.id)
 
     @property

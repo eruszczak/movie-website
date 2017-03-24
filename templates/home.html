@@ -41,7 +41,7 @@
                                 (<a href="{{ search_movies }}">{{ movies_my_count }}</a> watched)
                             </li>
                             <li>Watched titles: <a href="{{ request.user.userprofile.ratings_url }}">{{ rated_titles }}</a>
-                                (<a href="{{ request.user.userprofile.ratings_url }}&all_ratings=on">{{ total_ratings }}</a> total ratings)
+                                (<a href="{{ request.user.userprofile.all_ratings_url }}">{{ total_ratings }}</a> total ratings)
                             </li>
                         </ul>
                     </div>
