@@ -1,3 +1,4 @@
+import io
 import csv
 from datetime import datetime
 
@@ -13,27 +14,21 @@ from django.contrib.auth.decorators import login_required
 from movie.models import Title, Rating
 from .models import UserProfile, UserFollow
 from .forms import RegisterForm, LoginForm, EditProfileForm
-from .functions import update_csv, update_rss, update_watchlist
+from .functions import update_csv, update_rss, update_watchlist, validate_imported_ratings, create_csv_with_user_ratings
 from common.sql_queries import avgs_of_2_users_common_curr_ratings, titles_rated_higher_or_lower
+from common.prepareDB_utils import validate_rate, convert_to_datetime
 
 
 def export_ratings(request, username):
     response = HttpResponse(content_type='text/csv')
+    headers = ['const', 'rate_date', 'rate']
     user_ratings = Rating.objects.filter(user__username=username).select_related('title')
 
-    headers = ['const', 'rate_date', 'rate']
     writer = csv.DictWriter(response, fieldnames=headers, lineterminator='\n')
     writer.writeheader()
-    for r in user_ratings:
-        writer.writerow({
-            'const': r.title.const,
-            'rate_date': r.rate_date,
-            'rate': r.rate
-        })
+    count_ratings, count_titles = create_csv_with_user_ratings(writer, user_ratings)
 
-    filename = '{}_ratings_for_{}_titles_{}'.format(user_ratings.count(),
-                                                    user_ratings.values_list('title').distinct().count(),
-                                                    datetime.now().strftime('%Y-%m-%d'))
+    filename = '{}_ratings_for_{}_titles_{}'.format(count_ratings, count_titles, datetime.now().strftime('%Y-%m-%d'))
     response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
     return response
 
@@ -41,23 +36,13 @@ def export_ratings(request, username):
 @login_required
 @require_POST
 def import_ratings(request):
-    import io
-    from common.prepareDB_utils import valid_imported_csv_headers, validate_rate, convert_to_datetime
-
     profile = UserProfile.objects.get(user=request.user)
     uploaded_file = request.FILES['csv_ratings']
-    if uploaded_file.size > 2 * 1024 * 1024:
-        messages.info(request, 'File is too big. Max 2MB.')
-        return redirect(profile)
-
-    if not uploaded_file.name.endswith('.csv'):
-        messages.info(request, 'Not csv file')
-        return redirect(profile)
-
-    f = uploaded_file.read().decode('utf-8')
-    io_string = io.StringIO(f)
-    if not valid_imported_csv_headers(io_string):
-        messages.info(request, 'Not valid format. Headers do not match.')
+    file = uploaded_file.read().decode('utf-8')
+    io_string = io.StringIO(file)
+    is_valid, message = validate_imported_ratings(file, io_string)
+    if not is_valid:
+        messages.info(request, message)
         return redirect(profile)
 
     reader = csv.DictReader(io_string)
@@ -67,10 +52,9 @@ def import_ratings(request):
         total_rows += 1
         const, rate_date, rate = row['const'], row['rate_date'], row['rate']
         title = Title.objects.filter(const=const).first()
-        rate = validate_rate(rate)
         rate_date = convert_to_datetime(row['rate_date'], 'exported_from_db')
 
-        if title and rate and rate_date:
+        if title and validate_rate(rate) and rate_date:
             obj, created = Rating.objects.get_or_create(user=request.user, title=title, rate_date=rate_date,
                                                         defaults={'rate': rate})
             if created:
@@ -221,7 +205,7 @@ def user_profile(request, username):
         titles_req_user_rated_lower = titles_rated_higher_or_lower(
             user.id, request.user.id, sign='>', limit=titles_in_a_row)
 
-        # title = Title.objects.
+        # title = Rating.objects.filter(user=request.user).filter(user=user.id)
 
         common_titles_avgs = avgs_of_2_users_common_curr_ratings(user.id, request.user.id)
         common_ratings_len = common_titles_avgs['count']

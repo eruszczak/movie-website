@@ -187,6 +187,21 @@ def clear_relationships(title):
     title.director.clear()
 
 
+def create_m2m_relationships(title, genres=None, directors=None, actors=None):
+    if genres is not None:
+        for genre in genres.split(', '):
+            genre, created = Genre.objects.get_or_create(name=genre.lower())
+            title.genre.add(genre)
+    if directors is not None:
+        for director in directors.split(', '):
+            director, created = Director.objects.get_or_create(name=director)
+            title.director.add(director)
+    if actors is not None:
+        for actor in actors.split(', '):
+            actor, created = Actor.objects.get_or_create(name=actor)
+            title.actor.add(actor)
+
+
 def add_new_title(const, update=False):
     """
     create new title or update exisiting one
@@ -209,27 +224,22 @@ def add_new_title(const, update=False):
             votes=json['imdbVotes'], plot=json['Plot']
         )
 
-        if not update:
-            title = Title.objects.create(const=const, **imdb, **tomatoes)
-            print('added title:' + title.const)
-        else:
+        if update:
             clear_relationships(Title.objects.get(const=const))
             title, created = Title.objects.update_or_create(const=const, defaults=dict(tomatoes, **imdb))
             print('updated title ' + title.const)
             assert not created
+            # count = Title.objects.filter(const=const).update(dict(tomatoes, **imdb))
+            # print(count)
+            # assert count in (0, 1)
+        else:
+            title = Title.objects.create(const=const, **imdb, **tomatoes)
+            print('added title:' + title.const)
 
         if title.url_poster:
             get_and_assign_poster(title)
 
-        for genre in json['Genre'].split(', '):
-            genre, created = Genre.objects.get_or_create(name=genre.lower())
-            title.genre.add(genre)
-        for director in json['Director'].split(', '):
-            director, created = Director.objects.get_or_create(name=director)
-            title.director.add(director)
-        for actor in json['Actors'].split(', '):
-            actor, created = Actor.objects.get_or_create(name=actor)
-            title.actor.add(actor)
+        create_m2m_relationships(title, genres=json['Genre'], directors=json['Director'], actors=json['Actors'])
 
         return title
     return False

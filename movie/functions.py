@@ -26,6 +26,10 @@ def toggle_title_in_watchlist(user=None, title=None, watch=None, unwatch=None, i
 
 
 def toggle_title_in_favourites(user, title, fav=None, unfav=None):
+    """
+    deletes or adds title to user's favourites while maintaining the proper order
+    fav titles are ordered and when some title is being deleted, order of another titles must be updated
+    """
     user_favourites = Favourite.objects.filter(user=user)
     if fav:
         Favourite.objects.create(user=user, title=title, order=user_favourites.count() + 1)
@@ -36,6 +40,9 @@ def toggle_title_in_favourites(user, title, fav=None, unfav=None):
 
 
 def recommend_title(title, sender, usernames):
+    """
+    user recommends the title to list of usernames
+    """
     users = []
     message = ''
     for username in usernames:
@@ -53,6 +60,10 @@ def recommend_title(title, sender, usernames):
 
 
 def create_or_update_rating(title, user, rate, insert_as_new=False):
+    """
+    updates current title rating or creates new one
+    if rate is '0' rating is deleted
+    """
     today = datetime.now().date()
     current_rating = Rating.objects.filter(user=user, title=title).first()
     todays_rating = Rating.objects.filter(user=user, title=title, rate_date=today)
