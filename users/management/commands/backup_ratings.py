@@ -1,11 +1,11 @@
-from django.core.management.base import BaseCommand, CommandError
-from django.core.management import call_command
+from django.core.management.base import BaseCommand
 from mysite.settings import BACKUP_ROOT
 import os
 from datetime import datetime
 from django.contrib.auth.models import User
 from movie.models import Rating
 import csv
+from users.functions import create_csv_with_user_ratings
 
 
 class Command(BaseCommand):
@@ -25,11 +25,5 @@ class Command(BaseCommand):
                 headers = ['const', 'rate_date', 'rate']
                 writer = csv.DictWriter(f, fieldnames=headers, lineterminator='\n')
                 writer.writeheader()
-                for r in user_ratings:
-                    writer.writerow({
-                        'const': r.title.const,
-                        'rate_date': r.rate_date,
-                        'rate': r.rate
-                    })
+                create_csv_with_user_ratings(writer, user_ratings)
             self.stdout.write(self.style.SUCCESS('Created csv in ' + filename))
-

@@ -1,4 +1,5 @@
 from common.prepareDB import update_from_csv, update_from_rss, get_watchlist
+from common.prepareDB_utils import valid_imported_csv_headers
 from common.utils import build_html_string_for_titles
 from django.utils import timezone
 
@@ -23,9 +24,7 @@ def update_csv(user):
             updated_titles, count = data
             csv_filename = str(user.userprofile.csv_ratings).split('/')[-1]
             if updated_titles:
-                message = msgs['updated'].format(csv_filename,
-                                                 count,
-                                                 build_html_string_for_titles(updated_titles))
+                message = msgs['updated'].format(csv_filename, count, build_html_string_for_titles(updated_titles))
             else:
                 message = msgs['updated_nothing'].format(csv_filename)
         else:
@@ -81,3 +80,33 @@ def update_watchlist(user):
     else:
         message = msgs['timeout']
     return message
+
+
+def validate_imported_ratings(file, io_string):
+    message = False
+    if file.size > 2 * 1024 * 1024:
+        message = 'File is too big. Max 2MB.'
+    elif not file.name.endswith('.csv'):
+        message = 'Not csv file'
+    elif not valid_imported_csv_headers(io_string):
+        message = 'Not valid format. Headers do not match.'
+
+    if message:
+        return False, message
+    return True, 'valid'
+
+
+def create_csv_with_user_ratings(writer, ratings):
+    """
+    fills csv.DictWriter with given Rating queryset
+    """
+    for rating in ratings:
+        writer.writerow({
+            'const': rating.title.const,
+            'rate_date': rating.rate_date,
+            'rate': rating.rate
+        })
+    count_ratings = ratings.count()
+    count_titles = ratings.values_list('title').distinct().count()
+    return count_ratings, count_titles
+

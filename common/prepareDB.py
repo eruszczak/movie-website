@@ -16,7 +16,7 @@ def get_title_or_create(const):
 def update_title(title):
     if title.can_be_updated:
         if add_new_title(title.const, update=True):
-            message = 'Title updated sucessfully'
+            message = 'Title updated successfully'
             return True, message
         else:
             message = 'Title wasn\'t updated'
@@ -98,29 +98,3 @@ def update_from_rss(user):
                         updated_titles.append(title)
         return updated_titles, count
     return None
-
-
-# def update_users_ratings_from_rss():
-#     for user in User.objects.filter(userprofile__imdb_id__isnull=False):
-#         update_from_rss(user)
-#
-#
-# def update_users_ratings_from_csv():
-#     for user in User.objects.exclude(userprofile__csv_ratings=''):
-#         update_from_csv(user)
-#
-#
-# def update_users_watchlist():
-#     for user in User.objects.filter(userprofile__imdb_id__isnull=False):
-#         get_watchlist(user)
-#
-#
-# if __name__ == "__main__":
-#     if len(sys.argv) == 2:
-#         command = sys.argv[1]
-#         if command == 'allrss':
-#             update_users_ratings_from_rss()
-#         elif command == 'allcsv':
-#             update_users_ratings_from_csv()
-#         elif command == 'allwatchlist':
-#             update_users_watchlist()
