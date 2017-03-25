@@ -53,10 +53,10 @@ class Title(models.Model):
     actor = models.ManyToManyField(Actor)
     genre = models.ManyToManyField(Genre)
     director = models.ManyToManyField(Director)
-    type = models.ForeignKey(Type, on_delete=models.CASCADE)
+    type = models.ForeignKey(Type, blank=True, null=True, on_delete=models.CASCADE)
 
     const = models.CharField(unique=True, max_length=9)
-    name = models.TextField()
+    name = models.TextField(blank=True, null=True)
 
     rate_imdb = models.FloatField(blank=True, null=True)
     runtime = models.IntegerField(blank=True, null=True)

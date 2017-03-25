@@ -162,12 +162,14 @@ def avg_of_user_current_ratings(user_id):
         return dictfetchall(cursor)[0]
 
 
+# todo this is almost done. i just have to get distinct('user')
 def avg_of_title_current_ratings(title_id):
     with connection.cursor() as cursor:
         cursor.execute(avg_of_current_ratings_of_title, [title_id])
         return dictfetchall(cursor)[0]
 
 
+# todo similar as upper. just need to make 2 queries to get avgs but filter common ratings first
 def avgs_of_2_users_common_curr_ratings(user_id, req_user):
     with connection.cursor() as cursor:
         cursor.execute(avg_for_2_user_of_only_common_curr_ratings, [user_id, req_user, req_user, user_id])
@@ -176,11 +178,7 @@ def avgs_of_2_users_common_curr_ratings(user_id, req_user):
 # todo
 def titles_rated_higher_or_lower(user_id, req_user, sign, limit):
     """
-    :param user_id:
-    :param req_user:
-    :param sign:
-    :param limit:
-    :return:
+
     """
     with connection.cursor() as cursor:
         rate_diff_col_operation = '-' if sign == '<' else '+'

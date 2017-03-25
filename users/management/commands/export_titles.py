@@ -25,14 +25,13 @@ class Command(BaseCommand):
             for title in titles:
                 data = {}
                 for header in headers:
-                    val = False
-                    if val in ['actor', 'director', 'genre']:
+                    if header in ['actor', 'director', 'genre']:
                         instances = title.actor.all() if header == 'actor'\
                             else title.director.all() if header == 'director'\
                             else title.genre.all()
                         val = ', '.join(obj.name for obj in instances)
-                    val = val or getattr(title, header)
+                    else:
+                        val = getattr(title, header)
                     data[header] = val
-                    # todo how to handle empty vals
                 writer.writerow(data)
         self.stdout.write(self.style.SUCCESS('Created: ' + fname))
