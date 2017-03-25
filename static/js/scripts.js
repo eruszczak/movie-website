@@ -178,9 +178,14 @@ function sortable() {
         placeholder: 'sort-placeholder',
         axis: 'y',
         update: function (event, ui) {
+            var item = ui.item.find('.item-order');
+            item.addClass('green-color');
             var ordering = $(this).sortable('serialize');
             $(this).find('tr').each(function(i) {
-                $(this).find('.item-order').text(i+1);
+                var order = $(this).find('.item-order');
+                order.hide();
+                order.text(i+1);
+                order.fadeIn('slow');
             });
             ajax_request({'item_order': ordering});
         }
