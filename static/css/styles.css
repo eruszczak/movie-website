@@ -89,6 +89,12 @@ thead tr {
     border-color: #159957;
 }
 
+.green-color {
+    background-color: #23c675;
+    padding: 2px;
+    border-radius: 5px;
+}
+
 @media (min-width: 768px) {
     .navbar .navbar-nav {
         display: inline-block;
