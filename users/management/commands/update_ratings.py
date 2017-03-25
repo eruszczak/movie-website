@@ -10,5 +10,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         users = User.objects.filter(userprofile__imdb_id__startswith='ur')
         for user in users:
-            message = update_ratings(user)
-            self.stdout.write(self.style.SUCCESS(message))
+            update_ratings(user)

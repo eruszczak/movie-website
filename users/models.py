@@ -94,18 +94,30 @@ class UserProfile(models.Model):
 
     @property
     def count_titles(self):
+        """
+        counts rated distinct titles
+        """
         return Title.objects.filter(rating__user=self.user).distinct().count()
 
     @property
     def count_ratings(self):
+        """
+        counts all the ratings
+        """
         return Title.objects.filter(rating__user=self.user).count()
 
     @property
     def count_movies(self):
+        """
+        counts rated distinct movies
+        """
         return Title.objects.filter(rating__user=self.user, type__name='movie').distinct().count()
 
     @property
     def count_series(self):
+        """
+        counts rated distinct series
+        """
         return Title.objects.filter(rating__user=self.user, type__name='series').distinct().count()
 
     @property
@@ -128,10 +140,14 @@ class UserProfile(models.Model):
     @staticmethod
     def have_minutes_passed(time):
         if not time:
+            # time is empty if user never did update
             return True
         return (timezone.now() - time).seconds > 60 * 3
 
     def delete_previous_file(self, what_to_delete):
+        """
+        if user in his settigns uploads new avatar/ratings.csv or replaces it, previous file is deleted
+        """
         user_folder = os.path.join(MEDIA_ROOT, 'user_files', self.user.username)
         for file in os.listdir(user_folder):
             if UserProfile.get_extension_condition(file, what_to_delete):

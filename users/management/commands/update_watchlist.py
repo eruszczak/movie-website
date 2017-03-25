@@ -9,5 +9,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for user in User.objects.filter(userprofile__imdb_id__startswith='ur'):
-            message = update_watchlist(user)
-            self.stdout.write(self.style.SUCCESS(message))
+            update_watchlist(user)
