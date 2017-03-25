@@ -3,7 +3,7 @@ from .settings_secret import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BACKUP_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'backup')
-LOGS_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'logs.txt')
+LOGS_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'logs', 'logs.txt')
 
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -129,3 +129,4 @@ LOGIN_URL = 'login'
 #         },
 #     },
 # }
+
