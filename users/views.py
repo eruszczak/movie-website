@@ -159,6 +159,7 @@ def user_list(request):
         }
     else:
         # todo
+        # avg of title should be gotten here but still it doesnt change the fact that i got the SQL wrong
         list_of_users = User.objects.annotate(num=Count('rating')).order_by('-num')[:20]
         context = {
             'user_list': list_of_users
