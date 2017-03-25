@@ -2,6 +2,7 @@ click==6.6
 decorator==4.0.10
 Django==1.10.4
 django-appconf==1.0.2
+django-compressor==2.1.1
 django-cors-headers==1.1.0
 django-crispy-forms==1.6.0
 django-debug-toolbar==1.6
@@ -10,12 +11,15 @@ djangorestframework==3.4.4
 geocoder==1.17.4
 geopy==1.11.0
 gunicorn==19.6.0
+html5lib==0.9999999
 Markdown==2.6.6
 Pillow==3.3.1
 psycopg2==2.6.2
 pytz==2016.6.1
 ratelim==0.1.6
+rcssmin==1.0.6
 requests==2.10.0
+rjsmin==1.0.12
 six==1.10.0
 South==1.0.2
 sqlparse==0.2.2
