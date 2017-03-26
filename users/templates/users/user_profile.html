@@ -91,15 +91,21 @@
 					{% endif %}
 					See all <a href="{{ choosen_user.userprofile.ratings_url }}">{{ choosen_user.userprofile.count_titles }} titles</a>
 					or <a href="{{ choosen_user.userprofile.all_ratings_url }}">{{ choosen_user.userprofile.count_ratings }} ratings</a>
+                    <hr class="visible-sm visible-xs">
 					<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import_ratings' %}" style="display:none">{% csrf_token %}
 						<input id="import" name="csv_ratings" type="file" accept=".csv" />
 					</form>
-					<span style="float: right;">
+
+					<div style="display:inline;float: right;">
 						{% if is_owner %}
-							<a id="import_ratings" href="{% url 'import_ratings' %}" style="margin-right:10px" data-toggle="tooltip" title="You can add ratings from exported file.">import</a>
+                            <form id="clear_ratings_form" method="post" action="{{ request.user.userprofile.get_absolute_url }}" style="display:inline;margin-right:10px">{% csrf_token %}
+                                <input id="confirm-nick" name="confirm-nick" hidden>
+                                <button id="clear_ratings" type="submit" class="btn btn-xs btn-success" data-toggle="tooltip" title="You cannot revert this operation. You will lose all of you ratings if you haven't exported them first.">clear my ratings</button>
+                            </form>
+							<a id="import_ratings" href="{% url 'import_ratings' %}" style="margin-right:10px" data-toggle="tooltip" title="You can add ratings from exported file."><button class="btn btn-xs btn-success">import</button></a>
 						{% endif %}
-						<a href="{% url 'export_ratings' choosen_user.username %}" data-toggle="tooltip" title="You can export all of your ratings as a form of backup. If you will lose some of your ratings, you will be able to import them.">export</a>
-					</span>
+						<a href="{% url 'export_ratings' choosen_user.username %}" data-toggle="tooltip" title="You can export all of your ratings as a form of backup. If you will lose some of your ratings, you will be able to import them."><button class="btn btn-xs btn-success">export</button></a>
+					</div>
 				</div>
 			</div>
 		</div>
