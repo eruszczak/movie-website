@@ -67,18 +67,25 @@
 {% endif %}
 
 <br>
-{% if user_ratings.last_seen %}
+{% if request.user.is_authenticated %}
 	<div class="row">
 		<div class="col-md-8 col-md-offset-2">
+			{% if not user_ratings.last_seen %}
+			<div class="text-center">
+				<div class="alert alert-success alert-resize" role="alert">
+					<p>You have no ratings yet.</p>
+					<p><a href="{% url 'explore' %}">Explore</a> titles or go ahead and <a href="{% url 'user_edit' user.username %}">edit</a> your profile to sync your account with IMDb.</p>
+				</div>
+			</div>
+			{% endif %}
 			<div class="panel panel-success">
 				<div class="panel-heading text-center">Most Recently Rated</div>
 				<div class="panel-body">
 					{% if user_ratings.last_seen %}
 					<div class="row">
-
-					{% for entry in user_ratings.last_seen %}
-						{% include 'includes/titles_in_a_row.html' with title=entry.title owner=is_owner rate=entry.rate req_user_rate=entry.req_user_curr_rating %}
-					{% endfor %}
+						{% for entry in user_ratings.last_seen %}
+							{% include 'includes/titles_in_a_row.html' with title=entry.title owner=is_owner rate=entry.rate req_user_rate=entry.req_user_curr_rating %}
+						{% endfor %}
 					</div>
 					<hr>
 					{% endif %}
@@ -162,20 +169,11 @@
 	</div>
 	{% endif %}
 {% else %}
-	{% if is_owner %}
-		<div class="text-center">
-			<div class="alert alert-success alert-resize" role="alert">
-				<p>You have no ratings yet.</p>
-				<p><a href="{% url 'explore' %}">Explore</a> titles or go ahead and <a href="{% url 'user_edit' user.username %}">edit</a> your profile to sync your account with IMDb.</p>
-			</div>
+	<br>
+	<div class="text-center">
+		<div class="alert alert-success alert-resize" role="alert">
+			<p>This user hasn't rated anything yet.</p>
 		</div>
-	{% else %}
-		<br>
-		<div class="text-center">
-			<div class="alert alert-success alert-resize" role="alert">
-				<p>This user hasn't rated anything yet.</p>
-			</div>
-		</div>
-	{% endif %}
+	</div>
 {% endif %}
 {% endblock %}
