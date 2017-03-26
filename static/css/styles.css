@@ -91,8 +91,20 @@ thead tr {
 
 .green-color {
     background-color: #23c675;
-    padding: 2px;
+    padding: 3px;
     border-radius: 5px;
+    color: white;
+}
+
+.red-color {
+    background-color: #E82A53;
+    padding: 3px;
+    border-radius: 5px;
+    color: white;
+}
+
+.ui-state-highlight {
+    background-color: #23c675;
 }
 
 @media (min-width: 768px) {
