@@ -97,7 +97,7 @@
 			<div class="col-md-8 col-md-offset-2">
 				<hr>
 				<div class="panel panel-success">
-					<div class="panel-heading">Plot</div>
+					<div class="panel-heading text-center">Plot</div>
 					<div class="panel-body">{{ title.plot }}</div>
 				</div>
 			</div>
@@ -111,7 +111,7 @@
 					{% if request.user.is_authenticated %}
 					<div class="col-md-8">
 						<div class="panel panel-success">
-							<div class="panel-heading">History of ratings</div>
+							<div class="panel-heading text-center">History of ratings</div>
 							<div class="panel-body">
 								{% if data.user_ratings_of_title %}
 								<table class="table-bordered table-condensed">
@@ -149,10 +149,12 @@
 							</div>
 						</div>
 					</div>
-					{% endif %}
 					<div class="col-md-4">
-						<div class="panel panel-success">
-							<div class="panel-heading">More</div>
+					{% else %}
+					<div class="col-md-12">
+					{% endif %}
+						<div class="panel panel-success text-center">
+							<div class="panel-heading text-center">More</div>
 							<div class="panel-body">
 								<a href="{{ title.url_imdb }}" target="_blank">
 									<img class="img-rounded" src="{% static 'img/imdb.png' %}" alt="..." style="width: 70px">
@@ -165,11 +167,13 @@
 								<br>Title inserted:<br>
 								{{ title.inserted_date|date:"Y-m-d" }}
 								{% if request.user.is_authenticated and title.can_be_updated %}
-								<form action="" method="post">{% csrf_token %}
-									<button class="btn btn-sm btn-default" type="submit" name="update_title" value="update_title">
-										<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> update
-									</button>
-								</form>
+								<div class="text-center">
+									<form action="" method="post">{% csrf_token %}
+										<button class="btn btn-xs btn-default" type="submit" name="update_title" value="update_title">
+											<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> update
+										</button>
+									</form>
+								</div>
 								{% endif %}
 							</div>
 						</div>
@@ -181,7 +185,7 @@
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				<div class="panel panel-success">
-					<div class="panel-heading">Followed users who saw this title too</div>
+					<div class="panel-heading text-center">Followed users who saw this title too</div>
 					<div class="panel-body">
 						<div class="row">
 						{% for user in data.followed_saw_title %}
@@ -195,6 +199,26 @@
 							</div>
 						{% endfor %}
 						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% endif %}
+
+		{% if actors_and_other_titles %}
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<div class="panel panel-success">
+					<div class="panel-heading text-center">Main cast and their other appearances</div>
+					<div class="panel-body">
+						{% for actor, titles in actors_and_other_titles %}
+							<div class="row">
+								<h3 class="page-header text-center"><a href="{{ actor.get_absolute_url }}">{{ actor.name }}</a></h3>
+								{% for entry in titles %}
+									{% include 'includes/titles_in_a_row.html' with title=entry rate=entry.user_rate is_owner=True %}
+								{% endfor %}
+							</div>
+						{% endfor %}
 					</div>
 				</div>
 			</div>

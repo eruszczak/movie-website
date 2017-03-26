@@ -17,7 +17,7 @@ from common.sql_queries import curr_title_rating_of_followed, select_current_rat
 from common.utils import paginate
 from movie.functions import toggle_title_in_watchlist, toggle_title_in_favourites, recommend_title, create_or_update_rating
 from users.models import UserFollow
-from .models import Genre, Director, Title, Rating, Watchlist, Favourite
+from .models import Genre, Director, Title, Rating, Watchlist, Favourite, Actor
 
 
 def home(request):
@@ -97,6 +97,7 @@ def explore(request):
     selected_type = request.GET.get('t', '')
     query = request.GET.get('q')
     plot = request.GET.get('p')
+    actor = request.GET.get('a')
     director = request.GET.get('d')
     genres = request.GET.getlist('g')
     user = request.GET.get('u')
@@ -146,6 +147,13 @@ def explore(request):
             titles = titles.filter(director=d)
             query_string += '{}={}&'.format('d', director)
             search_result.append('Directed by {}'.format(d.name))
+
+    if actor:
+        a = Actor.objects.filter(id=actor).first()
+        if a is not None:
+            titles = titles.filter(actor=a)
+            query_string += '{}={}&'.format('a', actor)
+            search_result.append('With {}'.format(a.name))
 
     if genres:
         for genre in genres:
@@ -296,9 +304,25 @@ def title_details(request, slug):
             'followed_saw_title': curr_title_rating_of_followed(request.user.id, title.id)
         }
 
+    actors_and_other_titles = []
+    for actor in title.actor.all():
+        if request.user.is_authenticated():
+            titles = Title.objects.filter(actor=actor).exclude(const=title.const).extra(select={
+                'user_rate': """SELECT rate FROM movie_rating as rating
+                WHERE rating.title_id = movie_title.id
+                AND rating.user_id = %s
+                ORDER BY rating.rate_date DESC LIMIT 1"""
+            }, select_params=[request.user.id]).order_by('-votes')[:6]
+        else:
+            titles = Title.objects.filter(actor=actor).exclude(const=title.const).order_by('-votes')[:6]
+
+        if titles:
+            actors_and_other_titles.append((actor, titles))
+
     context = {
         'title': title,
         'data': req_user_data,
+        'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
     }
     return render(request, 'title_details.html', context)
 
