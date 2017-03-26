@@ -40,7 +40,7 @@ def import_ratings(request):
     uploaded_file = request.FILES['csv_ratings']
     file = uploaded_file.read().decode('utf-8')
     io_string = io.StringIO(file)
-    is_valid, message = validate_imported_ratings(file, io_string)
+    is_valid, message = validate_imported_ratings(uploaded_file, io_string)
     if not is_valid:
         messages.info(request, message)
         return redirect(profile)
@@ -180,6 +180,13 @@ def user_profile(request, username):
             UserFollow.objects.create(user_follower=request.user, user_followed=user)
         elif request.POST.get('unfollow'):
             UserFollow.objects.filter(user_follower=request.user, user_followed=user).delete()
+        elif request.POST.get('confirm-nick'):
+            if request.POST['confirm-nick'] == request.user.username:
+                deleted_count = Rating.objects.filter(user=request.user).delete()[0]
+                message = 'You have deleted your {} ratings'.format(deleted_count)
+            else:
+                message = 'Confirmation failed. Wrong username. No ratings deleted.'
+            messages.info(request, message, extra_tags='safe')
         elif user == request.user:
             message = ''
             if request.POST.get('update_csv'):
@@ -189,6 +196,7 @@ def user_profile(request, username):
             elif request.POST.get('update_watchlist') and user.userprofile.imdb_id:
                 message = update_watchlist(user)
             messages.info(request, message, extra_tags='safe')
+
         return redirect(user.userprofile)
 
     titles_in_a_row = 6

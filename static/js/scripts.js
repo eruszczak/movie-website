@@ -19,12 +19,22 @@ $(document).ready(function() {
     });
 
     $('[name="update_titles_form"').children().on('click', function() {
-        showWaitingDialog(60);
+        showWaitingDialog(100);
     });
 
     $("#import_ratings").on('click', function(e) {
         e.preventDefault();
         $("#import").trigger('click');
+    });
+
+    $("#clear_ratings").on('click', function(e) {
+        var nickname = prompt("You cannot revert this operation. You will lose all of you ratings if you haven't exported them first. As a confirmation - enter your nick and press OK.");
+
+        if (nickname != null) {
+            document.getElementById("confirm-nick").value = nickname;
+        } else {
+            e.preventDefault();
+        }
     });
 
     if ( $( "#import").length ) {
@@ -35,7 +45,7 @@ $(document).ready(function() {
                 return;
             }
             document.getElementById("import_form").submit();
-            showWaitingDialog(60);
+            showWaitingDialog(100);
         };
     }
 
