@@ -175,16 +175,37 @@ $(document).ready(function() {
 
 function sortable() {
     $('#sortable tbody').sortable({
-        placeholder: 'sort-placeholder',
+        placeholder: 'ui-state-highlight',
         axis: 'y',
         update: function (event, ui) {
             var item = ui.item.find('.item-order');
-            item.addClass('green-color');
+            var itemId = item.parent().parent().attr('id');
             var ordering = $(this).sortable('serialize');
+            var o = $(this).sortable('toArray');
+
             $(this).find('tr').each(function(i) {
                 var order = $(this).find('.item-order');
+                var orderChange = order.next();
                 order.hide();
-                order.text(i+1);
+                if (itemId == this.id) {
+                    var newOrder = o.indexOf(itemId) + 1;
+                    var previousOrder = parseInt(item.text());
+                    var orderDiff = newOrder - previousOrder;
+                    var txt = (orderDiff > 0 ? '+' : '') + orderDiff;
+                    order.text(newOrder);
+                    orderChange.text(txt);
+                    orderChange.attr('class', 'order-change');
+                    if (orderDiff > 0) {
+                        orderChange.addClass('green-color');
+                    } else {
+                        orderChange.addClass('red-color');
+                    }
+                } else {
+                    order.text(i + 1);
+                    orderChange.text('');
+                    orderChange.attr('class', 'order-change');
+
+                }
                 order.fadeIn('slow');
             });
             ajax_request({'item_order': ordering});
@@ -200,6 +221,7 @@ function ajax_request(data, options) {
     options = options || {};
     var refresh = options.refresh || false;
     var url = options.url || sourceUrl;
+    console.log(data)
 
     $.ajax({
         data: data,
