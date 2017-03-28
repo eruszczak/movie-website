@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'bower_components/bootstrap-select/dist/css/bootstrap-select.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/iao-alert.css' %}">
     {% block styles %}{% endblock %}
     <style type="text/css">
         #sortable {
@@ -54,6 +55,7 @@
     <script src="{% static 'js/graphs.js' %}"></script>
     <script src="{% static 'js/modaldialog.js' %}"></script>
     <script src="{% static 'js/jquery.raty.js' %}"></script>
+    <script src="{% static 'js/iao-alert.jquery.js' %}"></script>
     <script>
         var request_username = '{{ request.user }}';
         {% block scripts %}{% endblock %}
