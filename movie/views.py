@@ -393,30 +393,60 @@ def groupby_director(request):
 def watchlist(request, username):
     user = get_object_or_404(User, username=username)
     user_watchlist = Watchlist.objects.filter(user=user)
+    is_owner = request.user == user
+    page = request.GET.get('page')
 
-    if request.method == 'POST':
-        if not request.user == user:
-            messages.info(request, 'You can change only your list')
-            return redirect(user.userprofile.watchlist_url())
+    if request.GET.get('show_deleted'):
+        user_watchlist = user_watchlist.filter(imdb=True, deleted=True)
+        context = {
+            'user_watchlist_deleted': user_watchlist,
+            'query_string': '?show_deleted=true&page=',
+        }
+    elif request.GET.get('show_archived'):
+        user_watchlist = user_watchlist.filter(title__rating__title=F('title'),
+                                               title__rating__rate_date__gte=F('added_date')).distinct()
+        context = {
+            'user_watchlist_archived': user_watchlist,
+            'query_string': '?show_archived=true&page=',
+        }
+    else:
+        user_watchlist = user_watchlist.filter(deleted=False)
+        context = {'user_watchlist': user_watchlist}
 
-        if request.POST.get('watchlist_imdb_delete'):
-            user_watchlist.filter(title__const=request.POST.get('const'), imdb=True, deleted=False).update(deleted=True)
-        elif request.POST.get('watchlist_delete'):
-            user_watchlist.filter(title__const=request.POST.get('const'), imdb=False).delete()
-        elif request.POST.get('watchlist_imdb_readd'):
-            user_watchlist.filter(title__const=request.POST.get('const'), imdb=True, deleted=True).update(deleted=False)
+    if request.user.is_authenticated():
+        user_watchlist = user_watchlist.annotate(
+            has_in_watchlist=Count(
+                Case(When(user=request.user.id, deleted=False, then=1), output_field=IntegerField())
+            ),
+            has_in_favourites=Count(
+                Case(When(title__favourite__user=request.user.id, then=1), output_field=IntegerField())
+            )
+        )
+        if is_owner:
+            user_watchlist = user_watchlist.extra(select={
+                'req_user_curr_rating': select_current_rating,
+            }, select_params=[request.user.id])
+        else:
+            # todo
+            print('here!')
+            user_watchlist = user_watchlist.extra(select={
+                'req_user_curr_rating': select_current_rating,
+                'user_curr_rating': select_current_rating,
+            }, select_params=[request.user.id, user.id])
+    else:
+        user_watchlist = user_watchlist.extra(select={
+            'user_curr_rating': select_current_rating,
+        }, select_params=[user.id])
 
-        return redirect(user.userprofile.watchlist_url())
-
-    context = {
-        'ratings': user_watchlist.filter(deleted=False).select_related('title').all(),
+    user_watchlist = user_watchlist.select_related('title').prefetch_related('title__director', 'title__genre')
+    objs = paginate(user_watchlist, page, 25)
+    context.update({
+        'objs': objs,
+        'is_owner': is_owner,
+        'username': username,
+        'user': user,
         'title': 'Watchlist of ' + username,
-        'archive': user_watchlist.filter(
-            title__rating__title=F('title'), title__rating__rate_date__gte=F('added_date')).distinct(),
-        'is_owner': request.user == user,
-        'deleted': user_watchlist.filter(imdb=True, deleted=True).select_related('title').all(),
-        'username': username
-    }
+    })
     return render(request, 'watchlist.html', context)
 
 
@@ -472,7 +502,7 @@ def favourite(request, username):
     # paginated_titles = paginate(faved_titles, page, 50)
 
     context = {
-        'ratings': faved_titles,
+        'ratings': faved_titles[:100],
         'is_owner': request.user.username == username,
         'title': 'Favourites of ' + username,
         'username': username

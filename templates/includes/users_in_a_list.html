@@ -1,5 +1,5 @@
 {% load staticfiles %}
-{% if user_list.paginator.num_pages > 1 %}
+{% if ratings.paginator.num_pages > 1 %}
     {% include 'includes/paginator.html' %}
 {% endif %}
 
@@ -51,6 +51,6 @@
 </div>
 {% endfor %}
 
-{% if user_list.paginator.num_pages > 1 %}
+{% if ratings.paginator.num_pages > 1 %}
     {% include 'includes/paginator.html' %}
 {% endif %}

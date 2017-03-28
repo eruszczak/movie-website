@@ -154,7 +154,8 @@ def user_list(request):
                 'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
                     WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s
                     ORDER BY rating.rate_date DESC LIMIT 1""",
-            }, select_params=[title.id]) # todo ordering
+            }, select_params=[title.id])
+        # todo ordering
         users_who_saw_title = paginate(users_who_saw_title, page, 25)
         context = {
             'user_list': users_who_saw_title,
