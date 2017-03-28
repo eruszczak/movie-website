@@ -46,6 +46,9 @@ class EditProfileForm(forms.ModelForm):
 
     def clean_imdb_id(self):
         imdbid = self.cleaned_data.get('imdb_id')
+        if not imdbid:
+            return
+
         valid_id = re.match('ur\d+', imdbid)
         valid_id = valid_id.group() if valid_id else ''
         if not valid_id.startswith('ur') or len(valid_id) < 6:

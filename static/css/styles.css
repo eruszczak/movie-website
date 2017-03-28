@@ -288,6 +288,10 @@ p.item-order {float: right}
     cursor: default;
 }
 
+#graph_btns btn:active {
+  box-shadow: 0 3px 0 #00823F;
+  top: 3px;
+}
 
 .color-watched {
     background-color: #4fc33f;

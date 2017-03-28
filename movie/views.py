@@ -93,6 +93,7 @@ def explore(request):
 
     query_string = ''
     search_result = []
+    page = request.GET.get('page')
 
     selected_type = request.GET.get('t', '')
     query = request.GET.get('q')
@@ -102,7 +103,6 @@ def explore(request):
     genres = request.GET.getlist('g')
     user = request.GET.get('u')
     rating = request.GET.get('r') if validate_rate(request.GET.get('r')) else None
-    page = request.GET.get('page')
     show_all_ratings = request.GET.get('all_ratings')
     rate_date_year = request.GET.get('year')
     rate_date_month = request.GET.get('month')

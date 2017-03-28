@@ -99,7 +99,6 @@ $(document).ready(function() {
 
         number: 10,
         cancel: function() {
-            console.log($(this).attr('data-score'));
             return $(this).attr('data-score');
         },
         cancelHint: '',
@@ -196,11 +195,11 @@ function sortable() {
             $(this).find('tr').each(function(i) {
                 var order = $(this).find('.item-order');
                 var orderChange = order.next();
-                order.hide();
+                orderChange.hide();
                 if (itemId == this.id) {
                     var newOrder = o.indexOf(itemId) + 1;
                     var previousOrder = parseInt(item.text());
-                    var orderDiff = newOrder - previousOrder;
+                    var orderDiff = previousOrder - newOrder;
                     var txt = (orderDiff > 0 ? '+' : '') + orderDiff;
                     order.text(newOrder);
                     orderChange.text(txt);
@@ -216,7 +215,7 @@ function sortable() {
                     orderChange.attr('class', 'order-change');
 
                 }
-                order.fadeIn('slow');
+                orderChange.fadeIn('slow');
             });
             ajax_request({'item_order': ordering});
         }
@@ -231,7 +230,6 @@ function ajax_request(data, options) {
     options = options || {};
     var refresh = options.refresh || false;
     var url = options.url || sourceUrl;
-    console.log(data)
 
     $.ajax({
         data: data,

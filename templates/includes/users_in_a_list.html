@@ -1,4 +1,7 @@
 {% load staticfiles %}
+{% if user_list.paginator.num_pages > 1 %}
+    {% include 'includes/paginator.html' %}
+{% endif %}
 
 {% for user in user_list %}
 <div class="col-md-12">
@@ -8,7 +11,14 @@
                  src="{% if user.userprofile.picture %}{{ user.userprofile.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}" alt="...">
         </a>
 
-        <p><a href="{{ user.userprofile.get_absolute_url }}"><strong>{{ user.username }}</strong></a></p>
+        <p>
+            {% with ratings.start_index|default:1 as index %}
+                <span>{{ forloop.counter0|add:index }}</span>.
+            {% endwith %}
+            <a href="{{ user.userprofile.get_absolute_url }}">
+                <strong>{{ user.username }}</strong>
+            </a>
+        </p>
 
         {% if user.current_rating %}
             {% for i in 'xxxxxxxxxx' %}
@@ -16,7 +26,6 @@
             {% endfor %}
         {% endif %}
 
-        {% comment %}
         {% with user.userprofile.avg_of_current_ratings as user_current_ratings %}
             {% if user_current_ratings.count %}
                 <p>See all <a href="{{ user.userprofile.ratings_url }}">{{ user_current_ratings.count }} rated titles</a>
@@ -26,8 +35,6 @@
                 <p style="font-size:11px"><em>User hasn't rated anything yet.</em></p>
             {% endif %}
         {% endwith %}
-        {% endcomment %}
-        <p>See all <a href="{{ user.userprofile.ratings_url }}">{{ user.userprofile.count_titles }} rated titles</a>
 
         <div>
             <a href="{{ user.userprofile.watchlist_url }}" class="btn btn-xs btn-default">
@@ -43,3 +50,7 @@
     </div>
 </div>
 {% endfor %}
+
+{% if user_list.paginator.num_pages > 1 %}
+    {% include 'includes/paginator.html' %}
+{% endif %}
