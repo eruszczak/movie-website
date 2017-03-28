@@ -293,6 +293,11 @@ p.item-order {float: right}
   top: 3px;
 }
 
+.btn-pressed {
+  box-shadow: 0 3px 0 #00823F;
+  top: 3px;
+}
+
 .color-watched {
     background-color: #4fc33f;
 }

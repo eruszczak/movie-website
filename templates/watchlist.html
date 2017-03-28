@@ -1,120 +1,111 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load l10n %}
+{% load humanize %}
+
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
 <div class="row">
-    <div class="col-md-12">
-        <div class="row">
-            {% if ratings %}
-            <div class="col-md-12">
-                <p class="lead text-center">{% if is_owner %}You want{% else %}{{ username }} wants{% endif %} to see again {{ ratings|length }} title{{ ratings|pluralize }}</p>
-                <table class="table table-hover table-bordered table-condensed">
-                    <thead>
-                        <tr>
-                            <th class="text-center"></th>
-                            <th class="text-center">title</th>
-                            <th class="text-center">added</th>
-                            {% if is_owner %}
-                                <th class="text-center">delete</th>
-                            {% endif %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for obj in ratings %}
-                        <tr>
-                            <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                            <td><a href="{{ obj.title.get_absolute_url }}">{{ obj.title.name }}</a></td>
-                            <td>{{ obj.added_date|date:"Y-m-d G:i"|localize }}</td>
-                            <!--<td>{{ obj.added_date|date:"e y-m-d G:i" }}</td>-->
-                            {% if is_owner %}
-                                <td class="text-center">
-                                    <form action="" method="post">{% csrf_token %}
-                                        <button class="btn btn-sm see-again-btn unwatch-btn" type="submit"
-                                                name="{% if obj.imdb %}watchlist_imdb_delete{% else %}watchlist_delete{% endif %}"
-                                                value="delete">Don't want to see again
-                                        </button>
-                                        <input name="const" value="{{ obj.title.const }}" hidden>
-                                    </form>
-                                </td>
-                            {% endif %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <div class="col-md-10 col-md-offset-1">
+        {% if user_watchlist or user_watchlist_archived or user_watchlist_deleted %}
+            <div class="text-center">
+                <div class="btn-group" role="group">
+                    <a href="{{ user.userprofile.watchlist_url }}"><button class="btn btn-default {% if not user_watchlist_deleted and not user_watchlist_archived %}btn-pressed{% endif %}">active</button></a>
+                    <a href="{{ user.userprofile.watchlist_url }}?show_deleted=true"><button class="btn btn-default {% if user_watchlist_deleted %}btn-pressed{% endif %}">deleted</button></a>
+                    <a href="{{ user.userprofile.watchlist_url }}?show_archived=true"><button class="btn btn-default {% if user_watchlist_archived %}btn-pressed{% endif %}">archive</button></a>
+                </div>
             </div>
-            {% else %}
+            <br>
+            {% if user_watchlist %}
+                <p class="lead text-center">{% if is_owner %}You want{% else %}{{ username }} wants{% endif %} to see again {{ objs.paginator.count }} title{{ objs.paginator.count|pluralize }}</p>
+            {% elif user_watchlist_archived %}
+                <p class="lead text-center">History watchlist</p>
+                <p class="text-center"><em>These titles were in a watchlist and then they were rated.</em></p>
+            {% elif user_watchlist_deleted %}
+                <p class="lead text-center">Deleted from imdb watchlist.</p>
+                <p class="text-center"><em>These titles come from IMDb's watchlist. They were added here instead of being deleted because they would be added again with another watchlist update anyway. If you want to delete it completely, remove it from IMDb's watchlist first, and it will be deleted from here with another watchlist update.</em></p>
+            {% endif %}
+        {% endif %}
+
+        {% if objs.paginator.num_pages > 1 %}
+            {% include 'includes/paginator.html' with ratings=objs %}
+        {% endif %}
+
+        {% if user_watchlist or user_watchlist_archived or user_watchlist_deleted %}
+            <table class="table table-hover table-bordered table-condensed">
+                <tbody>
+                    {% for obj in objs %}
+                    <tr class="result result-{% cycle 'odd' 'even' %}">
+                        <td class="col-md-9 paddingleft">
+                            {% with objs.start_index|default:1 as index %}
+                                <span class="item-order">{{ forloop.counter0|add:index }}</span>.
+                            {% endwith %}
+                            <img class="img-responsive img-rounded"
+                             src="{% if obj.title.img_thumbnail %}{{ obj.title.img_thumbnail.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
+                             style="width: 35px; float: left; margin-right: 10px; " alt="...">
+                            <a href="{{ obj.title.get_absolute_url }}">{{ obj.title.name }} ({{ obj.title.year }})</a>
+
+                            <span class="label label-info">{% if obj.title.runtime %}{{ obj.title.runtime }} min{% endif %}</span>
+                            <span class="label label-info">{% if obj.title.votes %}{{ obj.title.votes|intcomma }} votes{% endif %}</span>
+
+                            <!--todo-->
+                            {% if user_watchlist_archived and not is_owner %}
+                                {% with obj.rated_after_days_diff as data %}
+                                <span class="label label-info"><span class="glyphicon glyphicon-star green" aria-hidden="true"></span>{{ data.rate }}; {{ data.days_diff }} days</span>
+                                {% endwith %}
+                            {% else %}
+                                <span class="label label-danger">{{ obj.added_date|date:"e Y-m-d G:i"|localize }}</span>
+                            {% endif %}
+
+                            <span style="float: right;">
+                                {% if obj.user_curr_rating %}
+                                    {{ obj.user_curr_rating }}
+                                    <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
+                                {% endif %}
+                                {% if request.user.is_authenticated %}
+                                    {% include 'includes/favourites.html' with condition=obj.has_in_favourites const=obj.title.const %}
+                                    {% include 'includes/watchlist.html' with condition=obj.has_in_watchlist const=obj.title.const %}
+                                {% endif %}
+                            </span>
+                            <p style="font-style:italic; font-size:12px">
+                                {% for genre in obj.title.genre.all %}
+                                    <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
+                                    {% include 'includes/comma.html' %}
+                                {% endfor %}
+                                dir:
+                                {% for director in obj.title.director.all %}
+                                    <a href="{{ director.get_absolute_url }}">
+                                        {% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}
+                                    </a>
+                                    {% include 'includes/comma.html' %}
+                                {% endfor %}
+                            </p>
+                            {% if request.user.is_authenticated %}
+                                <div id="{{ obj.title.const }}" style="display: inline-block" class="raty-stars"
+                                     data-score="{{ obj.req_user_curr_rating }}" data-path="{% static 'img' %}">
+                                </div>
+                                <span id="descr-{{ obj.title.const }}" style="display: inline-block"></span>
+                            {% endif %}
+
+                            {% if obj.title.plot %}
+                                <p style="padding-left: 10px">{{ obj.title.plot|truncatechars:250 }}</p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
             <div class="text-center">
                 <div class="alert alert-success alert-resize" role="alert">
                     <p>{{ username }} doesn't have any titles in watchlist!</p>
                 </div>
             </div>
-            {% endif %}
-        </div>
-        {% if is_owner and deleted %}
-        <div class="row">
-            <div class="col-md-12">
-                <p class="lead text-center">Deleted from imdb_watchlist.</p>
-                <table class="table table-hover table-bordered table-condensed">
-                    <thead>
-                        <tr>
-                            <th class="text-center"></th>
-                            <th class="text-center">title</th>
-                            <th class="text-center">delete</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for obj in deleted %}
-                        <tr>
-                            <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                            <td><a href="{{ obj.title.get_absolute_url }}">{{ obj.title.name }}</a></td>
-                            <td class="text-center">
-                                <form action="" method="post">{% csrf_token %}
-                                    <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watchlist_imdb_readd" value="delete">Readd</button>
-                                    <input name="const" value="{{ obj.title.const }}" hidden>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
         {% endif %}
-        {% if archive %}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="col-md-12">
-                    <p class="lead text-center">History watchlist</p>
-                    <table class="table table-hover table-bordered table-condensed">
-                        <thead>
-                           <tr>
-                                <th class="text-center"></th>
-                                <th class="text-center">title</th>
-                                <th class="text-center">rating</th>
-                                <th class="text-center">watched after</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for obj in archive %}
-                            <tr>
-                                <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                                <td><a href="{{ obj.title.get_absolute_url }}">{{ obj.title.name }}</a></td>
-                            {% with obj.rated_after_days_diff as data %}
-                                <td>
-                                    <span class="glyphicon glyphicon-star {% if not is_owner %}green{% endif %}" aria-hidden="true"></span>
-                                    {{ data.rate }}
-                                </td>
-                                <td>{{ data.days_diff }} days</td>
-                            {% endwith %}
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+
+        {% if objs.paginator.num_pages > 1 %}
+            {% include 'includes/paginator.html' with ratings=objs %}
         {% endif %}
     </div>
 </div>

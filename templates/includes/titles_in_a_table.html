@@ -38,14 +38,14 @@
                 {% endfor %}
             </p>
             {% if request.user.is_authenticated %}
-            <div id="{{ obj.const }}" style="display: inline-block" class="raty-stars"
-                 data-score="{{ obj.req_user_curr_rating }}" data-path="{% static 'img' %}">
-            </div>
-            <span id="descr-{{ obj.const }}" style="display: inline-block"></span>
+                <div id="{{ obj.const }}" style="display: inline-block" class="raty-stars"
+                     data-score="{{ obj.req_user_curr_rating }}" data-path="{% static 'img' %}">
+                </div>
+                <span id="descr-{{ obj.const }}" style="display: inline-block"></span>
             {% endif %}
 
             {% if obj.plot %}
-            <p style="padding-left: 10px">{{ obj.plot|truncatechars:250 }}</p>
+                <p style="padding-left: 10px">{{ obj.plot|truncatechars:250 }}</p>
             {% endif %}
         </td>
     </tr>
