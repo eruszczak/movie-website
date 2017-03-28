@@ -104,7 +104,7 @@
                             </form>
 							<a id="import_ratings" href="{% url 'import_ratings' %}" style="margin-right:10px" data-toggle="tooltip" title="You can add ratings from exported file."><button class="btn btn-xs btn-success">import</button></a>
 						{% endif %}
-						<a href="{% url 'export_ratings' choosen_user.username %}" data-toggle="tooltip" title="You can export all of your ratings as a form of backup. If you will lose some of your ratings, you will be able to import them."><button class="btn btn-xs btn-success">export</button></a>
+						<a href="{% url 'export_ratings' choosen_user.username %}" data-toggle="tooltip" title="You can export all of your ratings as a form of backup. If you will lose some of your ratings, you will be able to import them." target="_blank"><button class="btn btn-xs btn-success">export</button></a>
 					</div>
 				</div>
 			</div>
@@ -182,4 +182,9 @@
 		</div>
 	</div>
 {% endif %}
+
+<div id="dialog-confirm" title="Clear all your ratings?" style="display:none;">
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>You cannot revert this operation. You will lose all of you ratings if you haven't exported them first. As a confirmation - enter your nick and press OK.</p>
+	<input type="text" id="confirm-nickname">
+</div>
 {% endblock %}
