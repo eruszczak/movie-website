@@ -28,20 +28,32 @@ $(document).ready(function() {
     });
 
     $("#clear_ratings").on('click', function(e) {
-        var nickname = prompt("You cannot revert this operation. You will lose all of you ratings if you haven't exported them first. As a confirmation - enter your nick and press OK.");
-
-        if (nickname != null) {
-            document.getElementById("confirm-nick").value = nickname;
-        } else {
-            e.preventDefault();
-        }
+      e.preventDefault();
+        $( "#dialog-confirm" ).dialog({
+          resizable: false,
+          height: "auto",
+          width: 400,
+          modal: true,
+          buttons: {
+            "Clear my ratings": function() {
+              $( this ).dialog( "close" );
+              nickname = $('#confirm-nickname').val();
+              var formElement = $("#confirm-nick");
+              formElement.val(nickname);
+              formElement.parent().submit();
+            },
+            Cancel: function() {
+              $( this ).dialog( "close" );
+            }
+          }
+        });
     });
 
     if ( $( "#import").length ) {
         document.getElementById("import").onchange = function() {
             var max_size = 2 * 1024 * 1024;
             if(max_size < document.getElementById("import").files[0].size) {
-                alert('File is too big. Max 2MB.');
+                showToast('File is too big. Max 2MB.');
                 return;
             }
             document.getElementById("import_form").submit();
@@ -57,6 +69,7 @@ $(document).ready(function() {
         ajax_request(data, {url: '/explore/'});
 
         var btn = buttons[btnName];
+        showToast(btn.toastMessage);
         $(this).removeClass(btn.class).addClass(btn.afterClass);
         $(this).attr('name', btn.afterName);
         var span = $(this).find('span').attr('class', btn.afterSpanClass);
@@ -92,6 +105,11 @@ $(document).ready(function() {
             if (sourcePage == 'details_page') {
                 $(this).parent().submit();
             } else {
+                if (score === 0) {
+                    showToast('Rating deleted.');
+                } else {
+                    showToast('Created new rating.');
+                }
                 ajax_request(data, {url: '/explore/'});
             }
 
@@ -217,6 +235,7 @@ function sortable() {
                 }
                 orderChange.fadeIn('slow');
             });
+            showToast('Saved new order.');
             ajax_request({'item_order': ordering});
         }
     });
@@ -266,26 +285,30 @@ var buttons = {
         'afterClass': 'unwatch-btn',
         'afterName': 'unfav',
         'afterText': '',
-        'afterSpanClass': 'glyphicon glyphicon-heart-empty'
+        'afterSpanClass': 'glyphicon glyphicon-heart-empty',
+        'toastMessage': 'Added to favourites'
     },
     'unfav': {
         'class': 'unwatch-btn',
         'afterClass': 'watch-btn',
         'afterName': 'fav',
         'afterText': '',
-        'afterSpanClass': 'glyphicon glyphicon-heart'
+        'afterSpanClass': 'glyphicon glyphicon-heart',
+        'toastMessage': 'Removed from favourites'
     },
     'watch': {
         'class': 'watch-btn',
         'afterClass': 'unwatch-btn',
         'afterName': 'unwatch',
         'afterText': 'watchlist',
+        'toastMessage': 'Added to watchlist'
     },
     'unwatch': {
         'class': 'unwatch-btn',
         'afterClass': 'watch-btn',
         'afterName': 'watch',
         'afterText': 'add to watchlist',
+        'toastMessage': 'Removed from watchlist'
     }
 }
 
@@ -297,4 +320,15 @@ function showWaitingDialog(secs) {
     setTimeout(function () {
         waitingDialog.hide();
     }, secs * 1000);
+}
+
+function showToast(message) {
+    $.iaoAlert({
+        msg: message,
+        type: "notification",
+        alertTime: "1750",
+        position: 'top-right',
+        mode: 'dark',
+        fadeOnHover: true,
+    })
 }
