@@ -7,22 +7,22 @@
     <div class="col-md-8 col-md-offset-2">
         <div class="row">
             {% if searched_title %}
-            <p class="lead text-center">
-                {% with searched_title.rate as title_rate %}
-                    {% if title_rate.count %}
-                        {{ title_rate.count }} user{{ title_rate.count|pluralize }}
-                        who saw <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a> ({{ searched_title.year }})
-                        <p class="text-center"><em>average rating: {{ title_rate.avg|floatformat:2 }}</em></p>
-                    {% else %}
-                        No one has rated <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a> yet.
-                    {% endif %}
-                {% endwith %}
-            </p>
+                <p class="lead text-center">
+                    {% with searched_title.rate as title_rate %}
+                        {% if title_rate.count %}
+                            {{ title_rate.count }} user{{ title_rate.count|pluralize }}
+                            who saw <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a> ({{ searched_title.year }})
+                            <p class="text-center"><em>average rating: {{ title_rate.avg|floatformat:2 }}</em></p>
+                        {% else %}
+                            No one has rated <a href="{{ searched_title.get_absolute_url }}">{{ searched_title.name }}</a> yet.
+                        {% endif %}
+                    {% endwith %}
+                </p>
             {% else %}
-            <p class="lead text-center">Top 20 users who have the most ratings</p>
+                <p class="lead text-center">Users who have the most ratings</p>
             {% endif %}
 
-            {% include 'includes/user.html' with user=user_list %}
+            {% include 'includes/users_in_a_list.html' with ratings=user_list %}
         </div>
     </div>
 </div>

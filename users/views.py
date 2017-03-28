@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 
+from common.utils import paginate
 from movie.models import Title, Rating
 from .models import UserProfile, UserFollow
 from .forms import RegisterForm, LoginForm, EditProfileForm
@@ -69,9 +70,9 @@ def register(request):
     if form.is_valid():
         user = form.save()
         user.set_password(user.password)
-        user.save()
         profile = UserProfile()
         profile.user = user
+        user.save()
         profile.save()
         message = 'Successful registration. '
         if request.POST.get('login_after'):
@@ -144,28 +145,30 @@ def logout(request):
 
 
 def user_list(request):
+    page = request.GET.get('page')
+
     if request.GET.get('s'):
         title = get_object_or_404(Title, slug=request.GET['s'])
-        users_who_saw_title = User.objects.filter(rating__title=title).annotate(num=Count('rating__id')).distinct()
-        users_who_saw_title = users_who_saw_title.extra(select={
-            'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
-                WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s
-                ORDER BY rating.rate_date DESC LIMIT 1""",
-            }, select_params=[title.id])
-
+        users_who_saw_title = User.objects.filter(rating__title=title).distinct().extra(
+            select={
+                'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
+                    WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s
+                    ORDER BY rating.rate_date DESC LIMIT 1""",
+            }, select_params=[title.id]) # todo ordering
+        users_who_saw_title = paginate(users_who_saw_title, page, 25)
         context = {
-            'user_list': users_who_saw_title.order_by('-num')[:30],
-            'searched_title': title
+            'user_list': users_who_saw_title,
+            'searched_title': title,
+            'query_string': '?s=' + request.GET['s'] + '&page=',
+            'title': 'Users who saw ' + title.name
         }
     else:
-        # todo
-        # avg of title should be gotten here but still it doesnt change the fact that i got the SQL wrong
-        list_of_users = User.objects.annotate(num=Count('rating')).order_by('-num')[:20]
+        list_of_users = User.objects.annotate(num=Count('rating')).order_by('-num')
+        list_of_users = paginate(list_of_users, page, 25)
         context = {
-            'user_list': list_of_users
+            'user_list': list_of_users,
+            'title': 'User list'
         }
-
-    context.update({'title': 'User list'})
     return render(request, 'users/user_list.html', context)
 
 

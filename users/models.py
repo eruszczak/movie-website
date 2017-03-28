@@ -122,8 +122,10 @@ class UserProfile(models.Model):
 
     @property
     def avg_of_current_ratings(self):
-        # todo
-        return avg_of_user_current_ratings(self.id)
+        """
+        returns for a user average of his current ratings eg. {avg: 6.40, count: 1942}
+        """
+        return avg_of_user_current_ratings(self.user.id)
 
     @property
     def can_update_csv_ratings(self):
@@ -157,7 +159,7 @@ class UserProfile(models.Model):
     @staticmethod
     def get_extension_condition(file, what_to_delete):
         if what_to_delete == 'picture':
-            return file.endswith('.jpg') or file.endswith('.png')
+            return any(file.endswith(ext) for ext in ['.jpg', '.png'])
         elif what_to_delete == 'csv':
             return file.endswith('.csv')
         return False

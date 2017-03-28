@@ -20,12 +20,13 @@
     </select>
 
     {% if request.user.is_authenticated and followed_users %}
-    <select name="r">
-        <option value=""></option>
+
+    <select class="selectpicker show-tick" name="r" title="Choose rating" data-width="auto" data-size="10">
     {% for i in 'xxxxxxxxxx' %}
         <option value="{{ forloop.counter }}" {% if request.GET.r == forloop.counter %}selected{% endif %}>{{ forloop.counter }}</option>
     {% endfor %}
     </select>
+
     <br>
     <select id="selectCompareWithUser" class="selectpicker show-tick" name="u" multiple title="Compare with followed"
             data-width="auto" data-size="7" data-max-options="1" data-live-search="true">

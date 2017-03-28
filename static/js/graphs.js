@@ -10,22 +10,26 @@ $(document).ready(function() {
     }
 
     $('#graph_genres').click(function(e) {
+        e.preventDefault();
         renderChart(charts.genres);
     });
 
     $('#graph_year').click(function(e) {
+        e.preventDefault();
         renderChart(charts.years);
     });
 
     $('#graph_rated').click(function(e) {
+        e.preventDefault();
         renderChart(charts.rates);
     });
 
     $('#graph_months').click(function(e) {
+        e.preventDefault();
         monthlyChart(charts.monthly);
     });
 
-    $('#graph_genres').trigger('click');
+    $('#graph_months').click();
 });
 
 
