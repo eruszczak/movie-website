@@ -427,11 +427,15 @@ def watchlist(request, username):
                 'req_user_curr_rating': select_current_rating,
             }, select_params=[request.user.id])
         else:
-            # todo
-            print('here!')
             user_watchlist = user_watchlist.extra(select={
-                'req_user_curr_rating': select_current_rating,
-                'user_curr_rating': select_current_rating,
+                'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
+                    WHERE rating.title_id = movie_title.id
+                    AND rating.user_id = %s
+                    ORDER BY rating.rate_date DESC LIMIT 1""",
+                'user_curr_rating': """SELECT rate FROM movie_rating as rating
+                    WHERE rating.title_id = movie_title.id
+                    AND rating.user_id = %s
+                    ORDER BY rating.rate_date DESC LIMIT 1""",
             }, select_params=[request.user.id, user.id])
     else:
         user_watchlist = user_watchlist.extra(select={
@@ -444,8 +448,8 @@ def watchlist(request, username):
         'objs': objs,
         'is_owner': is_owner,
         'username': username,
-        'user': user,
-        'title': 'Watchlist of ' + username,
+        'choosen_user': user,
+        'title': username + '\' watchlist',
     })
     return render(request, 'watchlist.html', context)
 
@@ -453,6 +457,7 @@ def watchlist(request, username):
 def favourite(request, username):
     user = get_object_or_404(User, username=username)
     user_favourites = Favourite.objects.filter(user=user)
+    is_owner = request.user == user
 
     if request.method == 'POST':
         if not request.user == user:
@@ -465,47 +470,44 @@ def favourite(request, username):
             for new_position, const in enumerate(new_title_order, 1):
                 user_favourites.filter(title__const=const).update(order=new_position)
 
-    if request.user == user:
+    if request.user.is_authenticated():
         faved_titles = Title.objects.filter(favourite__user=user).annotate(
             has_in_watchlist=Count(
-                Case(When(watchlist__user=user, watchlist__deleted=False, then=1), output_field=IntegerField())
+                Case(When(watchlist__user=request.user, watchlist__deleted=False, then=1), output_field=IntegerField())
             ),
             has_in_favourites=Count(
-                Case(When(favourite__user=user, then=1), output_field=IntegerField())
+                Case(When(favourite__user=request.user, then=1), output_field=IntegerField())
             )
-        ).extra(select={
-            'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
-            WHERE rating.title_id = movie_title.id
-            AND rating.user_id = %s
-            ORDER BY rating.rate_date DESC LIMIT 1"""
-        }, select_params=[request.user.id]).prefetch_related('genre', 'director').order_by('favourite__order')
+        )
+        if is_owner:
+            faved_titles = faved_titles.extra(select={
+                'req_user_curr_rating': select_current_rating
+            }, select_params=[request.user.id]).prefetch_related('genre', 'director').order_by('favourite__order')
+        else:
+            faved_titles = faved_titles.extra(select={
+                'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
+                    WHERE rating.title_id = movie_title.id
+                    AND rating.user_id = %s
+                    ORDER BY rating.rate_date DESC LIMIT 1""",
+                'user_curr_rating': """SELECT rate FROM movie_rating as rating
+                    WHERE rating.title_id = movie_title.id
+                    AND rating.user_id = %s
+                    ORDER BY rating.rate_date DESC LIMIT 1""",
+            }, select_params=[request.user.id, user.id]).prefetch_related('genre', 'director').order_by('favourite__order')
     else:
-        faved_titles = Title.objects.filter(favourite__user=user).annotate(
-            has_in_watchlist=Count(
-                Case(When(watchlist__user=user, watchlist__deleted=False, then=1), output_field=IntegerField())
-            ),
-            has_in_favourites=Count(
-                Case(When(favourite__user=user, then=1), output_field=IntegerField())
-            )
-        ).extra(select={
-            'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
-            WHERE rating.title_id = movie_title.id
-            AND rating.user_id = %s
-            ORDER BY rating.rate_date DESC LIMIT 1""",
-            'user_curr_rating': """SELECT rate FROM movie_rating as rating
-            WHERE rating.title_id = movie_title.id
-            AND rating.user_id = %s
-            ORDER BY rating.rate_date DESC LIMIT 1"""
-        }, select_params=[request.user.id, user.id]).prefetch_related('genre', 'director').order_by('favourite__order')
+        faved_titles = Title.objects.filter(favourite__user=user).extra(select={
+            'user_curr_rating': select_current_rating
+        }, select_params=[user.id]).prefetch_related('genre', 'director').order_by('favourite__order')
 
     # page = request.GET.get('page')
     # paginated_titles = paginate(faved_titles, page, 50)
 
     context = {
         'ratings': faved_titles[:100],
-        'is_owner': request.user.username == username,
-        'title': 'Favourites of ' + username,
-        'username': username
+        'is_owner': is_owner,
+        'title': username + '\' favourites',
+        'username': username,
+        'choosen_user': user
     }
     return render(request, 'favourite.html', context)
 

@@ -2,6 +2,8 @@ import io
 import csv
 from datetime import datetime
 
+from django.db.models import Case, IntegerField
+from django.db.models import When
 from django.http import HttpResponse
 from django.db.models import Count
 from django.contrib import auth, messages
@@ -154,8 +156,14 @@ def user_list(request):
                 'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
                     WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s
                     ORDER BY rating.rate_date DESC LIMIT 1""",
-            }, select_params=[title.id])
+            }, select_params=[title.id]).order_by('-current_rating', '-username')
         # todo ordering
+        if request.user.is_authenticated():
+            users_who_saw_title = users_who_saw_title.extra(select={
+                'already_follows': """SELECT 1 FROM users_userfollow as followage
+                    WHERE followage.user_follower_id = %s and followage.user_followed_id = auth_user.id""",
+            }, select_params=[request.user.id])
+
         users_who_saw_title = paginate(users_who_saw_title, page, 25)
         context = {
             'user_list': users_who_saw_title,
@@ -164,11 +172,22 @@ def user_list(request):
             'title': 'Users who saw ' + title.name
         }
     else:
-        list_of_users = User.objects.annotate(num=Count('rating')).order_by('-num')
+        list_of_users = User.objects.annotate(num=Count('rating')).order_by('-num', '-username')
+        if request.user.is_authenticated():
+            # todo case? will F() work
+            # todo ordering is changing
+            list_of_users = list_of_users.extra(select={
+                'already_follows': """SELECT 1 FROM users_userfollow as followage
+                    WHERE followage.user_follower_id = %s and followage.user_followed_id = auth_user.id""",
+            }, select_params=[request.user.id])
+            # list_of_users = list_of_users.annotate(
+            # has_in_watchlist=Count(
+            #     Case(When(userfollow__user_follower=request.user, watchlist__deleted=False, then=1), output_field=IntegerField())
+            # ))
         list_of_users = paginate(list_of_users, page, 25)
         context = {
             'user_list': list_of_users,
-            'title': 'User list'
+            'title': 'User list',
         }
     return render(request, 'users/user_list.html', context)
 

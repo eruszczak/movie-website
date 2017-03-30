@@ -49,7 +49,7 @@ $(document).ready(function() {
         });
     });
 
-    if ( $( "#import").length ) {
+    if ($( "#import").length) {
         document.getElementById("import").onchange = function() {
             var max_size = 2 * 1024 * 1024;
             if(max_size < document.getElementById("import").files[0].size) {
@@ -60,14 +60,20 @@ $(document).ready(function() {
             showWaitingDialog(100);
         };
     }
-
-    var selectors = 'button[name="fav"], button[name="unfav"], button[name="watch"], button[name="unwatch"]';
+    var selectors = 'button[name="fav"], button[name="unfav"], button[name="watch"], button[name="unwatch"], button[name="follow"], button[name="unfollow"]';
     $('body').on('click', selectors, function() {
-        var data = {'const': $(this).val()};
+        var btnValue = $(this).val();
         var btnName = $(this).attr('name');
+        var data = {'const': btnValue};
         data[btnName] = btnName;
-        ajax_request(data, {url: '/explore/'});
+        var viewUrl = '/explore/';
+        if (btnName === 'follow' || btnName === 'unfollow') {
+            viewUrl = '/users/' + btnValue + '/';
+        }
+        ajax_request(data, {url: viewUrl});
+// todo transistion effect
 
+        // toggle button look
         var btn = buttons[btnName];
         showToast(btn.toastMessage);
         $(this).removeClass(btn.class).addClass(btn.afterClass);
@@ -76,7 +82,6 @@ $(document).ready(function() {
         $(this).html(span);
         $(this).append(' ' + btn.afterText);
     });
-
 
     if ($('table').is('#sortable')) {
         var pathArray = window.location.pathname.split('/');
@@ -309,6 +314,22 @@ var buttons = {
         'afterName': 'watch',
         'afterText': 'add to watchlist',
         'toastMessage': 'Removed from watchlist'
+    },
+    'follow': {
+        'class': 'watch-btn',
+        'afterClass': 'unwatch-btn',
+        'afterName': 'unfollow',
+        'afterText': 'Unfollow',
+        'afterSpanClass': 'glyphicon glyphicon-eye-close',
+        'toastMessage': 'Followed user'
+    },
+    'unfollow': {
+        'class': 'unwatch-btn',
+        'afterClass': 'watch-btn',
+        'afterName': 'follow',
+        'afterText': 'Follow',
+        'afterSpanClass': 'glyphicon glyphicon-eye-open',
+        'toastMessage': 'Unfollowed user'
     }
 }
 

@@ -12,8 +12,8 @@
              style="width: 35px; float: left; margin-right: 10px; " alt="...">
             <a href="{{ obj.get_absolute_url }}">{{ obj.name }} ({{ obj.year }})</a>
 
-            <span class="label label-info">{% if obj.runtime %}{{ obj.runtime }} min{% endif %}</span>
-            <span class="label label-info">{% if obj.votes %}{{ obj.votes|intcomma }} votes{% endif %}</span>
+            <span class="label label-default">{% if obj.runtime %}{{ obj.runtime }} min{% endif %}</span>
+            <span class="label label-default">{% if obj.votes %}{{ obj.votes|intcomma }} votes{% endif %}</span>
             <span style="float: right;">
                 {% if obj.user_curr_rating %}
                     {{ obj.user_curr_rating }}
@@ -24,7 +24,8 @@
                     {% include 'includes/watchlist.html' with condition=obj.has_in_watchlist const=obj.const %}
                 {% endif %}
             </span>
-            <p style="font-style:italic; font-size:12px">
+            <hr class="visible-xs">
+            <p style="font-style:italic; font-size:12px; margin-top:5px">
                 {% for genre in obj.genre.all %}
                     <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
                     {% include 'includes/comma.html' %}
@@ -38,10 +39,12 @@
                 {% endfor %}
             </p>
             {% if request.user.is_authenticated %}
+            <div style="padding-left: 15px;margin-left:30px;margin-bottom:10px">
                 <div id="{{ obj.const }}" style="display: inline-block" class="raty-stars"
                      data-score="{{ obj.req_user_curr_rating }}" data-path="{% static 'img' %}">
                 </div>
                 <span id="descr-{{ obj.const }}" style="display: inline-block"></span>
+            </div>
             {% endif %}
 
             {% if obj.plot %}
