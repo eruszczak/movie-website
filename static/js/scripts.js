@@ -71,9 +71,9 @@ $(document).ready(function() {
             viewUrl = '/users/' + btnValue + '/';
         }
         ajax_request(data, {url: viewUrl});
-// todo transistion effect
 
         // toggle button look
+        $(this).hide();
         var btn = buttons[btnName];
         showToast(btn.toastMessage);
         $(this).removeClass(btn.class).addClass(btn.afterClass);
@@ -81,12 +81,12 @@ $(document).ready(function() {
         var span = $(this).find('span').attr('class', btn.afterSpanClass);
         $(this).html(span);
         $(this).append(' ' + btn.afterText);
+        $(this).fadeIn();
     });
 
     if ($('table').is('#sortable')) {
-        var pathArray = window.location.pathname.split('/');
-        var path_username = pathArray[pathArray.length - 3];
-        if (path_username == request_username) {
+        var isOwner = $('#sortable').data('isowner');
+        if (isOwner) {
             sortable();
         }
     }

@@ -11,7 +11,7 @@
                     <p class="text-center"><em>You can reorder (not on mobile) the list by dragging a title while holding LMB.</em></p>
                 {% endif %}
                 <br>
-                <table id="sortable" class="table table-hover table-bordered table-condensed">
+                <table id="sortable" class="table table-hover table-bordered table-condensed" {% if is_owner %}data-isowner="yes"{% endif %}>
                     {% include 'includes/titles_in_a_table.html' with objs=ratings sortable=True %}
                 </table>
             </div>
