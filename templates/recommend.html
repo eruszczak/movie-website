@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}recommend{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block content %}
 {% if not is_owner or is_owner %}
 <div class="row">
+    <p class="text-center"><em>You can also recommend title to followed users using form on the title's page.</em></p>
     <div class="col-md-6">
         <form id="recommend_form" method="post">{% csrf_token %}
             {{ form.non_field_errors }}
@@ -127,7 +128,7 @@
 {% else %}
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
-        <div class="alert alert-warning text-center" role="alert">No recommendations found</div>
+        <div class="alert alert-warning text-center" role="alert">No recommendations found for <a href="{{ choosen_user.userprofile.get_absolute_url}}">{{ choosen_user.username }}</a></div>
     </div>
 </div>
 {% endif %}

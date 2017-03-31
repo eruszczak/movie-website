@@ -55,7 +55,8 @@ def recommend_title(title, sender, usernames):
                 users.append(user)
     if users:
         message = 'You recommended <a href="{}">{}</a> to '.format(title.get_absolute_url(), title.name)
-        message += ', <a href="{}">{}</a>'.join([(user.userprofile.get_absolute_url(), user.username) for user in users])
+        message += ', '.join(['<a href="{}">{}</a>'.format(user.userprofile.get_absolute_url(), user.username)
+                              for user in users])
     return message
 
 

@@ -76,5 +76,7 @@ def recommend(request, username):
             'active_recommendations': sum(1 for r in recommended_for_user if r.days_diff is None),
         },
         'is_owner': user == request.user,
+        'title': 'recommended for ' + user.username,
+        'choosen_user': user
     }
     return render(request, 'recommend.html', context)
