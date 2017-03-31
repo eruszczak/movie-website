@@ -12,22 +12,33 @@
         {% if user_watchlist or user_watchlist_archived or user_watchlist_deleted %}
             <div class="text-center">
                 <div class="btn-group" role="group">
-                    <a href="{{ user.userprofile.watchlist_url }}"><button class="btn btn-default {% if not user_watchlist_deleted and not user_watchlist_archived %}btn-pressed{% endif %}">active</button></a>
-                    <a href="{{ user.userprofile.watchlist_url }}?show_deleted=true"><button class="btn btn-default {% if user_watchlist_deleted %}btn-pressed{% endif %}">deleted</button></a>
-                    <a href="{{ user.userprofile.watchlist_url }}?show_archived=true"><button class="btn btn-default {% if user_watchlist_archived %}btn-pressed{% endif %}">archive</button></a>
+                    <a href="{{ choosen_user.userprofile.watchlist_url }}"><button class="btn btn-default {% if not user_watchlist_deleted and not user_watchlist_archived %}btn-pressed{% endif %}">active <span class="badge badge-success">{{ count.active }}</span></button></a>
+                    <a href="{{ choosen_user.userprofile.watchlist_url }}?show_deleted=true"><button class="btn btn-default {% if user_watchlist_deleted %}btn-pressed{% endif %}">deleted <span class="badge badge-success">{{ count.deleted }}</span></button></a>
+                    <a href="{{ choosen_user.userprofile.watchlist_url }}?show_archived=true"><button class="btn btn-default {% if user_watchlist_archived %}btn-pressed{% endif %}">archive <span class="badge badge-success">{{ count.archived }}</span></button></a>
                 </div>
             </div>
             <br>
             {% if user_watchlist %}
-                <p class="lead text-center">{% if is_owner %}<a href="{{ request.user.userprofile.get_absolute_url }}">You</a> want{% else %}<a href="{{ choosen_user.userprofile.get_absolute_url }}">{{ username }}</a> wants{% endif %} to see again {{ objs.paginator.count }} title{{ objs.paginator.count|pluralize }}</p>
+                <p class="lead text-center">
+                    {% if is_owner %}
+                        <a href="{{ choosen_user.userprofile.get_absolute_url }}">You</a> want
+                    {% else %}
+                        <a href="{{ choosen_user.userprofile.get_absolute_url }}">{{ username }}</a> wants
+                    {% endif %}
+                    to see again {{ objs.paginator.count }} title{{ objs.paginator.count|pluralize }}</p>
             {% elif user_watchlist_archived %}
-                <p class="lead text-center">History watchlist</p>
+                <p class="lead text-center">
+                    <a href="{{ choosen_user.userprofile.get_absolute_url }}">
+                        {% if is_owner %}Your{% else %}{{ choosen_user.username }}'s{% endif %}</a>
+                    history watchlist
+                </p>
                 <div class="text-center">
                     <p><em>These titles were in a watchlist and then they were rated.</em></p>
                     <p><em>You can see how long it took to watch it after adding it to watchlist.</em></p>
                 </div>
             {% elif user_watchlist_deleted %}
-                <p class="lead text-center">Deleted from IMDb watchlist</p>
+                <p class="lead text-center">Deleted from <a href="{{ choosen_user.userprofile.get_absolute_url }}">
+                        {% if is_owner %}your{% else %}{{ choosen_user.username }}'s{% endif %}</a> IMDb watchlist</p>
                 <p class="text-center"><em>These titles come from IMDb's watchlist. They were added here instead of being deleted because they would be added again with another watchlist update anyway. If you want to delete it completely, remove it from IMDb's watchlist first, and it will be deleted from here with another watchlist update.</em></p>
             {% endif %}
         {% endif %}
@@ -106,7 +117,7 @@
         {% else %}
             <div class="text-center">
                 <div class="alert alert-success alert-resize" role="alert">
-                    <p>{{ username }} doesn't have any titles in watchlist!</p>
+                    <p><a href="{{ choosen_user.userprofile.get_absolute_url }}">{{ username }}</a> doesn't have any titles in watchlist!</p>
                 </div>
             </div>
         {% endif %}

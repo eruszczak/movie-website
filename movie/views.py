@@ -396,21 +396,24 @@ def watchlist(request, username):
     is_owner = request.user == user
     page = request.GET.get('page')
 
+    get_deleted = user_watchlist.filter(imdb=True, deleted=True)
+    get_archived = user_watchlist.filter(title__rating__title=F('title'),
+                                         title__rating__rate_date__gte=F('added_date')).distinct()
+    get_active = user_watchlist.filter(deleted=False)
     if request.GET.get('show_deleted'):
-        user_watchlist = user_watchlist.filter(imdb=True, deleted=True)
+        user_watchlist = get_deleted
         context = {
             'user_watchlist_deleted': user_watchlist,
             'query_string': '?show_deleted=true&page=',
         }
     elif request.GET.get('show_archived'):
-        user_watchlist = user_watchlist.filter(title__rating__title=F('title'),
-                                               title__rating__rate_date__gte=F('added_date')).distinct()
+        user_watchlist = get_archived
         context = {
             'user_watchlist_archived': user_watchlist,
             'query_string': '?show_archived=true&page=',
         }
     else:
-        user_watchlist = user_watchlist.filter(deleted=False)
+        user_watchlist = get_active
         context = {'user_watchlist': user_watchlist}
 
     if request.user.is_authenticated():
@@ -449,7 +452,12 @@ def watchlist(request, username):
         'is_owner': is_owner,
         'username': username,
         'choosen_user': user,
-        'title': username + '\' watchlist',
+        'title': username + '\'s watchlist',
+        'count': {
+            'deleted': get_deleted.count(),
+            'archived': get_archived.count(),
+            'active': get_active.count()
+        }
     })
     return render(request, 'watchlist.html', context)
 
@@ -505,7 +513,7 @@ def favourite(request, username):
     context = {
         'ratings': faved_titles[:100],
         'is_owner': is_owner,
-        'title': username + '\' favourites',
+        'title': username + '\'s favourites',
         'username': username,
         'choosen_user': user
     }

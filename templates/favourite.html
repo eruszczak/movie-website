@@ -19,7 +19,7 @@
     {% else %}
 		<div class="text-center">
 			<div class="alert alert-success alert-resize" role="alert">
-                <p class="text-center">{{ username }} doesn't have any favourite titles!</p>
+                <p class="text-center"><a href="{{ choosen_user.userprofile.get_absolute_url }}">{{ username }}</a> doesn't have any favourite titles!</p>
 			</div>
 		</div>
     {% endif %}
