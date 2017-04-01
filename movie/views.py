@@ -101,7 +101,7 @@ def explore(request):
     actor = request.GET.get('a')
     director = request.GET.get('d')
     genres = request.GET.getlist('g')
-    user = request.GET.get('u')
+    username = request.GET.get('u')
     rating = request.GET.get('r') if validate_rate(request.GET.get('r')) else None
     show_all_ratings = request.GET.get('all_ratings')
     rate_date_year = request.GET.get('year')
@@ -164,9 +164,10 @@ def explore(request):
     want_req_user_rate = True
 
     req_user_id = request.user.id if request.user.is_authenticated() else 0
-    if user:
-        searched_user = get_object_or_404(User, username=user)
-        query_string += '{}={}&'.format('u', user)
+    searched_user = User.objects.filter(username=username).first()
+    is_owner = request.user == searched_user
+    if searched_user:
+        query_string += '{}={}&'.format('u', username)
         if exclude_his and req_user_id:
             titles = titles.filter(rating__user=request.user).exclude(rating__user=searched_user)
             query_string += 'exclude_his=on&'
@@ -180,32 +181,27 @@ def explore(request):
             titles = titles.exclude(rating__user=req_user_id)
             search_result.append('Seen by {} and not by me'.format(searched_user.username))
             query_string += 'exclude_mine=on&'
-        elif common and req_user_id and req_user_id != searched_user.id:
-            # todo
-            seen_by_searched_user = Q(rating__user=searched_user)
-            seen_by_req_user = Q(rating__user=request.user)
-            # titles = titles.filter(seen_by_searched_user & seen_by_req_user).distinct().extra(select={
+        elif common and req_user_id and not is_owner:
             titles = titles.filter(rating__user=searched_user).filter(rating__user=request.user).distinct().extra(select={
                 'user_curr_rating': select_current_rating,
             }, select_params=[searched_user.id])
             search_result.append('Seen by you and {}'.format(searched_user.username))
             query_string += 'common=on&'
         elif rating:
-            titles = titles.annotate(max_date=Max('rating__rate_date')).filter(
-                rating__user=searched_user, rating__rate_date=F('max_date'), rating__rate=rating)\
+            titles = titles.filter(rating__user=searched_user).annotate(max_date=Max('rating__rate_date'))\
+                .filter(rating__rate_date=F('max_date'), rating__rate=rating) \
                 .extra(select={
                     'user_curr_rating': select_current_rating,
                 }, select_params=[searched_user.id])
-
             query_string += '{}={}&'.format('r', rating)
             search_result.append('Titles {} rated {}'.format(searched_user.username, rating))
         elif show_all_ratings:
-            titles = Title.objects.filter(rating__user__username=searched_user.username)\
+            titles = Title.objects.filter(rating__user__username=searched_user.username) \
                 .order_by('-rating__rate_date', '-rating__inserted_date')
             query_string += '{}={}&'.format('all_ratings', 'on')
             search_result.append('Seen by {}'.format(searched_user.username))
             search_result.append('Showing all ratings (duplicated titles)')
-        elif req_user_id != searched_user.id:
+        elif not is_owner:
             titles = titles.filter(rating__user=searched_user).distinct().extra(select={
                 'user_curr_rating': select_current_rating,
             }, select_params=[searched_user.id])
@@ -214,23 +210,26 @@ def explore(request):
             titles = titles.filter(rating__user=searched_user).order_by('-rating__rate_date')
             search_result.append('Seen by {}'.format(searched_user.username))
     elif rating and req_user_id:
-        titles = titles.annotate(max_date=Max('rating__rate_date')).filter(
-            rating__user=request.user, rating__rate_date=F('max_date'), rating__rate=rating)
+        titles = titles.filter(rating__user=request.user)\
+            .annotate(max_date=Max('rating__rate_date'))\
+            .filter(rating__rate_date=F('max_date'), rating__rate=rating)
         query_string += '{}={}&'.format('r', rating)
         search_result.append('Titles you rated {}'.format(rating))
 
-    if rate_date_year and (user or req_user_id):
-        # if user: ratings are already filtered for him
-        if not user:
-            titles = titles.filter(rating__user=request.user)
-            search_result.append('Seen by you')
+    if rate_date_year and (username or req_user_id):
         if rate_date_year and rate_date_month:
-            titles = titles.filter(rating__rate_date__year=rate_date_year, rating__rate_date__month=rate_date_month)
+            # here must be authenticated
+            what_user_for = searched_user or request.user
+            titles = titles.filter(rating__user=what_user_for, rating__rate_date__year=rate_date_year,
+                                   rating__rate_date__month=rate_date_month)
             query_string += '{}={}&'.format('year', rate_date_year)
             query_string += '{}={}&'.format('month', rate_date_month)
             search_result.append('Seen in {} {}'.format(calendar.month_name[int(rate_date_month)], rate_date_year))
         elif rate_date_year:
-            titles = titles.filter(rating__rate_date__year=rate_date_year)
+            if username:
+                titles = titles.filter(rating__user__username=username, rating__rate_date__year=rate_date_year)
+            elif request.user.is_authenticated():
+                titles = titles.filter(rating__user=request.user, rating__rate_date__year=rate_date_year)
             query_string += '{}={}&'.format('year', rate_date_year)
             search_result.append('Seen in ' + rate_date_year)
 
