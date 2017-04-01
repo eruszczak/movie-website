@@ -1,5 +1,6 @@
+var pathArray = window.location.pathname.split('/');
+var path_username = pathArray[2];
 $(document).ready(function() {
-
     /* display graphs for AllYears and AllGenres pages */
     if ($('div').is('#includeChartGenres')) {
         renderChart(charts.genres, '#includeChartGenres');
@@ -35,11 +36,8 @@ $(document).ready(function() {
 
 function renderChart(chart, place) {
     place = place || '#graph';
-//function renderChart(chart, place) {
     /*If rendered in different place than #graph it means that I want global data, not for specific user*/
     var queryParams = place === '#graph' ? {u: path_username} : {};
-//    var queryParams = place ? {u: path_username} : {};
-//    var queryParams = {u: path_username};
      $.getJSON(chart.endpoint, queryParams).done(function(data) {
             if ('data_rates' in data) {
                 data = data['data_rates'];
@@ -97,25 +95,39 @@ function monthlyChart(chart, place) {
      }).done(function(data) {
         var series = [];
         for (var i = 0; i < data.length; i += 1) {
-            // insert to series[] new year and 12-elems array filled with zeroes and replace value for that month
-            // before inserting check if this year already is in series[]. is so, only replace zero
-            var d = {};
             var year = data[i].year;
-            var month = data[i].month;
-            var count = data[i].the_count;
-            var objIndex = findObjectInArray(series, year);
+            var monthArrIndex = data[i].month - 1;
+            var monthRatingsCount = data[i].the_count;
 
-            if (objIndex > -1) {
-                var curr_months = series[objIndex].data;
-                curr_months[month - 1] = count;
-                series[objIndex].data = curr_months;
+            var objIndex = findObjectInArray(series, year);
+            var found = objIndex > -1;
+
+            if (found) {
+                // this year is already added, replace count for current month
+                series[objIndex].data[monthArrIndex] = monthRatingsCount;
             } else {
-                d.name = year;
-                d.data = [0,0,0,0,0,0,0,0,0,0,0,0];
-                d.data[month - 1] = count;
-                series.push(d);
+                // this is new year, so insert it with zeroed months count and replace count for current month
+                var yearMonthCountObj = {
+                    name: year,
+                    data: [0,0,0,0,0,0,0,0,0,0,0,0],
+                    visible: false,
+                }
+                yearMonthCountObj.data[monthArrIndex] = monthRatingsCount;
+                series.push(yearMonthCountObj);
             }
         }
+
+        // by default every legend item (year) is hidden and will show only last 2 years so chart is more readable
+        var previousYear = series.length - 2;
+        var lastYear = series.length - 1;
+        if (series[previousYear]) {
+            series[previousYear].visible = true;
+        }
+        if (series[lastYear]) {
+            series[lastYear].visible = true;
+        }
+
+        // render chart
         $(place).highcharts({
             chart: {
                 animation: false,
@@ -163,6 +175,7 @@ function monthlyChart(chart, place) {
 };
 
 function findObjectInArray(arr, val) {
+    // check if there's already object.name=val in provided array
     var index = -1;
     for (var j = 0; j < arr.length; j += 1) {
         if (arr[j].name == val) {
@@ -197,6 +210,3 @@ charts = {
         'title': 'Watched per month',
     },
 }
-
-var pathArray = window.location.pathname.split('/');
-var path_username = pathArray[2];

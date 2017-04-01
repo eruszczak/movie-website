@@ -23,6 +23,9 @@ from common.prepareDB_utils import validate_rate, convert_to_datetime
 
 
 def export_ratings(request, username):
+    """
+    exports to csv file all of user's ratings, so they can be imported later
+    """
     response = HttpResponse(content_type='text/csv')
     headers = ['const', 'rate_date', 'rate']
     user_ratings = Rating.objects.filter(user__username=username).select_related('title')
@@ -39,6 +42,9 @@ def export_ratings(request, username):
 @login_required
 @require_POST
 def import_ratings(request):
+    """
+    from exported csv file importd missing ratings (doesn't add new titles, works only for exisiting ones)
+    """
     profile = UserProfile.objects.get(user=request.user)
     uploaded_file = request.FILES['csv_ratings']
     file = uploaded_file.read().decode('utf-8')
@@ -257,7 +263,7 @@ def user_profile(request, username):
                 'count': common_ratings_len,
                 'higher': titles_req_user_rated_higher,
                 'lower': titles_req_user_rated_lower,
-                'percentage': round(common_ratings_len / user.userprofile.count_titles, 2),
+                'percentage': round(common_ratings_len / user.userprofile.count_titles, 2) * 100,
                 'user_rate_avg': common_titles_avgs['avg_user'],
                 'req_user_rate_avg': common_titles_avgs['avg_req_user'],
                 'not_rated_by_req_user': not_rated_by_req_user[:titles_in_a_row],
