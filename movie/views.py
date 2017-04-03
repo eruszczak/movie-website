@@ -395,10 +395,10 @@ def watchlist(request, username):
     is_owner = request.user == user
     page = request.GET.get('page')
 
+    get_active = user_watchlist.filter(deleted=False)
     get_deleted = user_watchlist.filter(imdb=True, deleted=True)
     get_archived = user_watchlist.filter(title__rating__title=F('title'),
                                          title__rating__rate_date__gte=F('added_date')).distinct()
-    get_active = user_watchlist.filter(deleted=False)
     if request.GET.get('show_deleted'):
         user_watchlist = get_deleted
         context = {
