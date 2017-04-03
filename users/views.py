@@ -129,7 +129,7 @@ def user_edit(request, username):
         form = EditProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Profile updated')
+            messages.warning(request, 'Profile updated')
             return redirect(profile)
         else:
             t = '\n'.join([message[0] for field, message in form.errors.items()])

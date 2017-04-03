@@ -354,6 +354,10 @@ p.item-order {float: right}
     background-color: #ffffff;
 }
 
+button[name='follow'], button[name='unfollow'], #editSettings {
+    margin-left: 10px;
+}
+
 .centered-row { margin: auto; max-width: 300px;}
 
 .badge {
