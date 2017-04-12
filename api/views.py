@@ -4,50 +4,45 @@ from django.db.models.functions import ExtractMonth, ExtractYear
 
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView, get_object_or_404
+from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 
 from movie.models import Rating, Title
-from .serializers import RatingListSerializer
+from .serializers import RatingListSerializer, TitleSerializer
 from common.sql_queries import rating_distribution
+
+
+from rest_framework.pagination import PageNumberPagination
+
+
+class SetPagination(PageNumberPagination):
+    page_size = 15
+    page_size_query_param = 'per_page'
 
 
 class RatingsViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = Rating.objects.all()
     serializer_class = RatingListSerializer
+    pagination_class = SetPagination  # by default, only ViewSets can use per_page parameter
+
 
     def get_queryset(self):
-        #.order_by('-rate_date')
-        # query = self.request.GET.get('q')
-        # year = self.request.GET.get('year')
-        # genre = self.request.GET.get('genre')
-        # user = self.request.GET.get('user')
-        #
-        # # rated = self.request.GET.get('rated')
-        # # rated_year = self.request.GET.get('rated_year')
-        # # rated_month = self.request.GET.get('rated_month')
-        # # title = self.request.GET.get('title')
-        # # if title:
-        # #     queryset = queryset.filter(name__icontains=title) if len(title) > 2\
-        # #         else queryset.filter(name__startswith=title)
-        # if query:
-        #     # if len(query) > 2:
-        #     #     queryset = queryset.filter(Q(name__icontains=query) | Q(year=query)).distinct()
-        #     # else:
-        #     #     queryset = queryset.filter(Q(name__startswith=query) | Q(year=query)).distinct()
-        #     queryset = queryset.filter(Q(name__icontains=query) | Q(year=query)).distinct() if len(query) > 2\
-        #         else queryset.filter(Q(name__startswith=query) | Q(year=query)).distinct()
-        # # if rated:
-        # #     queryset = queryset.filter(rate=rated)
-        # if year:
-        #     queryset = queryset.filter(year=year)
-        # # if rated_year and rated_month:
-        #     # queryset = queryset.filter(rate_date__year=rated_year),
-        #     # queryset = Title.objects.filter(rate_date__year=rated_year, rate_date__month=rated_month)
-        # if genre:
-        #     queryset = Genre.objects.get(name=genre).entry_set.all()
+        if self.request.GET.get('u'):
+            self.queryset = Rating.objects.filter(user__username=self.request.GET['u'])
         return self.queryset
+
+
+# class TitleListView(ListAPIView):
+#     queryset = Title.objects.all()
+#     serializer_class = TitleSerializer
+#     pagination_class = SetPagination
+
+
+class TitleDetailView(RetrieveAPIView):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    lookup_field = 'slug'
 
 
 class Genres(ListAPIView):
@@ -82,6 +77,7 @@ class Rates(ListAPIView):
             user = get_object_or_404(User, username=username)
             data = {'data_rates': rating_distribution(user.id)}
             return Response(data)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -94,4 +90,5 @@ class MonthlyRatings(ListAPIView):
                 .values('month', 'year').order_by('year', 'month')\
                 .annotate(the_count=Count('title'))
             return Response(count_per_months)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
