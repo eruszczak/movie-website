@@ -214,6 +214,15 @@ $(document).ready(function() {
             $(this).toggleClass('open');
         }
     );
+
+    $('#btnSubmitAsRandom').on('click', function(e) {
+        var form = $(this).parent().parent();
+        var max = 50;
+        var min = 10;
+        var randomNum = Math.floor(Math.random() * (max - min) + min);
+        form.find('#id_username').val('dummy' + randomNum);
+        form.find('#id_password').val('123123');
+    });
 });
 
 
