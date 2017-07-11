@@ -114,7 +114,7 @@ class Title(models.Model):
         recursive function to get unique slug (in case of 2 titles with the same name/year)
         """
         if new_slug is None:
-            slug = slugify('{} {}'.format(self.name, self.year))[:70]
+            slug = slugify('{} {}'.format(self.name, self.year or ''))[:70]
         else:
             slug = new_slug
 

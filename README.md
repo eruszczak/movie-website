@@ -45,5 +45,5 @@ You can follow other users and then easily recommend them titles (you can also s
 
 ## user's profile
 * see charts of your ratings
-![charts](/zscreens/charts.gif)
+![charts](/static/zscreens/charts.gif)
 ## searching
