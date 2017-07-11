@@ -161,11 +161,11 @@ class Rating(models.Model):
             return (next_rating.rate_date - self.rate_date).days
         return (datetime.now().date() - self.rate_date).days
 
-    def rated_before_rate_diff(self):
-        previous = Rating.objects.filter(user=self.user, title=self.title, rate_date__lt=self.rate_date).first()
-        if previous:
-            return self.rate - previous.rate
-        return None
+    # def rated_before_rate_diff(self):
+    #     previous = Rating.objects.filter(user=self.user, title=self.title, rate_date__lt=self.rate_date).first()
+    #     if previous:
+    #         return self.rate - previous.rate
+    #     return None
 
 
 class Watchlist(models.Model):
