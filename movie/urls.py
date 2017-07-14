@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from . import views
+from . import views, views_class
 
 urlpatterns = [
     url(r'^$', views.home, name='home'),
@@ -11,5 +11,8 @@ urlpatterns = [
     url(r'^year/$', views.groupby_year, name='groupby_year'),
     url(r'^genre/$', views.groupby_genre, name='groupby_genre'),
     url(r'^director/$', views.groupby_director, name='groupby_director'),
+
+    # CLASS
+    url(r'^2year/', views_class.GroupByYearView.as_view())
 
 ]
