@@ -41,12 +41,18 @@ class TitleDetailView(DetailView):
     context_object_name = 'title'
     model = Title
 
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+
     def get_object(self, queryset=None):
+        print('get object')
         slug_or_const = self.kwargs.get('slug')
         title = Title.objects.filter(slug=slug_or_const).first()
         return title
 
     def get_context_data(self, **kwargs):
+        print('get context data')
         req_user_data = {}
         if self.request.user.is_authenticated:
             req_user_data = {
@@ -86,9 +92,6 @@ class TitleDetailView(DetailView):
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        print(self.kwargs)
-        print(self.request.POST)
-
         self.update_title()
         self.recommend_title_to_other_users()
         self.create_or_update_rating()
@@ -98,7 +101,7 @@ class TitleDetailView(DetailView):
         return redirect(self.object)
 
     def update_title(self):
-        if self.request.POST.get('update_title'): # todo
+        if self.request.POST.get('update_title'):
             is_updated, message = update_title(self.object)
             if is_updated:
                 messages.success(self.request, message)
@@ -106,32 +109,32 @@ class TitleDetailView(DetailView):
                 messages.warning(self.request, message)
 
     def recommend_title_to_other_users(self):
-        selected_users = self.request.POST.getlist('choose_followed_user')  # todo
+        selected_users = self.request.POST.getlist('choose_followed_user')
         if selected_users:
             message = recommend_title(self.object, self.request.user, selected_users)
             if message:
                 messages.info(self.request, message, extra_tags='safe')
 
     def create_or_update_rating(self):
-        new_rating, insert_as_new = self.request.POST.get('rating'), self.request.POST.get('insert_as_new')  # todo
+        new_rating, insert_as_new = self.request.POST.get('rating'), self.request.POST.get('insert_as_new')
         if new_rating:
             create_or_update_rating(self.object, self.request.user, new_rating, insert_as_new)
 
     def delete_title(self):
-        delete_rating = self.request.POST.get('delete_rating') # todo
-        if delete_rating: # and rating_pk
-            to_delete = Rating.objects.filter(pk=self.request.POST.get('rating_pk'), user=self.request.user).first()
-            if to_delete:
-                query = {
+        delete_rating = self.request.POST.get('delete_rating')
+        rating_pk = self.request.POST.get('rating_pk')
+        if delete_rating and rating_pk:
+            to_delete = Rating.objects.filter(pk=rating_pk, user=self.request.user).first()
+            query = {
                     'user': self.request.user,
                     'title': self.object,
                     'added_date__date__lte': to_delete.rate_date,
                     'deleted': True
-                }
-                in_watchlist = Watchlist.objects.filter(**query).first()
-                if in_watchlist:
-                    toggle_title_in_watchlist(watch=True, instance=in_watchlist)
-                to_delete.delete()
+            }
+            in_watchlist = Watchlist.objects.filter(**query).first()
+            if in_watchlist:
+                toggle_title_in_watchlist(watch=True, instance=in_watchlist)
+            to_delete.delete()
 
 
 class TitleRedirectView(RedirectView):
@@ -140,82 +143,3 @@ class TitleRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         title = get_object_or_404(Title, const=kwargs['const'])
         return title.get_absolute_url()
-
-
-class UpdateRatingView(TemplateView):
-    def get(self, request, *args, **kwargs):
-        pass
-
-    def post(self, request, *args, **kwargs):
-        pass
-
-# def title_details(request, slug):
-#     title = Title.objects.filter(slug=slug).first()
-#     if not title:
-#         title = Title.objects.get(const=slug)
-#
-#     if request.method == 'POST':
-#         if not request.user.is_authenticated():
-#             messages.info(request, 'Only authenticated users can do this')
-#             return redirect(title)
-#
-#         if request.POST.get('update_title'):
-#             is_updated, message = update_title(title)
-#             if is_updated:
-#                 messages.success(request, message)
-#             else:
-#                 messages.warning(request, message)
-#
-#         selected_users = request.POST.getlist('choose_followed_user')
-#         if selected_users:
-#             message = recommend_title(title, request.user, selected_users)
-#             if message:
-#                 messages.info(request, message, extra_tags='safe')
-#
-#         new_rating, insert_as_new = request.POST.get('rating'), request.POST.get('insert_as_new')
-#         if new_rating:
-#             create_or_update_rating(title, request.user, new_rating, insert_as_new)
-#
-#         delete_rating = request.POST.get('delete_rating')
-#         if delete_rating:
-#             to_delete = Rating.objects.filter(pk=request.POST.get('rating_pk'), user=request.user).first()
-#             if to_delete:
-#                 in_watchlist = Watchlist.objects.filter(user=request.user, title=title,
-#                                                         added_date__date__lte=to_delete.rate_date, deleted=True).first()
-#                 if in_watchlist:
-#                     toggle_title_in_watchlist(watch=True, instance=in_watchlist)
-#                 to_delete.delete()
-#         return redirect(title)
-#
-#     req_user_data = {}
-#     if request.user.is_authenticated():
-#         req_user_data = {
-#             'user_ratings_of_title': Rating.objects.filter(user=request.user, title=title),
-#             'is_favourite_for_user': Favourite.objects.filter(user=request.user, title=title).exists(),
-#             'is_in_user_watchlist': Watchlist.objects.filter(user=request.user, title=title, deleted=False).exists(),
-#             'followed_title_not_recommended': UserFollow.objects.filter(user_follower=request.user).exclude(
-#                 user_followed__rating__title=title).exclude(user_followed__recommendation__title=title),
-#             'followed_saw_title': curr_title_rating_of_followed(request.user.id, title.id)
-#         }
-#
-#     actors_and_other_titles = []
-#     for actor in title.actor.all():
-#         if request.user.is_authenticated():
-#             titles = Title.objects.filter(actor=actor).exclude(const=title.const).extra(select={
-#                 'user_rate': """SELECT rate FROM movie_rating as rating
-#                 WHERE rating.title_id = movie_title.id
-#                 AND rating.user_id = %s
-#                 ORDER BY rating.rate_date DESC LIMIT 1"""
-#             }, select_params=[request.user.id]).order_by('-votes')[:6]
-#         else:
-#             titles = Title.objects.filter(actor=actor).exclude(const=title.const).order_by('-votes')[:6]
-#
-#         if titles:
-#             actors_and_other_titles.append((actor, titles))
-#
-#     context = {
-#         'title': title,
-#         'data': req_user_data,
-#         'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
-#     }
-#     return render(request, 'title_details.html', context)
