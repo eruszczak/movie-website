@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^director/$', views.groupby_director, name='groupby_director'),
 
     # CLASS
-    url(r'^2year/', views_class.GroupByYearView.as_view())
-
+    url(r'^2year/', views_class.GroupByYearView.as_view()),
+    url(r'^2title/(?P<const>tt\d+)/$', views_class.TitleRedirectView.as_view(), name='title-redirect'),
+    url(r'^2title/(?P<slug>[\w-]+)/$', views_class.TitleDetailView.as_view(), name='title-detail'),
 ]
