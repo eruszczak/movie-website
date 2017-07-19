@@ -10,20 +10,8 @@ from common.sql_queries import curr_title_rating_of_followed
 from movie.functions import toggle_title_in_watchlist, create_or_update_rating, recommend_title
 from users.models import UserFollow
 from .models import Title, Rating, Watchlist, Favourite
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 
-
-# class GroupByYearView(ListView):
-#     queryset = Title.objects.values('year').annotate(the_count=Count('year')).order_by('-year')
-#     template_name = 'groupby_year.html'
-#     context_object_name = 'year_count'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['title_count'] = Title.objects.all().count()
-#         return context
-# TODO tests
 
 class GroupByYearView(TemplateView):
     template_name = 'groupby_year.html'
@@ -46,13 +34,11 @@ class TitleDetailView(DetailView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
-        print('get object')
         slug_or_const = self.kwargs.get('slug')
         title = Title.objects.filter(slug=slug_or_const).first()
         return title
 
     def get_context_data(self, **kwargs):
-        print('get context data')
         req_user_data = {}
         if self.request.user.is_authenticated:
             req_user_data = {
@@ -143,3 +129,8 @@ class TitleRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         title = get_object_or_404(Title, const=kwargs['const'])
         return title.get_absolute_url()
+
+
+@method_decorator(login_required, name='dispatch')
+class TitleEditView(UpdateView):
+    pass
