@@ -43,7 +43,7 @@ def export_ratings(request, username):
 @require_POST
 def import_ratings(request):
     """
-    from exported csv file importd missing ratings (doesn't add new titles, works only for exisiting ones)
+    from exported csv file import missing ratings (doesn't add new titles, works only for existing ones)
     """
     profile = UserProfile.objects.get(user=request.user)
     uploaded_file = request.FILES['csv_ratings']
