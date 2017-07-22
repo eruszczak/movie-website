@@ -187,30 +187,33 @@ $(document).ready(function() {
     }
 
 
-    $("#btnSubmit").attr("disabled", "disabled");
-    $('#id_username, #id_password').keyup(function() {
-        var validated = false;
-        var username = $('#id_username').val();
-        var password = $('#id_password').val();
+    // disable submit button on the login page when form fields are empty
+    if ($('div').is('#login-page')) {
+        $("#btnSubmit").attr("disabled", "disabled");
+        $('#id_username, #id_password').keyup(function () {
+            var validated = false;
+            var username = $('#id_username').val();
+            var password = $('#id_password').val();
 
-        if (username.length && password.length) {
-            validated = true;
-        }
+            if (username.length && password.length) {
+                validated = true;
+            }
 
-        if (validated) {
-            $("#btnSubmit").removeAttr("disabled");
-        } else {
-            $("#btnSubmit").attr("disabled", "disabled");
-        }
-    });
+            if (validated) {
+                $("#btnSubmit").removeAttr("disabled");
+            } else {
+                $("#btnSubmit").attr("disabled", "disabled");
+            }
+        });
+    }
 
     $(".dropdown").hover(
         function() {
-            $('.dropdown-menu', this).not('.in .dropdown-menu').stop(true, true).slideDown("400");
+            $('.dropdown-menu', this).not('.in .dropdown-menu').stop(true, true).slideDown("250");
             $(this).toggleClass('open');
         },
         function() {
-            $('.dropdown-menu', this).not('.in .dropdown-menu').stop(true, true).slideUp("400");
+            $('.dropdown-menu', this).not('.in .dropdown-menu').stop(true, true).slideUp("250");
             $(this).toggleClass('open');
         }
     );

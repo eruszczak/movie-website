@@ -28,7 +28,7 @@ class MessageMixin:
 class AuthLoginView(MessageMixin, LoginView):
     template_name = 'users/login.html'
     extra_context = {
-        'title': 'Login Page'
+        'page_title': 'Login Page'
     }
 
     dialogs = {
@@ -64,6 +64,9 @@ class AuthLogoutView(MessageMixin, LogoutView):
 # permission logged
 class AuthPasswordChangeView(MessageMixin, PasswordChangeView):
     template_name = 'users/password_change.html'
+    extra_context = {
+        'page_title': 'Change your password'
+    }
 
     dialogs = {
         'success': 'Password changed.'

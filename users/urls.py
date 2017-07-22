@@ -8,7 +8,7 @@ import recommend.views
 urlpatterns = [
     url(r'^login/', views_class.AuthLoginView.as_view(), name='login'),
     url(r'^register/', views.register, name='register'),
-    url(r'^password-change/', views_class.AuthPasswordChangeView, name='password-change-view'),
+    url(r'^password-change/', views_class.AuthPasswordChangeView.as_view(), name='password-change-view'),
     url(r'^logout/', views_class.AuthLogoutView.as_view(), name='logout'),
     url(r'^import', views.import_ratings, name='import_ratings'),
 
