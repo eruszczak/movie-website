@@ -5,10 +5,10 @@
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
         <div class="text-center">
-            <a href="{% url 'groupby_year' %}" class="btn btn-sm btn-success" role="button">All years</a>
-            <a href="{% url 'groupby_genre' %}" class="btn btn-sm btn-success" role="button">All genres</a>
+            <a href="{% url 'group-by-year' %}" class="btn btn-sm btn-success" role="button">All years</a>
+            <a href="{% url 'group-by-genre' %}" class="btn btn-sm btn-success" role="button">All genres</a>
         </div>
-        <br>
+        <hr>
         {% if search_result %}
         <div class="row">
             <div class="col-md-12">
@@ -23,12 +23,14 @@
             </div>
         </div>
         {% endif %}
+
         <p class="lead text-center search_summary">{{ ratings.paginator.count }} result{{ ratings.paginator.count|pluralize }}</p>
 
         {% if ratings.paginator.num_pages > 1 %}
             {% include 'includes/paginator.html' %}
         {% endif %}
 
+        <hr>
         {% include 'includes/search_form.html' %}
 
         <table class="table table-hover table-bordered table-condensed" style="margin-top: 10px">

@@ -2,10 +2,8 @@ import io
 import csv
 from datetime import datetime
 
-from django.db.models import Case, IntegerField
-from django.db.models import When
+from django.db.models import Case, IntegerField, When, Count
 from django.http import HttpResponse
-from django.db.models import Count
 from django.contrib import auth, messages
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -16,15 +14,22 @@ from django.contrib.auth.decorators import login_required
 from common.utils import paginate
 from movie.models import Title, Rating
 from .models import UserProfile, UserFollow
-from .forms import RegisterForm, LoginForm, EditProfileForm
-from .functions import update_ratings_using_csv, update_ratings, update_watchlist, validate_imported_ratings, create_csv_with_user_ratings
+from .forms import RegisterForm, EditProfileForm
+from .functions import (
+    update_ratings_using_csv,
+    update_ratings,
+    update_watchlist,
+    validate_imported_ratings,
+    create_csv_with_user_ratings
+)
 from common.sql_queries import avgs_of_2_users_common_curr_ratings, titles_rated_higher_or_lower
 from common.prepareDB_utils import validate_rate, convert_to_datetime
 
 
 def export_ratings(request, username):
     """
-    exports to csv file all of user's ratings, so they can be imported later
+    exports to a csv file all of user's ratings, so they can be imported later (using view defined below)
+    file consists of lines in format: tt1234567,2017-05-23,7
     """
     response = HttpResponse(content_type='text/csv')
     headers = ['const', 'rate_date', 'rate']
@@ -43,7 +48,8 @@ def export_ratings(request, username):
 @require_POST
 def import_ratings(request):
     """
-    from exported csv file import missing ratings (doesn't add new titles, works only for existing ones)
+    from exported csv file import missing ratings. it doesn't add new titles, only new ratings
+    file consists of lines in format: tt1234567,2017-05-23,7
     """
     profile = UserProfile.objects.get(user=request.user)
     uploaded_file = request.FILES['csv_ratings']
@@ -54,6 +60,7 @@ def import_ratings(request):
         messages.info(request, message)
         return redirect(profile)
 
+    # TODO make a class that handles serialization and deserialization
     reader = csv.DictReader(io_string)
     total_rows = 0
     created_count = 0
@@ -93,29 +100,6 @@ def register(request):
         messages.warning(request, message, extra_tags='safe')
         return redirect(reverse('home'))
     return render(request, 'users/register.html', {'form': form})
-
-
-def login(request):
-    form_data = request.POST if request.method == 'POST' else None
-    form = LoginForm(form_data)
-    if form.is_valid():
-        username = form.cleaned_data.get('username')
-        password = form.cleaned_data.get('password')
-        user = auth.authenticate(username=username, password=password)
-        if user:
-            if user.is_active:
-                auth.login(request, user)
-                messages.warning(request, 'You have been logged in, ' + user.username)
-                return redirect(reverse('home'))
-            else:
-                messages.warning(request, 'User not active')
-        else:
-            messages.warning(request, 'Invalid creditentials')
-    context = {
-        'form': form,
-        'title': 'login'
-    }
-    return render(request, 'users/login.html', context)
 
 
 def user_edit(request, username):
@@ -273,7 +257,7 @@ def user_profile(request, username):
 
     context = {
         'title': user.username + ' | profile',
-        'choosen_user': user,
+        'profile_owner': user,
         'is_owner': is_owner,
         'can_follow': can_follow,
         'user_ratings': {

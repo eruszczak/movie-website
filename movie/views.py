@@ -225,6 +225,7 @@ def explore(request):
     empty_get_parameters = [k for k, v in mutable_request_get.items() if not v]
     for key in empty_get_parameters:
         del mutable_request_get[key]
+    query_string = mutable_request_get.urlencode()
 
     context = {
         'page_title': 'Explore',
@@ -233,7 +234,7 @@ def explore(request):
         'search_result': search_result,
         'genres': Genre.objects.annotate(num=Count('title')).order_by('-num'),
         'followed_users': UserFollow.objects.filter(user_follower=request.user) if req_user_id else [],
-        'query_string': mutable_request_get.urlencode(),
+        'query_string': '&{}'.format(query_string) if query_string else query_string,
     }
     return render(request, 'explore.html', context)
 
