@@ -1,22 +1,16 @@
 <nav>
   <ul class="pager">
     {% if ratings.has_previous %}
-      {% if query_string %}
-        <li><a href="{{ query_string }}{{ ratings.previous_page_number }}">Previous</a></li>
-      {% else %}
-        <li><a href="?page={{ ratings.previous_page_number }}">Previous</a></li>
-      {% endif %}
+        <li><a href="?page={{ ratings.previous_page_number }}&{{ query_string }}">Previous</a></li>
     {% endif %}
 
     <span class="label label-success">page {{ ratings.number }} of {{ ratings.paginator.num_pages }}</span>
     <span class="label label-info" >{{ ratings.paginator.per_page }} per page</span>
 
     {% if ratings.has_next %}
-      {% if query_string %}
-        <li><a href="{{ query_string }}{{ ratings.next_page_number }}">Next</a></li>
-      {% else %}
-        <li><a href="?page={{ ratings.next_page_number }}">Next</a></li>
-      {% endif %}
+        <li><a href="?page={{ ratings.next_page_number }}&{{ query_string }}">Next</a></li>
     {% endif %}
   </ul>
 </nav>
+<p>{{ request.path }}</p>
+<p>{{ request.GET.urlencode }}</p>
