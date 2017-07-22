@@ -34,8 +34,8 @@
                         <li role="separator" class="divider"></li>
                     {% endif %}
                     {% if not request.user.is_authenticated %}
-                        <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> login</a></li>
-                        <li><a href="{% url 'register' %}"><span class="glyphicon glyphicon-check" aria-hidden="true"></span> register</a></li>
+                        <li><a href="{% url 'login-view' %}"><span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> login</a></li>
+                        <li><a href="{% url 'register-view' %}"><span class="glyphicon glyphicon-check" aria-hidden="true"></span> register</a></li>
                     {% else %}
                         <li class="text-center">
                             <a href="{{ request.user.userprofile.get_absolute_url }}">
@@ -47,7 +47,7 @@
                             </a>
                         </li>
                         <li role="separator" class="divider"></li>
-                        <li class="text-center"><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> logout</a></li>
+                        <li class="text-center"><a href="{% url 'logout-view' %}"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> logout</a></li>
                     {% endif %}
                     </ul>
                 </li>
