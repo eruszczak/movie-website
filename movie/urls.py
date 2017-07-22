@@ -8,8 +8,8 @@ urlpatterns = [
     url(r'^title/(?P<slug>[\w-]+)/$', views.title_details, name='title_details'),
     url(r'^title/(?P<slug>[\w-]+)/edit/$', views.title_edit, name='title_edit'),
 
-    url(r'^year/$', views.groupby_year, name='groupby_year'),
-    url(r'^genre/$', views.groupby_genre, name='groupby_genre'),
+    url(r'^year/$', views.groupby_year, name='group-by-year'),
+    url(r'^genre/$', views.groupby_genre, name='group-by-genre'),
     url(r'^director/$', views.groupby_director, name='groupby_director'),
 
     # CLASS

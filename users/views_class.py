@@ -75,3 +75,6 @@ class AuthPasswordChangeView(MessageMixin, PasswordChangeView):
     def get_success_url(self):
         self.set_success_message(attach_username=False)
         return self.request.user.userprofile.get_absolute_url()
+
+
+# class AuthRegisterView(MessageMixin, )

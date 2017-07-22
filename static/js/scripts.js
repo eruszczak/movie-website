@@ -207,17 +207,6 @@ $(document).ready(function() {
         });
     }
 
-    $(".dropdown").hover(
-        function() {
-            $('.dropdown-menu', this).not('.in .dropdown-menu').stop(true, true).slideDown("250");
-            $(this).toggleClass('open');
-        },
-        function() {
-            $('.dropdown-menu', this).not('.in .dropdown-menu').stop(true, true).slideUp("250");
-            $(this).toggleClass('open');
-        }
-    );
-
     $('#btnSubmitAsRandom').on('click', function(e) {
         var form = $(this).parent().parent();
         var max = 50;
