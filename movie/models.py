@@ -95,15 +95,20 @@ class Title(models.Model):
         return reverse('title_details', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
-        if not self.id:
+        title_is_just_created = not self.id
+        if title_is_just_created:
             self.slug = self.create_slug()
-        if not self.url_imdb:
             self.url_imdb = 'http://www.imdb.com/title/{}/'.format(self.const)
         super(Title, self).save(*args, **kwargs)
 
     @property
     def rate(self):
-        return avg_of_title_current_ratings(self.id)  # dict in this form: {count: 20, avg: 7.0}
+        """
+        gets average of all current ratings for this title. if user1 rated this 5 and later 10 and user2 rated this 10
+        then {count: 2, avg: 10} would be returned
+        :return: eg. {count: 20, avg: 7.0}
+        """
+        return avg_of_title_current_ratings(self.id)
 
     @property
     def can_be_updated(self):

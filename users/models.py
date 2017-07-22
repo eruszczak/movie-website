@@ -12,11 +12,11 @@ from common.sql_queries import avg_of_user_current_ratings
 from mysite.settings import MEDIA_ROOT
 
 
-def update_filename(instance, filename):
-    path = os.path.join("user_files", instance.user.username)
-    extension = '.' + filename.split('.')[1]
-    fname = datetime.now().strftime("%Y-%m-%d %H-%M-%S") + extension
-    return os.path.join(path, fname)
+def update_filename(instance, file_name):
+    path = os.path.join('user_files', instance.user.username)
+    extension = '.' + file_name.split('.')[1]
+    new_file_name = datetime.now().strftime('%Y-%m-%d %H-%M-%S') + extension
+    return os.path.join(path, new_file_name)
 
 
 def validate_file_extension(value):
@@ -45,19 +45,12 @@ class UserProfile(models.Model):
         self.__original_csv = self.csv_ratings
 
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        # if user still doesn't have a folder - create it
-        directory = os.path.join(MEDIA_ROOT, 'user_files', self.user.username)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-        picture_changed = self.picture != self.__original_picture
-        csv_changed = self.csv_ratings != self.__original_csv
-        if picture_changed:
-            self.delete_previous_file('picture')
-        if csv_changed:
-            self.delete_previous_file('csv')
+        self.create_user_folder()
+        self.clean_user_files()
 
         super(UserProfile, self).save(force_insert, force_update, *args, **kwargs)
+
+        # not sure how this works, but I tested it and it worked (using this I know if those fields are updated
         self.__original_picture = self.picture
         self.__original_csv = self.csv_ratings
 
@@ -141,10 +134,11 @@ class UserProfile(models.Model):
 
     @staticmethod
     def have_minutes_passed(time):
+        three_minutes = 3 * 60
         if not time:
             # time is empty if user never did update
             return True
-        return (timezone.now() - time).seconds > 60 * 3
+        return (timezone.now() - time).seconds > three_minutes
 
     def delete_previous_file(self, what_to_delete):
         """
@@ -152,9 +146,28 @@ class UserProfile(models.Model):
         """
         user_folder = os.path.join(MEDIA_ROOT, 'user_files', self.user.username)
         for file in os.listdir(user_folder):
-            if UserProfile.get_extension_condition(file, what_to_delete):
+            if self.get_extension_condition(file, what_to_delete):
                 path = os.path.join(user_folder, file)
                 os.remove(path)
+
+    def create_user_folder(self):
+        """
+        if user doesn't have a folder for his files (avatar and csv) - create it
+        """
+        directory = os.path.join(MEDIA_ROOT, 'user_files', self.user.username)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+    def clean_user_files(self):
+        """
+        when user uploads new avatar or csv, delete previous files because they won't be used anymore
+        """
+        picture_changed = self.picture != self.__original_picture
+        csv_changed = self.csv_ratings != self.__original_csv
+        if picture_changed:
+            self.delete_previous_file('picture')
+        if csv_changed:
+            self.delete_previous_file('csv')
 
     @staticmethod
     def get_extension_condition(file, what_to_delete):
