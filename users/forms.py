@@ -11,6 +11,7 @@ from .models import UserProfile
 
 
 class RegisterForm(UserCreationForm):
+    login_after = forms.BooleanField()
 
     class Meta:
         model = User

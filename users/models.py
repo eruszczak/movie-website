@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 
 from django.db import models
+
 from django.utils import timezone
 from django.forms import ValidationError
 from django.contrib.auth.models import User
@@ -25,6 +26,9 @@ def validate_file_extension(value):
 
 
 class UserProfile(models.Model):
+    """
+    model created by a signal receiver. when user is created, his profile is created too
+    """
     user = models.OneToOneField(User)
 
     picture = models.ImageField(upload_to=update_filename, blank=True, null=True)

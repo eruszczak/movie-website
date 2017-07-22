@@ -6,10 +6,11 @@ import recommend.views
 
 
 urlpatterns = [
-    url(r'^login/', views_class.AuthLoginView.as_view(), name='login'),
-    url(r'^register/', views.register, name='register'),
+    url(r'^login/', views_class.AuthLoginView.as_view(), name='login-view'),
+    url(r'^register/', views_class.AuthRegisterView.as_view(), name='register-view'),
+    # url(r'^register/', views.register, name='register'),
     url(r'^password-change/', views_class.AuthPasswordChangeView.as_view(), name='password-change-view'),
-    url(r'^logout/', views_class.AuthLogoutView.as_view(), name='logout'),
+    url(r'^logout/', views_class.AuthLogoutView.as_view(), name='logout-view'),
     url(r'^import', views.import_ratings, name='import_ratings'),
 
     url(r'^$', views.user_list, name='user_list'),
