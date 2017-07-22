@@ -11,11 +11,10 @@ from .models import UserProfile
 
 
 class RegisterForm(UserCreationForm):
-    login_after = forms.BooleanField()
 
     class Meta:
         model = User
-        fields = ('username', 'password1', 'password2', )
+        fields = ('username', 'password1', 'password2')
 
 
 class EditProfileForm(forms.ModelForm):

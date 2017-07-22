@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
-from django.contrib.auth import logout
+from django.contrib.auth import logout, login
 
 from .forms import RegisterForm
 from .models import UserProfile
@@ -105,5 +105,7 @@ class AuthRegisterView(MessageMixin, CreateView):
         self.set_success_message(username=self.object.username)
         return UserProfile.objects.get(user=self.object).get_absolute_url()
 
-    # def form_valid(self, form):
-    #     pass
+    def form_valid(self, form):
+        valid = super().form_valid(form)
+        login(self.request, self.object)
+        return valid
