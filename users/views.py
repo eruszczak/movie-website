@@ -2,20 +2,20 @@ import io
 import csv
 from datetime import datetime
 
-from django.db.models import Case, IntegerField, When, Count
+from django.db.models import Count
 from django.http import HttpResponse
-from django.contrib import auth, messages
-from django.core.urlresolvers import reverse
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView
 
 from common.utils import paginate
 from movie.models import Title, Rating
-from .models import UserProfile, UserFollow
-from .forms import RegisterForm, EditProfileForm
-from .functions import (
+from users.models import UserProfile, UserFollow
+from users.forms import EditProfileForm
+from users.functions import (
     update_ratings_using_csv,
     update_ratings,
     update_watchlist,
@@ -79,29 +79,6 @@ def import_ratings(request):
     return redirect(profile)
 
 
-def register(request):
-    form_data = request.POST if request.method == 'POST' else None
-    form = RegisterForm(form_data)
-    if form.is_valid():
-        user = form.save()
-        user.set_password(user.password)
-        profile = UserProfile()
-        profile.user = user
-        user.save()
-        profile.save()
-        message = 'Successful registration. '
-        if request.POST.get('login_after'):
-            created_user = auth.authenticate(username=user.username, password=request.POST.get('password'))
-            auth.login(request, created_user)
-            message += 'You have been logged in, {}'.format(user.username)
-        else:
-            message += 'You may <a href="{}">log in</a> now.'.format(reverse('login'))
-
-        messages.warning(request, message, extra_tags='safe')
-        return redirect(reverse('home'))
-    return render(request, 'users/register.html', {'form': form})
-
-
 def user_edit(request, username):
     profile = UserProfile.objects.get(user__username=username)
     if request.user != profile.user:
@@ -128,12 +105,6 @@ def user_edit(request, username):
         'profile_ratings_name': str(profile.csv_ratings).split('/')[-1]
     }
     return render(request, 'users/profile_edit.html', context)
-
-
-def logout(request):
-    auth.logout(request)
-    messages.warning(request, 'You have been logged out: ' + request.user.username)
-    return redirect(request.META.get('HTTP_REFERER'))
 
 
 def user_list(request):
@@ -169,12 +140,50 @@ def user_list(request):
                     WHERE followage.user_follower_id = %s and followage.user_followed_id = auth_user.id""",
             }, select_params=[request.user.id])
 
-        list_of_users = paginate(list_of_users, page, 25)
+        list_of_users = paginate(list_of_users, page, 1)
         context = {
             'user_list': list_of_users,
             'title': 'User list',
         }
     return render(request, 'users/user_list.html', context)
+
+
+class UserListView(ListView):
+    template_name = 'users/user_list2.html'
+    paginate_by = 1
+    searched_title = None
+
+    def get_queryset(self):
+        if self.request.GET.get('s'):
+            self.searched_title = get_object_or_404(Title, slug=self.request.GET['s'])
+            queryset = self.get_users_who_saw_a_title()
+        else:
+            queryset = User.objects.annotate(num=Count('rating')).order_by('-num', '-username')
+
+        if self.request.user.is_authenticated:
+            queryset = queryset.extra(select={
+                'already_follows': """SELECT 1 FROM users_userfollow as followage
+                    WHERE followage.user_follower_id = %s and followage.user_followed_id = auth_user.id""",
+            }, select_params=[self.request.user.id])
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'List of users'
+        if self.searched_title:
+            context.update({
+                'searched_title': self.searched_title,
+                'query_string': '?s=' + self.request.GET['s'] + '&page=',
+                'page_title': 'Users who saw {}'.format(str(self.searched_title))
+            })
+        return context
+
+    def get_users_who_saw_a_title(self):
+        return User.objects.filter(rating__title=self.searched_title).distinct().extra(select={
+            'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
+                WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s
+                ORDER BY rating.rate_date DESC LIMIT 1"""
+        }, select_params=[self.searched_title.id]).order_by('-current_rating', '-username')
 
 
 def user_profile(request, username):
@@ -256,7 +265,7 @@ def user_profile(request, username):
         user_ratings = Rating.objects.filter(user=user).select_related('title')
 
     context = {
-        'title': user.username + ' | profile',
+        'page_title': '{} profile'.format(user.username),
         'profile_owner': user,
         'is_owner': is_owner,
         'can_follow': can_follow,

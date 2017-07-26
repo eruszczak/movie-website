@@ -86,7 +86,7 @@
 
                         {% with entry.title.rate as data %}
                         {% if data.count and data.avg %}
-                        <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user_list' %}?s={{ entry.title.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>
+                        <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user-list' %}?s={{ entry.title.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>
                         {% endif %}
                         {% endwith %}
 
@@ -140,7 +140,7 @@
                     <br>
                     {% with entry.rate as data %}
                     {% if data.count and data.avg %}
-                    <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user_list' %}?s={{ entry.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>
+                    <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user-list' %}?s={{ entry.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>
                     {% endif %}
                     {% endwith %}
 
