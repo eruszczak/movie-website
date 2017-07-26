@@ -9,9 +9,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from django.views.generic import ListView
+from django.views.generic import ListView, CreateView, UpdateView
 
-from common.utils import paginate
 from movie.models import Title, Rating
 from users.models import UserProfile, UserFollow
 from users.forms import EditProfileForm
@@ -79,78 +78,54 @@ def import_ratings(request):
     return redirect(profile)
 
 
-def user_edit(request, username):
-    profile = UserProfile.objects.get(user__username=username)
-    if request.user != profile.user:
-        messages.info(request, 'You can edit only your profile')
-        return redirect(profile)
+# def user_edit(request, username):
+#     profile =
+#     if request.user != profile.user:
+#         messages.info(request, 'You can edit only your profile')
+#         return redirect(profile)
+#
+#     form = EditProfileForm(instance=profile)
+#     if request.method == 'POST':
+#         form = EditProfileForm(request.POST, request.FILES, instance=profile)
+#         if form.is_valid():
+#             form.save()
+#             messages.warning(request, 'Profile updated')
+#             return redirect(profile)
+#         else:
+#             t = '\n'.join([message[0] for field, message in form.errors.items()])
+#             messages.warning(request, t)
+#         return redirect(profile.edit_url())
+#
+#     profile.csv_ratings = str(profile.csv_ratings).split('/')[-1]
+#     context = {
+#         'form': form,
+#         'title': 'profile edit, ' + username,
+#         'profile': profile,
+#         'profile_ratings_name': str(profile.csv_ratings).split('/')[-1]
+#     }
+#     return render(request, 'users/profile_edit.html', context)
 
-    form = EditProfileForm(instance=profile)
-    if request.method == 'POST':
-        form = EditProfileForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
-            messages.warning(request, 'Profile updated')
-            return redirect(profile)
-        else:
-            t = '\n'.join([message[0] for field, message in form.errors.items()])
-            messages.warning(request, t)
-        return redirect(profile.edit_url())
 
-    profile.csv_ratings = str(profile.csv_ratings).split('/')[-1]
-    context = {
-        'form': form,
-        'title': 'profile edit, ' + username,
-        'profile': profile,
-        'profile_ratings_name': str(profile.csv_ratings).split('/')[-1]
-    }
-    return render(request, 'users/profile_edit.html', context)
+class UserUpdateView(UpdateView):
+    model = UserProfile
+    form_class = EditProfileForm
+    template_name = 'users/user_edit.html'
+    url_lookup_kwarg = 'username'
 
+    def get_object(self, queryset=None):
+        return self.model.objects.get(user__username=self.kwargs[self.url_lookup_kwarg])
 
-def user_list(request):
-    page = request.GET.get('page')
-
-    if request.GET.get('s'):
-        title = get_object_or_404(Title, slug=request.GET['s'])
-        users_who_saw_title = User.objects.filter(rating__title=title).distinct().extra(
-            select={
-                'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
-                    WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s
-                    ORDER BY rating.rate_date DESC LIMIT 1""",
-            }, select_params=[title.id]).order_by('-current_rating', '-username')
-
-        if request.user.is_authenticated():
-            users_who_saw_title = users_who_saw_title.extra(select={
-                'already_follows': """SELECT 1 FROM users_userfollow as followage
-                    WHERE followage.user_follower_id = %s and followage.user_followed_id = auth_user.id""",
-            }, select_params=[request.user.id])
-
-        users_who_saw_title = paginate(users_who_saw_title, page, 25)
-        context = {
-            'user_list': users_who_saw_title,
-            'searched_title': title,
-            'query_string': '?s=' + request.GET['s'] + '&page=',
-            'title': 'Users who saw ' + title.name
-        }
-    else:
-        list_of_users = User.objects.annotate(num=Count('rating')).order_by('-num', '-username')
-        if request.user.is_authenticated():
-            list_of_users = list_of_users.extra(select={
-                'already_follows': """SELECT 1 FROM users_userfollow as followage
-                    WHERE followage.user_follower_id = %s and followage.user_followed_id = auth_user.id""",
-            }, select_params=[request.user.id])
-
-        list_of_users = paginate(list_of_users, page, 1)
-        context = {
-            'user_list': list_of_users,
-            'title': 'User list',
-        }
-    return render(request, 'users/user_list.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'page_title': 'Update your profile'
+        })
+        return context
 
 
 class UserListView(ListView):
     template_name = 'users/user_list2.html'
-    paginate_by = 1
+    paginate_by = 10
     searched_title = None
 
     def get_queryset(self):
