@@ -65,7 +65,7 @@ class UserProfile(models.Model):
         return reverse('user_profile', kwargs={'username': self.user.username})
 
     def edit_url(self):
-        return reverse('user_edit', kwargs={'username': self.user.username})
+        return reverse('user-edit', kwargs={'username': self.user.username})
 
     def watchlist_url(self):
         return reverse('watchlist', kwargs={'username': self.user.username})
