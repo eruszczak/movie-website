@@ -288,6 +288,7 @@ def title_details(request, slug):
             'followed_saw_title': curr_title_rating_of_followed(request.user.id, title.id)
         }
 
+    # todo caching or not a loop-way
     actors_and_other_titles = []
     for actor in title.actor.all():
         if request.user.is_authenticated():

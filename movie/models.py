@@ -7,6 +7,7 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 
 from common.sql_queries import avg_of_title_current_ratings
+from .managers import TitleQuerySet
 
 
 class Genre(models.Model):
@@ -84,6 +85,8 @@ class Title(models.Model):
     slug = models.SlugField(unique=True, max_length=255)
     img = models.ImageField(upload_to='poster', null=True, blank=True)
     img_thumbnail = models.ImageField(null=True, blank=True)
+
+    objects = TitleQuerySet.as_manager()
 
     class Meta:
         ordering = ('-inserted_date', )
