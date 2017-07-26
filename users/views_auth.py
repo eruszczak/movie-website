@@ -1,14 +1,14 @@
 from django.contrib import messages
+from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
-from django.views.generic.edit import CreateView
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
-from django.contrib.auth import logout, login
+from django.views.generic import CreateView
 
-from .forms import RegisterForm
-from .models import UserProfile
+from users.forms import RegisterForm
+from users.models import UserProfile
 
 
 class MessageMixin:
@@ -28,8 +28,6 @@ class MessageMixin:
         raise NotImplementedError
 
 
-# permission - not logged
-# is_active is checked?
 class AuthLoginView(MessageMixin, LoginView):
     template_name = 'users/login.html'
     extra_context = {
@@ -45,7 +43,6 @@ class AuthLoginView(MessageMixin, LoginView):
         return self.request.user.userprofile.get_absolute_url()
 
 
-# permission logged
 class AuthLogoutView(MessageMixin, LogoutView):
 
     dialogs = {
@@ -66,7 +63,6 @@ class AuthLogoutView(MessageMixin, LogoutView):
         return reverse('home')
 
 
-# permission logged
 class AuthPasswordChangeView(MessageMixin, PasswordChangeView):
     template_name = 'users/password_change.html'
     extra_context = {

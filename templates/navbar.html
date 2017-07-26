@@ -24,7 +24,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> {% if request.user.is_authenticated %}{{ request.user.username }}{% else %}users{% endif %}</a>
                     <ul class="dropdown-menu">
-                        <li><a href="{% url 'user_list' %}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> users</a></li>
+                        <li><a href="{% url 'user-list' %}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> users</a></li>
                     {% if request.user.is_authenticated %}
                         <li><a href="{{ request.user.userprofile.get_absolute_url }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> your profile</a></li>
                         <li role="separator" class="divider"></li>
