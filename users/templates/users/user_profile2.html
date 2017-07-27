@@ -6,17 +6,17 @@
 <div class="row lower">
 	<div class="col-md-12">
 		<div class="page-header text-center">
-			<span class="lead">{{ profile_owner.username }}</span>
+			<span class="lead">{{ object.username }}</span>
 			{% if is_owner %}
-			<a href="{{ profile_owner.userprofile.edit_url }}">
+			<a href="{{ object.userprofile.edit_url }}">
                 <button id="editSettings" type="button" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> edit</button>
             </a>
         	{% endif %}
 			{% if request.user.is_authenticated and not is_owner %}
 				{% if can_follow %}
-					<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="follow" value="{{ profile_owner.username }}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Follow</button>
+					<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="follow" value="{{ object.username }}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Follow</button>
 				{% else %}
-					<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfollow" value="{{ profile_owner.username }}"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span> Unfollow</button>
+					<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfollow" value="{{ object.username }}"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span> Unfollow</button>
 				{% endif %}
 			{% endif %}
 		</div>
@@ -24,19 +24,19 @@
 </div>
 
 <img id="avatar" class="img-responsive img-thumbnail center-block"
-	 src="{% if profile_owner.userprofile.picture %}{{ profile_owner.userprofile.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}"
+	 src="{% if object.userprofile.picture %}{{ object.userprofile.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}"
 	 alt="...">
 
 <div class="row text-center">
 	<br>
 	<div class="col-md-12">
-		<a href="{{ profile_owner.userprofile.watchlist_url }}" class="btn btn-sm btn-default">
+		<a href="{{ object.userprofile.watchlist_url }}" class="btn btn-sm btn-default">
 			<span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist
 		</a>
-		<a href="{{ profile_owner.userprofile.favourite_url }}" class="btn btn-sm btn-default">
+		<a href="{{ object.userprofile.favourite_url }}" class="btn btn-sm btn-default">
 			<span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> favourites
 		</a>
-		<a href="{{ profile_owner.userprofile.recommend_url }}" class="btn btn-sm btn-default">
+		<a href="{{ object.userprofile.recommend_url }}" class="btn btn-sm btn-default">
 			<span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend
 		</a>
 	</div>
@@ -86,10 +86,10 @@
 				</div>
 				<hr>
 				{% endif %}
-				See all <a href="{{ profile_owner.userprofile.ratings_url }}">{{ profile_owner.userprofile.count_titles }} titles</a>
-				or <a href="{{ profile_owner.userprofile.all_ratings_url }}">{{ profile_owner.userprofile.count_ratings }} ratings</a>
+				See all <a href="{{ object.userprofile.ratings_url }}">{{ object.userprofile.count_titles }} titles</a>
+				or <a href="{{ object.userprofile.all_ratings_url }}">{{ object.userprofile.count_ratings }} ratings</a>
 				<hr class="visible-sm visible-xs">
-				<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import_ratings' %}" style="display:none">{% csrf_token %}
+				<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import-ratings' object.username %}" style="display:none">{% csrf_token %}
 					<input id="import" name="csv_ratings" type="file" accept=".csv" />
 				</form>
 
@@ -99,9 +99,9 @@
 							<input id="confirm-nick" name="confirm-nick" hidden>
 							<button id="clear_ratings" type="submit" class="btn btn-xs btn-success" data-toggle="tooltip" title="You cannot revert this operation. You will lose all of you ratings if you haven't exported them first.">clear my ratings</button>
 						</form>
-						<a id="import_ratings" href="{% url 'import_ratings' %}" style="margin-right:10px" data-toggle="tooltip" title="You can add ratings from exported file."><button class="btn btn-xs btn-success">import</button></a>
+						<a id="import_ratings" href="{% url 'import-ratings' object.username %}" style="margin-right:10px" data-toggle="tooltip" title="You can add ratings from exported file."><button class="btn btn-xs btn-success">import</button></a>
 					{% endif %}
-					<a href="{% url 'export_ratings' profile_owner.username %}" data-toggle="tooltip" title="You can export all of your ratings as a form of backup. If you will lose some of your ratings, you will be able to import them." target="_blank"><button class="btn btn-xs btn-success">export</button></a>
+					<a href="{% url 'export-ratings' object.username %}" data-toggle="tooltip" title="You can export all of your ratings as a form of backup. If you will lose some of your ratings, you will be able to import them." target="_blank"><button class="btn btn-xs btn-success">export</button></a>
 				</div>
 			</div>
 		</div>
@@ -116,12 +116,12 @@
 				{% if user_ratings.common_with_req_user.not_rated_by_req_user %}
 				<div>
 					<div class="row">
-						<p class="text-center lead">Titles {{ profile_owner.username }} liked that you haven't rated</p>
+						<p class="text-center lead">Titles {{ object.username }} liked that you haven't rated</p>
 						{% for title in user_ratings.common_with_req_user.not_rated_by_req_user %}
 							{% include 'includes/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate %}
 						{% endfor %}
 					</div>
-					See all <a href="{{ profile_owner.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
+					See all <a href="{{ object.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
 				</div>
 				<hr>
 				{% endif %}
@@ -144,13 +144,13 @@
 				<hr>
 				{% endif %}
 				<p class="text-center lead">Summary</p>
-				You and {{ profile_owner.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>
+				You and {{ object.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>
 				{% if user_ratings.common_with_req_user.req_user_rate_avg %}
-					You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ profile_owner.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>
+					You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ object.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>
 				{% endif %}
-				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ profile_owner.username }}'s
-				<a href="{{ profile_owner.userprofile.ratings_url }}">{{ profile_owner.userprofile.count_titles }} ratings</a><br>
-				<a href="{% url 'explore' %}?u={{ profile_owner.username }}&exclude_his=on">See titles</a> that only you have seen
+				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ object.username }}'s
+				<a href="{{ object.userprofile.ratings_url }}">{{ object.userprofile.count_titles }} ratings</a><br>
+				<a href="{% url 'explore' %}?u={{ object.username }}&exclude_his=on">See titles</a> that only you have seen
 			</div>
 		</div>
 	</div>

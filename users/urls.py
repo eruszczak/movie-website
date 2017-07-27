@@ -19,6 +19,6 @@ urlpatterns = [
     url(r'^(?P<username>[-\w]+)/favourites/$', movie.views.favourite, name='favourite'),
     url(r'^(?P<username>[-\w]+)/recommend/$', recommend.views.recommend, name='recommend'),
 
-    # url(r'^(?P<username>[-\w]+)/import/$', views.import_ratings, name='import_ratings'),
-    # url(r'^(?P<username>[-\w]+)/export$', views.export_ratings, name='export_ratings'),
+    url(r'^(?P<username>[-\w]+)/import/$', views.import_ratings, name='import-ratings'),
+    url(r'^(?P<username>[-\w]+)/export$', views.export_ratings, name='export-ratings'),
 ]
