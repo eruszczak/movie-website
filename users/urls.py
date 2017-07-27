@@ -12,12 +12,13 @@ urlpatterns = [
     url(r'^register/$', views_auth.AuthRegisterView.as_view(), name='register-view'),
     url(r'^password-change/$', views_auth.AuthPasswordChangeView.as_view(), name='password-change-view'),
 
-    url(r'^import/$', views.import_ratings, name='import_ratings'),
-    url(r'^(?P<username>[-\w]+)/export$', views.export_ratings, name='export_ratings'),
-
-    url(r'^(?P<username>[-\w]+)/$', views.user_profile, name='user_profile'),
+    url(r'^(?P<username>[-\w]+)/$', views.UserDetailView.as_view(), name='user-detail'),
     url(r'^(?P<username>[-\w]+)/edit/$', views.UserUpdateView.as_view(), name='user-edit'),
+
     url(r'^(?P<username>[-\w]+)/watchlist/$', movie.views.watchlist, name='watchlist'),
     url(r'^(?P<username>[-\w]+)/favourites/$', movie.views.favourite, name='favourite'),
     url(r'^(?P<username>[-\w]+)/recommend/$', recommend.views.recommend, name='recommend'),
+
+    # url(r'^(?P<username>[-\w]+)/import/$', views.import_ratings, name='import_ratings'),
+    # url(r'^(?P<username>[-\w]+)/export$', views.export_ratings, name='export_ratings'),
 ]

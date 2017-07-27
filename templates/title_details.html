@@ -190,7 +190,7 @@
 						<div class="row">
 						{% for user in data.followed_saw_title %}
 							<div class="col-md-5">
-								<a href="{% url 'user_profile' user.username %}">
+								<a href="{% url 'user-detail' user.username %}">
 									<img class="img-responsive img-thumbnail"
 										 src="{% if user.picture %}/media/{{ user.picture }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}"
 										 alt="..." style="width: 50px">

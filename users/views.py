@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, UpdateView, DetailView
 
 from movie.models import Title, Rating
 from users.models import UserProfile, UserFollow
@@ -106,14 +106,14 @@ def import_ratings(request):
 #     return render(request, 'users/profile_edit.html', context)
 
 
+# do i need object permissions (is_owner) if getting object by self.request? or just LoginRequired
 class UserUpdateView(UpdateView):
     model = UserProfile
     form_class = EditProfileForm
     template_name = 'users/user_edit.html'
-    url_lookup_kwarg = 'username'
 
     def get_object(self, queryset=None):
-        return self.model.objects.get(user__username=self.kwargs[self.url_lookup_kwarg])
+        return self.model.objects.get(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -159,6 +159,11 @@ class UserListView(ListView):
                 WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s
                 ORDER BY rating.rate_date DESC LIMIT 1"""
         }, select_params=[self.searched_title.id]).order_by('-current_rating', '-username')
+
+
+class UserDetailView(DetailView):
+    model = UserProfile
+    template_name = 'users/user_profile2.html'
 
 
 def user_profile(request, username):
