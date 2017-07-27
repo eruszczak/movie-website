@@ -62,7 +62,7 @@ class UserProfile(models.Model):
         return self.user.username
 
     def get_absolute_url(self):
-        return reverse('user_profile', kwargs={'username': self.user.username})
+        return reverse('user-detail', kwargs={'username': self.user.username})
 
     def edit_url(self):
         return reverse('user-edit', kwargs={'username': self.user.username})
