@@ -17,6 +17,9 @@ class RegisterForm(UserCreationForm):
         fields = ('username', 'password1', 'password2')
 
 
+# class
+
+
 class EditProfileForm(forms.ModelForm):
 
     class Meta:

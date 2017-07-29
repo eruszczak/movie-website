@@ -7,6 +7,8 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views import View
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, UpdateView, DetailView
@@ -161,6 +163,7 @@ class UserListView(ListView):
         }, select_params=[self.searched_title.id]).order_by('-current_rating', '-username')
 
 
+# todo this must be UpdateView
 class UserDetailView(DetailView):
     model = User
     template_name = 'users/user_profile2.html'
@@ -201,6 +204,30 @@ class UserDetailView(DetailView):
         })
         return context
 
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('follow'):
+            UserFollow.objects.create(user_follower=self.request.user, user_followed=self.object)
+        elif self.request.POST.get('unfollow'):
+            UserFollow.objects.filter(user_follower=self.request.user, user_followed=self.object).delete()
+        elif self.request.POST.get('confirm-nick'):
+            if self.request.POST['confirm-nick'] == self.request.user.username:
+                deleted_count = Rating.objects.filter(user=self.request.user).delete()[0]
+                message = 'You have deleted your {} ratings'.format(deleted_count)
+            else:
+                message = 'Confirmation failed. Wrong username. No ratings deleted.'
+            messages.info(self.request, message, extra_tags='safe')
+        elif self.is_owner:
+            message = ''
+            if self.request.POST.get('update_csv'):
+                message = update_ratings_using_csv(self.object)
+            elif self.request.POST.get('update_rss') and self.object.userprofile.imdb_id:
+                message = update_ratings(self.object)
+            elif self.request.POST.get('update_watchlist') and self.object.userprofile.imdb_id:
+                message = update_watchlist(self.object)
+            messages.info(self.request, message, extra_tags='safe')
+        return redirect(self.object.userprofile)
+
     def get_user_ratings(self):
         if self.is_other_user:
             return Rating.objects.filter(user=self.object).extra(select={
@@ -226,12 +253,8 @@ class UserDetailView(DetailView):
             common_titles_avgs = avgs_of_2_users_common_curr_ratings(self.object.id, self.request.user.id)
             common_ratings_len = common_titles_avgs['count']
 
-            not_rated_by_req_user = Title.objects\
-                .filter(rating__user=self.object, rating__rate__gte=7)\
-                .only('name', 'const')\
-                .exclude(rating__user=self.request.user)\
-                .distinct()\
-                .extra(select={
+            not_rated_by_req_user = Title.objects.filter(rating__user=self.object, rating__rate__gte=7).only(
+                'name', 'const').exclude(rating__user=self.request.user).distinct().extra(select={
                     'user_rate': """SELECT rate FROM movie_rating as rating
                         WHERE rating.title_id = movie_title.id
                         AND rating.user_id = %s
