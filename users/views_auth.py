@@ -11,6 +11,7 @@ from users.forms import RegisterForm
 from users.models import UserProfile
 
 
+# todo this sucks
 class MessageMixin:
     # can check hasattr(self, 'request') and dialog. in __init__?
     def set_success_message(self, attach_username=True, username=None):

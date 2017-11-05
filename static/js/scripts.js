@@ -1,8 +1,8 @@
 $(document).ready(function() {
     $('[data-toggle="tooltip"]').tooltip();
-    $('[data-toggle="popover"]').popover()
+    $('[data-toggle="popover"]').popover();
 
-    $("#recommend_form").submit(function(event) {
+    $("#recommend_form").submit(function() {
         var const_value = $("#id_const").val();
         var valid_note = $("#id_note").val().length < 120;
         var nick_field = $("#id_nick");
@@ -18,7 +18,7 @@ $(document).ready(function() {
         return false;
     });
 
-    $('[name="update_titles_form"').children().on('click', function() {
+    $('[name="update_titles_form"]').children().on('click', function() {
         showWaitingDialog(100);
     });
 
@@ -37,7 +37,7 @@ $(document).ready(function() {
           buttons: {
             "Clear my ratings": function() {
               $( this ).dialog( "close" );
-              nickname = $('#confirm-nickname').val();
+              var nickname = $('#confirm-nickname').val();
               var formElement = $("#confirm-nick");
               formElement.val(nickname);
               formElement.parent().submit();
@@ -60,6 +60,7 @@ $(document).ready(function() {
             showWaitingDialog(100);
         };
     }
+    //todo ugly
     var selectors = 'button[name="fav"], button[name="unfav"], button[name="watch"], button[name="unwatch"], button[name="follow"], button[name="unfollow"]';
     $('body').on('click', selectors, function() {
         var btnValue = $(this).val();
@@ -91,6 +92,7 @@ $(document).ready(function() {
         }
     }
 
+    // todo ugly
     $('.raty-stars').raty({
         path: function() {
             return this.getAttribute('data-path');
@@ -103,7 +105,7 @@ $(document).ready(function() {
             var data = {
                 'const': this.id,
                 'rating': score
-            }
+            };
             $(this).parent().find('[name="rating"]').val(score);
             var sourcePage = $(this).attr('data-source');
 
@@ -217,7 +219,7 @@ $(document).ready(function() {
     });
 });
 
-
+// todo place it in template
 function sortable() {
     $('#sortable tbody').sortable({
         placeholder: 'ui-state-highlight',

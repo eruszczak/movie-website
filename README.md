@@ -1,5 +1,5 @@
 # About
-This is a new version of a Django website from [this repo](https://github.com/kierrez/website/blob/master/README.md).
+This is a new version of a Django website from [this repo](https://github.com/reryk/website/blob/master/README.md).
 On this version I have been working for a few months with breaks. Recently I realized that there is not that much of code but it's because I wrote something once and then found a better way to do it. Overall it was a great learning experience.
 
 # Used tools

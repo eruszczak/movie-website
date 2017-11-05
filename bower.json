@@ -1,7 +1,5 @@
 {
-  "name": "margo",
   "version": "0.0.0",
-  "homepage": "https://github.com/kierrez/margo",
   "license": "MIT",
   "dependencies": {
     "jquery": "^3.1.1",
