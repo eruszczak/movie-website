@@ -70,30 +70,6 @@ $(document).ready(function() {
         $(this).hide();
     });
 
-    var selectors = 'button[name="follow"], button[name="unfollow"]';
-    $('body').on('click', selectors, function() {
-        var btnValue = $(this).val();
-        var btnName = $(this).attr('name');
-        var data = {'const': btnValue};
-        data[btnName] = btnName;
-        var viewUrl = '/explore/';
-        if (btnName === 'follow' || btnName === 'unfollow') {
-            viewUrl = '/users/' + btnValue + '/';
-        }
-        ajax_request(data, {url: viewUrl});
-
-        // toggle button look
-        $(this).hide();
-        var btn = buttons[btnName];
-        showToast(btn.toastMessage);
-        $(this).removeClass(btn.class).addClass(btn.afterClass);
-        $(this).attr('name', btn.afterName);
-        var span = $(this).find('span').attr('class', btn.afterSpanClass);
-        $(this).html(span);
-        $(this).append(' ' + btn.afterText);
-        $(this).fadeIn();
-    });
-
     if ($('table').is('#sortable')) {
         var isOwner = $('#sortable').data('isowner');
         if (isOwner) {
@@ -301,55 +277,6 @@ function getCookie(name) {
         }
     }
     return cookieValue;
-}
-
-var buttons = {
-    'fav': {
-        'class': 'watch-btn',
-        'afterClass': 'unwatch-btn',
-        'afterName': 'unfav',
-        'afterText': '',
-        'afterSpanClass': 'glyphicon glyphicon-heart-empty',
-        'toastMessage': 'Added to favourites'
-    },
-    'unfav': {
-        'class': 'unwatch-btn',
-        'afterClass': 'watch-btn',
-        'afterName': 'fav',
-        'afterText': '',
-        'afterSpanClass': 'glyphicon glyphicon-heart',
-        'toastMessage': 'Removed from favourites'
-    },
-    'watch': {
-        'class': 'watch-btn',
-        'afterClass': 'unwatch-btn',
-        'afterName': 'unwatch',
-        'afterText': 'watchlist',
-        'toastMessage': 'Added to watchlist'
-    },
-    'unwatch': {
-        'class': 'unwatch-btn',
-        'afterClass': 'watch-btn',
-        'afterName': 'watch',
-        'afterText': 'add to watchlist',
-        'toastMessage': 'Removed from watchlist'
-    },
-    'follow': {
-        'class': 'watch-btn',
-        'afterClass': 'unwatch-btn',
-        'afterName': 'unfollow',
-        'afterText': 'Unfollow',
-        'afterSpanClass': 'glyphicon glyphicon-eye-close',
-        'toastMessage': 'Followed user'
-    },
-    'unfollow': {
-        'class': 'unwatch-btn',
-        'afterClass': 'watch-btn',
-        'afterName': 'follow',
-        'afterText': 'Follow',
-        'afterSpanClass': 'glyphicon glyphicon-eye-open',
-        'toastMessage': 'Unfollowed user'
-    }
 }
 
 // to prevent search form flickering on page load
