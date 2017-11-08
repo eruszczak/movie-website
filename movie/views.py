@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import Count, Max, F, When, Case, IntegerField, Subquery
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView, RedirectView
 from django.db.models import OuterRef
 
 from common.prepareDB import update_title
@@ -395,26 +395,39 @@ def title_edit(request, slug):
     return render(request, 'title_edit.html', context)
 
 
-def groupby_year(request):
-    context = {
-        'year_count': Title.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
-        'title_count': Title.objects.all().count()
-    }
-    return render(request, 'groupby_year.html', context)
+class GroupByGenreView(TemplateView):
+    template_name = 'movie/group_by_genre.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'genre': Genre.objects.annotate(num=Count('title')).order_by('-num')
+        })
+        return context
 
 
-def groupby_genre(request):
-    context = {
-        'genre': Genre.objects.annotate(num=Count('title')).order_by('-num'),
-    }
-    return render(request, 'groupby_genre.html', context)
+class GroupByDirectorView(TemplateView):
+    template_name = 'movie/group_by_director.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'director': Director.objects.filter(
+                title__type__name='movie').annotate(num=Count('title')).order_by('-num')[:50]
+        })
+        return context
 
 
-def groupby_director(request):
-    context = {
-        'director': Director.objects.filter(title__type__name='movie').annotate(num=Count('title')).order_by('-num')[:50],
-    }
-    return render(request, 'groupby_director.html', context)
+class GroupByYearView(TemplateView):
+    template_name = 'movie/group_by_year.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'year_count': Title.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
+            'title_count': Title.objects.all().count()
+        })
+        return context
 
 
 def watchlist(request, username):
@@ -550,3 +563,10 @@ def favourite(request, username):
 def add_title(request):
     return render(request, '')
 
+
+class TitleRedirectView(RedirectView):
+    pattern_name = 'title-detail'
+
+    def get_redirect_url(self, *args, **kwargs):
+        title = get_object_or_404(Title, const=kwargs['const'])
+        return title.get_absolute_url()
