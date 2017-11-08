@@ -3,17 +3,18 @@ from django.contrib.auth.models import User
 from django.db.models.functions import ExtractMonth, ExtractYear
 
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_404
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.pagination import PageNumberPagination
 
 from movie.models import Rating, Title
 from .serializers import RatingListSerializer, TitleSerializer
 from common.sql_queries import rating_distribution
-
-
-from rest_framework.pagination import PageNumberPagination
+from movie.functions import create_or_update_rating
 
 
 class SetPagination(PageNumberPagination):
@@ -92,3 +93,23 @@ class MonthlyRatings(ListAPIView):
             return Response(count_per_months)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TitleAddRatingView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        new_rating = request.POST.get('rating')
+        insert_as_new = request.POST.get('insert_as_new')
+        try:
+            title = Title.objects.get(pk=kwargs['pk'])
+        except Title.DoesNotExist:
+            return Response({'': ''}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            create_or_update_rating(title, request.user, new_rating, insert_as_new)
+            return Response(status=status.HTTP_200_OK)
+
+
+class TitleDeleteRatingView(APIView):
+
+    pass

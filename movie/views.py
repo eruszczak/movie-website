@@ -5,8 +5,10 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.db.models import Count, Max, F, When, Case, IntegerField
+from django.db.models import Count, Max, F, When, Case, IntegerField, Subquery
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import DetailView
+from django.db.models import OuterRef
 
 from common.prepareDB import update_title
 from common.prepareDB_utils import validate_rate, convert_to_datetime
@@ -236,6 +238,9 @@ def explore(request):
         'followed_users': UserFollow.objects.filter(user_follower=request.user) if req_user_id else [],
         'query_string': '&{}'.format(query_string) if query_string else query_string,
     }
+    # newest = Rating.objects.filter(user=request.user, title=OuterRef('pk')).order_by('-rate_date')
+    # x = Title.objects.annotate(newest_user_rating=Subquery(newest.values('rate')[:1]))
+    # print(x.first().newest_user_rating)
     return render(request, 'explore.html', context)
 
 
@@ -291,7 +296,7 @@ def title_details(request, slug):
     # todo caching or not a loop-way
     actors_and_other_titles = []
     for actor in title.actor.all():
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             titles = Title.objects.filter(actor=actor).exclude(const=title.const).extra(select={
                 'user_rate': """SELECT rate FROM movie_rating as rating
                 WHERE rating.title_id = movie_title.id
@@ -310,6 +315,42 @@ def title_details(request, slug):
         'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
     }
     return render(request, 'title_details.html', context)
+
+
+class TitleDetailView(DetailView):
+    query_pk_and_slug = False
+    template_name = 'movie/title_detail.html'
+    model = Title
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['data'] = {
+                'user_ratings_of_title': Rating.objects.filter(user=self.request.user, title=self.object),
+                'is_favourite_for_user': Favourite.objects.filter(user=self.request.user, title=self.object).exists(),
+                'is_in_user_watchlist': Watchlist.objects.filter(user=self.request.user, title=self.object,
+                                                                 deleted=False).exists(),
+                'followed_title_not_recommended': UserFollow.objects.filter(user_follower=self.request.user).exclude(
+                    user_followed__rating__title=self.object).exclude(user_followed__recommendation__title=self.object),
+                'followed_saw_title': curr_title_rating_of_followed(self.request.user.id, self.object.pk)
+            }
+
+        actors_and_other_titles = []
+        for actor in self.object.actor.all():
+            if self.request.user.is_authenticated:
+                newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+                titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).annotate(
+                    user_rate=Subquery(newest.values('rate')[:1])).order_by('-votes')[:6]
+            else:
+                titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).order_by('-votes')[:6]
+
+            if titles:
+                actors_and_other_titles.append((actor, titles))
+
+        context.update({
+            'actors_and_other_titles': actors_and_other_titles
+        })
+        return context
 
 
 def title_edit(request, slug):

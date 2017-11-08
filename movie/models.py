@@ -95,7 +95,7 @@ class Title(models.Model):
         return '{} {}'.format(self.name, self.year)
 
     def get_absolute_url(self):
-        return reverse('title_details', kwargs={'slug': self.slug})
+        return reverse('title-detail', kwargs={'pk': self.pk, 'slug': self.slug})
 
     def save(self, *args, **kwargs):
         title_is_just_created = not self.id
