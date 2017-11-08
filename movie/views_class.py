@@ -13,15 +13,7 @@ from .models import Title, Rating, Watchlist, Favourite
 from django.utils.decorators import method_decorator
 
 
-class GroupByYearView(TemplateView):
-    template_name = 'groupby_year.html'
 
-    def get_context_data(self, **kwargs):
-        context = {
-            'year_count': Title.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
-            'title_count': Title.objects.all().count()
-        }
-        return context
 
 
 class TitleDetailView(DetailView):
@@ -123,12 +115,7 @@ class TitleDetailView(DetailView):
             to_delete.delete()
 
 
-class TitleRedirectView(RedirectView):
-    pattern_name = 'title-detail'
 
-    def get_redirect_url(self, *args, **kwargs):
-        title = get_object_or_404(Title, const=kwargs['const'])
-        return title.get_absolute_url()
 
 
 @method_decorator(login_required, name='dispatch')

@@ -206,6 +206,7 @@ $(document).ready(function() {
 // todo place it in template
 function sortable() {
     $('#sortable tbody').sortable({
+    // $('tbody#sortable').sortable({
         placeholder: 'ui-state-highlight',
         axis: 'y',
         update: function (event, ui) {
