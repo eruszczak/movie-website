@@ -14,7 +14,7 @@ from rest_framework.pagination import PageNumberPagination
 from movie.models import Rating, Title
 from .serializers import RatingListSerializer, TitleSerializer
 from common.sql_queries import rating_distribution
-from movie.functions import create_or_update_rating
+from movie.functions import create_or_update_rating, toggle_title_in_favourites
 
 
 class SetPagination(PageNumberPagination):
@@ -113,3 +113,19 @@ class TitleAddRatingView(APIView):
 class TitleDeleteRatingView(APIView):
 
     pass
+
+
+class TitleToggleFavourite(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        fav = request.POST.get('fav')
+        unfav = request.POST.get('unfav')
+        try:
+            title = Title.objects.get(pk=kwargs['pk'])
+        except Title.DoesNotExist:
+            return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            toggle_title_in_favourites(request.user, title, fav, unfav)
+            message = 'Added to favourites' if fav else 'Removed from favourites'
+            return Response({'message': message}, status=status.HTTP_200_OK)

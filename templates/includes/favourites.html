@@ -1,9 +1,3 @@
-{% if condition %}
-    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfav" value="{{ const }}">
-        <span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span>
-    </button>
-{% else %}
-    <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="fav" value="{{ const }}">
-        <span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
-    </button>
-{% endif %}
+{% url 'title-fav' title_pk as title_fav_url %}
+<a class="btn btn-sm see-again-btn unwatch-btn toggle-fav" name="unfav" data-url="{{ title_fav_url }}" {% if not data.is_favourite_for_user %}style="display:none"{% endif %}><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span></a>
+<a class="btn btn-sm see-again-btn watch-btn toggle-fav" name="fav" data-url="{{ title_fav_url }}" {% if data.is_favourite_for_user %}style="display:none"{% endif %}><span class="glyphicon glyphicon-heart" aria-hidden="true"></span></a>

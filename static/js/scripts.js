@@ -49,7 +49,7 @@ $(document).ready(function() {
         });
     });
 
-    if ($( "#import").length) {
+    if ($("#import").length) {
         document.getElementById("import").onchange = function() {
             var max_size = 2 * 1024 * 1024;
             if(max_size < document.getElementById("import").files[0].size) {
@@ -60,8 +60,17 @@ $(document).ready(function() {
             showWaitingDialog(100);
         };
     }
-    //todo ugly
-    var selectors = 'button[name="fav"], button[name="unfav"], button[name="watch"], button[name="unwatch"], button[name="follow"], button[name="unfollow"]';
+
+    $('.toggle-fav').click(function() {
+        var name = $(this).attr('name');
+        var data = {};
+        data[name] = true;
+        ajax_request(data, {url: $(this).data('url')});
+        $(this).hide();
+        $('.toggle-fav').not('[name="' + name + '"]').css('display', '');
+    });
+
+    var selectors = 'button[name="watch"], button[name="unwatch"], button[name="follow"], button[name="unfollow"]';
     $('body').on('click', selectors, function() {
         var btnValue = $(this).val();
         var btnName = $(this).attr('name');
@@ -109,7 +118,7 @@ $(document).ready(function() {
             $(this).parent().find('[name="rating"]').val(score);
             var sourcePage = $(this).attr('data-source');
 
-            if (sourcePage == 'details_page') {
+            if (sourcePage === 'details_page') {
                 $(this).parent().submit();
             } else {
                 if (score === 0) {
@@ -264,18 +273,14 @@ function sortable() {
 
 function ajax_request(data, options) {
     data.csrfmiddlewaretoken = csrftoken;
-    var sourceUrl = [location.protocol, '//', location.host, location.pathname].join('');
-
-    options = options || {};
-    var refresh = options.refresh || false;
-    var url = options.url || sourceUrl;
-
+    var url = options.url || [location.protocol, '//', location.host, location.pathname].join('');
     $.ajax({
         data: data,
         type: 'POST',
         url: url,
-        success: function() {
-            if (refresh) {
+        success: function(response) {
+            showToast(response.message);
+            if (options.refresh) {
                 window.location.reload(false);
             }
         }
@@ -359,12 +364,14 @@ function showWaitingDialog(secs) {
 }
 
 function showToast(message) {
-    $.iaoAlert({
-        msg: message,
-        type: "notification",
-        alertTime: "1750",
-        position: 'top-right',
-        mode: 'dark',
-        fadeOnHover: true,
-    })
+    if (message) {
+        $.iaoAlert({
+            msg: message,
+            type: "notification",
+            alertTime: "1750",
+            position: 'top-right',
+            mode: 'dark',
+            fadeOnHover: true
+        })
+    }
 }

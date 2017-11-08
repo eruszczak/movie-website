@@ -349,6 +349,7 @@ class TitleDetailView(DetailView):
 
         context.update({
             'actors_and_other_titles': actors_and_other_titles
+            # why sorted(actors_and_other_titles, key=lambda x: len(x[1]))
         })
         return context
 
