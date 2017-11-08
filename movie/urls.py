@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^director/$', views.GroupByDirectorView.as_view(), name='group-director'),
 
     url(r'^explore/$', views.explore, name='explore'),
+    url(r'^explore1/$', views.TitleListView.as_view(), name='title-list'),
     url(r'^title/(?P<slug>[\w-]+)/edit/$', views.title_edit, name='title_edit'),
 ]
