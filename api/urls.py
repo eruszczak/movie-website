@@ -9,7 +9,8 @@ router.register(r'ratings', views.RatingsViewSet)
 
 urlpatterns = [
     url(r'^title/(?P<pk>\d+)/rate', views.TitleAddRatingView.as_view(), name='title-rate'),
-    url(r'^title/(?P<pk>\d+)/fav', views.TitleToggleFavourite.as_view(), name='title-fav'),
+    url(r'^title/(?P<pk>\d+)/favourites', views.TitleToggleFavourite.as_view(), name='title-fav'),
+    url(r'^title/(?P<pk>\d+)/watchlist', views.TitleToggleWatchlist.as_view(), name='title-watch'),
 
     url(r'^', include(router.urls), name='ratings'),
     url(r'^g/$', views.Genres.as_view(), name='genres'),

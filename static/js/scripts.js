@@ -61,13 +61,16 @@ $(document).ready(function() {
         };
     }
 
-    $('.toggle-fav').click(function() {
+    $('[type="toggle-fav"], [type="toggle-watch"]').click(function() {
         var name = $(this).attr('name');
         var data = {};
         data[name] = true;
         ajax_request(data, {url: $(this).data('url')});
+        var type = $(this).attr('type');
+        // hide current button and show the one that was already hidden
+        // eg. clicked visible: "type=[toggle-fav] name='add'", hide it, and show hidden: "type=[toggle-fav] name='remove'"
         $(this).hide();
-        $('.toggle-fav').not('[name="' + name + '"]').css('display', '');
+        $('[type="' + type + '"]').not('[name="' + name + '"]').css('display', '');
     });
 
     var selectors = 'button[name="watch"], button[name="unwatch"], button[name="follow"], button[name="unfollow"]';
@@ -101,7 +104,6 @@ $(document).ready(function() {
         }
     }
 
-    // todo ugly
     $('.raty-stars').raty({
         path: function() {
             return this.getAttribute('data-path');
