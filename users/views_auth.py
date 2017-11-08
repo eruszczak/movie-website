@@ -1,6 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth import logout, login
-from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
+from django.contrib.auth.views import (
+    LoginView as BaseLoginView,
+    LogoutView as BaseLogoutView,
+    PasswordChangeView as BasePasswordChangeView
+)
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -25,11 +29,8 @@ class MessageMixin:
     def get_success_message(self):
         return self.dialogs['success']
 
-    def get_message_level(self):
-        raise NotImplementedError
 
-
-class AuthLoginView(MessageMixin, LoginView):
+class LoginView(MessageMixin, BaseLoginView):
     template_name = 'users/login.html'
     extra_context = {
         'page_title': 'Login'
@@ -44,7 +45,7 @@ class AuthLoginView(MessageMixin, LoginView):
         return self.request.user.userprofile.get_absolute_url()
 
 
-class AuthLogoutView(MessageMixin, LogoutView):
+class LogoutView(MessageMixin, BaseLogoutView):
 
     dialogs = {
         'success': 'You have been logged out, {}.'
@@ -64,7 +65,7 @@ class AuthLogoutView(MessageMixin, LogoutView):
         return reverse('home')
 
 
-class AuthPasswordChangeView(MessageMixin, PasswordChangeView):
+class PasswordChangeView(MessageMixin, BasePasswordChangeView):
     template_name = 'users/password_change.html'
     extra_context = {
         'page_title': 'Change your password'
@@ -79,7 +80,7 @@ class AuthPasswordChangeView(MessageMixin, PasswordChangeView):
         return self.request.user.userprofile.get_absolute_url()
 
 
-class AuthRegisterView(MessageMixin, CreateView):
+class RegisterView(MessageMixin, CreateView):
     template_name = 'users/register.html'
     form_class = RegisterForm
 

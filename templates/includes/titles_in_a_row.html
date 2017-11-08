@@ -1,8 +1,9 @@
 {% load staticfiles %}
 <div class="col-xs-4 col-sm-2">
-    <!--todo-->
+    <!--todo dlaczego title.const?-->
     <!--<a href="{{ title.get_absolute_url }}">-->
-    <a href="{% url 'title_details' title.const %}">
+
+    <a href="{% url 'title-redirect' title.const %}">
         <img class="img-rounded posterMin" src="{% if title.img_thumbnail %}{% if title.img_thumbnail.url %}{{ title.img_thumbnail.url }}{% else %}/media/{{ title.img }}{% endif %}
             {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="...">
         <br>{{ title.name|slice:":8" }}

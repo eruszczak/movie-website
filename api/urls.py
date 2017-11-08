@@ -15,4 +15,6 @@ urlpatterns = [
     url(r'^m/$', views.MonthlyRatings.as_view(), name='monthly'),
     url(r'^title/(?P<slug>[\w-]+)/$', views.TitleDetailView.as_view(), name='title_detail'),
 
+    url(r'^title/(?P<pk>\d+)/rate', views.TitleAddRatingView.as_view(), name='title-rate')
+
 ]

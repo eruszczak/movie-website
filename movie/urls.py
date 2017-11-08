@@ -2,6 +2,8 @@ from django.conf.urls import url
 from . import views, views_class
 
 urlpatterns = [
+    url(r'^title/(?P<pk>\d+)/(?P<slug>[\w-]+)/$', views.TitleDetailView.as_view(), name='title-detail'),
+
     url(r'^$', views.home, name='home'),
     url(r'^explore/$', views.explore, name='explore'),
 
@@ -15,5 +17,4 @@ urlpatterns = [
     # CLASS
     url(r'^2year/', views_class.GroupByYearView.as_view()),
     url(r'^2title/(?P<const>tt\d+)/$', views_class.TitleRedirectView.as_view(), name='title-redirect'),
-    url(r'^2title/(?P<slug>[\w-]+)/$', views_class.TitleDetailView.as_view(), name='title-detail'),
 ]
