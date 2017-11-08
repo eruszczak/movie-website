@@ -3,10 +3,12 @@ import calendar
 from datetime import datetime
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import Count, Max, F, When, Case, IntegerField, Subquery
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, RedirectView
 from django.db.models import OuterRef
 
@@ -19,43 +21,43 @@ from users.models import UserFollow
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite, Actor
 
 
-def home(request):
-    if request.user.is_authenticated():
-        user_ratings = Rating.objects.filter(user=request.user)
+class HomeView(TemplateView):
+    template_name = 'movie/home.html'
 
-        context = {
-            'ratings': user_ratings.select_related('title')[:16],
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'title': 'home',
+            'movie_count': Title.objects.filter(type__name='movie').count(),
+            'series_count': Title.objects.filter(type__name='series').count(),
+        })
+        if self.request.user.is_authenticated:
+            user_ratings = Rating.objects.filter(user=self.request.user)
+            context.update({
+                'ratings': user_ratings.select_related('title')[:16],
 
-            'last_movie': user_ratings.filter(title__type__name='movie').select_related('title').first(),
-            'last_series': user_ratings.filter(title__type__name='series').select_related('title').first(),
-            'last_good_movie': user_ratings.filter(title__type__name='movie', rate__gte=9).select_related('title').first(),
+                'last_movie': user_ratings.filter(title__type__name='movie').select_related('title').first(),
+                'last_series': user_ratings.filter(title__type__name='series').select_related('title').first(),
+                'last_good_movie': user_ratings.filter(title__type__name='movie', rate__gte=9).select_related(
+                    'title').first(),
+                'movies_my_count': self.request.user.userprofile.count_movies,
+                'series_my_count': self.request.user.userprofile.count_series,
 
-            'movies_my_count': request.user.userprofile.count_movies,
-            'series_my_count': request.user.userprofile.count_series,
+                'rated_titles': self.request.user.userprofile.count_titles,
+                'total_ratings': self.request.user.userprofile.count_ratings,
 
-            'rated_titles': request.user.userprofile.count_titles,
-            'total_ratings': request.user.userprofile.count_ratings,
+                'total_movies': reverse('explore') + '?t=movie', 'total_series': reverse('explore') + '?t=series',
+                'search_movies': reverse('explore') + '?u={}&t=movie'.format(self.request.user.username),
+                'search_series': reverse('explore') + '?u={}&t=series'.format(self.request.user.username)
+            })
+        else:
+            context.update({
+                'ratings': Title.objects.all().order_by('-votes')[:16],
+                'total_movies': reverse('explore') + '?t=movie',
+                'total_series': reverse('explore') + '?t=series',
 
-            'total_movies': reverse('explore') + '?t=movie', 'total_series': reverse('explore') + '?t=series',
-            'search_movies': reverse('explore') + '?u={}&t=movie'.format(request.user.username),
-            'search_series': reverse('explore') + '?u={}&t=series'.format(request.user.username)
-        }
-    else:
-        context = {
-            'ratings': Title.objects.all().order_by('-votes')[:16],
-            'total_movies': reverse('explore') + '?t=movie',
-            'total_series': reverse('explore') + '?t=series',
-
-        }
-
-    common_context = {
-        'title': 'home',
-        'movie_count': Title.objects.filter(type__name='movie').count(),
-        'series_count': Title.objects.filter(type__name='series').count(),
-    }
-
-    context.update(common_context)
-    return render(request, 'home.html', context)
+            })
+        return context
 
 
 def explore(request):
@@ -244,79 +246,6 @@ def explore(request):
     return render(request, 'explore.html', context)
 
 
-def title_details(request, slug):
-    title = Title.objects.filter(slug=slug).first()
-    if not title:
-        title = Title.objects.get(const=slug)
-
-    if request.method == 'POST':
-        if not request.user.is_authenticated():
-            messages.info(request, 'Only authenticated users can do this')
-            return redirect(title)
-
-        if request.POST.get('update_title'):
-            is_updated, message = update_title(title)
-            if is_updated:
-                messages.success(request, message)
-            else:
-                messages.warning(request, message)
-
-        selected_users = request.POST.getlist('choose_followed_user')
-        if selected_users:
-            message = recommend_title(title, request.user, selected_users)
-            if message:
-                messages.info(request, message, extra_tags='safe')
-
-        new_rating, insert_as_new = request.POST.get('rating'), request.POST.get('insert_as_new')
-        if new_rating:
-            create_or_update_rating(title, request.user, new_rating, insert_as_new)
-
-        delete_rating = request.POST.get('delete_rating')
-        if delete_rating:
-            to_delete = Rating.objects.filter(pk=request.POST.get('rating_pk'), user=request.user).first()
-            if to_delete:
-                in_watchlist = Watchlist.objects.filter(user=request.user, title=title,
-                                                        added_date__date__lte=to_delete.rate_date, deleted=True).first()
-                if in_watchlist:
-                    toggle_title_in_watchlist(watch=True, instance=in_watchlist)
-                to_delete.delete()
-        return redirect(title)
-
-    req_user_data = {}
-    if request.user.is_authenticated():
-        req_user_data = {
-            'user_ratings_of_title': Rating.objects.filter(user=request.user, title=title),
-            'is_favourite_for_user': Favourite.objects.filter(user=request.user, title=title).exists(),
-            'is_in_user_watchlist': Watchlist.objects.filter(user=request.user, title=title, deleted=False).exists(),
-            'followed_title_not_recommended': UserFollow.objects.filter(user_follower=request.user).exclude(
-                user_followed__rating__title=title).exclude(user_followed__recommendation__title=title),
-            'followed_saw_title': curr_title_rating_of_followed(request.user.id, title.id)
-        }
-
-    # todo caching or not a loop-way
-    actors_and_other_titles = []
-    for actor in title.actor.all():
-        if request.user.is_authenticated:
-            titles = Title.objects.filter(actor=actor).exclude(const=title.const).extra(select={
-                'user_rate': """SELECT rate FROM movie_rating as rating
-                WHERE rating.title_id = movie_title.id
-                AND rating.user_id = %s
-                ORDER BY rating.rate_date DESC LIMIT 1"""
-            }, select_params=[request.user.id]).order_by('-votes')[:6]
-        else:
-            titles = Title.objects.filter(actor=actor).exclude(const=title.const).order_by('-votes')[:6]
-
-        if titles:
-            actors_and_other_titles.append((actor, titles))
-
-    context = {
-        'title': title,
-        'data': req_user_data,
-        'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
-    }
-    return render(request, 'title_details.html', context)
-
-
 class TitleDetailView(DetailView):
     query_pk_and_slug = False
     template_name = 'movie/title_detail.html'
@@ -352,6 +281,51 @@ class TitleDetailView(DetailView):
             # why sorted(actors_and_other_titles, key=lambda x: len(x[1]))
         })
         return context
+
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        # self.update_title()
+        self.recommend_title_to_other_users()
+        self.create_or_update_rating()
+        self.delete_rating()
+        # todo: use if (allow only one action per one post) and call messages only once
+        return redirect(self.object)
+
+    # def update_title(self):
+    #     if self.request.POST.get('update_title'):
+    #         is_updated, message = update_title(self.object)
+    #         if is_updated:
+    #             messages.success(self.request, message)
+    #         else:
+    #             messages.warning(self.request, message)
+
+    def recommend_title_to_other_users(self):
+        selected_users = self.request.POST.getlist('choose_followed_user')
+        if selected_users:
+            message = recommend_title(self.object, self.request.user, selected_users)
+            if message:
+                messages.info(self.request, message, extra_tags='safe')
+
+    def create_or_update_rating(self):
+        new_rating, insert_as_new = self.request.POST.get('rating'), self.request.POST.get('insert_as_new')
+        if new_rating:
+            create_or_update_rating(self.object, self.request.user, new_rating, insert_as_new)
+
+    def delete_rating(self):
+        delete_rating = self.request.POST.get('delete_rating')
+        rating_pk = self.request.POST.get('rating_pk')
+        if delete_rating and rating_pk:
+            to_delete = Rating.objects.filter(pk=rating_pk, user=self.request.user).first()
+            query = {
+                    'user': self.request.user,
+                    'title': self.object,
+                    'added_date__date__lte': to_delete.rate_date,
+                    'deleted': True
+            }
+            in_watchlist = Watchlist.objects.filter(**query).first()
+            if in_watchlist:
+                toggle_title_in_watchlist(watch=True, instance=in_watchlist)
+            to_delete.delete()
 
 
 def title_edit(request, slug):

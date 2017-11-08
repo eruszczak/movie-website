@@ -158,19 +158,19 @@
                                     <a href="{{ title.url_tomato }}" target="_blank">
                                         <img class="img-rounded" src="{% static 'img/rt.png' %}" alt="..." style="width: 70px">
                                     </a>
-                                    <br>Title last updated:<br>
-                                    {{ title.last_updated|date:"Y-m-d" }} ({{ title.pk }})
-                                    <br>Title inserted:<br>
-                                    {{ title.inserted_date|date:"Y-m-d" }}
-                                    {% if request.user.is_authenticated and title.can_be_updated %}
-                                    <div class="text-center">
-                                        <form action="" method="post">{% csrf_token %}
-                                            <button class="btn btn-xs btn-default" type="submit" name="update_title" value="update_title">
-                                                <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> update
-                                            </button>
-                                        </form>
-                                    </div>
-                                    {% endif %}
+{#                                    <br>Title last updated:<br>#}
+{#                                    {{ title.last_updated|date:"Y-m-d" }} ({{ title.pk }})#}
+{#                                    <br>Title inserted:<br>#}
+{#                                    {{ title.inserted_date|date:"Y-m-d" }}#}
+{#                                    {% if request.user.is_authenticated and title.can_be_updated %}#}
+{#                                    <div class="text-center">#}
+{#                                        <form action="" method="post">{% csrf_token %}#}
+{#                                            <button class="btn btn-xs btn-default" type="submit" name="update_title" value="update_title">#}
+{#                                                <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> update#}
+{#                                            </button>#}
+{#                                        </form>#}
+{#                                    </div>#}
+{#                                    {% endif %}#}
                                 </div>
                             </div>
                         </div>
