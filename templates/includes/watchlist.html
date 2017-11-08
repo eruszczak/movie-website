@@ -1,9 +1,3 @@
-{% if condition %}
-    <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unwatch" value="{{ const }}">
-        <span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist
-    </button>
-{% else %}
-    <button class="btn btn-sm see-again-btn watch-btn" type="submit" name="watch" value="{{ const }}">
-        <span class="glyphicon glyphicon-list" aria-hidden="true"></span> add to watchlist
-    </button>
-{% endif %}
+{% url 'title-watch' title_pk as url %}
+<a class="btn btn-sm see-again-btn unwatch-btn" type="toggle-watch" name="remove" data-url="{{ url }}" {% if not data.is_in_user_watchlist %}style="display:none"{% endif %}><span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist</a>
+<a class="btn btn-sm see-again-btn watch-btn" type="toggle-watch" name="add" data-url="{{ url }}" {% if data.is_in_user_watchlist %}style="display:none"{% endif %}><span class="glyphicon glyphicon-list" aria-hidden="true"></span> add to watchlist</a>

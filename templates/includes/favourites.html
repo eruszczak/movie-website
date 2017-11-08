@@ -1,3 +1,3 @@
-{% url 'title-fav' title_pk as title_fav_url %}
-<a class="btn btn-sm see-again-btn unwatch-btn toggle-fav" name="unfav" data-url="{{ title_fav_url }}" {% if not data.is_favourite_for_user %}style="display:none"{% endif %}><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span></a>
-<a class="btn btn-sm see-again-btn watch-btn toggle-fav" name="fav" data-url="{{ title_fav_url }}" {% if data.is_favourite_for_user %}style="display:none"{% endif %}><span class="glyphicon glyphicon-heart" aria-hidden="true"></span></a>
+{% url 'title-fav' title_pk as url %}
+<a class="btn btn-sm see-again-btn unwatch-btn" type="toggle-fav" name="remove" data-url="{{ url }}" {% if not data.is_favourite_for_user %}style="display:none"{% endif %}><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span></a>
+<a class="btn btn-sm see-again-btn watch-btn" type="toggle-fav" name="add" data-url="{{ url }}" {% if data.is_favourite_for_user %}style="display:none"{% endif %}><span class="glyphicon glyphicon-heart" aria-hidden="true"></span></a>
