@@ -9,14 +9,16 @@ from django.core.urlresolvers import reverse
 from django.db.models import Count, Max, F, When, Case, IntegerField, Subquery
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, TemplateView, RedirectView
+from django.views.generic import DetailView, TemplateView, RedirectView, ListView
 from django.db.models import OuterRef
 
 from common.prepareDB import update_title
 from common.prepareDB_utils import validate_rate, convert_to_datetime
 from common.sql_queries import curr_title_rating_of_followed, select_current_rating
 from common.utils import paginate
+from movie.forms import TitleSearchForm
 from movie.functions import toggle_title_in_watchlist, toggle_title_in_favourites, recommend_title, create_or_update_rating
+from movie.shared import SearchViewMixin
 from users.models import UserFollow
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite, Actor
 
@@ -57,6 +59,35 @@ class HomeView(TemplateView):
                 'total_series': reverse('explore') + '?t=series',
 
             })
+        return context
+
+
+# new_rating = request.POST.get('rating')
+# if new_rating:
+#     create_or_update_rating(title, request.user, new_rating)
+
+class TitleListView(SearchViewMixin, ListView):
+    search_form_class = TitleSearchForm
+    template_name = 'movie/title_list.html'
+    paginate_by = 25
+    model = Title
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.user.is_authenticated:
+            qs = qs.annotate(
+                has_in_watchlist=Count(
+                    Case(When(watchlist__user=self.request.user, watchlist__deleted=False, then=1),
+                         output_field=IntegerField())
+                ),
+                has_in_favourites=Count(
+                    Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
+                ),
+            )
+        return qs.order_by('-year', '-votes').prefetch_related('director', 'genre')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context
 
 
