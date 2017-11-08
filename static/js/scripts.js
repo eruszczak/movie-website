@@ -61,19 +61,16 @@ $(document).ready(function() {
         };
     }
 
-    $('[type="toggle-fav"], [type="toggle-watch"]').click(function() {
+    $('.toggle-fav, .toggle-watch').click(function() {
         var name = $(this).attr('name');
         var data = {};
         data[name] = true;
         ajax_request(data, {url: $(this).data('url')});
-        var type = $(this).attr('type');
-        // hide current button and show the one that was already hidden
-        // eg. clicked visible: "type=[toggle-fav] name='add'", hide it, and show hidden: "type=[toggle-fav] name='remove'"
+        $(this).siblings().css('display', '');
         $(this).hide();
-        $('[type="' + type + '"]').not('[name="' + name + '"]').css('display', '');
     });
 
-    var selectors = 'button[name="watch"], button[name="unwatch"], button[name="follow"], button[name="unfollow"]';
+    var selectors = 'button[name="follow"], button[name="unfollow"]';
     $('body').on('click', selectors, function() {
         var btnValue = $(this).val();
         var btnName = $(this).attr('name');

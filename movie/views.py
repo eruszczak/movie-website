@@ -60,25 +60,25 @@ def home(request):
 
 def explore(request):
     if request.method == 'POST':
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             messages.info(request, 'Only logged in users can add to watchlist or favourites')
             return redirect(request.META.get('HTTP_REFERER'))
 
         title = get_object_or_404(Title, const=request.POST.get('const'))
         new_rating = request.POST.get('rating')
-        watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
-        fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
+        # watch, unwatch = request.POST.get('watch'), request.POST.get('unwatch')
+        # fav, unfav = request.POST.get('fav'), request.POST.get('unfav')
 
         if new_rating:
             create_or_update_rating(title, request.user, new_rating)
-        if watch or unwatch:
-            toggle_title_in_watchlist(request.user, title, watch, unwatch)
-        if fav or unfav:
-            toggle_title_in_favourites(request.user, title, fav, unfav)
+        # if watch or unwatch:
+        #     toggle_title_in_watchlist(request.user, title, watch, unwatch)
+        # if fav or unfav:
+        #     toggle_title_in_favourites(request.user, title, fav, unfav)
 
         return redirect(request.META.get('HTTP_REFERER'))
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         titles = Title.objects.annotate(
             has_in_watchlist=Count(
                 Case(When(watchlist__user=request.user, watchlist__deleted=False, then=1), output_field=IntegerField())
