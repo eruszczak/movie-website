@@ -1,5 +1,4 @@
-{% load staticfiles %}
-{% load humanize %}
+{% load staticfiles humanize %}
 <tbody>
     {% for obj in objs %}
     <tr {% if sortable %}id="item-{{ obj.const }}"{% endif %} class="result result-{% cycle 'odd' 'even' %}">
