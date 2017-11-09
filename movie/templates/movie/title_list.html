@@ -9,29 +9,34 @@
             <a href="{% url 'group-genre' %}" class="btn btn-sm btn-success" role="button">All genres</a>
         </div>
         <hr>
-        {% if search_result %}
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="alert alert-success" role="alert">
-                        Search results for:
-                        <ul>
-                            {% for q in search_result %}
-                                <li>{{ q }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
+{#        {% if search_result %}#}
+{#            <div class="row">#}
+{#                <div class="col-md-12">#}
+{#                    <div class="alert alert-success" role="alert">#}
+{#                        Search results for:#}
+{#                        <ul>#}
+{#                            {% for q in search_result %}#}
+{#                                <li>{{ q }}</li>#}
+{#                            {% endfor %}#}
+{#                        </ul>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        {% endif %}#}
 
-        <p class="lead text-center search_summary">{{ ratings.paginator.count }} result{{ ratings.paginator.count|pluralize }}</p>
+        <p class="lead text-center search_summary">{{ paginator.count }} result{{ paginator.count|pluralize }}</p>
 
         {% if ratings.paginator.num_pages > 1 %}
             {% include 'includes/paginator.html' %}
         {% endif %}
 
-        <hr>
-        {% include 'includes/search_form.html' %}
+        <div>
+            <form class="navbar-form navbar-right" role="search">
+                <div class="form-group">
+                    {{ search_form.genre }}
+                </div>
+            </form>
+        </div>
 
         <table class="table table-hover table-bordered table-condensed" style="margin-top: 10px">
             {% include 'includes/titles_in_a_table.html' with objs=title_list %}
