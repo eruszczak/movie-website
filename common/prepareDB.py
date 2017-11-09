@@ -2,8 +2,7 @@ import os
 import csv
 
 from django.conf import settings
-from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, add_new_title,\
-    validate_rate, valid_csv_headers
+from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, add_new_title, valid_csv_headers
 from movie.models import Title, Watchlist, Rating
 
 
@@ -73,7 +72,7 @@ def update_user_ratings_csv(user):
             reader = csv.DictReader(f)
             for row in reader:
                 title = get_title_or_create(row['const'])
-                rate = validate_rate(row['You rated'])
+                rate = row['You rated']
                 rate_date = convert_to_datetime(row['created'], 'csv')
                 if title and rate and rate_date:
                     obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,

@@ -1,7 +1,7 @@
 from django import forms
 from django.db.models import Q, Count
 
-from movie.models import Title, Genre
+from movie.models import Title, Genre, Rating
 from movie.shared import SearchFormMixin
 
 
@@ -12,3 +12,10 @@ class TitleSearchForm(SearchFormMixin, forms.Form):
     def search_genre(value):
         print(value)
         return Q()
+
+
+class RateUpdateForm(forms.ModelForm):
+
+    class Meta:
+        model = Rating
+        fields = ('rate_date', 'rate')

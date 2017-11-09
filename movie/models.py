@@ -1,11 +1,13 @@
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 
+from movie.shared import validate_rate
 from common.sql_queries import avg_of_title_current_ratings
 from .managers import TitleQuerySet
 
@@ -145,6 +147,17 @@ class Rating(models.Model):
 
     def __str__(self):
         return '{} {}'.format(self.title.name, self.rate_date)
+
+    def clean_fields(self, exclude=None):
+        super().clean_fields(exclude)
+        if not validate_rate(self.rate):
+            raise ValidationError('Rating must be integer value between 1-10')
+
+        if self.rate_date > datetime.today().date():
+            raise ValidationError('Date cannot be in the future')
+
+        if Rating.objects.filter(user=self.user, title=self.title, rate_date=self.rate_date).exists():
+            raise ValidationError('Rating from this day already exists')
 
     def save(self, *args, **kwargs):
         from movie.functions import toggle_title_in_watchlist

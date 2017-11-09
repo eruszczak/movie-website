@@ -5,8 +5,6 @@ from django.contrib.auth.models import User
 from recommend.models import Recommendation
 from movie.models import Watchlist, Favourite, Rating
 
-from common.prepareDB_utils import validate_rate
-
 
 def toggle_title_in_watchlist(user=None, title=None, watch=None, unwatch=None, instance=None):
     """
@@ -68,7 +66,7 @@ def create_or_update_rating(title, user, rate, insert_as_new=False):
     today = datetime.now().date()
     current_rating = Rating.objects.filter(user=user, title=title).first()
     todays_rating = Rating.objects.filter(user=user, title=title, rate_date=today)
-    if validate_rate(rate) and title:
+    if title:
         if current_rating and not insert_as_new:
             current_rating.rate = rate
             current_rating.save(update_fields=['rate'])

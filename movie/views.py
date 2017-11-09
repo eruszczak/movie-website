@@ -9,14 +9,14 @@ from django.core.urlresolvers import reverse
 from django.db.models import Count, Max, F, When, Case, IntegerField, Subquery
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, TemplateView, RedirectView, ListView
+from django.views.generic import DetailView, TemplateView, RedirectView, ListView, UpdateView
 from django.db.models import OuterRef
 
 from common.prepareDB import update_title
-from common.prepareDB_utils import validate_rate, convert_to_datetime
+from common.prepareDB_utils import convert_to_datetime
 from common.sql_queries import curr_title_rating_of_followed, select_current_rating
 from common.utils import paginate
-from movie.forms import TitleSearchForm
+from movie.forms import TitleSearchForm, RateUpdateForm
 from movie.functions import toggle_title_in_watchlist, toggle_title_in_favourites, recommend_title, create_or_update_rating
 from movie.shared import SearchViewMixin
 from users.models import UserFollow
@@ -133,7 +133,7 @@ def explore(request):
     director = request.GET.get('d')
     genres = request.GET.getlist('g')
     username = request.GET.get('u')
-    rating = request.GET.get('r') if validate_rate(request.GET.get('r')) else None
+    rating = request.GET.get('r')# if validate_rate(request.GET.get('r')) else None
     show_all_ratings = request.GET.get('all_ratings')
     rate_date_year = request.GET.get('year')
     rate_date_month = request.GET.get('month')
@@ -361,45 +361,58 @@ class TitleDetailView(DetailView):
             to_delete.delete()
 
 
-def title_edit(request, slug):
-    title = get_object_or_404(Title, slug=slug)
-    current_rating = Rating.objects.filter(user__username=request.user.username, title=title).first()
-    if not request.user.is_authenticated() or not current_rating:
-        messages.info(request, 'You can edit titles you have rated, you must be logged in')
-        return redirect(title)
+class RatingUpdateView(UpdateView):
+    model = Rating
+    template_name = 'movie/rating_update.html'
+    form_class = RateUpdateForm
 
-    if request.method == 'POST':
-        new_rate = request.POST.get('rate')
-        new_date = convert_to_datetime(request.POST.get('newDateValue'), 'exported_from_db')
+    # @login_required
+    # def dispatch(self, request, *args, **kwargs):
+    #     super().dispatch(request, *args, **kwargs)
 
-        if validate_rate(new_rate) and new_date:
-            message = ''
-            new_date = new_date.date()
-            if new_date <= datetime.today().date() and not Rating.objects.filter(
-                    user=request.user, title=title, rate_date=new_date).exists():
-                if current_rating.rate != int(new_rate):
-                    message += 'rating: {} changed for {}'.format(current_rating.rate, new_rate)
-                    current_rating.rate = new_rate
-                if current_rating.rate_date != new_date:
-                    message += ', ' if message else ''
-                    message += 'date: {} changed for {}'.format(current_rating.rate_date, new_date)
-                    current_rating.rate_date = new_date
-                if message:
-                    messages.success(request, message)
-                    current_rating.save(update_fields=['rate', 'rate_date'])
-                else:
-                    messages.info(request, 'Nothing changed')
-            else:
-                messages.warning(request, 'Future date or you already have a rating for this title with this date')
-        else:
-            messages.warning(request, 'Invalid values')
+    # def form_valid(self, form):
+    #     pass
 
-        return redirect(title)
 
-    context = {
-        'entry': current_rating,
-    }
-    return render(request, 'movie/title_edit.html', context)
+# def title_edit(request, slug):
+#     title = get_object_or_404(Title, slug=slug)
+#     current_rating = Rating.objects.filter(user__username=request.user.username, title=title).first()
+#     if not request.user.is_authenticated() or not current_rating:
+#         messages.info(request, 'You can edit titles you have rated, you must be logged in')
+#         return redirect(title)
+#
+#     if request.method == 'POST':
+#         new_rate = request.POST.get('rate')
+#         new_date = convert_to_datetime(request.POST.get('newDateValue'), 'exported_from_db')
+#
+#         if validate_rate(new_rate) and new_date:
+#             message = ''
+#             new_date = new_date.date()
+#             if new_date <= datetime.today().date() and not Rating.objects.filter(
+#                     user=request.user, title=title, rate_date=new_date).exists():
+#                 if current_rating.rate != int(new_rate):
+#                     message += 'rating: {} changed for {}'.format(current_rating.rate, new_rate)
+#                     current_rating.rate = new_rate
+#                 if current_rating.rate_date != new_date:
+#                     message += ', ' if message else ''
+#                     message += 'date: {} changed for {}'.format(current_rating.rate_date, new_date)
+#                     current_rating.rate_date = new_date
+#                 if message:
+#                     messages.success(request, message)
+#                     current_rating.save(update_fields=['rate', 'rate_date'])
+#                 else:
+#                     messages.info(request, 'Nothing changed')
+#             else:
+#                 messages.warning(request, 'Future date or you already have a rating for this title with this date')
+#         else:
+#             messages.warning(request, 'Invalid values')
+#
+#         return redirect(title)
+#
+#     context = {
+#         'entry': current_rating,
+#     }
+#     return render(request, 'movie/rating_update.html', context)
 
 
 class GroupByGenreView(TemplateView):

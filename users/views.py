@@ -24,7 +24,7 @@ from users.functions import (
     create_csv_with_user_ratings
 )
 from common.sql_queries import avgs_of_2_users_common_curr_ratings, titles_rated_higher_or_lower
-from common.prepareDB_utils import validate_rate, convert_to_datetime
+from common.prepareDB_utils import convert_to_datetime
 
 
 def export_ratings(request, username):
@@ -71,7 +71,7 @@ def import_ratings(request):
         title = Title.objects.filter(const=const).first()
         rate_date = convert_to_datetime(row['rate_date'], 'exported_from_db')
 
-        if title and validate_rate(rate) and rate_date:
+        if title and rate_date:
             obj, created = Rating.objects.get_or_create(user=request.user, title=title, rate_date=rate_date,
                                                         defaults={'rate': rate})
             if created:
