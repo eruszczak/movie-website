@@ -88,8 +88,8 @@
                                 <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
                             {% endif %}
                             {% if request.user.is_authenticated %}
-                                {% include 'includes/favourites.html' with condition=obj.has_in_favourites const=obj.title.const %}
-                                {% include 'includes/watchlist.html' with condition=obj.has_in_watchlist const=obj.title.const %}
+                                {% include 'includes/actions/favourites.html' with condition=obj.has_in_favourites const=obj.title.const %}
+                                {% include 'includes/actions/watchlist.html' with condition=obj.has_in_watchlist const=obj.title.const %}
                             {% endif %}
                         </span>
                         <hr class="visible-xs">
