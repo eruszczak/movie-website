@@ -18,11 +18,7 @@
                 <strong>{{ user.username }}</strong>
             </a>
 			{% if request.user.is_authenticated and not request.user == user %}
-				{% if not user.already_follows %}
-					<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="follow" value="{{ user.username }}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Follow</button>
-				{% else %}
-					<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfollow" value="{{ user.username }}"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span> Unfollow</button>
-				{% endif %}
+                {% include 'includes/actions/follow.html' with user_pk=user.pk condition=user.already_follows %}
 			{% endif %}
         </p>
 

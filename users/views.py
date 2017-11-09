@@ -174,6 +174,7 @@ class UserDetailView(DetailView):
     common = None
     user_ratings = None
     is_other_user = False  # authenticated user who is not an owner of the profile
+    user = None
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()

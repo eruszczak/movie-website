@@ -12,12 +12,8 @@
                 <button id="editSettings" type="button" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> edit</button>
             </a>
         	{% endif %}
-			{% if request.user.is_authenticated and not is_owner %}
-				{% if can_follow %}
-					<button class="btn btn-sm see-again-btn watch-btn" type="submit" name="follow" value="{{ object.username }}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Follow</button>
-				{% else %}
-					<button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="unfollow" value="{{ object.username }}"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span> Unfollow</button>
-				{% endif %}
+			{% if is_other_user %}
+                {% include 'includes/actions/follow.html' with user_pk=user.pk condition=can_follow %}
 			{% endif %}
 		</div>
 	</div>
