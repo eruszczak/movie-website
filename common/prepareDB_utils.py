@@ -1,13 +1,13 @@
-import os
-import pytz
 import csv
-import requests
+import os
 import urllib.request
-from json import JSONDecodeError
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
+from json import JSONDecodeError
 
 import PIL
+import pytz
+import requests
 from PIL import Image
 
 from movie.models import Type, Genre, Actor, Director, Title
@@ -46,17 +46,6 @@ def convert_to_datetime(date_string, source):
         except ValueError:
             pass
     return None
-
-
-def validate_rate(rate):
-    """
-    rating must be integer 1-10
-    """
-    try:
-        rate = int(rate)
-    except (ValueError, TypeError):
-        return False
-    return 0 < rate < 11
 
 
 def get_csv_headers(file_or_iostring):
@@ -130,7 +119,6 @@ def unpack_from_rss_item(obj, for_watchlist=False):
         return const, date
 
     rate = obj.find('description').text.strip()[-3:-1].lstrip()
-    assert validate_rate(rate)
     return const, date, rate
 
 
