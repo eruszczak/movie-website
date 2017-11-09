@@ -12,6 +12,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 
 from movie.models import Rating, Title
+from users.models import UserFollow
 from .serializers import RatingListSerializer, TitleSerializer
 from common.sql_queries import rating_distribution
 from movie.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist
@@ -144,4 +145,23 @@ class TitleToggleWatchlist(APIView):
         else:
             toggle_title_in_watchlist(request.user, title, add, remove)
             message = 'Added to watchlist' if add else 'Removed from watchlist'
+            return Response({'message': message}, status=status.HTTP_200_OK)
+
+
+class UserToggleFavourite(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        add = request.POST.get('add')
+        remove = request.POST.get('remove')
+        try:
+            user = User.objects.get(pk=kwargs['pk'])
+        except User.DoesNotExist:
+            return Response({'message': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            if add:
+                UserFollow.objects.create(user_follower=self.request.user, user_followed=user)
+            elif remove:
+                UserFollow.objects.filter(user_follower=self.request.user, user_followed=user).delete()
+            message = 'You {} {}'.format('followed' if add else 'unfollowed', user.username)
             return Response({'message': message}, status=status.HTTP_200_OK)

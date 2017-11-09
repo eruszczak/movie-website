@@ -61,7 +61,7 @@ $(document).ready(function() {
         };
     }
 
-    $('.toggle-fav, .toggle-watch').click(function() {
+    $('.toggle-fav, .toggle-watch, .toggle-follow').click(function() {
         var name = $(this).attr('name');
         var data = {};
         data[name] = true;

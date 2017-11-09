@@ -12,6 +12,8 @@ urlpatterns = [
     url(r'^title/(?P<pk>\d+)/favourites', views.TitleToggleFavourite.as_view(), name='title-fav'),
     url(r'^title/(?P<pk>\d+)/watchlist', views.TitleToggleWatchlist.as_view(), name='title-watch'),
 
+    url(r'^user/(?P<pk>\d+)/follow', views.UserToggleFavourite.as_view(), name='user-follow'),
+
     url(r'^', include(router.urls), name='ratings'),
     url(r'^g/$', views.Genres.as_view(), name='genres'),
     url(r'^y/$', views.Years.as_view(), name='years'),
