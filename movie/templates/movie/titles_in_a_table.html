@@ -19,8 +19,8 @@
                     <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
                 {% endif %}
                 {% if request.user.is_authenticated %}
-                    {% include 'includes/favourites.html' with title_pk=obj.pk condition=obj.has_in_favourites %}
-                    {% include 'includes/watchlist.html' with title_pk=obj.pk condition=obj.has_in_watchlist %}
+                    {% include 'includes/actions/favourites.html' with title_pk=obj.pk condition=obj.has_in_favourites %}
+                    {% include 'includes/actions/watchlist.html' with title_pk=obj.pk condition=obj.has_in_watchlist %}
                 {% endif %}
             </span>
             <hr class="visible-xs">

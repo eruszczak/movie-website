@@ -70,8 +70,8 @@
                             </div>
                             <hr class="visible-sm visible-xs">
                             <div class="col-md-6">
-                                {% include 'includes/favourites.html' with title_pk=title.pk condition=data.is_favourite_for_user %}
-                                {% include 'includes/watchlist.html' with title_pk=title.pk condition=data.is_in_user_watchlist %}
+                                {% include 'includes/actions/favourites.html' with title_pk=title.pk condition=data.is_favourite_for_user %}
+                                {% include 'includes/actions/watchlist.html' with title_pk=title.pk condition=data.is_in_user_watchlist %}
                                 <hr class="visible-sm visible-xs">
                                 {% if data.followed_title_not_recommended %}
                                     <form action="" method="post">{% csrf_token %}

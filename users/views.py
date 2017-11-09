@@ -126,7 +126,7 @@ class UserUpdateView(UpdateView):
 
 
 class UserListView(ListView):
-    template_name = 'users/user_list2.html'
+    template_name = 'users/user_list.html'
     paginate_by = 10
     searched_title = None
 
@@ -166,7 +166,7 @@ class UserListView(ListView):
 # todo this must be UpdateView
 class UserDetailView(DetailView):
     model = User
-    template_name = 'users/user_profile2.html'
+    template_name = 'users/user_profile.html'
     url_lookup_kwarg = 'username'
     titles_in_a_row = 6
     is_owner = False  # checks if a request user is an owner of the profile
@@ -273,94 +273,3 @@ class UserDetailView(DetailView):
                     rating__user=self.request.user).distinct().count()
             }
         return {}
-
-
-def user_profile(request, username):
-    user = get_object_or_404(User, username=username)
-    if request.method == 'POST':
-        if not request.user.is_authenticated():
-            messages.error(request, 'You must be logged in to follow somebody')
-            return redirect(user.userprofile)
-
-        if request.POST.get('follow'):
-            UserFollow.objects.create(user_follower=request.user, user_followed=user)
-        elif request.POST.get('unfollow'):
-            UserFollow.objects.filter(user_follower=request.user, user_followed=user).delete()
-        elif request.POST.get('confirm-nick'):
-            if request.POST['confirm-nick'] == request.user.username:
-                deleted_count = Rating.objects.filter(user=request.user).delete()[0]
-                message = 'You have deleted your {} ratings'.format(deleted_count)
-            else:
-                message = 'Confirmation failed. Wrong username. No ratings deleted.'
-            messages.info(request, message, extra_tags='safe')
-        elif user == request.user:
-            message = ''
-            if request.POST.get('update_csv'):
-                message = update_ratings_using_csv(user)
-            elif request.POST.get('update_rss') and user.userprofile.imdb_id:
-                message = update_ratings(user)
-            elif request.POST.get('update_watchlist') and user.userprofile.imdb_id:
-                message = update_watchlist(user)
-            messages.info(request, message, extra_tags='safe')
-
-        return redirect(user.userprofile)
-
-    titles_in_a_row = 6
-    is_owner = user == request.user
-
-    if request.user.is_authenticated() and not is_owner:
-        user_ratings = Rating.objects.filter(user=user).extra(select={
-            'req_user_curr_rating': """SELECT rating.rate FROM movie_rating as rating
-            WHERE rating.user_id = %s
-            AND rating.title_id = movie_rating.title_id
-            ORDER BY rating.rate_date DESC LIMIT 1""",
-        }, select_params=[request.user.id])
-
-        titles_req_user_rated_higher = titles_rated_higher_or_lower(
-            user.id, request.user.id, sign='<', limit=titles_in_a_row)
-        titles_req_user_rated_lower = titles_rated_higher_or_lower(
-            user.id, request.user.id, sign='>', limit=titles_in_a_row)
-
-        # title = Rating.objects.filter(user=request.user).filter(user=user.id)
-
-        common_titles_avgs = avgs_of_2_users_common_curr_ratings(user.id, request.user.id)
-        common_ratings_len = common_titles_avgs['count']
-
-        not_rated_by_req_user = Title.objects.filter(rating__user=user, rating__rate__gte=7).only('name', 'const').exclude(
-            rating__user=request.user).distinct().extra(select={
-                'user_rate': """SELECT rate FROM movie_rating as rating
-                WHERE rating.title_id = movie_title.id
-                AND rating.user_id = %s
-                ORDER BY rating.rate_date DESC LIMIT 1"""
-            }, select_params=[user.id])
-
-        common = {}
-        if user_ratings.count() > 0:
-            common = {
-                'count': common_ratings_len,
-                'higher': titles_req_user_rated_higher,
-                'lower': titles_req_user_rated_lower,
-                'percentage': round(common_ratings_len / user.userprofile.count_titles, 2) * 100,
-                'user_rate_avg': common_titles_avgs['avg_user'],
-                'req_user_rate_avg': common_titles_avgs['avg_req_user'],
-                'not_rated_by_req_user': not_rated_by_req_user[:titles_in_a_row],
-                'not_rated_by_req_user_count': Title.objects.filter(rating__user=user).exclude(
-                    rating__user=request.user).distinct().count()
-            }
-        can_follow = not UserFollow.objects.filter(user_follower=request.user, user_followed=user).exists()
-    else:
-        common = None
-        can_follow = False
-        user_ratings = Rating.objects.filter(user=user).select_related('title')
-
-    context = {
-        'page_title': '{} profile'.format(user.username),
-        'profile_owner': user,
-        'is_owner': is_owner,
-        'can_follow': can_follow,
-        'user_ratings': {
-            'last_seen': user_ratings[:titles_in_a_row],
-            'common_with_req_user': common
-        }
-    }
-    return render(request, 'users/user_profile.html', context)

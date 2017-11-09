@@ -39,7 +39,7 @@
         </div>
 
         <table class="table table-hover table-bordered table-condensed" style="margin-top: 10px">
-            {% include 'includes/titles_in_a_table.html' with objs=title_list %}
+            {% include 'movie/titles_in_a_table.html' with objs=title_list %}
         </table>
 
         {% if ratings.paginator.num_pages > 1 %}

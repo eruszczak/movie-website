@@ -281,6 +281,7 @@ class TitleDetailView(DetailView):
     query_pk_and_slug = False
     template_name = 'movie/title_detail.html'
     model = Title
+    object = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -316,6 +317,7 @@ class TitleDetailView(DetailView):
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
         # self.update_title()
+        self.object = self.get_object()
         self.recommend_title_to_other_users()
         self.create_or_update_rating()
         self.delete_rating()
@@ -397,7 +399,7 @@ def title_edit(request, slug):
     context = {
         'entry': current_rating,
     }
-    return render(request, 'title_edit.html', context)
+    return render(request, 'movie/title_edit.html', context)
 
 
 class GroupByGenreView(TemplateView):
