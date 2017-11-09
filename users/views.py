@@ -170,11 +170,12 @@ class UserDetailView(DetailView):
     url_lookup_kwarg = 'username'
     titles_in_a_row = 6
     is_owner = False  # checks if a request user is an owner of the profile
-    can_follow = False
+    already_follows = False
     common = None
     user_ratings = None
     is_other_user = False  # authenticated user who is not an owner of the profile
     user = None
+    object = None
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -190,14 +191,15 @@ class UserDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.is_other_user:
-            self.can_follow = not UserFollow.objects.filter(
+            self.already_follows = UserFollow.objects.filter(
                 user_follower=self.request.user, user_followed=self.object).exists()
+            print(self.already_follows, self.request.user.username, 'follows', self.object.username)
             self.common = self.get_user_ratings()
 
         context.update({
             'page_title': 'Profile of {}'.format(self.object.username),
             'is_owner': self.is_owner,
-            'can_follow': self.can_follow,
+            'already_follows': self.already_follows,
             'user_ratings': {
                 'last_seen': self.user_ratings[:self.titles_in_a_row],
                 'common_with_req_user': self.common
