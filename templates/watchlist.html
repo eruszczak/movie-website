@@ -1,23 +1,18 @@
 {% extends "base.html" %}
-{% load staticfiles %}
-{% load l10n %}
-{% load days_since %}
-{% load humanize %}
-
-{% block title %}{{ title }}{% endblock %}
-
+{% load staticfiles l10n days_since humanize %}
+{#{% block title %}{{ title }}{% endblock %}#}
 {% block content %}
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
         <div class="text-center">
             <div class="btn-group" role="group">
-                <a href="{{ choosen_user.userprofile.watchlist_url }}">
+                <a href="{{ user.userprofile.watchlist_url }}">
                     <button class="btn btn-default {% if not request.GET.show_deleted and not request.GET.show_archived %}btn-pressed{% endif %}">active <span class="badge badge-success">{{ count.active }}</span></button>
                 </a>
-                <a href="{{ choosen_user.userprofile.watchlist_url }}?show_deleted=true">
+                <a href="{{ user.userprofile.watchlist_url }}?show_deleted=true">
                     <button class="btn btn-default {% if request.GET.show_deleted %}btn-pressed{% endif %}">deleted <span class="badge badge-success">{{ count.deleted }}</span></button>
                 </a>
-                <a href="{{ choosen_user.userprofile.watchlist_url }}?show_archived=true">
+                <a href="{{ user.userprofile.watchlist_url }}?show_archived=true">
                     <button class="btn btn-default {% if request.GET.show_archived %}btn-pressed{% endif %}">archive <span class="badge badge-success">{{ count.archived }}</span></button>
                 </a>
             </div>
@@ -26,15 +21,15 @@
         {% if user_watchlist %}
             <p class="lead text-center">
                 {% if is_owner %}
-                    <a href="{{ choosen_user.userprofile.get_absolute_url }}">You</a> want
+                    <a href="{{ user.userprofile.get_absolute_url }}">You</a> want
                 {% else %}
-                    <a href="{{ choosen_user.userprofile.get_absolute_url }}">{{ username }}</a> wants
+                    <a href="{{ user.userprofile.get_absolute_url }}">{{ username }}</a> wants
                 {% endif %}
                 to see again {{ objs.paginator.count }} title{{ objs.paginator.count|pluralize }}.</p>
         {% elif user_watchlist_archived %}
             <p class="lead text-center">
-                <a href="{{ choosen_user.userprofile.get_absolute_url }}">
-                    {% if is_owner %}Your{% else %}{{ choosen_user.username }}'s{% endif %}</a>
+                <a href="{{ user.userprofile.get_absolute_url }}">
+                    {% if is_owner %}Your{% else %}{{ user.username }}'s{% endif %}</a>
                 history watchlist
             </p>
             <div class="text-center">
@@ -42,13 +37,13 @@
                 <p><em>You can see how long it took to watch it after adding it to watchlist.</em></p>
             </div>
         {% elif user_watchlist_deleted %}
-            <p class="lead text-center">Deleted from <a href="{{ choosen_user.userprofile.get_absolute_url }}">
-                    {% if is_owner %}your{% else %}{{ choosen_user.username }}'s{% endif %}</a> IMDb watchlist</p>
+            <p class="lead text-center">Deleted from <a href="{{ user.userprofile.get_absolute_url }}">
+                    {% if is_owner %}your{% else %}{{ user.username }}'s{% endif %}</a> IMDb watchlist</p>
             <p class="text-center"><em>These titles come from IMDb's watchlist. They were added here instead of being deleted because they would be added again with another watchlist update anyway. If you want to delete it completely, remove it from IMDb's watchlist first, and it will be deleted from here with another watchlist update.</em></p>
         {% else %}
             <p class="lead text-center">
                 This list is empty.
-                You need to go back{% if is_owner %}, <a href="{{ choosen_user.userprofile.get_absolute_url }}">{{ choosen_user.username }}.</a>{% else %}.{% endif %}
+                You need to go back{% if is_owner %}, <a href="{{ user.userprofile.get_absolute_url }}">{{ user.username }}.</a>{% else %}.{% endif %}
             </p>
         {% endif %}
 
@@ -56,50 +51,50 @@
         {% include 'includes/paginator.html' with ratings=objs %}
     {% endif %}
 
-    {% if objs %}
+    {% if watchlist_list %}
         <table class="table table-hover table-bordered table-condensed">
             <tbody>
-                {% for obj in objs %}
+                {% for object in watchlist_list %}
                 <tr class="result result-{% cycle 'odd' 'even' %}">
                     <td class="col-md-9 paddingleft">
-                        {% with objs.start_index|default:1 as index %}
+                        {% with page_obj.start_index|default:1 as index %}
                             <span class="item-order">{{ forloop.counter0|add:index }}</span>.
                         {% endwith %}
                         <img class="img-responsive img-rounded"
-                         src="{% if obj.title.img_thumbnail %}{{ obj.title.img_thumbnail.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
+                         src="{% if object.title.img_thumbnail %}{{ object.title.img_thumbnail.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
                          style="width: 35px; float: left; margin-right: 10px; " alt="...">
-                        <a href="{{ obj.title.get_absolute_url }}">{{ obj.title.name }} ({{ obj.title.year }})</a>
+                        <a href="{{ object.title.get_absolute_url }}">{{ object.title.name }} ({{ object.title.year }})</a>
 
-                        <span class="label label-default">{% if obj.title.runtime %}{{ obj.title.runtime }} min{% endif %}</span>
-                        <span class="label label-default">{% if obj.title.votes %}{{ obj.title.votes|intcomma }} votes{% endif %}</span>
+                        <span class="label label-default">{% if object.title.runtime %}{{ object.title.runtime }} min{% endif %}</span>
+                        <span class="label label-default">{% if object.title.votes %}{{ object.title.votes|intcomma }} votes{% endif %}</span>
 
                         <!--todo-->
                         {% if user_watchlist_archived %}
-                            {% with obj.rated_after_days_diff as data %}
+                            {% with object.rated_after_days_diff as data %}
                             <span class="label label-default"><span class="glyphicon glyphicon-star" aria-hidden="true"></span>{{ data.rate }} after {{ data.days_diff }} days</span>
                             {% endwith %}
                         {% else %}
-                            <span class="label label-default" title="{{ obj.added_date|date:'e Y-m-d G:i'|localize }}">added {{ obj.added_date|days_since }}</span>
+                            <span class="label label-default" title="{{ object.added_date|date:'e Y-m-d G:i'|localize }}">added {{ object.added_date|days_since }}</span>
                         {% endif %}
 
                         <span style="float: right;">
-                            {% if obj.user_curr_rating %}
-                                {{ obj.user_curr_rating }}
+                            {% if object.user_curr_rating %}
+                                {{ object.user_curr_rating }}
                                 <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
                             {% endif %}
                             {% if request.user.is_authenticated %}
-                                {% include 'includes/actions/favourites.html' with condition=obj.has_in_favourites title_pk=obj.title.pk %}
-                                {% include 'includes/actions/watchlist.html' with condition=obj.has_in_watchlist title_pk=obj.title.pk %}
+                                {% include 'includes/actions/favourites.html' with condition=object.has_in_favourites title_pk=object.title.pk %}
+                                {% include 'includes/actions/watchlist.html' with condition=object.has_in_watchlist title_pk=object.title.pk %}
                             {% endif %}
                         </span>
                         <hr class="visible-xs">
                         <p style="font-style:italic; font-size:12px; margin-top:5px">
-                            {% for genre in obj.title.genre.all %}
+                            {% for genre in object.title.genre.all %}
                                 <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
                                 {% include 'includes/comma.html' %}
                             {% endfor %}
                             dir:
-                            {% for director in obj.title.director.all %}
+                            {% for director in object.title.director.all %}
                                 <a href="{{ director.get_absolute_url }}">
                                     {% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}
                                 </a>
@@ -108,15 +103,15 @@
                         </p>
                         {% if request.user.is_authenticated %}
                         <div style="padding-left: 15px;margin-left:30px;margin-bottom:10px">
-                            <div id="{{ obj.title.const }}" style="display: inline-block" class="raty-stars"
-                                 data-score="{{ obj.req_user_curr_rating }}" data-path="{% static 'img' %}">
+                            <div id="{{ object.title.const }}" style="display: inline-block" class="raty-stars"
+                                 data-score="{{ object.req_user_curr_rating }}" data-path="{% static 'img' %}">
                             </div>
-                            <span id="descr-{{ obj.title.const }}" style="display: inline-block"></span>
+                            <span id="descr-{{ object.title.const }}" style="display: inline-block"></span>
                         </div>
                         {% endif %}
 
-                        {% if obj.title.plot %}
-                            <p style="padding-left: 10px">{{ obj.title.plot|truncatechars:250 }}</p>
+                        {% if object.title.plot %}
+                            <p style="padding-left: 10px">{{ object.title.plot|truncatechars:250 }}</p>
                         {% endif %}
                     </td>
                 </tr>
@@ -125,9 +120,7 @@
         </table>
     {% endif %}
 
-    {% if objs.paginator.num_pages > 1 %}
-        {% include 'includes/paginator.html' with ratings=objs %}
-    {% endif %}
+    {% include 'includes/pagination.html' %}
     </div>
 </div>
 {% endblock %}

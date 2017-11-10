@@ -366,54 +366,6 @@ class RatingUpdateView(UpdateView):
     template_name = 'movie/rating_update.html'
     form_class = RateUpdateForm
 
-    # @login_required
-    # def dispatch(self, request, *args, **kwargs):
-    #     super().dispatch(request, *args, **kwargs)
-
-    # def form_valid(self, form):
-    #     pass
-
-
-# def title_edit(request, slug):
-#     title = get_object_or_404(Title, slug=slug)
-#     current_rating = Rating.objects.filter(user__username=request.user.username, title=title).first()
-#     if not request.user.is_authenticated() or not current_rating:
-#         messages.info(request, 'You can edit titles you have rated, you must be logged in')
-#         return redirect(title)
-#
-#     if request.method == 'POST':
-#         new_rate = request.POST.get('rate')
-#         new_date = convert_to_datetime(request.POST.get('newDateValue'), 'exported_from_db')
-#
-#         if validate_rate(new_rate) and new_date:
-#             message = ''
-#             new_date = new_date.date()
-#             if new_date <= datetime.today().date() and not Rating.objects.filter(
-#                     user=request.user, title=title, rate_date=new_date).exists():
-#                 if current_rating.rate != int(new_rate):
-#                     message += 'rating: {} changed for {}'.format(current_rating.rate, new_rate)
-#                     current_rating.rate = new_rate
-#                 if current_rating.rate_date != new_date:
-#                     message += ', ' if message else ''
-#                     message += 'date: {} changed for {}'.format(current_rating.rate_date, new_date)
-#                     current_rating.rate_date = new_date
-#                 if message:
-#                     messages.success(request, message)
-#                     current_rating.save(update_fields=['rate', 'rate_date'])
-#                 else:
-#                     messages.info(request, 'Nothing changed')
-#             else:
-#                 messages.warning(request, 'Future date or you already have a rating for this title with this date')
-#         else:
-#             messages.warning(request, 'Invalid values')
-#
-#         return redirect(title)
-#
-#     context = {
-#         'entry': current_rating,
-#     }
-#     return render(request, 'movie/rating_update.html', context)
-
 
 class GroupByGenreView(TemplateView):
     template_name = 'movie/group_by_genre.html'
@@ -450,138 +402,121 @@ class GroupByYearView(TemplateView):
         return context
 
 
-def watchlist(request, username):
-    user = get_object_or_404(User, username=username)
-    user_watchlist = Watchlist.objects.filter(user=user)
-    is_owner = request.user == user
-    page = request.GET.get('page')
+# get_active = user_watchlist.filter(deleted=False)
+# get_deleted = user_watchlist.filter(imdb=True, deleted=True)
+# get_archived = user_watchlist.filter(title__rating__title=F('title'), title__rating__rate_date__gte=F('added_date')).distinct()
+class WatchlistListView(ListView):
+    template_name = 'watchlist.html'
+    model = Watchlist
+    paginate_by = 25
+    user = None
+    is_owner = False
 
-    get_active = user_watchlist.filter(deleted=False)
-    get_deleted = user_watchlist.filter(imdb=True, deleted=True)
-    get_archived = user_watchlist.filter(title__rating__title=F('title'),
-                                         title__rating__rate_date__gte=F('added_date')).distinct()
-    if request.GET.get('show_deleted'):
-        user_watchlist = get_deleted
-        context = {
-            'user_watchlist_deleted': user_watchlist,
-            'query_string': '?show_deleted=true&page=',
-        }
-    elif request.GET.get('show_archived'):
-        user_watchlist = get_archived
-        context = {
-            'user_watchlist_archived': user_watchlist,
-            'query_string': '?show_archived=true&page=',
-        }
-    else:
-        user_watchlist = get_active
-        context = {'user_watchlist': user_watchlist}
-
-    if request.user.is_authenticated():
-        user_watchlist = user_watchlist.annotate(
-            has_in_watchlist=Count(
-                Case(When(user=request.user.id, deleted=False, then=1), output_field=IntegerField())
-            ),
-            has_in_favourites=Count(
-                Case(When(title__favourite__user=request.user.id, then=1), output_field=IntegerField())
+    # todo: search form
+    def get_queryset(self):
+        self.user = User.objects.get(username=self.kwargs['username'])
+        self.is_owner = self.user.pk == self.request.user
+        qs = super().get_queryset().filter(user=self.user)
+        if self.request.user.is_authenticated:
+            qs = qs.annotate(
+                has_in_watchlist=Count(
+                    Case(When(user=self.request.user.id, deleted=False, then=1), output_field=IntegerField())
+                ),
+                has_in_favourites=Count(
+                    Case(When(title__favourite__user=self.request.user.id, then=1), output_field=IntegerField())
+                )
             )
-        )
-        if is_owner:
-            user_watchlist = user_watchlist.extra(select={
-                'req_user_curr_rating': select_current_rating,
-            }, select_params=[request.user.id])
+            if self.is_owner:
+                qs = qs.extra(select={
+                    'req_user_curr_rating': select_current_rating,
+                }, select_params=[self.request.user.id])
+            else:
+                # TODO
+                qs = qs.extra(select={
+                    'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
+                        WHERE rating.title_id = movie_title.id
+                        AND rating.user_id = %s
+                        ORDER BY rating.rate_date DESC LIMIT 1""",
+                    'user_curr_rating': """SELECT rate FROM movie_rating as rating
+                        WHERE rating.title_id = movie_title.id
+                        AND rating.user_id = %s
+                        ORDER BY rating.rate_date DESC LIMIT 1""",
+                }, select_params=[self.request.user.id, self.user.id])
         else:
-            user_watchlist = user_watchlist.extra(select={
-                'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
-                    WHERE rating.title_id = movie_title.id
-                    AND rating.user_id = %s
-                    ORDER BY rating.rate_date DESC LIMIT 1""",
-                'user_curr_rating': """SELECT rate FROM movie_rating as rating
-                    WHERE rating.title_id = movie_title.id
-                    AND rating.user_id = %s
-                    ORDER BY rating.rate_date DESC LIMIT 1""",
-            }, select_params=[request.user.id, user.id])
-    else:
-        user_watchlist = user_watchlist.extra(select={
-            'user_curr_rating': select_current_rating,
-        }, select_params=[user.id])
+            # TODO
+            qs = qs.extra(select={
+                'user_curr_rating': select_current_rating,
+            }, select_params=[self.user.id])
 
-    user_watchlist = user_watchlist.select_related('title').prefetch_related('title__director', 'title__genre')
-    objs = paginate(user_watchlist, page, 25)
-    context.update({
-        'objs': objs,
-        'is_owner': is_owner,
-        'username': username,
-        'choosen_user': user,
-        'title': username + '\'s watchlist',
-        'count': {
-            'deleted': get_deleted.count(),
-            'archived': get_archived.count(),
-            'active': get_active.count()
-        }
-    })
-    return render(request, 'watchlist.html', context)
+        return qs.select_related('title').prefetch_related('title__director', 'title__genre')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            # 'count': {
+            #     'deleted': get_deleted.count(),
+            #     'archived': get_archived.count(),
+            #     'active': get_active.count()
+            # },
+            'is_owner': False,
+            'user': self.user
+        })
+        return context
 
 
-def favourite(request, username):
-    user = get_object_or_404(User, username=username)
-    user_favourites = Favourite.objects.filter(user=user)
-    is_owner = request.user == user
+# new_title_order = request.POST.get('item_order')
+# if new_title_order:
+#     new_title_order = re.findall('tt\d{7}', new_title_order)
+#     for new_position, const in enumerate(new_title_order, 1):
+#         user_favourites.filter(title__const=const).update(order=new_position)
+class FavouriteListView(ListView):
+    template_name = 'favourite.html'
+    model = Title
+    paginate_by = 25
+    user = None
+    is_owner = False
 
-    if request.method == 'POST':
-        if not request.user == user:
-            messages.info(request, 'You can change order only for your list')
-            return redirect(user.userprofile.favourite_url())
-
-        new_title_order = request.POST.get('item_order')
-        if new_title_order:
-            new_title_order = re.findall('tt\d{7}', new_title_order)
-            for new_position, const in enumerate(new_title_order, 1):
-                user_favourites.filter(title__const=const).update(order=new_position)
-
-    if request.user.is_authenticated():
-        faved_titles = Title.objects.filter(favourite__user=user).annotate(
-            has_in_watchlist=Count(
-                Case(When(watchlist__user=request.user, watchlist__deleted=False, then=1), output_field=IntegerField())
-            ),
-            has_in_favourites=Count(
-                Case(When(favourite__user=request.user, then=1), output_field=IntegerField())
+    def get_queryset(self):
+        self.user = User.objects.get(username=self.kwargs['username'])
+        self.is_owner = self.user.pk == self.request.user
+        qs = super().get_queryset().filter(favourite__user=self.user)
+        if self.request.user.is_authenticated:
+            qs = qs.filter(favourite__user=self.user).annotate(
+                has_in_watchlist=Count(
+                    Case(When(watchlist__user=self.request.user, watchlist__deleted=False, then=1), output_field=IntegerField())
+                ),
+                has_in_favourites=Count(
+                    Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
+                )
             )
-        )
-        if is_owner:
-            faved_titles = faved_titles.extra(select={
-                'req_user_curr_rating': select_current_rating
-            }, select_params=[request.user.id]).prefetch_related('genre', 'director').order_by('favourite__order')
+            if self.is_owner:
+                qs = qs.extra(select={
+                    'req_user_curr_rating': select_current_rating
+                }, select_params=[self.request.user.id])
+            else:
+                qs = qs.extra(select={
+                    'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
+                        WHERE rating.title_id = movie_title.id
+                        AND rating.user_id = %s
+                        ORDER BY rating.rate_date DESC LIMIT 1""",
+                    'user_curr_rating': """SELECT rate FROM movie_rating as rating
+                        WHERE rating.title_id = movie_title.id
+                        AND rating.user_id = %s
+                        ORDER BY rating.rate_date DESC LIMIT 1""",
+                }, select_params=[self.request.user.id, self.user.id])
         else:
-            faved_titles = faved_titles.extra(select={
-                'req_user_curr_rating': """SELECT rate FROM movie_rating as rating
-                    WHERE rating.title_id = movie_title.id
-                    AND rating.user_id = %s
-                    ORDER BY rating.rate_date DESC LIMIT 1""",
-                'user_curr_rating': """SELECT rate FROM movie_rating as rating
-                    WHERE rating.title_id = movie_title.id
-                    AND rating.user_id = %s
-                    ORDER BY rating.rate_date DESC LIMIT 1""",
-            }, select_params=[request.user.id, user.id]).prefetch_related('genre', 'director').order_by('favourite__order')
-    else:
-        faved_titles = Title.objects.filter(favourite__user=user).extra(select={
-            'user_curr_rating': select_current_rating
-        }, select_params=[user.id]).prefetch_related('genre', 'director').order_by('favourite__order')
+            qs = qs.filter(favourite__user=self.user).extra(select={
+                'user_curr_rating': select_current_rating
+            }, select_params=[self.user.id])
+        return qs.prefetch_related('genre', 'director').order_by('favourite__order')
 
-    # page = request.GET.get('page')
-    # paginated_titles = paginate(faved_titles, page, 50)
-
-    context = {
-        'ratings': faved_titles[:100],
-        'is_owner': is_owner,
-        'title': username + '\'s favourites',
-        'username': username,
-        'choosen_user': user
-    }
-    return render(request, 'favourite.html', context)
-
-
-def add_title(request):
-    return render(request, '')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'is_owner': False,
+            'user': self.user
+        })
+        return context
 
 
 class TitleRedirectView(RedirectView):
