@@ -46,6 +46,13 @@ class SearchFormMixin:
         return queryset
 
 
+# class IsOwnerMixin:
+#
+#     def dispatch(self, request, *args, **kwargs):
+#         self.is_owner = self.request.user.pk == self.
+#         return super().dispatch(request, *args, **kwargs)
+
+
 def validate_rate(rate):
     """
     rating must be integer 1-10
