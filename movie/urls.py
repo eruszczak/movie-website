@@ -11,6 +11,5 @@ urlpatterns = [
     url(r'^genre/$', views.GroupByGenreView.as_view(), name='group-genre'),
     url(r'^director/$', views.GroupByDirectorView.as_view(), name='group-director'),
 
-    url(r'^explore/$', views.explore, name='explore'),
-    url(r'^explore1/$', views.TitleListView.as_view(), name='title-list'),
+    url(r'^explore/$', views.TitleListView.as_view(), name='title-list'),
 ]
