@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block title %}{{ title }}{% endblock %}
+{#{% block title %}{{ title }}{% endblock %}#}
 
 {% block content %}
     {% if title_list %}
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
-                <p class="lead text-center">{% if is_owner %}<a href="{{ request.user.userprofile.get_absolute_url }}">Your</a>{% else %}<a href="{{ user.userprofile.get_absolute_url }}">{{ username }}</a>'s {% endif %} {{ ratings.count }} favourite title{{ ratings.count|pluralize }}.</p>
+                <p class="lead text-center">{% if is_owner %}<a href="{{ user.userprofile.get_absolute_url }}">Your</a>{% else %}<a href="{{ user.userprofile.get_absolute_url }}">{{ username }}</a>'s {% endif %} {{ ratings.count }} favourite title{{ ratings.count|pluralize }}.</p>
                 {% if is_owner %}
                     <p class="text-center"><em>You can reorder (not on mobile) the list by dragging a title while holding LMB.</em></p>
                 {% endif %}

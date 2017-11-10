@@ -16,7 +16,7 @@ class Genre(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
     def get_absolute_url(self):
-        return reverse('explore') + '?g={}'.format(self.name)
+        return reverse('title-list') + '?g={}'.format(self.name)
 
     def __str__(self):
         return self.name
@@ -26,7 +26,7 @@ class Director(models.Model):
     name = models.CharField(max_length=150, unique=True)
 
     def get_absolute_url(self):
-        return reverse('explore') + '?d={}'.format(self.id)
+        return reverse('title-list') + '?d={}'.format(self.id)
 
     def __str__(self):
         return self.name
@@ -36,7 +36,7 @@ class Actor(models.Model):
     name = models.CharField(max_length=150, unique=True)
 
     def get_absolute_url(self):
-        return reverse('explore') + '?a={}'.format(self.id)
+        return reverse('title-list') + '?a={}'.format(self.id)
 
     def __str__(self):
         return self.name
@@ -46,7 +46,7 @@ class Type(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
     def get_absolute_url(self):
-        return reverse('explore') + '?t={}'.format(self.name)
+        return reverse('title-list') + '?t={}'.format(self.name)
 
     def __str__(self):
         return self.name
@@ -164,10 +164,10 @@ class Rating(models.Model):
         """
         before creating new Rating, check if this title is in user's watchlist, if it is - delete it
         """
-        in_watchlist = Watchlist.objects.filter(user=self.user, title=self.title,
-                                                added_date__date__lte=self.rate_date, deleted=False).first()
-        if in_watchlist:
-            toggle_title_in_watchlist(unwatch=True, instance=in_watchlist)
+        # in_watchlist = Watchlist.objects.filter(user=self.user, title=self.title,
+        #                                         added_date__date__lte=self.rate_date, deleted=False).first()
+        # if in_watchlist:
+        #     toggle_title_in_watchlist(unwatch=True, instance=in_watchlist)
 
         super(Rating, self).save(*args, **kwargs)
 

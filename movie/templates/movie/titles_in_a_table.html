@@ -14,8 +14,8 @@
             <span class="label label-default">{% if obj.runtime %}{{ obj.runtime }} min{% endif %}</span>
             <span class="label label-default">{% if obj.votes %}{{ obj.votes|intcomma }} votes{% endif %}</span>
             <span style="float: right;">
-                {% if obj.user_curr_rating %}
-                    {{ obj.user_curr_rating }}
+                {% if obj.user_rate %}
+                    {{ obj.user_rate }}
                     <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
                 {% endif %}
                 {% if request.user.is_authenticated %}
@@ -40,7 +40,7 @@
             {% if request.user.is_authenticated %}
             <div style="padding-left: 15px;margin-left:30px;margin-bottom:10px">
                 <div id="{{ obj.const }}" style="display: inline-block" class="raty-stars"
-                     data-score="{{ obj.req_user_curr_rating }}" data-path="{% static 'img' %}">
+                     data-score="{{ obj.request_user_rate }}" data-path="{% static 'img' %}">
                 </div>
                 <span id="descr-{{ obj.const }}" style="display: inline-block"></span>
             </div>
