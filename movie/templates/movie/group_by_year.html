@@ -6,7 +6,7 @@
     <hr>
     {% for dict in year_count %}
         <div class="col-xs-3 col-md-1">
-            <p><a href="{% url 'explore' %}?y={{ dict.year }}"
+            <p><a href="{% url 'title-list' %}?y={{ dict.year }}"
                   data-toggle="tooltip" data-placement="right"
                   title="{{ dict.the_count }} title{{ dict.the_count|pluralize }}">{{ dict.year }}</a>
                 <span class="visible-xs-inline"><small>({{ dict.the_count }})</small></span>

@@ -5,7 +5,7 @@
     <div class="row lower">
         <div class="col-md-12">
             <div class="page-header">
-                <h2 class="text-center">{{ title.name }} (<a href="{% url 'explore' %}?y={{ title.year }}">{{ title.year }}</a>)</h2>
+                <h2 class="text-center">{{ title.name }} (<a href="{% url 'title-list' %}?y={{ title.year }}">{{ title.year }}</a>)</h2>
             </div>
             <div class="row">
                 <div class="col-xs-6 col-sm-3 col-sm-offset-3 col-md-3 col-md-offset-3">
@@ -118,8 +118,8 @@
                                             <tbody>
                                             {% for rating in data.user_ratings_of_title %}
                                                 <tr>
-                                                    <td class=""><a href="{% url 'explore' %}?year={{ rating.rate_date|date:'Y' }}&month={{ rating.rate_date|date:'m' }}">{{ rating.rate_date|date:"Y-m-d" }}</a></td>
-                                                    <td class=""><a href="{% url 'explore' %}?r={{ rating.rate }}">{{ rating.rate }}</a>
+                                                    <td class=""><a href="{% url 'title-list' %}?year={{ rating.rate_date|date:'Y' }}&month={{ rating.rate_date|date:'m' }}">{{ rating.rate_date|date:"Y-m-d" }}</a></td>
+                                                    <td class=""><a href="{% url 'title-list' %}?r={{ rating.rate }}">{{ rating.rate }}</a>
                                                     {% with rating.rated_before_rate_diff as rate_diff %}
                                                     {% if rate_diff != None %}
                                                         {% if rate_diff > 0 %}

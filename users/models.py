@@ -77,13 +77,13 @@ class UserProfile(models.Model):
         return reverse('recommend', kwargs={'username': self.user.username})
 
     def ratings_url(self):
-        return reverse('explore') + '?u={}'.format(self.user.username)
+        return reverse('title-list') + '?u={}'.format(self.user.username)
 
     def all_ratings_url(self):
-        return reverse('explore') + '?u={}'.format(self.user.username) + '&all_ratings=on'
+        return reverse('title-list') + '?u={}'.format(self.user.username) + '&all_ratings=on'
 
     def ratings_exclude(self):
-        return reverse('explore') + '?u={}&exclude_mine=on'.format(self.user.username)
+        return reverse('title-list') + '?u={}&exclude_mine=on'.format(self.user.username)
 
     @property
     def picture_filename(self):

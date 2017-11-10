@@ -67,7 +67,7 @@
 		<div class="text-center">
 			<div class="alert alert-success alert-resize" role="alert">
 				<p>You have no ratings yet.</p>
-				<p><a href="{% url 'explore' %}">Explore</a> titles or go ahead and <a href="{% url 'user-edit' user.username %}">edit</a> your profile to sync your account with IMDb.</p>
+				<p><a href="{% url 'title-list' %}">Explore</a> titles or go ahead and <a href="{% url 'user-edit' user.username %}">edit</a> your profile to sync your account with IMDb.</p>
 			</div>
 		</div>
 		{% endif %}
@@ -146,7 +146,7 @@
 				{% endif %}
 				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ object.username }}'s
 				<a href="{{ object.userprofile.ratings_url }}">{{ object.userprofile.count_titles }} ratings</a><br>
-				<a href="{% url 'explore' %}?u={{ object.username }}&exclude_his=on">See titles</a> that only you have seen
+				<a href="{% url 'title-list' %}?u={{ object.username }}&exclude_his=on">See titles</a> that only you have seen
 			</div>
 		</div>
 	</div>
