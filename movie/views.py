@@ -256,7 +256,7 @@ class WatchlistListView(ListView):
         else:
             qs = qs.annotate(user_rate=Subquery(newest_user.values('rate')[:1]))
 
-        return qs.select_related('title').prefetch_related('title__director', 'title__genre')
+        return qs.prefetch_related('genre', 'director')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

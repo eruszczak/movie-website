@@ -1,36 +1,36 @@
 {% load staticfiles humanize %}
 <tbody>
-    {% for obj in objs %}
-    <tr {% if sortable %}id="item-{{ obj.const }}"{% endif %} class="result result-{% cycle 'odd' 'even' %}">
+    {% for title in title_list %}
+    <tr {% if sortable %}id="item-{{ title.const }}"{% endif %} class="result result-{% cycle 'odd' 'even' %}">
         <td class="col-md-9 paddingleft">
             {% with objs.start_index|default:1 as index %}
                 <span class="item-order">{{ forloop.counter0|add:index }}</span>. <span class="order-change"></span>
             {% endwith %}
             <img class="img-responsive img-rounded"
-             src="{% if obj.img_thumbnail %}{{ obj.img_thumbnail.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
+             src="{% if title.img_thumbnail %}{{ title.img_thumbnail.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
              style="width: 35px; float: left; margin-right: 10px; " alt="...">
-            <a href="{{ obj.get_absolute_url }}">{{ obj.name }} ({{ obj.year }})</a>
+            <a href="{{ title.get_absolute_url }}">{{ title.name }} ({{ title.year }})</a>
 
-            <span class="label label-default">{% if obj.runtime %}{{ obj.runtime }} min{% endif %}</span>
-            <span class="label label-default">{% if obj.votes %}{{ obj.votes|intcomma }} votes{% endif %}</span>
+            <span class="label label-default">{% if title.runtime %}{{ title.runtime }} min{% endif %}</span>
+            <span class="label label-default">{% if title.votes %}{{ title.votes|intcomma }} votes{% endif %}</span>
             <span style="float: right;">
-                {% if obj.user_rate %}
-                    {{ obj.user_rate }}
+                {% if title.user_rate %}
+                    {{ title.user_rate }}
                     <span class="glyphicon glyphicon-star green" aria-hidden="true"></span>
                 {% endif %}
                 {% if request.user.is_authenticated %}
-                    {% include 'includes/actions/favourites.html' with title_pk=obj.pk condition=obj.has_in_favourites %}
-                    {% include 'includes/actions/watchlist.html' with title_pk=obj.pk condition=obj.has_in_watchlist %}
+                    {% include 'includes/actions/favourites.html' with title_pk=title.pk condition=title.has_in_favourites %}
+                    {% include 'includes/actions/watchlist.html' with title_pk=title.pk condition=title.has_in_watchlist %}
                 {% endif %}
             </span>
             <hr class="visible-xs">
             <p style="font-style:italic; font-size:12px; margin-top:5px">
-                {% for genre in obj.genre.all %}
+                {% for genre in title.genre.all %}
                     <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
                     {% include 'includes/comma.html' %}
                 {% endfor %}
                 dir:
-                {% for director in obj.director.all %}
+                {% for director in title.director.all %}
                     <a href="{{ director.get_absolute_url }}">
                         {% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}
                     </a>
@@ -39,15 +39,15 @@
             </p>
             {% if request.user.is_authenticated %}
             <div style="padding-left: 15px;margin-left:30px;margin-bottom:10px">
-                <div id="{{ obj.const }}" style="display: inline-block" class="raty-stars"
-                     data-score="{{ obj.request_user_rate }}" data-path="{% static 'img' %}">
+                <div id="{{ title.const }}" style="display: inline-block" class="raty-stars"
+                     data-score="{{ title.request_user_rate }}" data-path="{% static 'img' %}">
                 </div>
-                <span id="descr-{{ obj.const }}" style="display: inline-block"></span>
+                <span id="descr-{{ title.const }}" style="display: inline-block"></span>
             </div>
             {% endif %}
 
-            {% if obj.plot %}
-                <p style="padding-left: 10px">{{ obj.plot|truncatechars:250 }}</p>
+            {% if title.plot %}
+                <p style="padding-left: 10px">{{ title.plot|truncatechars:250 }}</p>
             {% endif %}
         </td>
     </tr>
