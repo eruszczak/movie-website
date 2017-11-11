@@ -38,12 +38,7 @@
                 {% endfor %}
             </p>
             {% if request.user.is_authenticated %}
-            <div style="padding-left: 15px;margin-left:30px;margin-bottom:10px">
-                <div id="{{ title.const }}" style="display: inline-block" class="raty-stars"
-                     data-score="{{ title.request_user_rate }}" data-path="{% static 'img' %}">
-                </div>
-                <span id="descr-{{ title.const }}" style="display: inline-block"></span>
-            </div>
+                {% include 'includes/actions/rate.html' with title=title score=title.request_user_rate %}
             {% endif %}
 
             {% if title.plot %}

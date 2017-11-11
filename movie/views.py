@@ -62,10 +62,6 @@ class HomeView(TemplateView):
         return context
 
 
-# new_rating = request.POST.get('rating')
-# if new_rating:
-#     create_or_update_rating(title, request.user, new_rating)
-
 class TitleListView(SearchViewMixin, ListView):
     search_form_class = TitleSearchForm
     template_name = 'movie/title_list.html'
@@ -77,8 +73,10 @@ class TitleListView(SearchViewMixin, ListView):
         if self.request.user.is_authenticated:
             qs = qs.annotate(
                 has_in_watchlist=Count(
-                    Case(When(watchlist__user=self.request.user, watchlist__deleted=False, then=1),
-                         output_field=IntegerField())
+                    Case(
+                        When(watchlist__user=self.request.user, watchlist__deleted=False, then=1),
+                        output_field=IntegerField()
+                    )
                 ),
                 has_in_favourites=Count(
                     Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
