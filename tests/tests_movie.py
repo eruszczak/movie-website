@@ -1,14 +1,16 @@
 from datetime import datetime
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from django.urls import reverse
-from django.contrib.auth.models import User
 from django.utils import timezone
 
 from movie.models import Title, Rating, Watchlist
 
 from movie.functions import create_or_update_rating
+
+User = get_user_model()
 
 
 class TitleTestCase(TestCase):

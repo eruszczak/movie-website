@@ -1,9 +1,11 @@
 from datetime import datetime
 
+from django.contrib.auth import get_user_model
 from django.db.models import F
-from django.contrib.auth.models import User
 from recommend.models import Recommendation
 from movie.models import Watchlist, Favourite, Rating
+
+User = get_user_model()
 
 
 def toggle_title_in_watchlist(user=None, title=None, watch=None, unwatch=None, instance=None):
@@ -53,8 +55,7 @@ def recommend_title(title, sender, usernames):
                 users.append(user)
     if users:
         message = 'You recommended <a href="{}">{}</a> to '.format(title.get_absolute_url(), title.name)
-        message += ', '.join(['<a href="{}">{}</a>'.format(user.userprofile.get_absolute_url(), user.username)
-                              for user in users])
+        message += ', '.join(['<a href="{}">{}</a>'.format(user.get_absolute_url(), user.username) for user in users])
     return message
 
 

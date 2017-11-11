@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import logout, login
+from django.contrib.auth import logout, login, get_user_model
 from django.contrib.auth.views import (
     LoginView as BaseLoginView,
     LogoutView as BaseLogoutView,
@@ -12,8 +12,8 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import CreateView
 
 from users.forms import RegisterForm
-from users.models import UserProfile
 
+User = get_user_model()
 
 # todo this sucks
 class MessageMixin:
@@ -42,7 +42,7 @@ class LoginView(MessageMixin, BaseLoginView):
 
     def get_success_url(self):
         self.set_success_message()
-        return self.request.user.userprofile.get_absolute_url()
+        return self.request.user.get_absolute_url()
 
 
 class LogoutView(MessageMixin, BaseLogoutView):
@@ -77,7 +77,7 @@ class PasswordChangeView(MessageMixin, BasePasswordChangeView):
 
     def get_success_url(self):
         self.set_success_message(attach_username=False)
-        return self.request.user.userprofile.get_absolute_url()
+        return self.request.user.get_absolute_url()
 
 
 class RegisterView(MessageMixin, CreateView):
@@ -101,7 +101,7 @@ class RegisterView(MessageMixin, CreateView):
         so below I can query for that Profile and call its get_absolute_url so user is redirected to his profile
         """
         self.set_success_message(username=self.object.username)
-        return UserProfile.objects.get(user=self.object).get_absolute_url()
+        return User.objects.get(user=self.object).get_absolute_url()
 
     def form_valid(self, form):
         valid = super().form_valid(form)

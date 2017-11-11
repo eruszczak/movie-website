@@ -8,7 +8,7 @@
 		<div class="page-header text-center">
 			<span class="lead">{{ object.username }}</span>
 			{% if is_owner %}
-			<a href="{{ object.userprofile.edit_url }}">
+			<a href="{{ object.edit_url }}">
                 <button id="editSettings" type="button" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> edit</button>
             </a>
         	{% endif %}
@@ -20,19 +20,19 @@
 </div>
 
 <img id="avatar" class="img-responsive img-thumbnail center-block"
-	 src="{% if object.userprofile.picture %}{{ object.userprofile.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}"
+	 src="{% if object.picture %}{{ object.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}"
 	 alt="...">
 
 <div class="row text-center">
 	<br>
 	<div class="col-md-12">
-		<a href="{{ object.userprofile.watchlist_url }}" class="btn btn-sm btn-default">
+		<a href="{{ object.watchlist_url }}" class="btn btn-sm btn-default">
 			<span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist
 		</a>
-		<a href="{{ object.userprofile.favourite_url }}" class="btn btn-sm btn-default">
+		<a href="{{ object.favourite_url }}" class="btn btn-sm btn-default">
 			<span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> favourites
 		</a>
-		<a href="{{ object.userprofile.recommend_url }}" class="btn btn-sm btn-default">
+		<a href="{{ object.recommend_url }}" class="btn btn-sm btn-default">
 			<span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend
 		</a>
 	</div>
@@ -42,15 +42,15 @@
 <div class="row text-center">
 	<br>
 	<div class="col-md-12">
-		{% if user.userprofile.imdb_id or user.userprofile.csv_ratings %}
+		{% if user.imdb_id or user.csv_ratings %}
 		<div class="btn-group text-center">
 			<form method="post" name="update_titles_form">{% csrf_token %}
-				{% if user.userprofile.imdb_id %}
+				{% if user.imdb_id %}
 					<button class="btn btn-xs btn-primary" type="submit" name="update_rss" value="update_rss">update ratings</button>
 
 					<button class="btn btn-xs btn-primary" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>
 				{% endif %}
-				{% if user.userprofile.csv_ratings %}
+				{% if user.csv_ratings %}
 					<button class="btn btn-xs btn-primary" type="submit" name="update_csv" value="update_csv">update csv</button>
 				{% endif %}
 			</form>
@@ -82,8 +82,8 @@
 				</div>
 				<hr>
 				{% endif %}
-				See all <a href="{{ object.userprofile.ratings_url }}">{{ object.userprofile.count_titles }} titles</a>
-				or <a href="{{ object.userprofile.all_ratings_url }}">{{ object.userprofile.count_ratings }} ratings</a>
+				See all <a href="{{ object.ratings_url }}">{{ object.count_titles }} titles</a>
+				or <a href="{{ object.all_ratings_url }}">{{ object.count_ratings }} ratings</a>
 				<hr class="visible-sm visible-xs">
 				<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import-ratings' object.username %}" style="display:none">{% csrf_token %}
 					<input id="import" name="csv_ratings" type="file" accept=".csv" />
@@ -91,7 +91,7 @@
 
 				<div style="display:inline;float: right;">
 					{% if is_owner %}
-						<form id="clear_ratings_form" method="post" action="{{ request.user.userprofile.get_absolute_url }}" style="display:inline;margin-right:10px">{% csrf_token %}
+						<form id="clear_ratings_form" method="post" action="{{ request.user.get_absolute_url }}" style="display:inline;margin-right:10px">{% csrf_token %}
 							<input id="confirm-nick" name="confirm-nick" hidden>
 							<button id="clear_ratings" type="submit" class="btn btn-xs btn-success" data-toggle="tooltip" title="You cannot revert this operation. You will lose all of you ratings if you haven't exported them first.">clear my ratings</button>
 						</form>
@@ -117,7 +117,7 @@
 							{% include 'includes/../../../movie/templates/movie/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate %}
 						{% endfor %}
 					</div>
-					See all <a href="{{ object.userprofile.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
+					See all <a href="{{ object.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
 				</div>
 				<hr>
 				{% endif %}
@@ -145,7 +145,7 @@
 					You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ object.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>
 				{% endif %}
 				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ object.username }}'s
-				<a href="{{ object.userprofile.ratings_url }}">{{ object.userprofile.count_titles }} ratings</a><br>
+				<a href="{{ object.ratings_url }}">{{ object.count_titles }} ratings</a><br>
 				<a href="{% url 'title-list' %}?u={{ object.username }}&exclude_his=on">See titles</a> that only you have seen
 			</div>
 		</div>

@@ -5,16 +5,16 @@
 {% for user in object_list %}
 <div class="col-md-12">
     <div class="well usersList{% if request.user == user %} userListOwner{% endif %}">
-        <a href="{{ user.userprofile.get_absolute_url }}">
+        <a href="{{ user.get_absolute_url }}">
             <img id="avatar" class="img-responsive img-thumbnail avatarMin" style="float:left;margin-right: 10px"
-                 src="{% if user.userprofile.picture %}{{ user.userprofile.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}" alt="...">
+                 src="{% if user.picture %}{{ user.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}" alt="...">
         </a>
 
         <p>
             {% with ratings.start_index|default:1 as index %}
                 <span>{{ forloop.counter0|add:index }}</span>.
             {% endwith %}
-            <a href="{{ user.userprofile.get_absolute_url }}">
+            <a href="{{ user.get_absolute_url }}">
                 <strong>{{ user.username }}</strong>
             </a>
 			{% if request.user.is_authenticated and not request.user == user %}
@@ -28,9 +28,9 @@
             {% endfor %}
         {% endif %}
 
-        {% with user.userprofile.avg_of_current_ratings as user_current_ratings %}
+        {% with user.avg_of_current_ratings as user_current_ratings %}
             {% if user_current_ratings.count %}
-                <p>See all <a href="{{ user.userprofile.ratings_url }}">{{ user_current_ratings.count }} rated titles</a>
+                <p>See all <a href="{{ user.ratings_url }}">{{ user_current_ratings.count }} rated titles</a>
                     (avg: {{ user_current_ratings.avg|floatformat:2 }})
                 </p>
             {% else %}
@@ -39,13 +39,13 @@
         {% endwith %}
         <hr class="visible-xs">
         <div>
-            <a href="{{ user.userprofile.watchlist_url }}" class="btn btn-xs btn-default">
+            <a href="{{ user.watchlist_url }}" class="btn btn-xs btn-default">
                 <span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist
             </a>
-            <a href="{{ user.userprofile.favourite_url }}" class="btn btn-xs btn-default">
+            <a href="{{ user.favourite_url }}" class="btn btn-xs btn-default">
                 <span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> favourites
             </a>
-            <a href="{{ user.userprofile.recommend_url }}" class="btn btn-xs btn-default">
+            <a href="{{ user.recommend_url }}" class="btn btn-xs btn-default">
                 <span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend
             </a>
         </div>

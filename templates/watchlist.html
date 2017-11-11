@@ -6,13 +6,13 @@
     <div class="col-md-10 col-md-offset-1">
         <div class="text-center">
             <div class="btn-group" role="group">
-                <a href="{{ user.userprofile.watchlist_url }}">
+                <a href="{{ user.watchlist_url }}">
                     <button class="btn btn-default {% if not request.GET.show_deleted and not request.GET.show_archived %}btn-pressed{% endif %}">active <span class="badge badge-success">{{ count.active }}</span></button>
                 </a>
-                <a href="{{ user.userprofile.watchlist_url }}?show_deleted=true">
+                <a href="{{ user.watchlist_url }}?show_deleted=true">
                     <button class="btn btn-default {% if request.GET.show_deleted %}btn-pressed{% endif %}">deleted <span class="badge badge-success">{{ count.deleted }}</span></button>
                 </a>
-                <a href="{{ user.userprofile.watchlist_url }}?show_archived=true">
+                <a href="{{ user.watchlist_url }}?show_archived=true">
                     <button class="btn btn-default {% if request.GET.show_archived %}btn-pressed{% endif %}">archive <span class="badge badge-success">{{ count.archived }}</span></button>
                 </a>
             </div>

@@ -75,7 +75,7 @@
                                                 multiple title="Recommend to" data-width="auto" data-size="5"
                                                 data-actions-box="true" data-live-search="true">
                                         {% for user in data.followed_title_not_recommended %}
-                                            <option value="{{ user.user_followed.username }}" data-subtext="{{ user.user_followed.userprofile.count_titles }} ratings">{{ user.user_followed.username }}</option>
+                                            <option value="{{ user.user_followed.username }}" data-subtext="{{ user.user_followed.count_titles }} ratings">{{ user.user_followed.username }}</option>
                                         {% endfor %}
                                         </select>
                                         <button class="btn btn-xs btn-default" type="submit" name="select_followed_users" value="select">Recommend</button>

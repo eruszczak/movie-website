@@ -26,11 +26,11 @@
                     <ul class="dropdown-menu">
                         <li><a href="{% url 'user-list' %}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> users</a></li>
                     {% if request.user.is_authenticated %}
-                        <li><a href="{{ request.user.userprofile.get_absolute_url }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> your profile</a></li>
+                        <li><a href="{{ request.user.get_absolute_url }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> your profile</a></li>
                         <li role="separator" class="divider"></li>
-                        <li><a href="{{ request.user.userprofile.watchlist_url }}"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist</a></li>
-                        <li><a href="{{ request.user.userprofile.favourite_url }}"><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> favourites</a></li>
-                        <li><a href="{{ request.user.userprofile.recommend_url }}"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend</a></li>
+                        <li><a href="{{ request.user.watchlist_url }}"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist</a></li>
+                        <li><a href="{{ request.user.favourite_url }}"><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> favourites</a></li>
+                        <li><a href="{{ request.user.recommend_url }}"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend</a></li>
                         <li role="separator" class="divider"></li>
                     {% endif %}
                     {% if not request.user.is_authenticated %}
@@ -38,9 +38,9 @@
                         <li><a href="{% url 'register' %}"><span class="glyphicon glyphicon-check" aria-hidden="true"></span> register</a></li>
                     {% else %}
                         <li class="text-center">
-                            <a href="{{ request.user.userprofile.get_absolute_url }}">
-                                {% if request.user.userprofile.picture %}
-                                <img id="avatar" class="img-responsive img-thumbnail" src="{{ request.user.userprofile.picture.url }}" alt="..." style="width: 100px">
+                            <a href="{{ request.user.get_absolute_url }}">
+                                {% if request.user.picture %}
+                                <img id="avatar" class="img-responsive img-thumbnail" src="{{ request.user.picture.url }}" alt="..." style="width: 100px">
                                 {% else %}
                                 <img id="avatar" class="img-responsive img-thumbnail" src="{% static 'img/placeholderavatar.png' %}" alt="..." style="width: 100px">
                                 {% endif %}

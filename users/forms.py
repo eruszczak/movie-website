@@ -2,12 +2,12 @@ import re
 import os
 
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.files.images import get_image_dimensions
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import UserProfile
+User = get_user_model()
 
 
 class RegisterForm(UserCreationForm):
@@ -17,13 +17,10 @@ class RegisterForm(UserCreationForm):
         fields = ('username', 'password1', 'password2')
 
 
-# class
-
-
 class EditProfileForm(forms.ModelForm):
 
     class Meta:
-        model = UserProfile
+        model = User
         fields = ('imdb_id', 'csv_ratings', 'picture')
 
     def clean_picture(self):
