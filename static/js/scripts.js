@@ -85,24 +85,13 @@ $(document).ready(function() {
             return $(this).attr('data-score');
         },
         click: function(score, evt) {
-            score = score || 0;
+            var insertAsNew = $('[name="insert_as_new"]').is(':checked');
+            score = score || 0; // if 0 -> delete rating
             var data = {
                 'rating': score,
-                // 'insert_as_new': False
+                'insert_as_new': insertAsNew
             };
-
-            // todo. I guess this is needed for title_detail, because it uses form
-            // so, how it worked without rating element
-            // $(this).parent().find('[name="rating"]').val(score);
-
-            // var isTitleDetailPage = $(this).data('title-detail');
-            // if (isTitleDetailPage) {
-                // todo. this about it. maybe ajax_request and then reload page using JS - can remove form
-                // this can stay if form action accept API endpoint?
-                // $(this).closest("form").submit();
-            // } else {
-                ajax_request(data, {url: $(this).data('url')});
-            // }
+            ajax_request(data, {url: $(this).data('url')});
         },
         number: 10,
         cancel: function() {
@@ -164,7 +153,7 @@ $(document).ready(function() {
     });
 
     var selectedUser = $('#selectCompareWithUser').val();
-    if(selectedUser) {
+    if (selectedUser) {
         if(selectedUser.length)
             elems.show();
     }
@@ -256,6 +245,12 @@ function ajax_request(data, options) {
             if (options.refresh) {
                 window.location.reload(false);
             }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            showToast('There was an error', {type: 'error'});
+            console.log(xhr)
+            console.log(ajaxOptions)
+            console.log(thrownError)
         }
     });
 }
@@ -287,12 +282,13 @@ function showWaitingDialog(secs) {
     }, secs * 1000);
 }
 
-function showToast(message) {
+function showToast(message, options) {
+    options = options || {};
     if (message) {
         $.iaoAlert({
             msg: message,
-            type: "notification",
-            alertTime: "1750",
+            type: options.type || 'notification', // success error warning notification
+            alertTime: '1500',
             position: 'top-right',
             mode: 'dark',
             fadeOnHover: true
