@@ -107,7 +107,7 @@
             </td>
             <td class="col-md-2 text-center" {% if obj.note %}data-toggle="tooltip" data-placement="left" title="{{ obj.note }}"{% endif %}>
             {% if obj.sender %}
-                <a href="{{ obj.sender.userprofile.get_absolute_url }}">{{ obj.sender }}</a>
+                <a href="{{ obj.sender.get_absolute_url }}">{{ obj.sender }}</a>
             {% else %}
                 {{ obj.nick }}
             {% endif %}
@@ -129,7 +129,7 @@
 {% else %}
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
-        <div class="alert alert-warning text-center" role="alert">No recommendations found for <a href="{{ choosen_user.userprofile.get_absolute_url}}">{{ choosen_user.username }}</a></div>
+        <div class="alert alert-warning text-center" role="alert">No recommendations found for <a href="{{ choosen_user.get_absolute_url}}">{{ choosen_user.username }}</a></div>
     </div>
 </div>
 {% endif %}

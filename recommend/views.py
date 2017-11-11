@@ -1,9 +1,11 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RecommendForm
 from .models import Recommendation
 from datetime import date
+
+User = get_user_model()
 
 
 def recommend(request, username):
@@ -16,7 +18,7 @@ def recommend(request, username):
                 messages.info(request, 'Deleted <a href="{}">{}</a> from recommendations'.format(
                     to_del.title.get_absolute_url(), to_del.title.name), extra_tags='safe')
                 to_del.delete()
-            return redirect(user.userprofile.recommend_url())
+            return redirect(user.recommend_url())
 
         form = RecommendForm(request.POST, request=request, user=user, recommendations=recommended_for_user)
         if form.is_valid():
@@ -31,7 +33,7 @@ def recommend(request, username):
                 instance.nick = user
             instance.save()
             messages.success(request, 'Added recommendation')
-            return redirect(user.userprofile.recommend_url())
+            return redirect(user.recommend_url())
     else:
         form = RecommendForm()
 

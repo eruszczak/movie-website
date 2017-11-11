@@ -2,19 +2,18 @@ import io
 import csv
 from datetime import datetime
 
+from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.http import HttpResponse
 from django.contrib import messages
-from django.contrib.auth.models import User
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
-from django.views import View
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, UpdateView, DetailView
 
 from movie.models import Title, Rating
-from users.models import UserProfile, UserFollow
+from users.models import UserFollow
 from users.forms import EditProfileForm
 from users.functions import (
     update_ratings_using_csv,
@@ -25,6 +24,8 @@ from users.functions import (
 )
 from common.sql_queries import avgs_of_2_users_common_curr_ratings, titles_rated_higher_or_lower
 from common.prepareDB_utils import convert_to_datetime
+
+User = get_user_model()
 
 
 def export_ratings(request, username):
@@ -52,14 +53,14 @@ def import_ratings(request):
     from exported csv file import missing ratings. it doesn't add new titles, only new ratings
     file consists of lines in format: tt1234567,2017-05-23,7
     """
-    profile = UserProfile.objects.get(user=request.user)
+    user = User.objects.get(user=request.user)
     uploaded_file = request.FILES['csv_ratings']
     file = uploaded_file.read().decode('utf-8')
     io_string = io.StringIO(file)
     is_valid, message = validate_imported_ratings(uploaded_file, io_string)
     if not is_valid:
         messages.info(request, message)
-        return redirect(profile)
+        return redirect(user)
 
     # TODO make a class that handles serialization and deserialization
     reader = csv.DictReader(io_string)
@@ -77,7 +78,7 @@ def import_ratings(request):
             if created:
                 created_count += 1
     messages.info(request, 'imported {} out of {} ratings'.format(created_count, total_rows))
-    return redirect(profile)
+    return redirect(user)
 
 
 # def user_edit(request, username):
@@ -110,7 +111,7 @@ def import_ratings(request):
 
 # do i need object permissions (is_owner) if getting object by self.request? or just LoginRequired
 class UserUpdateView(UpdateView):
-    model = UserProfile
+    model = User
     form_class = EditProfileForm
     template_name = 'users/user_edit.html'
 
@@ -224,12 +225,12 @@ class UserDetailView(DetailView):
             message = ''
             if self.request.POST.get('update_csv'):
                 message = update_ratings_using_csv(self.object)
-            elif self.request.POST.get('update_rss') and self.object.userprofile.imdb_id:
+            elif self.request.POST.get('update_rss') and self.object.imdb_id:
                 message = update_ratings(self.object)
-            elif self.request.POST.get('update_watchlist') and self.object.userprofile.imdb_id:
+            elif self.request.POST.get('update_watchlist') and self.object.imdb_id:
                 message = update_watchlist(self.object)
             messages.info(self.request, message, extra_tags='safe')
-        return redirect(self.object.userprofile)
+        return redirect(self.object)
 
     def get_user_ratings(self):
         if self.is_other_user:
@@ -268,7 +269,7 @@ class UserDetailView(DetailView):
                 'count': common_ratings_len,
                 'higher': titles_req_user_rated_higher,
                 'lower': titles_req_user_rated_lower,
-                'percentage': round(common_ratings_len / self.object.userprofile.count_titles, 2) * 100,
+                'percentage': round(common_ratings_len / self.object.count_titles, 2) * 100,
                 'user_rate_avg': common_titles_avgs['avg_user'],
                 'req_user_rate_avg': common_titles_avgs['avg_req_user'],
                 'not_rated_by_req_user': not_rated_by_req_user[:self.titles_in_a_row],

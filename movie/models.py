@@ -1,10 +1,9 @@
 from datetime import datetime
 
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.template.defaultfilters import slugify
 from django.utils import timezone
 
 from movie.shared import validate_rate
@@ -119,7 +118,7 @@ class Title(models.Model):
 
 
 class Rating(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     rate = models.IntegerField()
     rate_date = models.DateField()
@@ -174,7 +173,7 @@ class Rating(models.Model):
 
 
 class Watchlist(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     added_date = models.DateTimeField(default=timezone.now)
     imdb = models.BooleanField(default=False)
@@ -211,7 +210,7 @@ class Watchlist(models.Model):
 
 
 class Favourite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     added_date = models.DateTimeField(default=timezone.now)
     order = models.PositiveIntegerField(blank=True, null=True)

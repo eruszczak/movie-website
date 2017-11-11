@@ -6,7 +6,7 @@
     {% if title_list %}
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
-                <p class="lead text-center">{% if is_owner %}<a href="{{ user.userprofile.get_absolute_url }}">Your</a>{% else %}<a href="{{ user.userprofile.get_absolute_url }}">{{ username }}</a>'s {% endif %} {{ ratings.count }} favourite title{{ ratings.count|pluralize }}.</p>
+                <p class="lead text-center">{% if is_owner %}<a href="{{ user.get_absolute_url }}">Your</a>{% else %}<a href="{{ user.get_absolute_url }}">{{ username }}</a>'s {% endif %} {{ ratings.count }} favourite title{{ ratings.count|pluralize }}.</p>
                 {% if is_owner %}
                     <p class="text-center"><em>You can reorder (not on mobile) the list by dragging a title while holding LMB.</em></p>
                 {% endif %}
@@ -19,7 +19,7 @@
     {% else %}
 		<div class="text-center">
 			<div class="alert alert-success alert-resize" role="alert">
-                <p class="text-center"><a href="{{ user.userprofile.get_absolute_url }}">{{ username }}</a> doesn't have any favourite titles!</p>
+                <p class="text-center"><a href="{{ user.get_absolute_url }}">{{ username }}</a> doesn't have any favourite titles!</p>
 			</div>
 		</div>
     {% endif %}

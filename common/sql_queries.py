@@ -128,7 +128,7 @@ curr_rate_of_followed_user_for_title = """
     FROM "users_userfollow"
     INNER JOIN "auth_user" T3 ON ("users_userfollow"."user_followed_id" = T3."id")
     INNER JOIN "movie_rating" ON (T3."id" = "movie_rating"."user_id")
-    INNER JOIN "users_userprofile" T5 ON (T3."id" = T5."id")
+    INNER JOIN "users_user" T5 ON (T3."id" = T5."id")
     WHERE ("users_userfollow"."user_follower_id" = %s AND "movie_rating"."title_id" = %s)
     ) AS "DistinctTitlesRatedByFollowed"
 """

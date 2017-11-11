@@ -1,11 +1,13 @@
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from mysite.settings import BACKUP_ROOT
 import os
 from datetime import datetime
-from django.contrib.auth.models import User
 from movie.models import Rating
 import csv
 from users.functions import create_csv_with_user_ratings
+
+User = get_user_model()
 
 
 class Command(BaseCommand):

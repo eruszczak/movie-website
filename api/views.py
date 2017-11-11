@@ -1,5 +1,5 @@
+from django.contrib.auth import get_user_model
 from django.db.models import Count
-from django.contrib.auth.models import User
 from django.db.models.functions import ExtractMonth, ExtractYear
 from re import findall
 
@@ -17,6 +17,8 @@ from users.models import UserFollow
 from .serializers import RatingListSerializer, TitleSerializer
 from common.sql_queries import rating_distribution
 from movie.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist
+
+User = get_user_model()
 
 
 class SetPagination(PageNumberPagination):

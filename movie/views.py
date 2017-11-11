@@ -1,6 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import Count, When, Case, IntegerField, Subquery
 from django.http import Http404
@@ -15,6 +15,8 @@ from movie.functions import toggle_title_in_watchlist, recommend_title
 from movie.shared import SearchViewMixin
 from users.models import UserFollow
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite
+
+User = get_user_model()
 
 
 class HomeView(TemplateView):
@@ -36,11 +38,11 @@ class HomeView(TemplateView):
                 'last_series': user_ratings.filter(title__type__name='series').select_related('title').first(),
                 'last_good_movie': user_ratings.filter(title__type__name='movie', rate__gte=9).select_related(
                     'title').first(),
-                'movies_my_count': self.request.user.userprofile.count_movies,
-                'series_my_count': self.request.user.userprofile.count_series,
+                'movies_my_count': self.request.user.count_movies,
+                'series_my_count': self.request.user.count_series,
 
-                'rated_titles': self.request.user.userprofile.count_titles,
-                'total_ratings': self.request.user.userprofile.count_ratings,
+                'rated_titles': self.request.user.count_titles,
+                'total_ratings': self.request.user.count_ratings,
 
                 'total_movies': reverse('title-list') + '?t=movie', 'total_series': reverse('title-list') + '?t=series',
                 'search_movies': reverse('title-list') + '?u={}&t=movie'.format(self.request.user.username),
