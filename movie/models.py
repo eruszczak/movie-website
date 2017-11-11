@@ -84,7 +84,7 @@ class Title(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
 
     plot = models.TextField(blank=True, null=True)
-    slug = models.SlugField(unique=True, max_length=255)
+    slug = models.SlugField(max_length=300)
     img = models.ImageField(upload_to='poster', null=True, blank=True)
     img_thumbnail = models.ImageField(null=True, blank=True)
 
@@ -97,12 +97,10 @@ class Title(models.Model):
         return '{} {}'.format(self.name, self.year)
 
     def get_absolute_url(self):
-        return reverse('title-detail', kwargs={'pk': self.pk, 'slug': self.slug})
+        return reverse('title-detail', kwargs={'const': self.const, 'slug': self.slug})
 
     def save(self, *args, **kwargs):
-        title_is_just_created = not self.id
-        if title_is_just_created:
-            self.slug = self.create_slug()
+        if self.pk is None:
             self.url_imdb = 'http://www.imdb.com/title/{}/'.format(self.const)
         super(Title, self).save(*args, **kwargs)
 
@@ -118,20 +116,6 @@ class Title(models.Model):
     @property
     def can_be_updated(self):
         return (timezone.now() - self.last_updated).seconds > 60 * 10
-
-    def create_slug(self, new_slug=None):
-        """
-        recursive function to get unique slug (in case of 2 titles with the same name/year)
-        """
-        if new_slug is None:
-            slug = slugify('{} {}'.format(self.name, self.year or ''))[:70]
-        else:
-            slug = new_slug
-
-        if Title.objects.filter(slug=slug).exists():
-            slug += 'i'
-            self.create_slug(slug)
-        return slug
 
 
 class Rating(models.Model):

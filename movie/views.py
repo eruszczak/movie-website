@@ -1,26 +1,19 @@
-import re
-import calendar
-from datetime import datetime
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.db.models import Count, Max, F, When, Case, IntegerField, Subquery
-from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Count, When, Case, IntegerField, Subquery
+from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, RedirectView, ListView, UpdateView
 from django.db.models import OuterRef
 
-from common.prepareDB import update_title
-from common.prepareDB_utils import convert_to_datetime
-from common.sql_queries import curr_title_rating_of_followed, select_current_rating
-from common.utils import paginate
+from common.sql_queries import curr_title_rating_of_followed
 from movie.forms import TitleSearchForm, RateUpdateForm
-from movie.functions import toggle_title_in_watchlist, toggle_title_in_favourites, recommend_title, create_or_update_rating
+from movie.functions import toggle_title_in_watchlist, recommend_title, create_or_update_rating
 from movie.shared import SearchViewMixin
 from users.models import UserFollow
-from .models import Genre, Director, Title, Rating, Watchlist, Favourite, Actor
+from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 
 
 class HomeView(TemplateView):
