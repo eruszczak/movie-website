@@ -11,7 +11,7 @@
                     <p class="text-center"><em>You can reorder (not on mobile) the list by dragging a title while holding LMB.</em></p>
                 {% endif %}
                 <br>
-                <table id="sortable" class="table table-hover table-bordered table-condensed" {% if is_owner %}data-isowner="yes"{% endif %}>
+                <table id="sortable" class="table table-hover table-bordered table-condensed" {% if is_owner %}data-url="{% url 'user-fav-reorder' user.pk %}"{% endif %}>
                     {% include 'movie/titles_in_a_table.html' with title_list=title_list sortable=True %}
                 </table>
             </div>
@@ -23,4 +23,56 @@
 			</div>
 		</div>
     {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script type="application/javascript">
+        if ($('table').is('#sortable')) {
+            var url = $('#sortable').data('url');
+            if (url) {
+                sortable(url);
+            }
+        }
+        function sortable(url) {
+            $('#sortable tbody').sortable({
+            // $('tbody#sortable').sortable({
+                placeholder: 'ui-state-highlight',
+                axis: 'y',
+                update: function (event, ui) {
+                    var item = ui.item.find('.item-order');
+                    var itemId = item.parent().parent().attr('id');
+                    var ordering = $(this).sortable('serialize');
+                    var o = $(this).sortable('toArray');
+
+                    $(this).find('tr').each(function(i) {
+                        var order = $(this).find('.item-order');
+                        var orderChange = order.next();
+                        orderChange.hide();
+                        if (itemId == this.id) {
+                            var newOrder = o.indexOf(itemId) + 1;
+                            var previousOrder = parseInt(item.text());
+                            var orderDiff = previousOrder - newOrder;
+                            var txt = (orderDiff > 0 ? '+' : '') + orderDiff;
+                            order.text(newOrder);
+                            orderChange.text(txt);
+                            orderChange.attr('class', 'order-change');
+                            if (orderDiff > 0) {
+                                orderChange.addClass('green-color');
+                            } else {
+                                orderChange.addClass('red-color');
+                            }
+                        } else {
+                            order.text(i + 1);
+                            orderChange.text('');
+                            orderChange.attr('class', 'order-change');
+
+                        }
+                        orderChange.fadeIn('slow');
+                    });
+                    ajax_request({'item_order': ordering}, {url: url});
+                }
+            });
+            $("#sortable").disableSelection();
+        }
+    </script>
 {% endblock %}

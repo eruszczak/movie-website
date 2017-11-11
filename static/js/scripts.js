@@ -70,13 +70,6 @@ $(document).ready(function() {
         $(this).hide();
     });
 
-    if ($('table').is('#sortable')) {
-        var isOwner = $('#sortable').data('isowner');
-        if (isOwner) {
-            sortable();
-        }
-    }
-
     $('.raty-stars').raty({
         path: function() {
             return this.getAttribute('data-path');
@@ -158,7 +151,6 @@ $(document).ready(function() {
             elems.show();
     }
 
-
     // disable submit button on the login page when form fields are empty
     if ($('div').is('#login-page')) {
         $("#btnSubmit").attr("disabled", "disabled");
@@ -190,48 +182,6 @@ $(document).ready(function() {
 });
 
 // todo place it in template
-function sortable() {
-    $('#sortable tbody').sortable({
-    // $('tbody#sortable').sortable({
-        placeholder: 'ui-state-highlight',
-        axis: 'y',
-        update: function (event, ui) {
-            var item = ui.item.find('.item-order');
-            var itemId = item.parent().parent().attr('id');
-            var ordering = $(this).sortable('serialize');
-            var o = $(this).sortable('toArray');
-
-            $(this).find('tr').each(function(i) {
-                var order = $(this).find('.item-order');
-                var orderChange = order.next();
-                orderChange.hide();
-                if (itemId == this.id) {
-                    var newOrder = o.indexOf(itemId) + 1;
-                    var previousOrder = parseInt(item.text());
-                    var orderDiff = previousOrder - newOrder;
-                    var txt = (orderDiff > 0 ? '+' : '') + orderDiff;
-                    order.text(newOrder);
-                    orderChange.text(txt);
-                    orderChange.attr('class', 'order-change');
-                    if (orderDiff > 0) {
-                        orderChange.addClass('green-color');
-                    } else {
-                        orderChange.addClass('red-color');
-                    }
-                } else {
-                    order.text(i + 1);
-                    orderChange.text('');
-                    orderChange.attr('class', 'order-change');
-
-                }
-                orderChange.fadeIn('slow');
-            });
-            showToast('Saved new order.');
-            ajax_request({'item_order': ordering});
-        }
-    });
-    $("#sortable").disableSelection();
-}
 
 function ajax_request(data, options) {
     data.csrfmiddlewaretoken = csrftoken;
@@ -248,9 +198,6 @@ function ajax_request(data, options) {
         },
         error: function(xhr, ajaxOptions, thrownError) {
             showToast('There was an error', {type: 'error'});
-            console.log(xhr)
-            console.log(ajaxOptions)
-            console.log(thrownError)
         }
     });
 }

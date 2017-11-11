@@ -34,18 +34,20 @@
 <!--|date:"Y-m-d"-->
 {% endblock %}
 {% block scripts %}
-$( function() {
-	$( ".controlgroup" ).controlgroup();
+    <script type="application/javascript">
+        $(function() {
+            $( ".controlgroup" ).controlgroup();
 
-	$( "#datepicker" ).datepicker({
-		changeMonth: true,
-		changeYear: true,
-		maxDate: "+0D",
-		dateFormat: "yy-mm-dd",
-		defaultDate: "{{ rating.rate_date|date:"Y-m-d" }}",
-		onSelect: function(dateText) {
-			$('[name="newDateValue"').val(this.value);
-		}
-	});
-} );
+            $( "#datepicker" ).datepicker({
+                changeMonth: true,
+                changeYear: true,
+                maxDate: "+0D",
+                dateFormat: "yy-mm-dd",
+                defaultDate: "{{ rating.rate_date|date:"Y-m-d" }}",
+                onSelect: function(dateText) {
+                    $('[name="newDateValue"]').val(this.value);
+                }
+            });
+        });
+    </script>
 {% endblock %}
