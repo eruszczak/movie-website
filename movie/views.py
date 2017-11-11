@@ -78,9 +78,9 @@ class TitleListView(SearchViewMixin, ListView):
             )
         return qs.order_by('-year', '-votes').prefetch_related('director', 'genre')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     return context
 
 
 class TitleDetailView(DetailView):
@@ -130,20 +130,10 @@ class TitleDetailView(DetailView):
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        # self.update_title()
         self.object = self.get_object()
         self.recommend_title_to_other_users()
         self.delete_rating()
-        # todo: use if (allow only one action per one post) and call messages only once
         return redirect(self.object)
-
-    # def update_title(self):
-    #     if self.request.POST.get('update_title'):
-    #         is_updated, message = update_title(self.object)
-    #         if is_updated:
-    #             messages.success(self.request, message)
-    #         else:
-    #             messages.warning(self.request, message)
 
     def recommend_title_to_other_users(self):
         selected_users = self.request.POST.getlist('choose_followed_user')
@@ -210,9 +200,6 @@ class GroupByYearView(TemplateView):
         return context
 
 
-# get_active = user_watchlist.filter(deleted=False)
-# get_deleted = user_watchlist.filter(imdb=True, deleted=True)
-# get_archived = user_watchlist.filter(title__rating__title=F('title'), title__rating__rate_date__gte=F('added_date')).distinct()
 class WatchlistListView(ListView):
     template_name = 'watchlist.html'
     model = Title
@@ -220,7 +207,6 @@ class WatchlistListView(ListView):
     user = None
     is_owner = False
 
-    # todo: search form
     def get_queryset(self):
         self.user = User.objects.get(username=self.kwargs['username'])
         self.is_owner = self.user.pk == self.request.user.pk
