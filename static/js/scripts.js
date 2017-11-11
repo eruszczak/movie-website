@@ -87,33 +87,30 @@ $(document).ready(function() {
         click: function(score, evt) {
             score = score || 0;
             var data = {
-                'const': this.id,
-                'rating': score
+                'rating': score,
+                // 'insert_as_new': False
             };
-            $(this).parent().find('[name="rating"]').val(score);
-            var sourcePage = $(this).attr('data-source');
 
-            if (sourcePage === 'details_page') {
-                $(this).parent().submit();
-            } else {
-                if (score === 0) {
-                    showToast('Rating deleted.');
-                } else {
-                    showToast('Created new rating.');
-                }
-                ajax_request(data, {url: '/explore/'});
-            }
+            // todo. I guess this is needed for title_detail, because it uses form
+            // so, how it worked without rating element
+            // $(this).parent().find('[name="rating"]').val(score);
 
+            // var isTitleDetailPage = $(this).data('title-detail');
+            // if (isTitleDetailPage) {
+                // todo. this about it. maybe ajax_request and then reload page using JS - can remove form
+                // this can stay if form action accept API endpoint?
+                // $(this).closest("form").submit();
+            // } else {
+                ajax_request(data, {url: $(this).data('url')});
+            // }
         },
-
         number: 10,
         cancel: function() {
             return $(this).attr('data-score');
         },
         cancelHint: '',
-
         target: function() {
-            return '#descr-' + this.id;
+            return '#rating-' + this.id;
         },
         targetType: 'score',
         targetKeep: true

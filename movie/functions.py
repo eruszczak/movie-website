@@ -70,10 +70,15 @@ def create_or_update_rating(title, user, rate, insert_as_new=False):
         if current_rating and not insert_as_new:
             current_rating.rate = rate
             current_rating.save(update_fields=['rate'])
+            return 'Updated rating'
         elif insert_as_new and todays_rating.exists():
             todays_rating.update(rate=rate)
+            return 'Updated today\'s rating'
         else:
             Rating.objects.create(user=user, title=title, rate=rate, rate_date=today)
+            return 'Created rating'
     elif rate == '0' and title and current_rating:
         # this is for 'cancel' button in Raty. It deletes current rating
+        # todo. this should be done in another endpoint
         current_rating.delete()
+        return 'Deleted rating'

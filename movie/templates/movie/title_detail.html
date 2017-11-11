@@ -53,12 +53,11 @@
                         <div class="row text-center">
                             <div class="col-md-6">
                                 {% with data.user_ratings_of_title.0 as current_rating %}
-                                    <form id="star_rating_form" action="" method="post">{% csrf_token %}
-                                        <div id="{{ title.const }}" style="display: inline-block" class="raty-stars"
-                                             data-score="{{ current_rating.rate }}" data-path="{% static 'img' %}" data-source="details_page">
-                                        </div>
-                                        <span id="descr-{{ title.const }}" style="display: inline-block"></span>
-                                        <input name="rating" value="{{ current_rating.rate }}" hidden>
+{#                                    <form id="star_rating_form" action="" method="post">{% csrf_token %}#}
+{#                                    TODO remove title_detail=True #}
+                                        {% include 'includes/actions/rate.html' with title=title score=current_rating.rate %}
+{#                                        <input name="rating" value="{{ current_rating.rate }}" hidden>#}
+{#                                        todo why this works without input#}
                                         {% if data.user_ratings_of_title %}
                                             <span class="checkbox">
                                                 <label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>
@@ -67,7 +66,7 @@
                                                 <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> modify current rating
                                             </a>
                                         {% endif %}
-                                    </form>
+{#                                    </form>#}
                                 {% endwith %}
                             </div>
                             <hr class="visible-sm visible-xs">

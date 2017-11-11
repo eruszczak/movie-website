@@ -11,7 +11,6 @@ urlpatterns = [
     url(r'^title/(?P<pk>\d+)/rate', views.TitleAddRatingView.as_view(), name='title-rate'),
     url(r'^title/(?P<pk>\d+)/favourites', views.TitleToggleFavourite.as_view(), name='title-fav'),
     url(r'^title/(?P<pk>\d+)/watchlist', views.TitleToggleWatchlist.as_view(), name='title-watch'),
-
     url(r'^user/(?P<pk>\d+)/follow', views.UserToggleFavourite.as_view(), name='user-follow'),
 
     url(r'^', include(router.urls), name='ratings'),

@@ -101,14 +101,15 @@ class TitleAddRatingView(APIView):
 
     def post(self, request, *args, **kwargs):
         new_rating = request.POST.get('rating')
-        insert_as_new = request.POST.get('insert_as_new')
+        insert_as_new = request.POST.get('insert_as_new', False)
         try:
             title = Title.objects.get(pk=kwargs['pk'])
         except Title.DoesNotExist:
-            return Response({'': ''}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            create_or_update_rating(title, request.user, new_rating, insert_as_new)
-            return Response(status=status.HTTP_200_OK)
+            # todo. this is ugly. should pass title_pk AND (rating_pk OR insert_as_new only)
+            message = create_or_update_rating(title, request.user, new_rating, insert_as_new)
+            return Response({'message': message}, status=status.HTTP_200_OK)
 
 
 class TitleDeleteRatingView(APIView):
