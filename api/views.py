@@ -27,19 +27,12 @@ class SetPagination(PageNumberPagination):
 class RatingsViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = Rating.objects.all()
     serializer_class = RatingListSerializer
-    pagination_class = SetPagination  # by default, only ViewSets can use per_page parameter
-
+    pagination_class = SetPagination
 
     def get_queryset(self):
         if self.request.GET.get('u'):
             self.queryset = Rating.objects.filter(user__username=self.request.GET['u'])
         return self.queryset
-
-
-# class TitleListView(ListAPIView):
-#     queryset = Title.objects.all()
-#     serializer_class = TitleSerializer
-#     pagination_class = SetPagination
 
 
 class TitleDetailView(RetrieveAPIView):
@@ -108,7 +101,6 @@ class TitleAddRatingView(APIView):
         except Title.DoesNotExist:
             return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            # todo. this is ugly. should pass title_pk AND (rating_pk OR insert_as_new only)
             message = create_or_update_rating(title, request.user, new_rating, insert_as_new)
             return Response({'message': message}, status=status.HTTP_200_OK)
 
