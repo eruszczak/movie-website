@@ -18,35 +18,37 @@
             </div>
         </div>
         <br>
-        {% if user_watchlist %}
-            <p class="lead text-center">
-                {% if is_owner %}
-                    <a href="{{ user.userprofile.get_absolute_url }}">You</a> want
-                {% else %}
-                    <a href="{{ user.userprofile.get_absolute_url }}">{{ username }}</a> wants
-                {% endif %}
-                to see again {{ objs.paginator.count }} title{{ objs.paginator.count|pluralize }}.</p>
-        {% elif user_watchlist_archived %}
-            <p class="lead text-center">
-                <a href="{{ user.userprofile.get_absolute_url }}">
-                    {% if is_owner %}Your{% else %}{{ user.username }}'s{% endif %}</a>
-                history watchlist
-            </p>
-            <div class="text-center">
-                <p><em>These titles were in a watchlist and then they were rated.</em></p>
-                <p><em>You can see how long it took to watch it after adding it to watchlist.</em></p>
-            </div>
-        {% elif user_watchlist_deleted %}
-            <p class="lead text-center">Deleted from <a href="{{ user.userprofile.get_absolute_url }}">
-                    {% if is_owner %}your{% else %}{{ user.username }}'s{% endif %}</a> IMDb watchlist</p>
-            <p class="text-center"><em>These titles come from IMDb's watchlist. They were added here instead of being deleted because they would be added again with another watchlist update anyway. If you want to delete it completely, remove it from IMDb's watchlist first, and it will be deleted from here with another watchlist update.</em></p>
-        {% else %}
-            <p class="lead text-center">
-                This list is empty.
-                You need to go back{% if is_owner %}, <a href="{{ user.userprofile.get_absolute_url }}">{{ user.username }}.</a>{% else %}.{% endif %}
-            </p>
-        {% endif %}
-
+{#        {% if user_watchlist %}#}
+{#            <p class="lead text-center">#}
+{#                {% if is_owner %}#}
+{#                    <a href="{{ user.userprofile.get_absolute_url }}">You</a> want#}
+{#                {% else %}#}
+{#                    <a href="{{ user.userprofile.get_absolute_url }}">{{ username }}</a> wants#}
+{#                {% endif %}#}
+{#                to see again {{ objs.paginator.count }} title{{ objs.paginator.count|pluralize }}.</p>#}
+{#        {% elif user_watchlist_archived %}#}
+{#            <p class="lead text-center">#}
+{#                <a href="{{ user.userprofile.get_absolute_url }}">#}
+{#                    {% if is_owner %}Your{% else %}{{ user.username }}'s{% endif %}</a>#}
+{#                history watchlist#}
+{#            </p>#}
+{#            <div class="text-center">#}
+{#                <p><em>These titles were in a watchlist and then they were rated.</em></p>#}
+{#                <p><em>You can see how long it took to watch it after adding it to watchlist.</em></p>#}
+{#            </div>#}
+{#        {% elif user_watchlist_deleted %}#}
+{#            <p class="lead text-center">Deleted from <a href="{{ user.userprofile.get_absolute_url }}">#}
+{#                    {% if is_owner %}your{% else %}{{ user.username }}'s{% endif %}</a> IMDb watchlist</p>#}
+{#            <p class="text-center"><em>These titles come from IMDb's watchlist. They were added here instead of being deleted because they would be added again with another watchlist update anyway. If you want to delete it completely, remove it from IMDb's watchlist first, and it will be deleted from here with another watchlist update.</em></p>#}
+{#        {% else %}#}
+{#            <p class="lead text-center">#}
+{#                This list is empty.#}
+{#                You need to go back{% if is_owner %}, <a href="{{ user.userprofile.get_absolute_url }}">{{ user.username }}.</a>{% else %}.{% endif %}#}
+{#            </p>#}
+{#        {% endif %}#}
+        <table class="table table-hover table-bordered table-condensed" style="margin-top: 10px">
+            {% include 'movie/titles_in_a_table.html' with title_list=title_list %}
+        </table>
 {##}
 {#    {% if watchlist_list %}#}
 {#        <table class="table table-hover table-bordered table-condensed">#}
