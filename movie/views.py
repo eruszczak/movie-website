@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import Count, When, Case, IntegerField, Subquery
+from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, RedirectView, ListView, UpdateView
@@ -10,7 +11,7 @@ from django.db.models import OuterRef
 
 from common.sql_queries import curr_title_rating_of_followed
 from movie.forms import TitleSearchForm, RateUpdateForm
-from movie.functions import toggle_title_in_watchlist, recommend_title, create_or_update_rating
+from movie.functions import toggle_title_in_watchlist, recommend_title
 from movie.shared import SearchViewMixin
 from users.models import UserFollow
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite
@@ -88,6 +89,15 @@ class TitleDetailView(DetailView):
     model = Title
     object = None
 
+    def get_object(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+
+        try:
+            return queryset.get(const=self.kwargs['const'])
+        except self.model.DoesNotExist:
+            raise Http404
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
@@ -114,8 +124,7 @@ class TitleDetailView(DetailView):
                 actors_and_other_titles.append((actor, titles))
 
         context.update({
-            'actors_and_other_titles': actors_and_other_titles
-            # why sorted(actors_and_other_titles, key=lambda x: len(x[1]))
+            'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
         })
         return context
 
@@ -124,7 +133,6 @@ class TitleDetailView(DetailView):
         # self.update_title()
         self.object = self.get_object()
         self.recommend_title_to_other_users()
-        self.create_or_update_rating()
         self.delete_rating()
         # todo: use if (allow only one action per one post) and call messages only once
         return redirect(self.object)
@@ -143,11 +151,6 @@ class TitleDetailView(DetailView):
             message = recommend_title(self.object, self.request.user, selected_users)
             if message:
                 messages.info(self.request, message, extra_tags='safe')
-
-    def create_or_update_rating(self):
-        new_rating, insert_as_new = self.request.POST.get('rating'), self.request.POST.get('insert_as_new')
-        if new_rating:
-            create_or_update_rating(self.object, self.request.user, new_rating, insert_as_new)
 
     def delete_rating(self):
         delete_rating = self.request.POST.get('delete_rating')
