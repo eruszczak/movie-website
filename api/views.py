@@ -1,6 +1,7 @@
 from django.db.models import Count
 from django.contrib.auth.models import User
 from django.db.models.functions import ExtractMonth, ExtractYear
+from re import findall
 
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -11,7 +12,7 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 
-from movie.models import Rating, Title
+from movie.models import Rating, Title, Favourite
 from users.models import UserFollow
 from .serializers import RatingListSerializer, TitleSerializer
 from common.sql_queries import rating_distribution
@@ -166,3 +167,22 @@ class UserToggleFavourite(APIView):
                 UserFollow.objects.filter(user_follower=self.request.user, user_followed=user).delete()
             message = 'You {} {}'.format('followed' if add else 'unfollowed', user.username)
             return Response({'message': message}, status=status.HTTP_200_OK)
+
+
+class ReorderFavourite(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            user = User.objects.get(pk=kwargs['pk'])
+        except User.DoesNotExist:
+            return Response({'message': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            user_favourites = Favourite.objects.filter(user=user)
+            new_title_order = request.POST.get('item_order')
+            if new_title_order:
+                new_title_order = findall('\d+', new_title_order)
+                for new_position, title_pk in enumerate(new_title_order, 1):
+                    user_favourites.filter(title__pk=title_pk).update(order=new_position)
+                return Response({'message': 'Changed order'}, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_204_NO_CONTENT)

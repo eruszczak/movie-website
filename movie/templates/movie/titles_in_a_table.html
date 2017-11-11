@@ -1,11 +1,9 @@
 {% load staticfiles humanize %}
 <tbody>
     {% for title in title_list %}
-    <tr {% if sortable %}id="item-{{ title.const }}"{% endif %} class="result result-{% cycle 'odd' 'even' %}">
+    <tr id="item-{{ title.pk }}" class="result result-{% cycle 'odd' 'even' %}">
         <td class="col-md-9 paddingleft">
-            {% with objs.start_index|default:1 as index %}
-                <span class="item-order">{{ forloop.counter0|add:index }}</span>. <span class="order-change"></span>
-            {% endwith %}
+            <span class="item-order">{{ forloop.counter0|add:page_obj.start_index }}</span>. <span class="order-change"></span>
             <img class="img-responsive img-rounded"
              src="{% if title.img_thumbnail %}{{ title.img_thumbnail.url }}{% else %}{% static 'img/holderbigger.png' %}{% endif %}"
              style="width: 35px; float: left; margin-right: 10px; " alt="...">

@@ -270,11 +270,6 @@ class WatchlistListView(ListView):
         return context
 
 
-# new_title_order = request.POST.get('item_order')
-# if new_title_order:
-#     new_title_order = re.findall('tt\d{7}', new_title_order)
-#     for new_position, const in enumerate(new_title_order, 1):
-#         user_favourites.filter(title__const=const).update(order=new_position)
 class FavouriteListView(ListView):
     template_name = 'favourite.html'
     model = Title
