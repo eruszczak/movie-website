@@ -15,3 +15,24 @@ def create_user_folder(sender, instance, **kwargs):
         directory = os.path.join(settings.MEDIA_ROOT, 'user_files', instance.username)
         if not os.path.exists(directory):
             os.makedirs(directory)
+
+
+# @receiver(post_save, sender=User)
+# def clean_user_files(sender, instance, **kwargs):
+#     """when user uploads new avatar or csv, delete previous files because they won't be used anymore"""
+#     picture_changed = instance.picture != instance.__original_picture
+#     csv_changed = instance.csv_ratings != instance.__original_csv
+#     if picture_changed:
+#         instance.delete_previous_file('picture')
+#     if csv_changed:
+#         instance.delete_previous_file('csv')
+
+# def delete_previous_file(self, what_to_delete):
+#     """
+#     if user in his settigns uploads new avatar/ratings.csv or replaces it, previous file is deleted
+#     """
+#     user_folder = os.path.join(MEDIA_ROOT, 'user_files', self.username)
+#     for file in os.listdir(user_folder):
+#         if self.get_extension_condition(file, what_to_delete):
+#             path = os.path.join(user_folder, file)
+#             os.remove(path)
