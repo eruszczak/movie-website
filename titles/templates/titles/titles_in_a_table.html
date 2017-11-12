@@ -1,4 +1,4 @@
-{% load staticfiles humanize %}
+{% load static humanize %}
 <tbody>
     {% for title in title_list %}
     <tr id="item-{{ title.pk }}" class="result result-{% cycle 'odd' 'even' %}">
