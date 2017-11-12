@@ -1,11 +1,15 @@
-from .settings_secret import *
+import os
+from decouple import config, Csv
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BACKUP_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'backup')
-LOGS_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'logs', 'logs.txt')
+SECRET_KEY = config('SECRET_KEY')
 
-DJANGO_APPS = [
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_DIR = os.path.dirname(BASE_DIR)
+BACKUP_ROOT = os.path.join(PROJECT_DIR, 'backup')
+LOGS_ROOT = os.path.join(PROJECT_DIR, 'logs', 'logs.txt')
+
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -13,22 +17,16 @@ DJANGO_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-]
 
-EXTERNAL_APPS = [
     'rest_framework',
     'corsheaders',
-    'compressor'
-]
+    'compressor',
 
-LOCAL_APPS = [
     # 'shared.apps.SharedConfig',
     'accounts.apps.UsersConfig',
     'titles.apps.TitleConfig',
     'recommend.apps.RecommendConfig',
 ]
-
-INSTALLED_APPS = DJANGO_APPS + EXTERNAL_APPS + LOCAL_APPS + APPS_DEBUG
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -41,8 +39,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-MIDDLEWARE += MIDDLEWARE_DEBUG
 
 
 TEMPLATES = [
@@ -64,21 +60,6 @@ TEMPLATES = [
 ROOT_URLCONF = 'mysite.urls'
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
@@ -87,16 +68,16 @@ USE_TZ = True
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    # other finders..
+
     'compressor.finders.CompressorFinder',
 )
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -107,24 +88,16 @@ REST_FRAMEWORK = {
 LOGIN_URL = '/accounts/login/'
 AUTH_USER_MODEL = 'accounts.User'
 
+ADMINS = (config('ADMIN1', cast=Csv(post_process=tuple)),)
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', default='')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+DEFAULT_FROM_EMAIL = '[]'
+EMAIL_SUBJECT_PREFIX = '[] '
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'INFO',
-#             'class': 'logging.FileHandler',
-#             'filename': LOGS_ROOT,
-#             # 'maxBytes': 10000
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file'],
-#             'level': 'INFO',
-#             'propagate': True,
-#         },
-#     },
-# }
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+CORS_ORIGIN_WHITELIST = config('CORS_ORIGIN_WHITELIST', cast=Csv())
 
