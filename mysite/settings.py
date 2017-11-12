@@ -24,7 +24,7 @@ EXTERNAL_APPS = [
 LOCAL_APPS = [
     # 'shared.apps.SharedConfig',
     'users.apps.UsersConfig',
-    'title.apps.TitleConfig',
+    'titles.apps.TitleConfig',
     'recommend.apps.RecommendConfig',
 ]
 

@@ -4,7 +4,7 @@ import csv
 from django.core.management.base import BaseCommand
 
 from mysite.settings import BACKUP_ROOT
-from title.models import Type, Title
+from titles.models import Type, Title
 from common.prepareDB_utils import create_m2m_relationships
 
 

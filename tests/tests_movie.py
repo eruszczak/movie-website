@@ -6,9 +6,9 @@ from django.db.utils import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
-from title.models import Title, Rating, Watchlist
+from titles.models import Title, Rating, Watchlist
 
-from title.functions import create_or_update_rating
+from titles.functions import create_or_update_rating
 
 User = get_user_model()
 

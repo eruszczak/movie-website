@@ -1,6 +1,6 @@
 from django import forms
 from common.prepareDB import get_title_or_create
-from title.models import Rating
+from titles.models import Rating
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from datetime import date

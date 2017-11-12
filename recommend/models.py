@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from title.models import Title, Rating
+from titles.models import Title, Rating
 from django.utils import timezone
 
 
