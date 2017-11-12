@@ -15,20 +15,6 @@ from accounts.forms import RegisterForm
 
 User = get_user_model()
 
-# todo this sucks
-class MessageMixin:
-    # can check hasattr(self, 'request') and dialog. in __init__?
-    def set_success_message(self, attach_username=True, username=None):
-        self.username = username or self.request.user.username
-        msg = self.get_success_message_with_username() if attach_username else self.get_success_message()
-        messages.warning(self.request, msg)
-
-    def get_success_message_with_username(self):
-        return self.dialogs['success'].format(self.username)
-
-    def get_success_message(self):
-        return self.dialogs['success']
-
 
 class LoginView(BaseLoginView):
     template_name = 'accounts/login.html'
@@ -39,24 +25,12 @@ class LoginView(BaseLoginView):
         return self.request.user.get_absolute_url()
 
 
-class LogoutView(MessageMixin, BaseLogoutView):
-
-    dialogs = {
-        'success': 'You have been logged out, {}.'
-    }
-
-    @method_decorator(never_cache)
-    def dispatch(self, request, *args, **kwargs):
-        next_page = self.get_next_page()  # this must come first because I want to know username
-        logout(request)
-        if next_page:
-            # Redirect to this page until the session has been cleared.
-            return HttpResponseRedirect(next_page)
-        return super().dispatch(request, *args, **kwargs)
+class LogoutView(BaseLogoutView):
+    next_page = 'home'
 
     def get_next_page(self):
-        self.set_success_message()
-        return reverse('home')
+        messages.warning(self.request, 'You have been logged out.')
+        return super().get_next_page()
 
 
 class RegisterView(CreateView):
@@ -73,16 +47,16 @@ class RegisterView(CreateView):
         return valid
 
 
-class PasswordChangeView(MessageMixin, BasePasswordChangeView):
-    template_name = 'accounts/password_change.html'
-    extra_context = {
-        'page_title': 'Change your password'
-    }
-
-    dialogs = {
-        'success': 'Password changed.'
-    }
-
-    def get_success_url(self):
-        self.set_success_message(attach_username=False)
-        return self.request.user.get_absolute_url()
+# class PasswordChangeView(BasePasswordChangeView):
+#     template_name = 'accounts/password_change.html'
+#     extra_context = {
+#         'page_title': 'Change your password'
+#     }
+#
+#     dialogs = {
+#         'success': 'Password changed.'
+#     }
+#
+#     def get_success_url(self):
+#         self.set_success_message(attach_username=False)
+#         return self.request.user.get_absolute_url()
