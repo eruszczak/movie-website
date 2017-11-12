@@ -1,7 +1,7 @@
 from rest_framework import reverse
 from rest_framework import serializers
 
-from title.models import Rating, Title
+from titles.models import Rating, Title
 
 
 class TitleSerializer(serializers.ModelSerializer):

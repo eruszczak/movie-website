@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
                 ('added_date', models.DateTimeField(default=django.utils.timezone.now)),
                 ('imdb', models.BooleanField(default=False)),
                 ('deleted', models.BooleanField(default=False)),
-                ('title', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='title.Title')),
+                ('titles', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='title.Title')),
             ],
             options={
                 'ordering': ('-added_date',),

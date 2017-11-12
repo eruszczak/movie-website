@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from mysite.settings import BACKUP_ROOT
 import os
 from datetime import datetime
-from title.models import Rating
+from titles.models import Rating
 import csv
 from users.functions import create_csv_with_user_ratings
 

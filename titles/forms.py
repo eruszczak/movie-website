@@ -3,7 +3,7 @@ import re
 from django import forms
 from django.db.models import Q, Count
 
-from title.models import Title, Genre, Rating
+from titles.models import Title, Genre, Rating
 from shared.forms import SearchFormMixin
 
 

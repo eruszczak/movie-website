@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class TitleConfig(AppConfig):
-    name = 'title'
+    name = 'titles'
 
     # def ready(self):
     #     from . import signals
