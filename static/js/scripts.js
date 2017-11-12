@@ -65,9 +65,11 @@ $(document).ready(function() {
         var name = $(this).attr('name');
         var data = {};
         data[name] = true;
-        ajax_request(data, {url: $(this).data('url')});
-        $(this).siblings().css('display', '');
-        $(this).hide();
+        var that = this;
+        ajax_request(data, {url: $(this).data('url')}, function() {
+            $(that).siblings().css('display', '');
+            $(that).hide();
+        });
     });
 
     $('.raty-stars').raty({
@@ -181,9 +183,7 @@ $(document).ready(function() {
     });
 });
 
-// todo place it in template
-
-function ajax_request(data, options) {
+function ajax_request(data, options, cb) {
     data.csrfmiddlewaretoken = csrftoken;
     var url = options.url || [location.protocol, '//', location.host, location.pathname].join('');
     $.ajax({
@@ -191,6 +191,7 @@ function ajax_request(data, options) {
         type: 'POST',
         url: url,
         success: function(response) {
+            cb && cb();
             showToast(response.message);
             if (options.refresh) {
                 window.location.reload(false);
