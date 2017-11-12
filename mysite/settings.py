@@ -23,7 +23,7 @@ EXTERNAL_APPS = [
 
 LOCAL_APPS = [
     # 'shared.apps.SharedConfig',
-    'users.apps.UsersConfig',
+    'accounts.apps.UsersConfig',
     'titles.apps.TitleConfig',
     'recommend.apps.RecommendConfig',
 ]
@@ -104,8 +104,8 @@ REST_FRAMEWORK = {
 }
 
 # SESSION_COOKIE_SECURE = True
-LOGIN_URL = '/users/login/'
-AUTH_USER_MODEL = 'users.User'
+LOGIN_URL = '/accounts/login/'
+AUTH_USER_MODEL = 'accounts.User'
 
 
 # LOGGING = {

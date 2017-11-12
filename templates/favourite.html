@@ -12,7 +12,7 @@
                 {% endif %}
                 <br>
                 <table id="sortable" class="table table-hover table-bordered table-condensed" {% if is_owner %}data-url="{% url 'user-fav-reorder' user.pk %}"{% endif %}>
-                    {% include 'movie/titles_in_a_table.html' with title_list=title_list sortable=True %}
+                    {% include 'titles/titles_in_a_table.html' with title_list=title_list sortable=True %}
                 </table>
             </div>
         </div>

@@ -13,7 +13,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 
 from titles.models import Rating, Title, Favourite
-from users.models import UserFollow
+from accounts.models import UserFollow
 from .serializers import RatingListSerializer, TitleSerializer
 from common.sql_queries import rating_distribution
 from titles.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist

@@ -11,7 +11,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.generic import CreateView
 
-from users.forms import RegisterForm
+from accounts.forms import RegisterForm
 
 User = get_user_model()
 
@@ -31,7 +31,7 @@ class MessageMixin:
 
 
 class LoginView(MessageMixin, BaseLoginView):
-    template_name = 'users/login.html'
+    template_name = 'accounts/login.html'
     extra_context = {
         'page_title': 'Login'
     }
@@ -66,7 +66,7 @@ class LogoutView(MessageMixin, BaseLogoutView):
 
 
 class PasswordChangeView(MessageMixin, BasePasswordChangeView):
-    template_name = 'users/password_change.html'
+    template_name = 'accounts/password_change.html'
     extra_context = {
         'page_title': 'Change your password'
     }
@@ -81,7 +81,7 @@ class PasswordChangeView(MessageMixin, BasePasswordChangeView):
 
 
 class RegisterView(MessageMixin, CreateView):
-    template_name = 'users/register.html'
+    template_name = 'accounts/register.html'
     form_class = RegisterForm
 
     dialogs = {

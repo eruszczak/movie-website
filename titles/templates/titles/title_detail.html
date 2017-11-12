@@ -207,7 +207,7 @@
                                     <div class="row">
                                         <h3 class="page-header text-center"><a href="{{ actor.get_absolute_url }}">{{ actor.name }}</a></h3>
                                         {% for entry in titles %}
-                                            {% include 'movie/titles_in_a_row.html' with title=entry rate=entry.user_rate is_owner=True %}
+                                            {% include 'titles/titles_in_a_row.html' with title=entry rate=entry.user_rate is_owner=True %}
                                         {% endfor %}
                                     </div>
                                 {% endfor %}
