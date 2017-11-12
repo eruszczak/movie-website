@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 ('picture', models.ImageField(blank=True, null=True, upload_to=accounts.models.update_filename)),
                 ('imdb_id', models.CharField(blank=True, max_length=15, null=True)),
                 ('tagline', models.CharField(blank=True, max_length=100, null=True)),
-                ('csv_ratings', models.FileField(blank=True, null=True, upload_to=accounts.models.update_filename, validators=[accounts.models.validate_file_extension])),
+                ('csv_ratings', models.FileField(blank=True, null=True, upload_to=accounts.models.update_filename, validators=[accounts.models.validate_file_ext])),
                 ('last_updated_csv_ratings', models.DateTimeField(blank=True, null=True)),
                 ('last_updated_rss_ratings', models.DateTimeField(blank=True, null=True)),
                 ('last_updated_rss_watchlist', models.DateTimeField(blank=True, null=True)),

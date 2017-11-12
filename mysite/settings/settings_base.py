@@ -23,8 +23,8 @@ INSTALLED_APPS = [
     'compressor',
 
     # 'shared.apps.SharedConfig',
-    'accounts.apps.UsersConfig',
-    'titles.apps.TitleConfig',
+    'accounts.apps.AccountsConfig',
+    'titles.apps.TitlesConfig',
     'recommend.apps.RecommendConfig',
 ]
 
