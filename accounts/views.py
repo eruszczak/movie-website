@@ -81,48 +81,18 @@ def import_ratings(request):
     return redirect(user)
 
 
-# def user_edit(request, username):
-#     profile =
-#     if request.user != profile.user:
-#         messages.info(request, 'You can edit only your profile')
-#         return redirect(profile)
-#
-#     form = EditProfileForm(instance=profile)
-#     if request.method == 'POST':
-#         form = EditProfileForm(request.POST, request.FILES, instance=profile)
-#         if form.is_valid():
-#             form.save()
-#             messages.warning(request, 'Profile updated')
-#             return redirect(profile)
-#         else:
-#             t = '\n'.join([message[0] for field, message in form.errors.items()])
-#             messages.warning(request, t)
-#         return redirect(profile.edit_url())
-#
-#     profile.csv_ratings = str(profile.csv_ratings).split('/')[-1]
-#     context = {
-#         'form': form,
-#         'title': 'profile edit, ' + username,
-#         'profile': profile,
-#         'profile_ratings_name': str(profile.csv_ratings).split('/')[-1]
-#     }
-#     return render(request, 'accounts/profile_edit.html', context)
-
-
 class UserUpdateView(UpdateView):
     model = User
     form_class = EditProfileForm
     template_name = 'accounts/user_edit.html'
 
+    # only owner can edit
     def get_object(self, queryset=None):
-        return self.model.objects.get(user=self.request.user)
+        return self.request.user
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'page_title': 'Update your profile'
-        })
-        return context
+    def form_valid(self, form):
+        messages.success(self.request, 'Profile updated')
+        return super().form_valid(form)
 
 
 class UserListView(ListView):
