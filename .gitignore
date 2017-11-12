@@ -1,20 +1,11 @@
 *.pyc
 __pycache__
-.idea
-env/
 
-todo
 *.sqlite3
 *.zip
-dump.json
-ratings.csv
-mysite/static/
-mysite/settings/info.py
-/mysite/settings/__init__.py
 common/playingaround.py
 
-posters/
 bower_components/
-backup/
-mysite/settings_secret.py
-/node_modules
+node_modules/
+
+.env
