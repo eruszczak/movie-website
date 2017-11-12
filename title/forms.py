@@ -4,7 +4,7 @@ from django import forms
 from django.db.models import Q, Count
 
 from title.models import Title, Genre, Rating
-from title.shared import SearchFormMixin
+from shared.forms import SearchFormMixin
 
 
 class TitleSearchForm(SearchFormMixin, forms.Form):

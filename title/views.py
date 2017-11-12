@@ -12,7 +12,7 @@ from django.db.models import OuterRef
 from common.sql_queries import curr_title_rating_of_followed
 from title.forms import TitleSearchForm, RateUpdateForm
 from title.functions import toggle_title_in_watchlist, recommend_title
-from title.shared import SearchViewMixin
+from shared.views import SearchViewMixin
 from users.models import UserFollow
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 
