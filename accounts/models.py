@@ -20,7 +20,7 @@ def update_filename(instance, file_name):
     return os.path.join(path, new_file_name)
 
 
-def validate_file_extension(value):
+def validate_file_ext(value):
     if not value.name.endswith('.csv'):
         raise ValidationError('Only csv files are supported')
 
@@ -29,7 +29,7 @@ class User(AbstractUser):
     picture = models.ImageField(upload_to=update_filename, blank=True, null=True)
     imdb_id = models.CharField(blank=True, null=True, max_length=15)
     tagline = models.CharField(blank=True, null=True, max_length=100)
-    csv_ratings = models.FileField(upload_to=update_filename, validators=[validate_file_extension], blank=True, null=True)
+    csv_ratings = models.FileField(upload_to=update_filename, validators=[validate_file_ext], blank=True, null=True)
 
     last_updated_csv_ratings = models.DateTimeField(null=True, blank=True)
     last_updated_rss_ratings = models.DateTimeField(null=True, blank=True)
@@ -40,7 +40,6 @@ class User(AbstractUser):
     __original_csv = None
 
     def save(self, *args, **kwargs):
-        self.create_user_folder()
         self.clean_user_files()
 
         super().save(*args, **kwargs)
@@ -144,14 +143,6 @@ class User(AbstractUser):
             if self.get_extension_condition(file, what_to_delete):
                 path = os.path.join(user_folder, file)
                 os.remove(path)
-
-    def create_user_folder(self):
-        """
-        if user doesn't have a folder for his files (avatar and csv) - create it
-        """
-        directory = os.path.join(MEDIA_ROOT, 'user_files', self.user.username)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
 
     def clean_user_files(self):
         """

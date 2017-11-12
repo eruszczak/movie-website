@@ -65,6 +65,20 @@ class LogoutView(MessageMixin, BaseLogoutView):
         return reverse('home')
 
 
+class RegisterView(CreateView):
+    template_name = 'accounts/register.html'
+    form_class = RegisterForm
+
+    def get_success_url(self):
+        messages.warning(self.request, 'Account created, {}. You are now logged in.'.format(self.object.username))
+        return self.object.get_absolute_url()
+
+    def form_valid(self, form):
+        valid = super().form_valid(form)
+        login(self.request, self.object)
+        return valid
+
+
 class PasswordChangeView(MessageMixin, BasePasswordChangeView):
     template_name = 'accounts/password_change.html'
     extra_context = {
@@ -78,32 +92,3 @@ class PasswordChangeView(MessageMixin, BasePasswordChangeView):
     def get_success_url(self):
         self.set_success_message(attach_username=False)
         return self.request.user.get_absolute_url()
-
-
-class RegisterView(MessageMixin, CreateView):
-    template_name = 'accounts/register.html'
-    form_class = RegisterForm
-
-    dialogs = {
-        'success': 'Account created, {}. You are now logged in.'
-    }
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-        context.update({
-            'page_title': 'Register'
-        })
-        return context
-
-    def get_success_url(self):
-        """
-        when form_valid() calls form.save() new User is created and signal is emitted and receiver creates its Profile
-        so below I can query for that Profile and call its get_absolute_url so user is redirected to his profile
-        """
-        self.set_success_message(username=self.object.username)
-        return User.objects.get(user=self.object).get_absolute_url()
-
-    def form_valid(self, form):
-        valid = super().form_valid(form)
-        login(self.request, self.object)
-        return valid

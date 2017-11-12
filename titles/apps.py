@@ -1,8 +1,8 @@
 from django.apps import AppConfig
 
 
-class TitleConfig(AppConfig):
+class TitlesConfig(AppConfig):
     name = 'titles'
 
-    # def ready(self):
-    #     from . import signals
+    def ready(self):
+        from . import signals

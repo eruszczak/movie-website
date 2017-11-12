@@ -28,7 +28,7 @@ def update_user_watchlist(user):
     """
     updates user's watchlist rss.imdb.com/user/<userid>/watchlist
     """
-    itemlist = get_rss(user.userprofile.imdb_id, 'watchlist')
+    itemlist = get_rss(user.imdb_id, 'watchlist')
     if itemlist:
         updated_titles = []
         current_watchlist = []
@@ -60,7 +60,7 @@ def update_user_ratings_csv(user):
     """
     updates user's ratings using ratings.csv exported from IMDb's list
     """
-    path = os.path.join(settings.MEDIA_ROOT, str(user.userprofile.csv_ratings))
+    path = os.path.join(settings.MEDIA_ROOT, str(user.csv_ratings))
     if os.path.isfile(path):
         updated_titles = []
         count = 0
@@ -89,7 +89,7 @@ def update_user_ratings(user):
     """
     updates user's ratings using rss.imdb.com/user/<userid>/ratings
     """
-    itemlist = get_rss(user.userprofile.imdb_id, 'ratings')
+    itemlist = get_rss(user.imdb_id, 'ratings')
     if itemlist:
         updated_titles = []
         count = 0
