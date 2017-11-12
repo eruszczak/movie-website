@@ -36,16 +36,13 @@ class User(AbstractUser):
     last_updated_rss_watchlist = models.DateTimeField(null=True, blank=True)
     last_updated_profile = models.DateTimeField(auto_now=True, null=True, blank=True)
 
-    __original_picture = None
-    __original_csv = None
-
-    def save(self, *args, **kwargs):
-        self.clean_user_files()
-
-        super().save(*args, **kwargs)
-
-        self.__original_picture = self.picture
-        self.__original_csv = self.csv_ratings
+    # __original_picture = None
+    # __original_csv = None
+    #
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
+    #     self.__original_picture = self.picture
+    #     self.__original_csv = self.csv_ratings
 
     def __str__(self):
         return self.username
@@ -133,27 +130,6 @@ class User(AbstractUser):
             # time is empty if user never did update
             return True
         return (timezone.now() - time).seconds > three_minutes
-
-    def delete_previous_file(self, what_to_delete):
-        """
-        if user in his settigns uploads new avatar/ratings.csv or replaces it, previous file is deleted
-        """
-        user_folder = os.path.join(MEDIA_ROOT, 'user_files', self.username)
-        for file in os.listdir(user_folder):
-            if self.get_extension_condition(file, what_to_delete):
-                path = os.path.join(user_folder, file)
-                os.remove(path)
-
-    def clean_user_files(self):
-        """
-        when user uploads new avatar or csv, delete previous files because they won't be used anymore
-        """
-        picture_changed = self.picture != self.__original_picture
-        csv_changed = self.csv_ratings != self.__original_csv
-        if picture_changed:
-            self.delete_previous_file('picture')
-        if csv_changed:
-            self.delete_previous_file('csv')
 
     @staticmethod
     def get_extension_condition(file, what_to_delete):

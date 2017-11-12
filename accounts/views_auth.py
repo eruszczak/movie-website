@@ -30,18 +30,12 @@ class MessageMixin:
         return self.dialogs['success']
 
 
-class LoginView(MessageMixin, BaseLoginView):
+class LoginView(BaseLoginView):
     template_name = 'accounts/login.html'
-    extra_context = {
-        'page_title': 'Login'
-    }
-
-    dialogs = {
-        'success': 'Welcome, {}.'
-    }
+    # redirect_authenticated_user = False
 
     def get_success_url(self):
-        self.set_success_message()
+        messages.warning(self.request, 'Welcome, {}.'.format(self.request.user.username))
         return self.request.user.get_absolute_url()
 
 
