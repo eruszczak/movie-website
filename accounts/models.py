@@ -14,7 +14,7 @@ from common.sql_queries import avg_of_user_current_ratings
 
 
 def update_filename(instance, file_name):
-    path = os.path.join('user_files', instance.user.username)
+    path = os.path.join('user_files', instance.username)
     extension = '.' + file_name.split('.')[1]
     new_file_name = datetime.now().strftime('%Y-%m-%d %H-%M-%S') + extension
     return os.path.join(path, new_file_name)
