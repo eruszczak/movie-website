@@ -8,7 +8,7 @@ from django.forms import ValidationError
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 
-from movie.models import Title
+from title.models import Title
 from common.sql_queries import avg_of_user_current_ratings
 from mysite.settings import MEDIA_ROOT
 

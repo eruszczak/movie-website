@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-import movie.views as movie_views
+import title.views as movie_views
 import recommend.views as recommend_views
 from . import views, views_auth
 

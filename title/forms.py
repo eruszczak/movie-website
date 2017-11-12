@@ -3,8 +3,8 @@ import re
 from django import forms
 from django.db.models import Q, Count
 
-from movie.models import Title, Genre, Rating
-from movie.shared import SearchFormMixin
+from title.models import Title, Genre, Rating
+from title.shared import SearchFormMixin
 
 
 class TitleSearchForm(SearchFormMixin, forms.Form):
@@ -31,7 +31,7 @@ class TitleSearchForm(SearchFormMixin, forms.Form):
 
     @staticmethod
     def search_type(value):
-        if value in ('movie', 'series'):
+        if value in ('title', 'series'):
             # search_result.append('Type: ' + value)
             return Q(type__name=value)
 

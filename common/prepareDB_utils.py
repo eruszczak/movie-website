@@ -10,7 +10,7 @@ import pytz
 import requests
 from PIL import Image
 
-from movie.models import Type, Genre, Actor, Director, Title
+from title.models import Type, Genre, Actor, Director, Title
 from mysite.settings import MEDIA_ROOT
 
 

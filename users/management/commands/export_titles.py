@@ -5,7 +5,7 @@ from datetime import datetime
 from django.core.management.base import BaseCommand
 
 from mysite.settings import BACKUP_ROOT
-from movie.models import Title
+from title.models import Title
 
 
 class Command(BaseCommand):

@@ -12,11 +12,11 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 
-from movie.models import Rating, Title, Favourite
+from title.models import Rating, Title, Favourite
 from users.models import UserFollow
 from .serializers import RatingListSerializer, TitleSerializer
 from common.sql_queries import rating_distribution
-from movie.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist
+from title.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist
 
 User = get_user_model()
 
