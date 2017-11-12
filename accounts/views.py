@@ -3,7 +3,7 @@ import csv
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-from django.db.models import Count
+from django.db.models import Count, Case, When, BooleanField, IntegerField, OuterRef, Subquery
 from django.http import HttpResponse
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
@@ -109,7 +109,6 @@ def import_ratings(request):
 #     return render(request, 'accounts/profile_edit.html', context)
 
 
-# do i need object permissions (is_owner) if getting object by self.request? or just LoginRequired
 class UserUpdateView(UpdateView):
     model = User
     form_class = EditProfileForm
@@ -128,21 +127,47 @@ class UserUpdateView(UpdateView):
 
 class UserListView(ListView):
     template_name = 'accounts/user_list.html'
-    paginate_by = 10
+    paginate_by = 20
     searched_title = None
+    model = User
 
     def get_queryset(self):
-        if self.request.GET.get('s'):
-            self.searched_title = get_object_or_404(Title, slug=self.request.GET['s'])
-            queryset = self.get_users_who_saw_a_title()
+        queryset = super().get_queryset()
+        if self.request.GET.get('const'):
+            self.searched_title = get_object_or_404(Title, const=self.request.GET['const'])
+            newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+            queryset = queryset.filter(rating__title=self.searched_title).annotate(
+                user_rate=Subquery(newest.values('rate')[:1]))
+            # queryset = self.get_users_who_saw_a_title()
         else:
             queryset = User.objects.annotate(num=Count('rating')).order_by('-num', '-username')
 
         if self.request.user.is_authenticated:
+            q = queryset.annotate(
+                already_follows=Count(
+                    Case(When(userfollow__follower=self.request.user, then=1), output_field=IntegerField())
+                ),
+                # test=Count('userfollow__follower')
+            )
+            print('request user', self.request.user.pk)
+            print(['{} follows {}'.format(x.follower.pk, x.followed.pk) for x in UserFollow.objects.all()])
+            print()
+            print(User.objects.filter(userfollow__follower=self.request.user))
+            # request: test, returns test  todo: should return test2 because test follows test2
+            # request: test2, return test2  todo: again wrong!
+
+            print(User.objects.filter(userfollow__followed=self.request.user))
+            # request: test, returns test2 because test2 is followed by test
+            # request: test2, returns test because test is followed by test
+
+            # print(User.objects.filter(userfollow__followed=User.objects.get(username='test2')))  #
+            print()
+            for x in q:
+                print(x, x.already_follows)
             queryset = queryset.extra(select={
-                'already_follows': """SELECT 1 FROM users_userfollow as followage
-                    WHERE followage.user_follower_id = %s and followage.user_followed_id = auth_user.id""",
-            }, select_params=[self.request.user.id])
+                'already_follows': """SELECT 1 FROM accounts_userfollow as followage
+                    WHERE followage.follower_id = %s and followage.followed_id = accounts_user.id""",
+            }, select_params=[self.request.user.pk])
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -156,12 +181,12 @@ class UserListView(ListView):
             })
         return context
 
-    def get_users_who_saw_a_title(self):
-        return User.objects.filter(rating__title=self.searched_title).distinct().extra(select={
-            'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
-                WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s
-                ORDER BY rating.rate_date DESC LIMIT 1"""
-        }, select_params=[self.searched_title.id]).order_by('-current_rating', '-username')
+    # def get_users_who_saw_a_title(self):
+    #     return User.objects.filter(rating__title=self.searched_title).distinct().extra(select={
+    #         'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
+    #             WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s
+    #             ORDER BY rating.rate_date DESC LIMIT 1"""
+    #     }, select_params=[self.searched_title.id]).order_by('-current_rating', '-username')
 
 
 # todo this must be UpdateView
