@@ -3,13 +3,10 @@ decorator==4.0.10
 Django==1.11.7
 django-appconf==1.0.2
 django-compressor==2.1.1
-django-cors-headers==1.1.0
-django-crispy-forms==1.6.0
+django-cors-headers==2.1.0
 django-debug-toolbar==1.6
 django-filter==0.14.0
-djangorestframework==3.4.4
-geocoder==1.17.4
-geopy==1.11.0
+djangorestframework==3.7.3
 gunicorn==19.6.0
 html5lib==0.9999999
 Markdown==2.6.6

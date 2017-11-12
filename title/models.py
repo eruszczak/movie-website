@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
-from movie.shared import validate_rate
+from title.shared import validate_rate
 from common.sql_queries import avg_of_title_current_ratings
 from .managers import TitleQuerySet
 
@@ -143,7 +143,7 @@ class Rating(models.Model):
             raise ValidationError('Rating from this day already exists')
 
     def save(self, *args, **kwargs):
-        from movie.functions import toggle_title_in_watchlist
+        from title.functions import toggle_title_in_watchlist
         """
         before creating new Rating, check if this title is in user's watchlist, if it is - delete it
         """

@@ -114,7 +114,7 @@
 					<div class="row">
 						<p class="text-center lead">Titles {{ object.username }} liked that you haven't rated</p>
 						{% for title in user_ratings.common_with_req_user.not_rated_by_req_user %}
-							{% include 'includes/../../../movie/templates/movie/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate %}
+							{% include 'includes/../../../title/templates/title/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate %}
 						{% endfor %}
 					</div>
 					See all <a href="{{ object.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
@@ -125,7 +125,7 @@
 				<div class="row">
 					<p class="text-center lead">Titles you rated higher</p>
 					{% for title in user_ratings.common_with_req_user.higher %}
-						{% include 'includes/../../../movie/templates/movie/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}
+						{% include 'includes/../../../title/templates/title/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}
 					{% endfor %}
 				</div>
 				<hr>
@@ -134,7 +134,7 @@
 				<div class="row">
 					<p class="text-center lead">Titles you rated lower</p>
 					{% for title in user_ratings.common_with_req_user.lower %}
-						{% include 'includes/../../../movie/templates/movie/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}
+						{% include 'includes/../../../title/templates/title/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}
 					{% endfor %}
 				</div>
 				<hr>

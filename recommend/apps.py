@@ -1,8 +1,8 @@
 from django.apps import AppConfig
 
 
-class UsersConfig(AppConfig):
-    name = 'users'
+class RecommendConfig(AppConfig):
+    name = 'recommend'
 
     # def ready(self):
     #     from . import signals

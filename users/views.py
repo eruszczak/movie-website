@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, UpdateView, DetailView
 
-from movie.models import Title, Rating
+from title.models import Title, Rating
 from users.models import UserFollow
 from users.forms import EditProfileForm
 from users.functions import (

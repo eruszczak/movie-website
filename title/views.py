@@ -10,9 +10,9 @@ from django.views.generic import DetailView, TemplateView, RedirectView, ListVie
 from django.db.models import OuterRef
 
 from common.sql_queries import curr_title_rating_of_followed
-from movie.forms import TitleSearchForm, RateUpdateForm
-from movie.functions import toggle_title_in_watchlist, recommend_title
-from movie.shared import SearchViewMixin
+from title.forms import TitleSearchForm, RateUpdateForm
+from title.functions import toggle_title_in_watchlist, recommend_title
+from title.shared import SearchViewMixin
 from users.models import UserFollow
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 
@@ -26,7 +26,7 @@ class HomeView(TemplateView):
         context = super().get_context_data(**kwargs)
         context.update({
             'title': 'home',
-            'movie_count': Title.objects.filter(type__name='movie').count(),
+            'movie_count': Title.objects.filter(type__name='title').count(),
             'series_count': Title.objects.filter(type__name='series').count(),
         })
         if self.request.user.is_authenticated:
@@ -34,9 +34,9 @@ class HomeView(TemplateView):
             context.update({
                 'ratings': user_ratings.select_related('title')[:16],
 
-                'last_movie': user_ratings.filter(title__type__name='movie').select_related('title').first(),
+                'last_movie': user_ratings.filter(title__type__name='title').select_related('title').first(),
                 'last_series': user_ratings.filter(title__type__name='series').select_related('title').first(),
-                'last_good_movie': user_ratings.filter(title__type__name='movie', rate__gte=9).select_related(
+                'last_good_movie': user_ratings.filter(title__type__name='title', rate__gte=9).select_related(
                     'title').first(),
                 'movies_my_count': self.request.user.count_movies,
                 'series_my_count': self.request.user.count_series,
@@ -44,14 +44,14 @@ class HomeView(TemplateView):
                 'rated_titles': self.request.user.count_titles,
                 'total_ratings': self.request.user.count_ratings,
 
-                'total_movies': reverse('title-list') + '?t=movie', 'total_series': reverse('title-list') + '?t=series',
-                'search_movies': reverse('title-list') + '?u={}&t=movie'.format(self.request.user.username),
+                'total_movies': reverse('title-list') + '?t=title', 'total_series': reverse('title-list') + '?t=series',
+                'search_movies': reverse('title-list') + '?u={}&t=title'.format(self.request.user.username),
                 'search_series': reverse('title-list') + '?u={}&t=series'.format(self.request.user.username)
             })
         else:
             context.update({
                 'ratings': Title.objects.all().order_by('-votes')[:16],
-                'total_movies': reverse('title-list') + '?t=movie',
+                'total_movies': reverse('title-list') + '?t=title',
                 'total_series': reverse('title-list') + '?t=series',
 
             })
@@ -185,7 +185,7 @@ class GroupByDirectorView(TemplateView):
         context = super().get_context_data(**kwargs)
         context.update({
             'director': Director.objects.filter(
-                title__type__name='movie').annotate(num=Count('title')).order_by('-num')[:50]
+                title__type__name='title').annotate(num=Count('title')).order_by('-num')[:50]
         })
         return context
 
