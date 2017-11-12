@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
-from title.shared import validate_rate
+from title.helpers import validate_rate
 from common.sql_queries import avg_of_title_current_ratings
 from .managers import TitleQuerySet
 
