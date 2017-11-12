@@ -77,7 +77,7 @@
 				{% if user_ratings.last_seen %}
 				<div class="row">
 					{% for entry in user_ratings.last_seen %}
-						{% include 'movie/titles_in_a_row.html' with title=entry.title owner=is_owner rate=entry.rate req_user_rate=entry.req_user_curr_rating %}
+						{% include 'titles/titles_in_a_row.html' with title=entry.title owner=is_owner rate=entry.rate req_user_rate=entry.req_user_curr_rating %}
 					{% endfor %}
 				</div>
 				<hr>

@@ -13,9 +13,9 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, UpdateView, DetailView
 
 from titles.models import Title, Rating
-from users.models import UserFollow
-from users.forms import EditProfileForm
-from users.functions import (
+from accounts.models import UserFollow
+from accounts.forms import EditProfileForm
+from accounts.functions import (
     update_ratings_using_csv,
     update_ratings,
     update_watchlist,
@@ -106,14 +106,14 @@ def import_ratings(request):
 #         'profile': profile,
 #         'profile_ratings_name': str(profile.csv_ratings).split('/')[-1]
 #     }
-#     return render(request, 'users/profile_edit.html', context)
+#     return render(request, 'accounts/profile_edit.html', context)
 
 
 # do i need object permissions (is_owner) if getting object by self.request? or just LoginRequired
 class UserUpdateView(UpdateView):
     model = User
     form_class = EditProfileForm
-    template_name = 'users/user_edit.html'
+    template_name = 'accounts/user_edit.html'
 
     def get_object(self, queryset=None):
         return self.model.objects.get(user=self.request.user)
@@ -127,7 +127,7 @@ class UserUpdateView(UpdateView):
 
 
 class UserListView(ListView):
-    template_name = 'users/user_list.html'
+    template_name = 'accounts/user_list.html'
     paginate_by = 10
     searched_title = None
 
@@ -147,7 +147,7 @@ class UserListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_title'] = 'List of users'
+        context['page_title'] = 'List of accounts'
         if self.searched_title:
             context.update({
                 'searched_title': self.searched_title,
@@ -167,7 +167,7 @@ class UserListView(ListView):
 # todo this must be UpdateView
 class UserDetailView(DetailView):
     model = User
-    template_name = 'users/user_profile.html'
+    template_name = 'accounts/user_profile.html'
     url_lookup_kwarg = 'username'
     titles_in_a_row = 6
     is_owner = False  # checks if a request user is an owner of the profile

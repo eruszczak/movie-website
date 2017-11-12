@@ -13,14 +13,14 @@ from common.sql_queries import curr_title_rating_of_followed
 from titles.forms import TitleSearchForm, RateUpdateForm
 from titles.functions import toggle_title_in_watchlist, recommend_title
 from shared.views import SearchViewMixin
-from users.models import UserFollow
+from accounts.models import UserFollow
 from .models import Genre, Director, Title, Rating, Watchlist, Favourite
 
 User = get_user_model()
 
 
 class HomeView(TemplateView):
-    template_name = 'movie/home.html'
+    template_name = 'titles/home.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -60,7 +60,7 @@ class HomeView(TemplateView):
 
 class TitleListView(SearchViewMixin, ListView):
     search_form_class = TitleSearchForm
-    template_name = 'movie/title_list.html'
+    template_name = 'titles/title_list.html'
     paginate_by = 25
     model = Title
 
@@ -87,7 +87,7 @@ class TitleListView(SearchViewMixin, ListView):
 
 class TitleDetailView(DetailView):
     query_pk_and_slug = False
-    template_name = 'movie/title_detail.html'
+    template_name = 'titles/title_detail.html'
     model = Title
     object = None
 
@@ -163,12 +163,12 @@ class TitleDetailView(DetailView):
 
 class RatingUpdateView(UpdateView):
     model = Rating
-    template_name = 'movie/rating_update.html'
+    template_name = 'titles/rating_update.html'
     form_class = RateUpdateForm
 
 
 class GroupByGenreView(TemplateView):
-    template_name = 'movie/group_by_genre.html'
+    template_name = 'titles/group_by_genre.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -179,7 +179,7 @@ class GroupByGenreView(TemplateView):
 
 
 class GroupByDirectorView(TemplateView):
-    template_name = 'movie/group_by_director.html'
+    template_name = 'titles/group_by_director.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -191,7 +191,7 @@ class GroupByDirectorView(TemplateView):
 
 
 class GroupByYearView(TemplateView):
-    template_name = 'movie/group_by_year.html'
+    template_name = 'titles/group_by_year.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

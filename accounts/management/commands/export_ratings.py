@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from titles.models import Rating
 import csv
-from users.functions import create_csv_with_user_ratings
+from accounts.functions import create_csv_with_user_ratings
 
 User = get_user_model()
 
