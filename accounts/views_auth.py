@@ -1,14 +1,10 @@
 from django.contrib import messages
-from django.contrib.auth import logout, login, get_user_model
+from django.contrib.auth import login, get_user_model
 from django.contrib.auth.views import (
     LoginView as BaseLoginView,
     LogoutView as BaseLogoutView,
-    PasswordChangeView as BasePasswordChangeView
+    # PasswordChangeView as BasePasswordChangeView
 )
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import never_cache
 from django.views.generic import CreateView
 
 from accounts.forms import RegisterForm

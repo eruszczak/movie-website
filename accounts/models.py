@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 
+from django.conf import settings
 from django.db import models
 
 from django.utils import timezone
@@ -10,7 +11,6 @@ from django.core.urlresolvers import reverse
 
 from titles.models import Title
 from common.sql_queries import avg_of_user_current_ratings
-from mysite.settings import MEDIA_ROOT
 
 
 def update_filename(instance, file_name):
@@ -141,11 +141,11 @@ class User(AbstractUser):
 
 
 class UserFollow(models.Model):
-    user_follower = models.ForeignKey(User, on_delete=models.CASCADE)
-    user_followed = models.ForeignKey(User, on_delete=models.CASCADE, related_name='second_user')
+    follower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    followed = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='second_user')
 
     class Meta:
-        unique_together = ('user_follower', 'user_followed')
+        unique_together = ('follower', 'followed')
 
     def __str__(self):
-        return '{} follows {}'.format(self.user_follower.username, self.user_followed.username)
+        return '{} follows {}'.format(self.follower.username, self.followed.username)

@@ -156,9 +156,9 @@ class UserToggleFavourite(APIView):
             return Response({'message': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
         else:
             if add:
-                UserFollow.objects.create(user_follower=self.request.user, user_followed=user)
+                UserFollow.objects.create(follower=self.request.user, followed=user)
             elif remove:
-                UserFollow.objects.filter(user_follower=self.request.user, user_followed=user).delete()
+                UserFollow.objects.filter(follower=self.request.user, followed=user).delete()
             message = 'You {} {}'.format('followed' if add else 'unfollowed', user.username)
             return Response({'message': message}, status=status.HTTP_200_OK)
 

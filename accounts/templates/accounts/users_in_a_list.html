@@ -17,6 +17,7 @@
             <a href="{{ user.get_absolute_url }}">
                 <strong>{{ user.username }}</strong>
             </a>
+        {{ user.already_follows }}
 			{% if request.user.is_authenticated and not request.user == user %}
                 {% include 'includes/actions/follow.html' with user_pk=user.pk condition=user.already_follows %}
 			{% endif %}
@@ -28,15 +29,15 @@
             {% endfor %}
         {% endif %}
 
-        {% with user.avg_of_current_ratings as user_current_ratings %}
-            {% if user_current_ratings.count %}
-                <p>See all <a href="{{ user.ratings_url }}">{{ user_current_ratings.count }} rated titles</a>
-                    (avg: {{ user_current_ratings.avg|floatformat:2 }})
-                </p>
-            {% else %}
-                <p style="font-size:11px"><em>User hasn't rated anything yet.</em></p>
-            {% endif %}
-        {% endwith %}
+{#        {% with user.avg_of_current_ratings as user_current_ratings %}#}
+{#            {% if user_current_ratings.count %}#}
+{#                <p>See all <a href="{{ user.ratings_url }}">{{ user_current_ratings.count }} rated titles</a>#}
+{#                    (avg: {{ user_current_ratings.avg|floatformat:2 }})#}
+{#                </p>#}
+{#            {% else %}#}
+{#                <p style="font-size:11px"><em>User hasn't rated anything yet.</em></p>#}
+{#            {% endif %}#}
+{#        {% endwith %}#}
         <hr class="visible-xs">
         <div>
             <a href="{{ user.watchlist_url }}" class="btn btn-xs btn-default">

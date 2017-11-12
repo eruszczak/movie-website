@@ -39,7 +39,7 @@
                         {% with title.rate as data %}
                             {% if data.count %}
                                 <li class="list-group-item">Avg ratings: {{ data.avg|floatformat:2 }}
-                                    <a href="{% url 'user-list' %}?s={{ title.slug }}">({{ data.count }} user{{ data.count|pluralize }})</a>
+                                    <a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} user{{ data.count|pluralize }})</a>
                                 </li>
                             {% endif %}
                         {% endwith %}
