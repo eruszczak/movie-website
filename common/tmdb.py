@@ -1,66 +1,83 @@
-import os
 import requests
+from decouple import config
 
 
 class TMDB:
-    api_key = os.environ.get('TMDB_API_KEY')
-    base_url = 'https://api.themoviedb.org/3/'
-    base_poster_url = 'http://image.tmdb.org/t/p/w{}/'
+    api_key = config('TMDB_API_KEY')
     urls = {
         'base': 'https://api.themoviedb.org/3/',
-        'base_poster': 'http://image.tmdb.org/t/p/w{}/',
-        'tv': '/tv/{}',
+        'base_poster': 'http://image.tmdb.org/t/p/w{}',
+
         'tv_seasons': '/tv/{}/season/{}',
         'tv_episodes': '/tv/{}/season/{}/episode/{}',
-        'genres': '/genre/movie/list',
+
         'people': '/person/{}',
         'companies': '/company/{}',
-
         'discover': '/discover/movie'
     }
     query_string = {}
-    params = []
     poster_max_width = 200
-    poster_width = {
-
-    }
-    response = None
+    poster_width = {}
 
     def __init__(self):
         self.query_string['api_key'] = self.api_key
         self.query_string['language'] = 'language=en-US'
-        self.base_poster_url = self.base_poster_url.format(self.poster_max_width)
+        self.urls['base_poster'] = self.urls['base_poster'].format(self.poster_max_width)
 
-    def find(self, imdb_id):
+    def find_by_imdb_id(self, imdb_id):
         self.query_string['external_source'] = 'imdb_id'
-        self.params = ['find', imdb_id]
-        self.response = self.get_response()
-        return self
+        response = self.get_response(['find', imdb_id])
+        if response is not None:
+            for movie in response['movie_results']:
+                poster_url = self.urls['base_poster'] + movie['poster_path']
+                print(movie)
+                print(poster_url)
 
-    def get_response(self):
-        url = self.base_url + '/'.join(self.params)
+    def find_genres(self):
+        response = self.get_response(['genre', 'movie', 'list'])
+        if response is not None:
+            for genre in response['genres']:
+                print(genre)
+
+    def find_movie(self, imdb_id):
+        response = self.get_response(['movie', imdb_id])
+        if response is not None:
+            print(response)
+
+    def find_tv(self, imdb_id, seasons=False, episodes=False):
+        response = self.get_response(['tv', imdb_id])
+        if response is not None:
+            print(response)
+
+        if seasons:
+            response = self.get_response(['tv', imdb_id, 'season', '{}'])
+            if response is not None:
+                pass
+
+    def get_response(self, path_parameters):
+        url = self.urls['base'] + '/'.join(path_parameters or [])
         r = requests.get(url, params=self.query_string)
         print(r.url)
         if r.status_code == requests.codes.ok:
             return r.json()
-        return False
+        print(r.text)
+        return None
 
-    def parse_response(self):
-        if self.response is not None:
-            # movies = [m['title'] for m in self.response['movie_results']]
-            movies = self.response['movie_results']
-            poster_paths = [m['poster_path'] for m in movies]
-            poster_urls = list(map(self.get_poster_url, poster_paths))
-            print(movies)
-            print(poster_paths)
-            print(poster_urls)
 
-    def get_poster_url(self, url):
-        return self.base_poster_url + url
+# append_to_response
+# https://developers.themoviedb.org/3/getting-started/append-to-response
+
+# client = TMDB()
+# client.find_by_imdb_id('tt0120889')
+#
+# client = TMDB()
+# client.find_genres()
+
+# client = TMDB()
+# client.find_movie('tt0120889')
 
 client = TMDB()
-client.find('tt0120889').parse_response()
-
+client.find_tv('tt4574334')
 
 """
 search
