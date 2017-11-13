@@ -23,16 +23,16 @@
         .form({
           fields: {
             email: {
-              identifier  : 'email',
+              identifier  : 'username',
               rules: [
                 {
                   type   : 'empty',
-                  prompt : 'Please enter your e-mail'
+                  prompt : 'Please enter your username'
                 },
-                {
-                  type   : 'email',
-                  prompt : 'Please enter a valid e-mail'
-                }
+{#                {#}
+{#                  type   : 'email',#}
+{#                  prompt : 'Please enter a valid e-mail'#}
+{#                }#}
               ]
             },
             password: {
@@ -42,10 +42,10 @@
                   type   : 'empty',
                   prompt : 'Please enter your password'
                 },
-                {
-                  type   : 'length[6]',
-                  prompt : 'Your password must be at least 6 characters'
-                }
+{#                {#}
+{#                  type   : 'length[6]',#}
+{#                  prompt : 'Your password must be at least 6 characters'#}
+{#                }#}
               ]
             }
           }
@@ -62,18 +62,20 @@
 {#                <img src="assets/images/logo.png" class="image">#}
                 <div class="content">Log-in to your account</div>
             </h2>
-            <form class="ui large form">
+            <form class="ui large form" action="{% url 'login' %}" method="post">{% csrf_token %}
                 <div class="ui stacked segment">
                     <div class="field">
                         <div class="ui left icon input">
                             <i class="user icon"></i>
-                            <input type="text" name="email" placeholder="E-mail address">
+                            {{ form.username }}
+{#                            <input type="text" name="email" placeholder="E-mail address">#}
                         </div>
                     </div>
                     <div class="field">
                         <div class="ui left icon input">
                             <i class="lock icon"></i>
-                            <input type="password" name="password" placeholder="Password">
+                            {{ form.password }}
+{#                            <input type="password" name="password" placeholder="Password"> TODO placeholder#}
                         </div>
                     </div>
                     <div class="ui fluid large teal submit button">Login</div>
