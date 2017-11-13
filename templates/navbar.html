@@ -7,32 +7,49 @@
         Movie Website
       </a>
       <a href="{% url 'home' %}" class="item{% if url_name == 'home' %} active{% endif %}">Home</a>
-      <div class="ui simple dropdown item">
-        Dropdown <i class="dropdown icon"></i>
-        <div class="menu">
-          <a class="item" href="#">Link Item</a>
-          <a class="item" href="#">Link Item</a>
-          <div class="divider"></div>
-          <div class="header">Header Item</div>
-          <div class="item">
-            <i class="dropdown icon"></i>
-            Sub Menu
-            <div class="menu">
-              <a class="item" href="#">Link Item</a>
-              <a class="item" href="#">Link Item</a>
-            </div>
-          </div>
-          <a class="item" href="#">Link Item</a>
-        </div>
-      </div>
+{#      <div class="ui simple pointing dropdown item">#}
+{#        Dropdown <i class="dropdown icon"></i>#}
+{#        <div class="menu">#}
+{#          <a class="item" href="#">Link Item</a>#}
+{#          <a class="item" href="#">Link Item</a>#}
+{#          <div class="divider"></div>#}
+{#          <div class="header">Header Item</div>#}
+{#          <div class="item">#}
+{#            <i class="dropdown icon"></i>#}
+{#            Sub Menu#}
+{#            <div class="menu">#}
+{#              <a class="item" href="#">Link Item</a>#}
+{#              <a class="item" href="#">Link Item</a>#}
+{#            </div>#}
+{#          </div>#}
+{#          <a class="item" href="#">Link Item</a>#}
+{#        </div>#}
+{#      </div>#}
+<div class="ui pointing dropdown link item">
+    <span class="text">{{ user.username }}</span>
+    <i class="dropdown icon"></i>
+    <div class="menu">
+      <div class="header">Overview</div>
+      <div class="item">Profile</div>
+      <div class="item">Watchlist</div>
+      <div class="item">Favourites</div>
+      <div class="item">Recommendations</div>
+      <div class="divider"></div>
+      <div class="header">Management</div>
+      <div class="item">Edit</div>
+      <div class="item"><a href="{% url 'logout' %}">Logout</a></div>
+    </div>
+  </div>
       <div class="right menu">
           {% if user.is_authenticated %}
               <div class="ui simple dropdown item">
-                {{ user.username }} <i class="dropdown icon"></i>
+                {{ user.username }} <i class="dropdown icon"></i> <span class="ui green label">2</span>
                 <div class="menu">
-                  <a class="item" href="#">Link Item</a>
+                  <a class="item" href="#">Notifications <span class="ui green label">2</span></a>
+                  <a class="item" href="{% url 'user-detail' user.username %}">Profile</a>
                   <a class="item" href="#">Link Item</a>
                     <div class="divider"></div>
+                  <a href="{% url 'logout' %}" class="item"><i class="setting icon"></i>Settings</a>
                   <a href="{% url 'logout' %}" class="item">Logout</a>
                 </div>
               </div>

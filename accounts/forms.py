@@ -11,10 +11,11 @@ User = get_user_model()
 
 
 class RegisterForm(UserCreationForm):
+    login_after = forms.BooleanField(initial=True, label='Log me in after')
 
     class Meta:
         model = User
-        fields = ('username', 'password1', 'password2')
+        fields = ('username', 'password1', 'password2', 'login_after')
 
 
 class EditProfileForm(forms.ModelForm):

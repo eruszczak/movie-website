@@ -83,6 +83,12 @@
 {#                            <input type="password" name="password" placeholder="Password">#}
                         </div>
                     </div>
+                    <div class="field">
+                      <div class="ui checkbox">
+                        {{ form.login_after }}
+                        <label>{{ form.login_after.label }}</label>
+                      </div>
+                    </div>
                     <div class="ui fluid large teal submit button">Create an account</div>
                 </div>
                 <div class="ui error message"></div>

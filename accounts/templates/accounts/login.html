@@ -64,7 +64,7 @@
             </h2>
             <form class="ui large form" action="{% url 'login' %}" method="post">{% csrf_token %}
                 <div class="ui stacked segment">
-                    <div class="field">
+                    <div class="field error required">
                         <div class="ui left icon input">
                             <i class="user icon"></i>
                             {{ form.username }}
@@ -86,6 +86,13 @@
             <div class="ui message">Forgot your password? <a href="">Reset it</a></div>
         </div>
     </div>
+  <div class="center aligned column">
+    <div class="ui big green labeled icon button">
+      <i class="signup icon"></i>
+      Sign Up
+    </div>
+  </div>
+    <div class="ui blue submit button">Login</div>
 {#<div class="row" id="login-page">#}
 {#    <div class="page-header">#}
 {#        <h2 class="text-center">Login</h2>#}
