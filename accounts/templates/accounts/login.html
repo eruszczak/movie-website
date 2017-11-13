@@ -1,21 +1,104 @@
 {% extends "base.html" %}
-
+{% block styles %}
+{#  <style type="text/css">#}
+{#    body {#}
+{#      background-color: #DADADA;#}
+{#    }#}
+{#    body > .grid {#}
+{#      height: 100%;#}
+{#    }#}
+{#    .image {#}
+{#      margin-top: -100px;#}
+{#    }#}
+{#    .column {#}
+{#      max-width: 450px;#}
+{#    }#}
+{#  </style>#}
+{% endblock %}
+{% block scripts %}
+  <script>
+  $(document)
+    .ready(function() {
+      $('.ui.form')
+        .form({
+          fields: {
+            email: {
+              identifier  : 'email',
+              rules: [
+                {
+                  type   : 'empty',
+                  prompt : 'Please enter your e-mail'
+                },
+                {
+                  type   : 'email',
+                  prompt : 'Please enter a valid e-mail'
+                }
+              ]
+            },
+            password: {
+              identifier  : 'password',
+              rules: [
+                {
+                  type   : 'empty',
+                  prompt : 'Please enter your password'
+                },
+                {
+                  type   : 'length[6]',
+                  prompt : 'Your password must be at least 6 characters'
+                }
+              ]
+            }
+          }
+        })
+      ;
+    })
+  ;
+  </script>
+{% endblock %}
 {% block content %}
-<div class="row" id="login-page">
-    <div class="page-header">
-        <h2 class="text-center">Login</h2>
+    <div class="ui middle aligned center aligned grid">
+        <div class="column">
+            <h2 class="ui teal image header">
+{#                <img src="assets/images/logo.png" class="image">#}
+                <div class="content">Log-in to your account</div>
+            </h2>
+            <form class="ui large form">
+                <div class="ui stacked segment">
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="user icon"></i>
+                            <input type="text" name="email" placeholder="E-mail address">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="lock icon"></i>
+                            <input type="password" name="password" placeholder="Password">
+                        </div>
+                    </div>
+                    <div class="ui fluid large teal submit button">Login</div>
+                </div>
+                <div class="ui error message"></div>
+            </form>
+            <div class="ui message">New to us? <a href="{% url 'register' %}">Sign Up</a></div>
+            <div class="ui message">Forgot your password? <a href="">Reset it</a></div>
+        </div>
     </div>
-    <div class="col-md-4 col-md-offset-4">
-        <form action="" method="post">{% csrf_token %}
-            {{ form }}
-            <div class="text-center">
-                <input id="btnSubmit" type="submit" value="Submit" class="btn btn-success"/>
-                <br>
-                <br>
-                <input id="btnSubmitAsRandom" type="submit" value="Log in as an example user" class="btn btn-success"/>
-            </div>
-
-        </form>
-    </div>
-</div>
+{#<div class="row" id="login-page">#}
+{#    <div class="page-header">#}
+{#        <h2 class="text-center">Login</h2>#}
+{#    </div>#}
+{#    <div class="col-md-4 col-md-offset-4">#}
+{#        <form action="" method="post">{% csrf_token %}#}
+{#            {{ form }}#}
+{#            <div class="text-center">#}
+{#                <input id="btnSubmit" type="submit" value="Submit" class="btn btn-success"/>#}
+{#                <br>#}
+{#                <br>#}
+{#                <input id="btnSubmitAsRandom" type="submit" value="Log in as an example user" class="btn btn-success"/>#}
+{#            </div>#}
+{##}
+{#        </form>#}
+{#    </div>#}
+{#</div>#}
 {% endblock %}
