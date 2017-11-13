@@ -1,151 +1,144 @@
 {% extends "base.html" %}
 {% load static humanize %}
-{#{% block image %}#}
-{#    <div class="container-fluid wrapper" style="background-image:url({% static 'img/odyssey.png' %});">#}
-{#      <div class="">#}
-{#        <h1 class="text-center"></h1>#}
-{#      </div>#}
-{#    </div>#}
-{#{% endblock %}#}
-{#{% block title %}{{ title }}{% endblock %}#}
+
 {% block content %}
-    {% if request.user.is_authenticated %}
-        <div class="row">
-            <div class="col-md-8 col-md-offset-2">
-                <div id="home_summary">
-                    <div class="row alert alert-success" role="alert">
-                        {% if ratings %}
-                        <div class="col-sm-6">
-                            <ul>
-                            {% if last_movie %}
-                                <li>Last movie: <a href="{{ last_movie.title.get_absolute_url }}">{{ last_movie.title.name }}</a></li>
-                            {% endif %}
-                            {% if last_series %}
-                                <li>Last tv-show: <a href="{{ last_series.title.get_absolute_url }}">{{ last_series.title.name }}</a></li>
-                            {% endif %}
-                            {% if last_good_movie %}
-                                <li>Last movie rated 9-10: <a href="{{ last_good_movie.title.get_absolute_url }}">{{ last_good_movie.title.name|truncatechars:20 }}</a></li>
-                            {% endif %}
-                            </ul>
-                        </div>
-                        <div class="col-sm-6">
-                            <ul>
-                                <li>Total series: <a href="{{ total_series }}">{{ series_count }}</a>
-                                    (<a href="{{ search_series }}">{{ series_my_count }}</a> watched)
-                                </li>
-                                <li>Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a>
-                                    (<a href="{{ search_movies }}">{{ movies_my_count }}</a> watched)
-                                </li>
-                                <li>Watched titles: <a href="{{ request.user.ratings_url }}">{{ rated_titles }}</a>
-                                    (<a href="{{ request.user.all_ratings_url }}">{{ total_ratings }}</a> total ratings)
-                                </li>
-                            </ul>
-                        </div>
-                        {% else %}
-                        <div class="col-sm-12 text-center">
-                            <ul>
-                                <li class="li-item">Total series: <a href="{{ total_series }}">{{ series_count }}</a>
-                                    (<a href="{{ search_series }}">{{ series_my_count }}</a> watched)
-                                </li>
-                                <li class="li-item2">Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a>
-                                    (<a href="{{ search_movies }}">{{ movies_my_count }}</a> watched)
-                                </li>
-                            </ul>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-            <h3 class="page-header text-center">recently seen <small>(<a href="{% url 'title-list' %}{% if request.user.is_authenticated %}?u={{ request.user.username }}&all_ratings=on{% endif %}">see more</a>)</small></h3>
-            </div>
-        </div>
-
-        {% if ratings %}
-        <div class="row">
-            {% for entry in ratings %}
-                <div class="col-sm-6">
-                    <div class="last10 well well-sm {% cycle 'odd' 'even' %}">
-                        <a href="{{ entry.title.get_absolute_url }}">
-                            <img class="img-rounded pull-left" src="{% if entry.title.img_thumbnail %}{{ entry.title.img_thumbnail.url }}
-                                {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="">
-                        </a>
-                        <div class="content">
-                            <h5>{{ forloop.counter }}. <a href="{{ entry.title.get_absolute_url }}">{{ entry.title.name }} ({{ entry.title.year }})</a></h5>
-                            {% for i in 'xxxxxxxxxx' %}
-                                <span class="glyphicon glyphicon-star{% if forloop.counter > entry.rate %}-empty{% endif %}" aria-hidden="true"></span>
-                            {% endfor %}
-                            <h5>{{ entry.rate_date|date:"F d" }}</h5>
-
-                            {% with entry.title.rate as data %}
-                            {% if data.count and data.avg %}
-                            <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user-list' %}?s={{ entry.title.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>
-                            {% endif %}
-                            {% endwith %}
-
-                            {% if entry.title.rate_imdb %}
-                            <br>Avg IMDb rating: {{ entry.title.rate_imdb }} ({{ entry.title.votes|intcomma }} votes)
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="text-center">
-            <div class="alert alert-success alert-resize" role="alert">
-                <p>You have no ratings yet.</p>
-                <p><a href="{% url 'title-list' %}">Explore</a> titles or go ahead and <a href="{% url 'user-edit' user.username %}">edit</a> your profile to sync your account with IMDb.</p>
-            </div>
-        </div>
-    {% endif %}
-    {% else %}
-    <div class="row" style="margin-top:20px">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="row alert alert-success" role="alert">
-                <div class="col-sm-12 text-center">
-                    <p class="text-center">Total series: <a href="{{ total_series }}">{{ series_count }}</a> ** Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-            <h3 class="page-header text-center">Popular titles <small>(<a href="{% url 'title-list' %}">see more</a>)</small></h3>
-        </div>
-    </div>
-
-    <div class="row">
-        {% for entry in ratings %}
-            <div class="col-sm-6">
-                <div class="last10 well well-sm {% cycle 'odd' 'even' %}">
-                    <a href="{{ entry.get_absolute_url }}">
-                        <img class="img-rounded pull-left" src="{% if entry.img %}{{ entry.img.url }}
-                            {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="">
-                    </a>
-                    <div class="content">
-                        <h5>{{ forloop.counter }}. <a href="{{ entry.get_absolute_url }}">{{ entry.name }} ({{ entry.year }})</a></h5>
-                        {% for genre in entry.genre.all %}
-                            <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
-                        {% endfor %}
-                        <br>
-                        {% with entry.rate as data %}
-                        {% if data.count and data.avg %}
-                        <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user-list' %}?s={{ entry.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>
-                        {% endif %}
-                        {% endwith %}
-
-                        {% if entry.rate_imdb %}
-                        <br>Avg IMDb rating: {{ entry.rate_imdb }} ({{ entry.votes|intcomma }} votes)
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+{#    {% if request.user.is_authenticated %}#}
+{#        <div class="row">#}
+{#            <div class="col-md-8 col-md-offset-2">#}
+{#                <div id="home_summary">#}
+{#                    <div class="row alert alert-success" role="alert">#}
+{#                        {% if ratings %}#}
+{#                        <div class="col-sm-6">#}
+{#                            <ul>#}
+{#                            {% if last_movie %}#}
+{#                                <li>Last movie: <a href="{{ last_movie.title.get_absolute_url }}">{{ last_movie.title.name }}</a></li>#}
+{#                            {% endif %}#}
+{#                            {% if last_series %}#}
+{#                                <li>Last tv-show: <a href="{{ last_series.title.get_absolute_url }}">{{ last_series.title.name }}</a></li>#}
+{#                            {% endif %}#}
+{#                            {% if last_good_movie %}#}
+{#                                <li>Last movie rated 9-10: <a href="{{ last_good_movie.title.get_absolute_url }}">{{ last_good_movie.title.name|truncatechars:20 }}</a></li>#}
+{#                            {% endif %}#}
+{#                            </ul>#}
+{#                        </div>#}
+{#                        <div class="col-sm-6">#}
+{#                            <ul>#}
+{#                                <li>Total series: <a href="{{ total_series }}">{{ series_count }}</a>#}
+{#                                    (<a href="{{ search_series }}">{{ series_my_count }}</a> watched)#}
+{#                                </li>#}
+{#                                <li>Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a>#}
+{#                                    (<a href="{{ search_movies }}">{{ movies_my_count }}</a> watched)#}
+{#                                </li>#}
+{#                                <li>Watched titles: <a href="{{ request.user.ratings_url }}">{{ rated_titles }}</a>#}
+{#                                    (<a href="{{ request.user.all_ratings_url }}">{{ total_ratings }}</a> total ratings)#}
+{#                                </li>#}
+{#                            </ul>#}
+{#                        </div>#}
+{#                        {% else %}#}
+{#                        <div class="col-sm-12 text-center">#}
+{#                            <ul>#}
+{#                                <li class="li-item">Total series: <a href="{{ total_series }}">{{ series_count }}</a>#}
+{#                                    (<a href="{{ search_series }}">{{ series_my_count }}</a> watched)#}
+{#                                </li>#}
+{#                                <li class="li-item2">Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a>#}
+{#                                    (<a href="{{ search_movies }}">{{ movies_my_count }}</a> watched)#}
+{#                                </li>#}
+{#                            </ul>#}
+{#                        </div>#}
+{#                        {% endif %}#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{##}
+{#        <div class="row">#}
+{#            <div class="col-md-6 col-md-offset-3">#}
+{#            <h3 class="page-header text-center">recently seen <small>(<a href="{% url 'title-list' %}{% if request.user.is_authenticated %}?u={{ request.user.username }}&all_ratings=on{% endif %}">see more</a>)</small></h3>#}
+{#            </div>#}
+{#        </div>#}
+{##}
+{#        {% if ratings %}#}
+{#        <div class="row">#}
+{#            {% for entry in ratings %}#}
+{#                <div class="col-sm-6">#}
+{#                    <div class="last10 well well-sm {% cycle 'odd' 'even' %}">#}
+{#                        <a href="{{ entry.title.get_absolute_url }}">#}
+{#                            <img class="img-rounded pull-left" src="{% if entry.title.img_thumbnail %}{{ entry.title.img_thumbnail.url }}#}
+{#                                {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="">#}
+{#                        </a>#}
+{#                        <div class="content">#}
+{#                            <h5>{{ forloop.counter }}. <a href="{{ entry.title.get_absolute_url }}">{{ entry.title.name }} ({{ entry.title.year }})</a></h5>#}
+{#                            {% for i in 'xxxxxxxxxx' %}#}
+{#                                <span class="glyphicon glyphicon-star{% if forloop.counter > entry.rate %}-empty{% endif %}" aria-hidden="true"></span>#}
+{#                            {% endfor %}#}
+{#                            <h5>{{ entry.rate_date|date:"F d" }}</h5>#}
+{##}
+{#                            {% with entry.title.rate as data %}#}
+{#                            {% if data.count and data.avg %}#}
+{#                            <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user-list' %}?s={{ entry.title.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
+{#                            {% endif %}#}
+{#                            {% endwith %}#}
+{##}
+{#                            {% if entry.title.rate_imdb %}#}
+{#                            <br>Avg IMDb rating: {{ entry.title.rate_imdb }} ({{ entry.title.votes|intcomma }} votes)#}
+{#                            {% endif %}#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            {% endfor %}#}
+{#        </div>#}
+{#        {% else %}#}
+{#        <div class="text-center">#}
+{#            <div class="alert alert-success alert-resize" role="alert">#}
+{#                <p>You have no ratings yet.</p>#}
+{#                <p><a href="{% url 'title-list' %}">Explore</a> titles or go ahead and <a href="{% url 'user-edit' user.username %}">edit</a> your profile to sync your account with IMDb.</p>#}
+{#            </div>#}
+{#        </div>#}
+{#    {% endif %}#}
+{#    {% else %}#}
+{#    <div class="row" style="margin-top:20px">#}
+{#        <div class="col-md-8 col-md-offset-2">#}
+{#            <div class="row alert alert-success" role="alert">#}
+{#                <div class="col-sm-12 text-center">#}
+{#                    <p class="text-center">Total series: <a href="{{ total_series }}">{{ series_count }}</a> ** Total movies: <a href="{{ total_movies }}">{{ movie_count }}</a></p>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{##}
+{#    <div class="row">#}
+{#        <div class="col-md-6 col-md-offset-3">#}
+{#            <h3 class="page-header text-center">Popular titles <small>(<a href="{% url 'title-list' %}">see more</a>)</small></h3>#}
+{#        </div>#}
+{#    </div>#}
+{##}
+{#    <div class="row">#}
+{#        {% for entry in ratings %}#}
+{#            <div class="col-sm-6">#}
+{#                <div class="last10 well well-sm {% cycle 'odd' 'even' %}">#}
+{#                    <a href="{{ entry.get_absolute_url }}">#}
+{#                        <img class="img-rounded pull-left" src="{% if entry.img %}{{ entry.img.url }}#}
+{#                            {% else %}{% static 'img/holderbigger.png' %}{% endif %}" alt="..." style="">#}
+{#                    </a>#}
+{#                    <div class="content">#}
+{#                        <h5>{{ forloop.counter }}. <a href="{{ entry.get_absolute_url }}">{{ entry.name }} ({{ entry.year }})</a></h5>#}
+{#                        {% for genre in entry.genre.all %}#}
+{#                            <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>#}
+{#                        {% endfor %}#}
+{#                        <br>#}
+{#                        {% with entry.rate as data %}#}
+{#                        {% if data.count and data.avg %}#}
+{#                        <br>Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user-list' %}?s={{ entry.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
+{#                        {% endif %}#}
+{#                        {% endwith %}#}
+{##}
+{#                        {% if entry.rate_imdb %}#}
+{#                        <br>Avg IMDb rating: {{ entry.rate_imdb }} ({{ entry.votes|intcomma }} votes)#}
+{#                        {% endif %}#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        {% endfor %}#}
+{#    </div>#}
+{#    {% endif %}#}
 {% endblock %}
