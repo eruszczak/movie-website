@@ -6,7 +6,8 @@ class TMDB:
     api_key = config('TMDB_API_KEY')
     urls = {
         'base': 'https://api.themoviedb.org/3/',
-        'base_poster': 'http://image.tmdb.org/t/p/w{}',
+        'poster': 'http://image.tmdb.org/t/p/w1280',
+        'poster_small': 'http://image.tmdb.org/t/p/w185',
 
         'tv_seasons': '/tv/{}/season/{}',
         'tv_episodes': '/tv/{}/season/{}/episode/{}',
@@ -16,22 +17,22 @@ class TMDB:
         'discover': '/discover/movie'
     }
     query_string = {}
-    poster_max_width = 200
     poster_width = {}
 
     def __init__(self):
         self.query_string['api_key'] = self.api_key
         self.query_string['language'] = 'language=en-US'
-        self.urls['base_poster'] = self.urls['base_poster'].format(self.poster_max_width)
 
     def find_by_imdb_id(self, imdb_id):
         self.query_string['external_source'] = 'imdb_id'
         response = self.get_response(['find', imdb_id])
         if response is not None:
             for movie in response['movie_results']:
-                poster_url = self.urls['base_poster'] + movie['poster_path']
+                poster_url = self.urls['poster'] + movie['poster_path']
+                poster_url_small = self.urls['poster_small'] + movie['poster_path']
                 print(movie)
                 print(poster_url)
+                print(poster_url_small)
 
     def find_genres(self):
         response = self.get_response(['genre', 'movie', 'list'])
@@ -67,8 +68,8 @@ class TMDB:
 # append_to_response
 # https://developers.themoviedb.org/3/getting-started/append-to-response
 
-# client = TMDB()
-# client.find_by_imdb_id('tt0120889')
+client = TMDB()
+client.find_by_imdb_id('tt0120889')
 #
 # client = TMDB()
 # client.find_genres()
@@ -76,8 +77,8 @@ class TMDB:
 # client = TMDB()
 # client.find_movie('tt0120889')
 
-client = TMDB()
-client.find_tv('tt4574334')
+# client = TMDB()
+# client.find_tv('tt4574334')
 
 """
 search

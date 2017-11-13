@@ -14,6 +14,7 @@
 {#        <link rel="stylesheet" href="{% static 'css/styles.css' %}">#}
 {#        <link rel="stylesheet" href="{% static 'css/iao-alert.css' %}">#}
         <link rel="stylesheet" type="text/css" href="{% static 'semantic/dist/semantic.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
     {% block styles %}{% endblock %}
 {#    <style type="text/css">#}
@@ -31,13 +32,13 @@
   .main.container {
     margin-top: 7em;
   }
-  .wireframe {
-    margin-top: 2em;
-  }
-  .ui.footer.segment {
-    margin: 5em 0em 0em;
-    padding: 5em 0em;
-  }
+{#  .wireframe {#}
+{#    margin-top: 2em;#}
+{#  }#}
+{#  .ui.footer.segment {#}
+{#    margin: 5em 0em 0em;#}
+{#    padding: 5em 0em;#}
+{#  }#}
   </style>
     {% endcompress %}
 
@@ -61,9 +62,12 @@
     {% block navbar %}{% include 'navbar.html' %}{% endblock %}
 {#	{% block image %}{% endblock %}#}
 {#	<div class="container">#}
-<div class="ui main text container">
+    <div class="ui main text container">
         {% block content %}{% endblock %}
-</div>
+    </div>
+{#    <div class="ui secondary vertical footer segment">#}
+{#        asd#}
+{#    </div>#}
 {#	</div>#}
 
     {% compress js %}
@@ -84,6 +88,16 @@
 {#        <script src="{% static 'js/jquery.raty.js' %}"></script>#}
 {#        <script src="{% static 'js/iao-alert.jquery.js' %}"></script>#}
         {% block scripts %}{% endblock %}
+        <script>
+            $('.ui.dropdown').dropdown();
+
+
+$('.rating').rating({
+initialRating: 2,
+maxRating: 10,
+clearable:true
+});
+        </script>
     {% endcompress %}
 </body>
 </html>

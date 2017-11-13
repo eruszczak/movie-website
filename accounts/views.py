@@ -162,7 +162,7 @@ class UserListView(ListView):
 # todo this must be UpdateView
 class UserDetailView(DetailView):
     model = User
-    template_name = 'accounts/user_profile.html'
+    template_name = 'accounts/user_detail.html'
     url_lookup_kwarg = 'username'
     titles_in_a_row = 6
     is_owner = False  # checks if a request user is an owner of the profile
