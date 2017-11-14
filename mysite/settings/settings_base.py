@@ -85,7 +85,8 @@ REST_FRAMEWORK = {
 }
 
 # SESSION_COOKIE_SECURE = True
-LOGIN_URL = '/accounts/login/'
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'home'
 AUTH_USER_MODEL = 'accounts.User'
 
 ADMINS = (config('ADMIN1', cast=Csv(post_process=tuple)),)
