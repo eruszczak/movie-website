@@ -105,20 +105,42 @@ class UserListView(ListView):
         queryset = super().get_queryset()
         if self.request.GET.get('const'):
             self.searched_title = get_object_or_404(Title, const=self.request.GET['const'])
-            newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
-            queryset = queryset.filter(rating__title=self.searched_title).annotate(
-                user_rate=Subquery(newest.values('rate')[:1]))
+            # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+            # queryset = queryset.filter(rating__title=self.searched_title).annotate(
+            #     user_rate=Subquery(newest.values('rate')[:1]))
+            # # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+            # for x in queryset:
+            #     print(x.user_rate)
+            queryset = queryset.filter(rating__title=self.searched_title).extra(select={
+                'user_rate': """SELECT rating.rate FROM titles_rating as rating, titles_title as title
+                    WHERE rating.title_id = title.id AND rating.user_id = accounts_user.id AND title.id = %s
+                    ORDER BY rating.rate_date DESC LIMIT 1"""
+            }, select_params=[self.searched_title.pk])#.order_by('-current_rating', '-username')
+            # if self.request.user.is_authenticated:
+            #     pass
+
+            #     qs = User.objects.filter(rating__title=self.searched_title).annotate(
+            #         has_in_watchlist=Count(
+            #             Case(
+            #                 When(title__watchlist__user=self.request.user, title__watchlist__deleted=False, then=1),
+            #                 output_field=IntegerField()
+            #             )
+            #         ),
+            #         has_in_favourites=Count(
+            #             Case(When(title__favourite__user=self.request.user, then=1), output_field=IntegerField())
+            #         ),
+            #     )
             # queryset = self.get_users_who_saw_a_title()
         else:
             queryset = User.objects.annotate(num=Count('rating')).order_by('-num', '-username')
 
         if self.request.user.is_authenticated:
-            q = queryset.annotate(
-                already_follows=Count(
-                    Case(When(userfollow__follower=self.request.user, then=1), output_field=IntegerField())
-                ),
-                # test=Count('userfollow__follower')
-            )
+            # q = queryset.annotate(
+            #     already_follows=Count(
+            #         Case(When(userfollow__follower=self.request.user, then=1), output_field=IntegerField())
+            #     ),
+            #     # test=Count('userfollow__follower')
+            # )
             print('request user', self.request.user.pk)
             print(['{} follows {}'.format(x.follower.pk, x.followed.pk) for x in UserFollow.objects.all()])
             print()
@@ -132,8 +154,8 @@ class UserListView(ListView):
 
             # print(User.objects.filter(userfollow__followed=User.objects.get(username='test2')))  #
             print()
-            for x in q:
-                print(x, x.already_follows)
+            # for x in q:
+            #     print(x, x.already_follows)
             queryset = queryset.extra(select={
                 'already_follows': """SELECT 1 FROM accounts_userfollow as followage
                     WHERE followage.follower_id = %s and followage.followed_id = accounts_user.id""",
@@ -142,21 +164,13 @@ class UserListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_title'] = 'List of accounts'
         if self.searched_title:
             context.update({
-                'searched_title': self.searched_title,
-                'query_string': '?s=' + self.request.GET['s'] + '&page=',
-                'page_title': 'Users who saw {}'.format(str(self.searched_title))
+                'title': self.searched_title,
+                # 'query_string': '?s=' + self.request.GET['s'] + '&page=',
+                # 'page_title': 'Users who saw {}'.format(str(self.searched_title))
             })
         return context
-
-    # def get_users_who_saw_a_title(self):
-    #     return User.objects.filter(rating__title=self.searched_title).distinct().extra(select={
-    #         'current_rating': """SELECT rating.rate FROM movie_rating as rating, movie_title as title
-    #             WHERE rating.title_id = title.id AND rating.user_id = auth_user.id AND title.id = %s
-    #             ORDER BY rating.rate_date DESC LIMIT 1"""
-    #     }, select_params=[self.searched_title.id]).order_by('-current_rating', '-username')
 
 
 # todo this must be UpdateView

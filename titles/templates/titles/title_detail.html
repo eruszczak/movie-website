@@ -2,6 +2,23 @@
 {% load static humanize %}
 {#{% block title %}{% endblock %}#}
 {% block content %}
+<a class="ui blue image label">
+  <img src="{% static 'img/stevie.jpg' %}">
+  Veronika
+  <div class="detail">Friend</div>
+</a>
+<a class="ui teal image label">
+  <img src="{% static 'img/stevie.jpg' %}">
+  Veronika
+  <div class="detail">Student</div>
+</a>
+<a class="ui yellow image label">
+  <img src="{% static 'img/stevie.jpg' %}">
+  Helen
+  <div class="detail">Co-worker</div>
+</a>
+
+
 <div class="ui fluid selection dropdown">
   <input type="hidden" name="user">
   <i class="dropdown icon"></i>

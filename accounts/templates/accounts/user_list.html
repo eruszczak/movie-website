@@ -1,25 +1,55 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}{{ page_title }}{% endblock %}
+{#{% block title %}{{ page_title }}{% endblock %}#}
+
+{% block breadcrumb %}
+    <div class="ui breadcrumb">
+        <a class="section" href="{% url 'home' %}">Home</a>
+        <i class="right angle icon divider"></i>
+        <a class="section{% if not title %} active{% endif %}" href="{% url 'user-list' %}">Users</a>
+        {% if title %}
+            <i class="right angle icon divider"></i>
+            <div class="active section">Search for: <a href="{{ title.get_absolute_url }}">{{ title.name }}</a></div>
+        {% endif %}
+    </div>
+    <div class="ui divider"></div>
+{% endblock %}
 
 {% block content %}
-{#{% include 'titles/title_card.html' with title=title score=title.user_rate in_fav=title.has_in_favourites %}#}
-<div class="ui yellow message">
-  <i class="star icon"></i>
-  To make the entire content of an item link, check out the link variation below
-</div>
+    {% if title %}
+        <div class="ui info message">Users who have seen <a href="{{ title.get_absolute_url }}">{{ title.name }}</a></div>
+{#        {% include 'titles/title_card.html' with title=title score=title.user_rate in_fav=title.has_in_favourites %}#}
+{#  <div class="ui item">#}
+{#    <div class="ui tiny image">#}
+{#      <img src="{% static 'img/w185_h278_bestv2.jpg' %}">#}
+{#    </div>#}
+{#    <div class="content">#}
+{#      <div class="header">{{ title.name }}</div>#}
+{#      <div class="meta">#}
+{#        <span class="price">$1200</span>#}
+{#        <span class="stay">1 Month</span>#}
+{#      </div>#}
+{#      <div class="description">#}
+{#        <p></p>#}
+{#      </div>#}
+{#    </div>#}
+{#  </div>#}
+    {% endif %}
+
 <div class="ui items">
 {% for user in user_list %}
+    {% url 'user-detail' user.username as user_detail_url %}
   <div class="item">
-    <a class="ui tiny image">
+    <a href="{{ user_detail_url }}" class="ui tiny image">
       <img src="{% static 'img/stevie.jpg' %}">
     </a>
     <div class="content">
-      <a class="header">{{ user.username }}</a>
+      <a href="{{ user_detail_url }}" class="header">{{ user.username }}</a>
 {#    follow button under avatar#}
-        <div class="ui large favorite rating red" type="fav" data-url="{% url 'user-follow' user.pk %}" data-rating="{{ user.already_follows }}" data-max-rating="1" data-content="Follow" data-variation="mini"></div>
+        <div class="ui large star rating" type="fav" data-url="{% url 'user-follow' user.pk %}" data-rating="{{ user.already_follows }}" data-max-rating="1" data-content="Follow" data-variation="mini"></div>
+        {{ user.user_rate }} <i class="star icon green"></i>
         <div class="floated right">
-                    <p>links</p>
+            <p>watchlist favourites see_all_lists</p>
         </div>
       <div class="description">
         <p>{{ user.tagline|default:'Tagline' }}</p>
