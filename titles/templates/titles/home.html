@@ -1,13 +1,16 @@
 {% extends "base.html" %}
 {% load static humanize %}
+{#{% block title %}{{ page_title }}{% endblock %}#}
 
 {% block content %}
-    <h1 class="ui header">
-      H1
-      <div class="sub header">Your latest ratings</div>
-      <div class="sub header">Upcoming</div>
-      <div class="sub header">Rating of people you follow</div>
-    </h1>
+    <h3 class="ui header">
+        Upcoming/popular
+        <div class="ui divider"></div>
+    </h3>
+    <h3 class="ui header">
+        You recently rated
+        <div class="ui divider"></div>
+    </h3>
     <div class="ui cards">
         {% for rating in rating_list %}
             {% include 'titles/title_card.html' with title=rating.title score=rating.rate in_fav=rating.has_in_favourites %}
@@ -28,6 +31,10 @@
 {#          </div>#}
 {#        </div>#}
     </div>
+    <h3 class="ui header">
+        People you follow recently rated
+        <div class="ui divider"></div>
+    </h3>
 {#    {% if request.user.is_authenticated %}#}
 {#        <div class="row">#}
 {#            <div class="col-md-8 col-md-offset-2">#}
