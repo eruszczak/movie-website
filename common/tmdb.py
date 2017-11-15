@@ -7,7 +7,7 @@ class TMDB:
     urls = {
         'base': 'https://api.themoviedb.org/3/',
         'poster': 'http://image.tmdb.org/t/p/w1280',
-        'poster_small': 'http://image.tmdb.org/t/p/w185',
+        'poster_small': 'http://image.tmdb.org/t/p/w185_and_h278_bestv2',
 
         'tv_seasons': '/tv/{}/season/{}',
         'tv_episodes': '/tv/{}/season/{}/episode/{}',
