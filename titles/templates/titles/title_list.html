@@ -9,13 +9,19 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-10 col-md-offset-1">
-        <div class="text-center">
-            <a href="{% url 'group-year' %}" class="btn btn-sm btn-success" role="button">All years</a>
-            <a href="{% url 'group-genre' %}" class="btn btn-sm btn-success" role="button">All genres</a>
-        </div>
-        <hr>
+    <div class="ui cards">
+        {% for title in title_list %}
+            {% include 'titles/title_card.html' with title=title %}
+        {% endfor %}
+    </div>
+
+{#<div class="row">#}
+{#    <div class="col-md-10 col-md-offset-1">#}
+{#        <div class="text-center">#}
+{#            <a href="{% url 'group-year' %}" class="btn btn-sm btn-success" role="button">All years</a>#}
+{#            <a href="{% url 'group-genre' %}" class="btn btn-sm btn-success" role="button">All genres</a>#}
+{#        </div>#}
+{#        <hr>#}
 {#        {% if search_result %}#}
 {#            <div class="row">#}
 {#                <div class="col-md-12">#}
@@ -30,24 +36,24 @@
 {#                </div>#}
 {#            </div>#}
 {#        {% endif %}#}
-
-        <p class="lead text-center search_summary">{{ paginator.count }} result{{ paginator.count|pluralize }}</p>
-
+{##}
+{#        <p class="lead text-center search_summary">{{ paginator.count }} result{{ paginator.count|pluralize }}</p>#}
+{##}
 {#        {% include 'includes/pagination.html' %}#}
-
-        <div>
-            <form class="navbar-form navbar-right" role="search">
-                <div class="form-group">
-                    {{ search_form.genre }}
-                </div>
-            </form>
-        </div>
-
-        <table class="table table-hover table-bordered table-condensed" style="margin-top: 10px">
-            {% include 'titles/titles_in_a_table.html' with title_list=title_list %}
-        </table>
-
-        {% include 'includes/pagination.html' %}
-    </div>
-</div>
+{##}
+{#        <div>#}
+{#            <form class="navbar-form navbar-right" role="search">#}
+{#                <div class="form-group">#}
+{#                    {{ search_form.genre }}#}
+{#                </div>#}
+{#            </form>#}
+{#        </div>#}
+{##}
+{#        <table class="table table-hover table-bordered table-condensed" style="margin-top: 10px">#}
+{#            {% include 'titles/titles_in_a_table.html' with title_list=title_list %}#}
+{#        </table>#}
+{##}
+{#        {% include 'includes/pagination.html' %}#}
+{#    </div>#}
+{#</div>#}
 {% endblock %}

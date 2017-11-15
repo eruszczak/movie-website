@@ -1,0 +1,18 @@
+{% url 'title-rate' title.pk as rate_url %}
+{% url 'title-fav' title.pk as fav_url %}
+
+<div class="card title-card">
+    <div class="image">
+      <img src="https://image.tmdb.org/t/p/w185_and_h278_bestv2/inVq3FRqcYIRl2la8iZikYYxFNR.jpg">
+    </div>
+  <div class="extra content">
+      {{ title.name }} ({{ title.year }})
+      <div class="ui star mini rating" data-url="{{ rate_url }}" data-rating="{{ title.user_rate }}"></div>
+      <div class="right floated">
+          <i class="list small icon" data-content="Watchlist" data-variation="mini"></i>
+{#        <div class="ui large list rating red" type="fav" data-rating="0" data-max-rating="1" data-content="Favourites" data-variation="mini"></div>#}
+        <div class="ui small heart rating red" type="fav" data-url="{{ fav_url }}" data-rating="{{ title.has_in_favourites }}" data-max-rating="1" data-content="Favourite" data-variation="mini"></div>
+      </div>
+      Other user: {{ title.user_rate }} <i class="star icon green"></i>
+  </div>
+</div>

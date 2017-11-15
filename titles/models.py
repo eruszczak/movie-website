@@ -90,7 +90,8 @@ class Title(models.Model):
     objects = TitleQuerySet.as_manager()
 
     class Meta:
-        ordering = ('-inserted_date', )
+        ordering = ()
+        # ordering = ('-inserted_date', )
 
     def __str__(self):
         return '{} {}'.format(self.name, self.year)
