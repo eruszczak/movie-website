@@ -26,22 +26,6 @@
 {#          <a class="item" href="#">Link Item</a>#}
 {#        </div>#}
 {#      </div>#}
-<div class="ui pointing dropdown link item">
-    <span class="text">{{ user.username }}</span>
-    <i class="dropdown icon"></i>
-    <div class="menu">
-      <div class="header">Overview</div>
-      <div class="item">My account</div>
-      <div class="item">Watchlist</div>
-      <div class="item">Favourites</div>
-      <div class="item">Recommendations</div>
-      <div class="divider"></div>
-      <div class="header">Management</div>
-      <div class="item">Settings</div>
-      <div class="item">Change password</div>
-      <div class="item"><a href="{% url 'logout' %}">Logout</a></div>
-    </div>
-  </div>
       <div class="right menu">
           {% if user.is_authenticated %}
               <div class="ui simple dropdown item">

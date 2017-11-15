@@ -8,19 +8,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         {% compress css %}
     {#        <link rel="stylesheet" href="{% static 'bower_components/jquery-ui/themes/base/jquery-ui.min.css' %}">#}
-    {#        <link rel="stylesheet" href="{% static 'css/styles.css' %}">#}
             <link rel="stylesheet" href="{% static 'css/iao-alert.css' %}">
             <link rel="stylesheet" type="text/css" href="{% static 'semantic/dist/semantic.min.css' %}">
             <link rel="stylesheet" href="{% static 'css/style.css' %}">
         {% block styles %}{% endblock %}
-        <style type="text/css">
-            .ui.card>.content .star.icon, .ui.cards>.card>.content .star.icon {
-                cursor:default;
-            }
-            .title-card {
-                width: 200px!important;
-            }
-        </style>
+        <style type="text/css"></style>
         {% endcompress %}
     </head>
 <body>
@@ -57,11 +49,9 @@
         <script src="{% static 'js/functions.js' %}"></script>
         <script src="{% static 'js/custom.js' %}"></script>
 {#        <script src="{% static 'bower_components/jquery-ui/jquery-ui.min.js' %}"></script>#}
-{#        <script src="{% static 'js/scripts.js' %}"></script>#}
         <script src="{% static 'js/iao-alert.jquery.js' %}"></script>
         {% block scripts %}{% endblock %}
-        <script>
-        </script>
+        <script></script>
     {% endcompress %}
 </body>
 </html>
