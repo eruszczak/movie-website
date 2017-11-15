@@ -25,13 +25,25 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'title': 'home',
             'movie_count': Title.objects.filter(type__name='title').count(),
             'series_count': Title.objects.filter(type__name='series').count(),
         })
         if self.request.user.is_authenticated:
             user_ratings = Rating.objects.filter(user=self.request.user)
+            # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+            qs = user_ratings.annotate(
+                has_in_watchlist=Count(
+                    Case(
+                        When(title__watchlist__user=self.request.user, title__watchlist__deleted=False, then=1),
+                        output_field=IntegerField()
+                    )
+                ),
+                has_in_favourites=Count(
+                    Case(When(title__favourite__user=self.request.user, then=1), output_field=IntegerField())
+                ),
+            )
             context.update({
+                'rating_list': qs[:6],
                 'ratings': user_ratings.select_related('title')[:16],
 
                 'last_movie': user_ratings.filter(title__type__name='title').select_related('title').first(),
@@ -44,9 +56,10 @@ class HomeView(TemplateView):
                 'rated_titles': self.request.user.count_titles,
                 'total_ratings': self.request.user.count_ratings,
 
-                'total_movies': reverse('title-list') + '?t=title', 'total_series': reverse('title-list') + '?t=series',
-                'search_movies': reverse('title-list') + '?u={}&t=title'.format(self.request.user.username),
-                'search_series': reverse('title-list') + '?u={}&t=series'.format(self.request.user.username)
+                # 'total_movies': reverse('title-list') + '?t=title',
+                # 'total_series': reverse('title-list') + '?t=series',
+                # 'search_movies': reverse('title-list') + '?u={}&t=title'.format(self.request.user.username),
+                # 'search_series': reverse('title-list') + '?u={}&t=series'.format(self.request.user.username)
             })
         else:
             context.update({
@@ -80,7 +93,7 @@ class TitleListView(SearchViewMixin, ListView):
                 ),
                 user_rate=Subquery(newest.values('rate')[:1])
             )
-        return qs.order_by('-year', '-name').prefetch_related('director', 'genre')
+        return qs.order_by('-year', '-name')#.prefetch_related('director', 'genre')
 
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)

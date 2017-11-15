@@ -9,21 +9,24 @@
       <div class="sub header">Rating of people you follow</div>
     </h1>
     <div class="ui cards">
-        <div class="card title-card">
-            <div class="image">
+        {% for rating in rating_list %}
+            {% include 'titles/title_card.html' with title=rating.title %}
+        {% endfor %}
+{#        <div class="card title-card">#}
+{#            <div class="image">#}
 {#              <img src="https://image.tmdb.org/t/p/w200/inVq3FRqcYIRl2la8iZikYYxFNR.jpg">#}
-              <img src="https://image.tmdb.org/t/p/w185_and_h278_bestv2/inVq3FRqcYIRl2la8iZikYYxFNR.jpg">
-            </div>
-          <div class="extra content">
-              <div class="ui star mini rating" data-rating="4"></div>
-              <div class="right floated">
-                  <i class="list small icon" data-content="Watchlist" data-variation="mini"></i>
+{#              <img src="https://image.tmdb.org/t/p/w185_and_h278_bestv2/inVq3FRqcYIRl2la8iZikYYxFNR.jpg">#}
+{#            </div>#}
+{#          <div class="extra content">#}
+{#              <div class="ui star mini rating" data-rating="4"></div>#}
+{#              <div class="right floated">#}
+{#                  <i class="list small icon" data-content="Watchlist" data-variation="mini"></i>#}
         {#        <div class="ui large list rating red" type="fav" data-rating="0" data-max-rating="1" data-content="Favourites" data-variation="mini"></div>#}
-                <div class="ui small heart rating red" type="fav" data-rating="1" data-max-rating="1" data-content="Favourite" data-variation="mini"></div>
-              </div>
-              Other user: 7 <i class="star icon green"></i>
-          </div>
-        </div>
+{#                <div class="ui small heart rating red" type="fav" data-rating="1" data-max-rating="1" data-content="Favourite" data-variation="mini"></div>#}
+{#              </div>#}
+{#              Other user: 7 <i class="star icon green"></i>#}
+{#          </div>#}
+{#        </div>#}
     </div>
 {#    {% if request.user.is_authenticated %}#}
 {#        <div class="row">#}
