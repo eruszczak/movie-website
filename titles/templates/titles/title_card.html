@@ -1,9 +1,10 @@
+{% load static %}
 {% url 'title-rate' title.pk as rate_url %}
 {% url 'title-fav' title.pk as fav_url %}
 
 <div class="card title-card">
     <div class="image">
-      <img src="https://image.tmdb.org/t/p/w185_and_h278_bestv2/inVq3FRqcYIRl2la8iZikYYxFNR.jpg">
+      <img src="{% static 'img/w185_h278_bestv2.jpg' %}">
     </div>
   <div class="extra content">
       {{ title.name }} ({{ title.year }})

@@ -21,11 +21,7 @@
             {% include 'navbar.html' %}
         {% endblock %}
 
-        <div class="ui breadcrumb">
-            {% block breadcrumb %}
-            {% endblock %}
-        </div>
-        <div class="ui divider"></div>
+        {% block breadcrumb %}{% endblock %}
 
         {% if messages %}
             {% for message in messages %}

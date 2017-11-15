@@ -8,6 +8,7 @@
       </a>
       <a href="{% url 'home' %}" class="item{% if url_name == 'home' %} active{% endif %}">Home</a>
       <a href="{% url 'title-list' %}" class="item{% if url_name == 'title-list' %} active{% endif %}">Explore</a>
+      <a href="{% url 'user-list' %}" class="item{% if url_name == 'user-list' %} active{% endif %}">Users</a>
 {#      <div class="ui simple pointing dropdown item">#}
 {#        Dropdown <i class="dropdown icon"></i>#}
 {#        <div class="menu">#}
@@ -33,7 +34,6 @@
                 <div class="menu">
                   <a class="item" href="#">Notifications <span class="ui green label">2</span></a>
                   <a class="item" href="{% url 'user-detail' user.username %}">Profile</a>
-                  <a class="item" href="#">Link Item</a>
                     <div class="divider"></div>
                   <a href="{% url 'user-edit' user.username %}" class="item"><i class="setting icon"></i>Settings</a>
                   <a href="{% url 'logout' %}" class="item"><i class="sign out icon"></i>Logout</a>
