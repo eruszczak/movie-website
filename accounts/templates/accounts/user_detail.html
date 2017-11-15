@@ -1,8 +1,27 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
-{% block title %}{{ page_title }}{% endblock %}
+{#{% block title %}{{ page_title }}{% endblock %}#}
 
 {% block content %}
+{#    <div class="ui cards">#}
+{#        {% for rating in rating_list %}#}
+{#            {% include 'titles/title_card.html' with title=rating.title score=rating.rate in_fav=rating.has_in_favourites other_score=rating.user_rate is_owner=is_owner %}#}
+{#        {% endfor %}#}
+{#    </div>#}
+    <h3 class="ui header">
+        Recently seen
+        <div class="ui divider"></div>
+    </h3>
+    {% for rating in rating_list %}
+        <div class="ui tiny image">
+          <a class="ui left corner label">
+            <span class="icon">8</span>
+    {#          <span class="ui orange circular label">2</span>#}
+          </a>
+          <a href="{{ rating.title.get_absolute_url }}" target="_blank"><img src="{% static 'img/w185_h278_bestv2.jpg' %}" type="tooltip" data-content="{{ rating.title.name }} ({{ rating.title.year }}) on {{ rating.rate_date }}" data-variation="small"></a>
+        </div>
+    {% endfor %}
+
 <h2 class="ui center aligned icon header">
   <i class="circular users icon"></i>
   Friends
@@ -64,391 +83,391 @@
   <button class="ui button">Support</button>
 </div>
 
-<div class="ui horizontal list">
-  <div class="item">
-    <img class="ui mini circular image" src="/images/avatar2/small/molly.png">
-    <div class="content">
-      <div class="ui sub header">Molly</div>
-      Coordinator
-    </div>
-  </div>
-  <div class="item">
-    <img class="ui mini circular image" src="/images/avatar2/small/elyse.png">
-    <div class="content">
-      <div class="ui sub header">Elyse</div>
-      Developer
-    </div>
-  </div>
-  <div class="item">
-    <img src="/images/avatar2/small/eve.png" class="ui mini circular image">
-    <div class="content">
-      <div class="ui sub header">Eve</div>
-      Project Manager
-    </div>
-  </div>
-</div>
+{#<div class="ui horizontal list">#}
+{#  <div class="item">#}
+{#    <img class="ui mini circular image" src="/images/avatar2/small/molly.png">#}
+{#    <div class="content">#}
+{#      <div class="ui sub header">Molly</div>#}
+{#      Coordinator#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="item">#}
+{#    <img class="ui mini circular image" src="/images/avatar2/small/elyse.png">#}
+{#    <div class="content">#}
+{#      <div class="ui sub header">Elyse</div>#}
+{#      Developer#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="item">#}
+{#    <img src="/images/avatar2/small/eve.png" class="ui mini circular image">#}
+{#    <div class="content">#}
+{#      <div class="ui sub header">Eve</div>#}
+{#      Project Manager#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
 
-<div class="ui two column grid">
-  <div class="column">
-    <div class="ui raised segment">
-      <a class="ui red ribbon label">Overview</a>
-      <span>Account Details</span>
-      <p></p>
-      <a class="ui blue ribbon label">Community</a> User Reviews
-      <p></p>
-    </div>
-  </div>
-  <div class="column">
-    <div class="ui segment">
-      <a class="ui orange right ribbon label">Specs</a>
-      <p></p>
-      <a class="ui teal right ribbon label">Reviews</a>
-      <p></p>
-    </div>
-  </div>
-</div>
+{#<div class="ui two column grid">#}
+{#  <div class="column">#}
+{#    <div class="ui raised segment">#}
+{#      <a class="ui red ribbon label">Overview</a>#}
+{#      <span>Account Details</span>#}
+{#      <p></p>#}
+{#      <a class="ui blue ribbon label">Community</a> User Reviews#}
+{#      <p></p>#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="column">#}
+{#    <div class="ui segment">#}
+{#      <a class="ui orange right ribbon label">Specs</a>#}
+{#      <p></p>#}
+{#      <a class="ui teal right ribbon label">Reviews</a>#}
+{#      <p></p>#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
 
-<div class="ui list">
-  <div class="item">
-    <img class="ui avatar image" src="/images/avatar2/small/rachel.png">
-    <div class="content">
-      <a class="header">Rachel</a>
-      <div class="description">Last seen watching <a><b>Arrested Development</b></a> just now.</div>
-    </div>
-  </div>
-  <div class="item">
-    <img class="ui avatar image" src="/images/avatar2/small/lindsay.png">
-    <div class="content">
-      <a class="header">Lindsay</a>
-      <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
-    </div>
-  </div>
-  <div class="item">
-    <img class="ui avatar image" src="/images/avatar2/small/matthew.png">
-    <div class="content">
-      <a class="header">Matthew</a>
-      <div class="description">Last seen watching <a><b>The Godfather Part 2</b></a> yesterday.</div>
-    </div>
-  </div>
-  <div class="item">
-    <img class="ui avatar image" src="/images/avatar/small/jenny.jpg">
-    <div class="content">
-      <a class="header">Jenny Hess</a>
-      <div class="description">Last seen watching <a><b>Twin Peaks</b></a> 3 days ago.</div>
-    </div>
-  </div>
-  <div class="item">
-    <img class="ui avatar image" src="/images/avatar/small/veronika.jpg">
-    <div class="content">
-      <a class="header">Veronika Ossi</a>
-      <div class="description">Has not watched anything recently</div>
-    </div>
-  </div>
-</div>
+{#<div class="ui list">#}
+{#  <div class="item">#}
+{#    <img class="ui avatar image" src="/images/avatar2/small/rachel.png">#}
+{#    <div class="content">#}
+{#      <a class="header">Rachel</a>#}
+{#      <div class="description">Last seen watching <a><b>Arrested Development</b></a> just now.</div>#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="item">#}
+{#    <img class="ui avatar image" src="/images/avatar2/small/lindsay.png">#}
+{#    <div class="content">#}
+{#      <a class="header">Lindsay</a>#}
+{#      <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="item">#}
+{#    <img class="ui avatar image" src="/images/avatar2/small/matthew.png">#}
+{#    <div class="content">#}
+{#      <a class="header">Matthew</a>#}
+{#      <div class="description">Last seen watching <a><b>The Godfather Part 2</b></a> yesterday.</div>#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="item">#}
+{#    <img class="ui avatar image" src="/images/avatar/small/jenny.jpg">#}
+{#    <div class="content">#}
+{#      <a class="header">Jenny Hess</a>#}
+{#      <div class="description">Last seen watching <a><b>Twin Peaks</b></a> 3 days ago.</div>#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="item">#}
+{#    <img class="ui avatar image" src="/images/avatar/small/veronika.jpg">#}
+{#    <div class="content">#}
+{#      <a class="header">Veronika Ossi</a>#}
+{#      <div class="description">Has not watched anything recently</div>#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
+{#todo#}
+{#<div class="ui relaxed list">#}
+{#  <div class="item">#}
+{#    <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">#}
+{#    <div class="content">#}
+{#      <a class="header">Daniel Louise</a>#}
+{#      <div class="description">Last seen watching <a><b>Arrested Development</b></a> just now.</div>#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="item">#}
+{#    <img class="ui avatar image" src="/images/avatar/small/stevie.jpg">#}
+{#    <div class="content">#}
+{#      <a class="header">Stevie Feliciano</a>#}
+{#      <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="item">#}
+{#    <img class="ui avatar image" src="/images/avatar/small/elliot.jpg">#}
+{#    <div class="content">#}
+{#      <a class="header">Elliot Fu</a>#}
+{#      <div class="description">Last seen watching <a><b>The Godfather Part 2</b></a> yesterday.</div>#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
 
-<div class="ui relaxed list">
-  <div class="item">
-    <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
-    <div class="content">
-      <a class="header">Daniel Louise</a>
-      <div class="description">Last seen watching <a><b>Arrested Development</b></a> just now.</div>
-    </div>
-  </div>
-  <div class="item">
-    <img class="ui avatar image" src="/images/avatar/small/stevie.jpg">
-    <div class="content">
-      <a class="header">Stevie Feliciano</a>
-      <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
-    </div>
-  </div>
-  <div class="item">
-    <img class="ui avatar image" src="/images/avatar/small/elliot.jpg">
-    <div class="content">
-      <a class="header">Elliot Fu</a>
-      <div class="description">Last seen watching <a><b>The Godfather Part 2</b></a> yesterday.</div>
-    </div>
-  </div>
-</div>
 
+{#<div class="ui link cards">#}
+{#  <div class="card">#}
+{#    <div class="image">#}
+{#      <img src="/images/avatar2/large/matthew.png">#}
+{#    </div>#}
+{#    <div class="content">#}
+{#      <div class="header">Matt Giampietro</div>#}
+{#      <div class="meta">#}
+{#        <a>Friends</a>#}
+{#      </div>#}
+{#      <div class="description">#}
+{#        Matthew is an interior designer living in New York.#}
+{#      </div>#}
+{#    </div>#}
+{#    <div class="extra content">#}
+{#      <span class="right floated">#}
+{#        Joined in 2013#}
+{#      </span>#}
+{#      <span>#}
+{#        <i class="user icon"></i>#}
+{#        75 Friends#}
+{#      </span>#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="card">#}
+{#    <div class="image">#}
+{#      <img src="/images/avatar2/large/molly.png">#}
+{#    </div>#}
+{#    <div class="content">#}
+{#      <div class="header">Molly</div>#}
+{#      <div class="meta">#}
+{#        <span class="date">Coworker</span>#}
+{#      </div>#}
+{#      <div class="description">#}
+{#        Molly is a personal assistant living in Paris.#}
+{#      </div>#}
+{#    </div>#}
+{#    <div class="extra content">#}
+{#      <span class="right floated">#}
+{#        Joined in 2011#}
+{#      </span>#}
+{#      <span>#}
+{#        <i class="user icon"></i>#}
+{#        35 Friends#}
+{#      </span>#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="card">#}
+{#    <div class="image">#}
+{#      <img src="/images/avatar2/large/elyse.png">#}
+{#    </div>#}
+{#    <div class="content">#}
+{#      <div class="header">Elyse</div>#}
+{#      <div class="meta">#}
+{#        <a>Coworker</a>#}
+{#      </div>#}
+{#      <div class="description">#}
+{#        Elyse is a copywriter working in New York.#}
+{#      </div>#}
+{#    </div>#}
+{#    <div class="extra content">#}
+{#      <span class="right floated">#}
+{#        Joined in 2014#}
+{#      </span>#}
+{#      <span>#}
+{#        <i class="user icon"></i>#}
+{#        151 Friends#}
+{#      </span>#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
 
-<div class="ui link cards">
-  <div class="card">
-    <div class="image">
-      <img src="/images/avatar2/large/matthew.png">
-    </div>
-    <div class="content">
-      <div class="header">Matt Giampietro</div>
-      <div class="meta">
-        <a>Friends</a>
-      </div>
-      <div class="description">
-        Matthew is an interior designer living in New York.
-      </div>
-    </div>
-    <div class="extra content">
-      <span class="right floated">
-        Joined in 2013
-      </span>
-      <span>
-        <i class="user icon"></i>
-        75 Friends
-      </span>
-    </div>
-  </div>
-  <div class="card">
-    <div class="image">
-      <img src="/images/avatar2/large/molly.png">
-    </div>
-    <div class="content">
-      <div class="header">Molly</div>
-      <div class="meta">
-        <span class="date">Coworker</span>
-      </div>
-      <div class="description">
-        Molly is a personal assistant living in Paris.
-      </div>
-    </div>
-    <div class="extra content">
-      <span class="right floated">
-        Joined in 2011
-      </span>
-      <span>
-        <i class="user icon"></i>
-        35 Friends
-      </span>
-    </div>
-  </div>
-  <div class="card">
-    <div class="image">
-      <img src="/images/avatar2/large/elyse.png">
-    </div>
-    <div class="content">
-      <div class="header">Elyse</div>
-      <div class="meta">
-        <a>Coworker</a>
-      </div>
-      <div class="description">
-        Elyse is a copywriter working in New York.
-      </div>
-    </div>
-    <div class="extra content">
-      <span class="right floated">
-        Joined in 2014
-      </span>
-      <span>
-        <i class="user icon"></i>
-        151 Friends
-      </span>
-    </div>
-  </div>
-</div>
+{#<div class="ui cards">#}
+{#  <div class="card">#}
+{#    <div class="content">#}
+{#      <div class="header">Elliot Fu</div>#}
+{#      <div class="description">#}
+{#        Elliot Fu is a film-maker from New York.#}
+{#      </div>#}
+{#    </div>#}
+{#    <div class="ui bottom attached button">#}
+{#      <i class="add icon"></i>#}
+{#      Add Friend#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="card">#}
+{#    <div class="content">#}
+{#      <div class="header">Veronika Ossi</div>#}
+{#      <div class="description">#}
+{#        Veronika Ossi is a set designer living in New York who enjoys kittens, music, and partying.#}
+{#      </div>#}
+{#    </div>#}
+{#    <div class="ui bottom attached button">#}
+{#      <i class="add icon"></i>#}
+{#      Add Friend#}
+{#    </div>#}
+{#  </div>#}
+{#  <div class="card">#}
+{#    <div class="content">#}
+{#      <div class="header">Jenny Hess</div>#}
+{#      <div class="description">#}
+{#        Jenny is a student studying Media Management at the New School#}
+{#      </div>#}
+{#    </div>#}
+{#    <div class="ui bottom attached button">#}
+{#      <i class="add icon"></i>#}
+{#      Add Friend#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
 
-<div class="ui cards">
-  <div class="card">
-    <div class="content">
-      <div class="header">Elliot Fu</div>
-      <div class="description">
-        Elliot Fu is a film-maker from New York.
-      </div>
-    </div>
-    <div class="ui bottom attached button">
-      <i class="add icon"></i>
-      Add Friend
-    </div>
-  </div>
-  <div class="card">
-    <div class="content">
-      <div class="header">Veronika Ossi</div>
-      <div class="description">
-        Veronika Ossi is a set designer living in New York who enjoys kittens, music, and partying.
-      </div>
-    </div>
-    <div class="ui bottom attached button">
-      <i class="add icon"></i>
-      Add Friend
-    </div>
-  </div>
-  <div class="card">
-    <div class="content">
-      <div class="header">Jenny Hess</div>
-      <div class="description">
-        Jenny is a student studying Media Management at the New School
-      </div>
-    </div>
-    <div class="ui bottom attached button">
-      <i class="add icon"></i>
-      Add Friend
-    </div>
-  </div>
-</div>
-
-<div class="row lower">
-	<div class="col-md-12">
-		<div class="page-header text-center">
-			<span class="lead">{{ object.username }}</span>
-			{% if is_owner %}
-			<a href="{{ object.edit_url }}">
-                <button id="editSettings" type="button" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> edit</button>
-            </a>
-        	{% endif %}
-			{% if is_other_user %}
-                {% include 'includes/actions/follow.html' with user_pk=object.pk condition=already_follows %}
-			{% endif %}
-		</div>
-	</div>
-</div>
-
-<img id="avatar" class="img-responsive img-thumbnail center-block"
-	 src="{% if object.picture %}{{ object.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}"
-	 alt="...">
-
-<div class="row text-center">
-	<br>
-	<div class="col-md-12">
-		<a href="{{ object.watchlist_url }}" class="btn btn-sm btn-default">
-			<span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist
-		</a>
-		<a href="{{ object.favourite_url }}" class="btn btn-sm btn-default">
-			<span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> favourites
-		</a>
-		<a href="{{ object.recommend_url }}" class="btn btn-sm btn-default">
-			<span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend
-		</a>
-	</div>
-</div>
-
-{% if is_owner %}
-<div class="row text-center">
-	<br>
-	<div class="col-md-12">
-		{% if user.imdb_id or user.csv_ratings %}
-		<div class="btn-group text-center">
-			<form method="post" name="update_titles_form">{% csrf_token %}
-				{% if user.imdb_id %}
-					<button class="btn btn-xs btn-primary" type="submit" name="update_rss" value="update_rss">update ratings</button>
-
-					<button class="btn btn-xs btn-primary" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>
-				{% endif %}
-				{% if user.csv_ratings %}
-					<button class="btn btn-xs btn-primary" type="submit" name="update_csv" value="update_csv">update csv</button>
-				{% endif %}
-			</form>
-		</div>
-		{% endif %}
-	</div>
-</div>
-{% endif %}
-
-<br>
-<div class="row">
-	<div class="col-md-8 col-md-offset-2">
-		{% if not user_ratings.last_seen and is_owner %}
-		<div class="text-center">
-			<div class="alert alert-success alert-resize" role="alert">
-				<p>You have no ratings yet.</p>
-				<p><a href="{% url 'title-list' %}">Explore</a> titles or go ahead and <a href="{% url 'user-edit' user.username %}">edit</a> your profile to sync your account with IMDb.</p>
-			</div>
-		</div>
-		{% endif %}
-		<div class="panel panel-success">
-			<div class="panel-heading text-center">Most Recently Rated</div>
-			<div class="panel-body">
-				{% if user_ratings.last_seen %}
-				<div class="row">
-					{% for entry in user_ratings.last_seen %}
-						{% include 'titles/titles_in_a_row.html' with title=entry.title owner=is_owner rate=entry.rate req_user_rate=entry.req_user_curr_rating %}
-					{% endfor %}
-				</div>
-				<hr>
-				{% endif %}
-				See all <a href="{{ object.ratings_url }}">{{ object.count_titles }} titles</a>
-				or <a href="{{ object.all_ratings_url }}">{{ object.count_ratings }} ratings</a>
-				<hr class="visible-sm visible-xs">
-				<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import-ratings' object.username %}" style="display:none">{% csrf_token %}
-					<input id="import" name="csv_ratings" type="file" accept=".csv" />
-				</form>
-
-				<div style="display:inline;float: right;">
-					{% if is_owner %}
-						<form id="clear_ratings_form" method="post" action="{{ request.user.get_absolute_url }}" style="display:inline;margin-right:10px">{% csrf_token %}
-							<input id="confirm-nick" name="confirm-nick" hidden>
-							<button id="clear_ratings" type="submit" class="btn btn-xs btn-success" data-toggle="tooltip" title="You cannot revert this operation. You will lose all of you ratings if you haven't exported them first.">clear my ratings</button>
-						</form>
-						<a id="import_ratings" href="{% url 'import-ratings' object.username %}" style="margin-right:10px" data-toggle="tooltip" title="You can add ratings from exported file."><button class="btn btn-xs btn-success">import</button></a>
-					{% endif %}
-					<a href="{% url 'export-ratings' object.username %}" data-toggle="tooltip" title="You can export all of your ratings as a form of backup. If you will lose some of your ratings, you will be able to import them." target="_blank"><button class="btn btn-xs btn-success">export</button></a>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-{% if user_ratings.common_with_req_user %}
-<div class="row">
-	<div class="col-md-8 col-md-offset-2">
-		<div class="panel panel-success">
-			<div class="panel-heading text-center">Compared to you</div>
-			<div class="panel-body">
-				{% if user_ratings.common_with_req_user.not_rated_by_req_user %}
-				<div>
-					<div class="row">
-						<p class="text-center lead">Titles {{ object.username }} liked that you haven't rated</p>
-						{% for title in user_ratings.common_with_req_user.not_rated_by_req_user %}
-							{% include 'titles/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate %}
-						{% endfor %}
-					</div>
-					See all <a href="{{ object.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated
-				</div>
-				<hr>
-				{% endif %}
-				{% if user_ratings.common_with_req_user.higher %}
-				<div class="row">
-					<p class="text-center lead">Titles you rated higher</p>
-					{% for title in user_ratings.common_with_req_user.higher %}
-						{% include 'titles/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}
-					{% endfor %}
-				</div>
-				<hr>
-				{% endif %}
-				{% if user_ratings.common_with_req_user.lower %}
-				<div class="row">
-					<p class="text-center lead">Titles you rated lower</p>
-					{% for title in user_ratings.common_with_req_user.lower %}
-						{% include 'titles/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}
-					{% endfor %}
-				</div>
-				<hr>
-				{% endif %}
-				<p class="text-center lead">Summary</p>
-				You and {{ object.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>
-				{% if user_ratings.common_with_req_user.req_user_rate_avg %}
-					You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ object.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>
-				{% endif %}
-				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ object.username }}'s
-				<a href="{{ object.ratings_url }}">{{ object.count_titles }} ratings</a><br>
-				<a href="{% url 'title-list' %}?u={{ object.username }}&exclude_his=on">See titles</a> that only you have seen
-			</div>
-		</div>
-	</div>
-</div>
-{% endif %}
-{% if user_ratings.last_seen %}
-<div class="row">
-	<div class="col-md-10 col-md-offset-1">
-		<div class="text-center">
-			<div id="graph_btns" class="btn-group" role="group" aria-label="...">
-				<button id="graph_genres" class="btn btn-default">genres</button>
-				<button id="graph_months" class="btn btn-default">months</button>
-				<button id="graph_rated" class="btn btn-default">rated</button>
-				<button id="graph_year" class="btn btn-default">year</button>
-			</div>
-		</div>
-		<div id="graph" style="margin-top: 3%"></div>
-	</div>
-</div>
-{% endif %}
-
-<div id="dialog-confirm" title="Clear all your ratings?" style="display:none;">
-	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>You cannot revert this operation. You will lose all of you ratings if you haven't exported them first. As a confirmation - enter your username and press OK.</p>
-	<input type="text" id="confirm-nickname">
-</div>
+{#<div class="row lower">#}
+{#	<div class="col-md-12">#}
+{#		<div class="page-header text-center">#}
+{#			<span class="lead">{{ object.username }}</span>#}
+{#			{% if is_owner %}#}
+{#			<a href="{{ object.edit_url }}">#}
+{#                <button id="editSettings" type="button" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> edit</button>#}
+{#            </a>#}
+{#        	{% endif %}#}
+{#			{% if is_other_user %}#}
+{#                {% include 'includes/actions/follow.html' with user_pk=object.pk condition=already_follows %}#}
+{#			{% endif %}#}
+{#		</div>#}
+{#	</div>#}
+{#</div>#}
+{##}
+{#<img id="avatar" class="img-responsive img-thumbnail center-block"#}
+{#	 src="{% if object.picture %}{{ object.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}"#}
+{#	 alt="...">#}
+{##}
+{#<div class="row text-center">#}
+{#	<br>#}
+{#	<div class="col-md-12">#}
+{#		<a href="{{ object.watchlist_url }}" class="btn btn-sm btn-default">#}
+{#			<span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist#}
+{#		</a>#}
+{#		<a href="{{ object.favourite_url }}" class="btn btn-sm btn-default">#}
+{#			<span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> favourites#}
+{#		</a>#}
+{#		<a href="{{ object.recommend_url }}" class="btn btn-sm btn-default">#}
+{#			<span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend#}
+{#		</a>#}
+{#	</div>#}
+{#</div>#}
+{##}
+{#{% if is_owner %}#}
+{#<div class="row text-center">#}
+{#	<br>#}
+{#	<div class="col-md-12">#}
+{#		{% if user.imdb_id or user.csv_ratings %}#}
+{#		<div class="btn-group text-center">#}
+{#			<form method="post" name="update_titles_form">{% csrf_token %}#}
+{#				{% if user.imdb_id %}#}
+{#					<button class="btn btn-xs btn-primary" type="submit" name="update_rss" value="update_rss">update ratings</button>#}
+{##}
+{#					<button class="btn btn-xs btn-primary" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>#}
+{#				{% endif %}#}
+{#				{% if user.csv_ratings %}#}
+{#					<button class="btn btn-xs btn-primary" type="submit" name="update_csv" value="update_csv">update csv</button>#}
+{#				{% endif %}#}
+{#			</form>#}
+{#		</div>#}
+{#		{% endif %}#}
+{#	</div>#}
+{#</div>#}
+{#{% endif %}#}
+{##}
+{#<br>#}
+{#<div class="row">#}
+{#	<div class="col-md-8 col-md-offset-2">#}
+{#		{% if not user_ratings.last_seen and is_owner %}#}
+{#		<div class="text-center">#}
+{#			<div class="alert alert-success alert-resize" role="alert">#}
+{#				<p>You have no ratings yet.</p>#}
+{#				<p><a href="{% url 'title-list' %}">Explore</a> titles or go ahead and <a href="{% url 'user-edit' user.username %}">edit</a> your profile to sync your account with IMDb.</p>#}
+{#			</div>#}
+{#		</div>#}
+{#		{% endif %}#}
+{#		<div class="panel panel-success">#}
+{#			<div class="panel-heading text-center">Most Recently Rated</div>#}
+{#			<div class="panel-body">#}
+{#				{% if user_ratings.last_seen %}#}
+{#				<div class="row">#}
+{#					{% for entry in user_ratings.last_seen %}#}
+{#						{% include 'titles/titles_in_a_row.html' with title=entry.title owner=is_owner rate=entry.rate req_user_rate=entry.req_user_curr_rating %}#}
+{#					{% endfor %}#}
+{#				</div>#}
+{#				<hr>#}
+{#				{% endif %}#}
+{#				See all <a href="{{ object.ratings_url }}">{{ object.count_titles }} titles</a>#}
+{#				or <a href="{{ object.all_ratings_url }}">{{ object.count_ratings }} ratings</a>#}
+{#				<hr class="visible-sm visible-xs">#}
+{#				<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import-ratings' object.username %}" style="display:none">{% csrf_token %}#}
+{#					<input id="import" name="csv_ratings" type="file" accept=".csv" />#}
+{#				</form>#}
+{##}
+{#				<div style="display:inline;float: right;">#}
+{#					{% if is_owner %}#}
+{#						<form id="clear_ratings_form" method="post" action="{{ request.user.get_absolute_url }}" style="display:inline;margin-right:10px">{% csrf_token %}#}
+{#							<input id="confirm-nick" name="confirm-nick" hidden>#}
+{#							<button id="clear_ratings" type="submit" class="btn btn-xs btn-success" data-toggle="tooltip" title="You cannot revert this operation. You will lose all of you ratings if you haven't exported them first.">clear my ratings</button>#}
+{#						</form>#}
+{#						<a id="import_ratings" href="{% url 'import-ratings' object.username %}" style="margin-right:10px" data-toggle="tooltip" title="You can add ratings from exported file."><button class="btn btn-xs btn-success">import</button></a>#}
+{#					{% endif %}#}
+{#					<a href="{% url 'export-ratings' object.username %}" data-toggle="tooltip" title="You can export all of your ratings as a form of backup. If you will lose some of your ratings, you will be able to import them." target="_blank"><button class="btn btn-xs btn-success">export</button></a>#}
+{#				</div>#}
+{#			</div>#}
+{#		</div>#}
+{#	</div>#}
+{#</div>#}
+{#{% if user_ratings.common_with_req_user %}#}
+{#<div class="row">#}
+{#	<div class="col-md-8 col-md-offset-2">#}
+{#		<div class="panel panel-success">#}
+{#			<div class="panel-heading text-center">Compared to you</div>#}
+{#			<div class="panel-body">#}
+{#				{% if user_ratings.common_with_req_user.not_rated_by_req_user %}#}
+{#				<div>#}
+{#					<div class="row">#}
+{#						<p class="text-center lead">Titles {{ object.username }} liked that you haven't rated</p>#}
+{#						{% for title in user_ratings.common_with_req_user.not_rated_by_req_user %}#}
+{#							{% include 'titles/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate %}#}
+{#						{% endfor %}#}
+{#					</div>#}
+{#					See all <a href="{{ object.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated#}
+{#				</div>#}
+{#				<hr>#}
+{#				{% endif %}#}
+{#				{% if user_ratings.common_with_req_user.higher %}#}
+{#				<div class="row">#}
+{#					<p class="text-center lead">Titles you rated higher</p>#}
+{#					{% for title in user_ratings.common_with_req_user.higher %}#}
+{#						{% include 'titles/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}#}
+{#					{% endfor %}#}
+{#				</div>#}
+{#				<hr>#}
+{#				{% endif %}#}
+{#				{% if user_ratings.common_with_req_user.lower %}#}
+{#				<div class="row">#}
+{#					<p class="text-center lead">Titles you rated lower</p>#}
+{#					{% for title in user_ratings.common_with_req_user.lower %}#}
+{#						{% include 'titles/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}#}
+{#					{% endfor %}#}
+{#				</div>#}
+{#				<hr>#}
+{#				{% endif %}#}
+{#				<p class="text-center lead">Summary</p>#}
+{#				You and {{ object.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>#}
+{#				{% if user_ratings.common_with_req_user.req_user_rate_avg %}#}
+{#					You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ object.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>#}
+{#				{% endif %}#}
+{#				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ object.username }}'s#}
+{#				<a href="{{ object.ratings_url }}">{{ object.count_titles }} ratings</a><br>#}
+{#				<a href="{% url 'title-list' %}?u={{ object.username }}&exclude_his=on">See titles</a> that only you have seen#}
+{#			</div>#}
+{#		</div>#}
+{#	</div>#}
+{#</div>#}
+{#{% endif %}#}
+{#{% if user_ratings.last_seen %}#}
+{#<div class="row">#}
+{#	<div class="col-md-10 col-md-offset-1">#}
+{#		<div class="text-center">#}
+{#			<div id="graph_btns" class="btn-group" role="group" aria-label="...">#}
+{#				<button id="graph_genres" class="btn btn-default">genres</button>#}
+{#				<button id="graph_months" class="btn btn-default">months</button>#}
+{#				<button id="graph_rated" class="btn btn-default">rated</button>#}
+{#				<button id="graph_year" class="btn btn-default">year</button>#}
+{#			</div>#}
+{#		</div>#}
+{#		<div id="graph" style="margin-top: 3%"></div>#}
+{#	</div>#}
+{#</div>#}
+{#{% endif %}#}
+{##}
+{#<div id="dialog-confirm" title="Clear all your ratings?" style="display:none;">#}
+{#	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>You cannot revert this operation. You will lose all of you ratings if you haven't exported them first. As a confirmation - enter your username and press OK.</p>#}
+{#	<input type="text" id="confirm-nickname">#}
+{#</div>#}
 {% endblock %}

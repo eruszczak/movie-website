@@ -46,8 +46,8 @@
     <div class="content">
       <a href="{{ user_detail_url }}" class="header">{{ user.username }}</a>
 {#    follow button under avatar#}
-        <div class="ui large star rating" type="fav" data-url="{% url 'user-follow' user.pk %}" data-rating="{{ user.already_follows }}" data-max-rating="1" data-content="Follow" data-variation="mini"></div>
-        {{ user.user_rate }} <i class="star icon green"></i>
+        <div class="ui large star rating" type="tooltip" data-url="{% url 'user-follow' user.pk %}" data-rating="{{ user.already_follows }}" data-max-rating="1" data-content="Follow" data-variation="mini"></div>
+        {% if title %}{{ user.user_rate }} <i class="star icon green"></i>{% endif %}
         <div class="floated right">
             <p>watchlist favourites see_all_lists</p>
         </div>
