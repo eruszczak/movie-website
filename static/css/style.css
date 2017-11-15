@@ -7,3 +7,7 @@ body {
 .title-card {
     width: 200px!important;
 }
+
+.ui.left.corner.label span {
+    left: -.78571429em;
+}

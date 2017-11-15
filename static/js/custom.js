@@ -27,7 +27,7 @@ $('.rating').rating({
     }
 });
 
-$('[type="fav"]').popup();
+$('[type="tooltip"]').popup();
 
 // var $toggle  = $('.ui.toggle.button');
 // $toggle

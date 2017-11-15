@@ -180,9 +180,7 @@ class UserDetailView(DetailView):
     url_lookup_kwarg = 'username'
     titles_in_a_row = 6
     is_owner = False  # checks if a request user is an owner of the profile
-    already_follows = False
     common = None
-    user_ratings = None
     is_other_user = False  # authenticated user who is not an owner of the profile
     user = None
     object = None
@@ -191,7 +189,6 @@ class UserDetailView(DetailView):
         self.object = self.get_object()
         self.is_owner = self.object == self.request.user
         self.is_other_user = self.request.user.is_authenticated and not self.is_owner
-        self.user_ratings = self.get_user_ratings()
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
 
@@ -201,29 +198,34 @@ class UserDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.is_other_user:
-            self.already_follows = UserFollow.objects.filter(
-                user_follower=self.request.user, user_followed=self.object).exists()
-            print(self.already_follows, self.request.user.username, 'follows', self.object.username)
-            self.common = self.get_user_ratings()
+            context.update({
+                'already_follows': UserFollow.objects.filter(follower=self.request.user, followed=self.object).exists()
+            })
+            # self.common = self.get_user_ratings()
+            # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+            # ratings = Rating.objects.filter(user=self.object).annotate(
+            #     user_rate=Subquery(newest.values('rate')[:1])).select_related('title')
+            ratings = Rating.objects.filter(user=self.object).extra(select={
+                'user_rate': """SELECT rating.rate FROM titles_rating as rating
+                WHERE rating.user_id = %s
+                AND rating.title_id = titles_rating.title_id
+                ORDER BY rating.rate_date DESC LIMIT 1""",
+            }, select_params=[self.request.user.id])
+            for r in ratings:
+                print(r.user_rate)
+        else:
+            ratings = Rating.objects.filter(user=self.object).select_related('title')
 
         context.update({
-            'page_title': 'Profile of {}'.format(self.object.username),
             'is_owner': self.is_owner,
-            'already_follows': self.already_follows,
-            'user_ratings': {
-                'last_seen': self.user_ratings[:self.titles_in_a_row],
-                'common_with_req_user': self.common
-            }
+            'rating_list': ratings[:self.titles_in_a_row],
+            # 'common_with_req_user': self.common
         })
         return context
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        if self.request.POST.get('follow'):
-            UserFollow.objects.create(user_follower=self.request.user, user_followed=self.object)
-        elif self.request.POST.get('unfollow'):
-            UserFollow.objects.filter(user_follower=self.request.user, user_followed=self.object).delete()
-        elif self.request.POST.get('confirm-nick'):
+        if self.request.POST.get('confirm-nick'):
             if self.request.POST['confirm-nick'] == self.request.user.username:
                 deleted_count = Rating.objects.filter(user=self.request.user).delete()[0]
                 message = 'You have deleted your {} ratings'.format(deleted_count)
@@ -240,16 +242,6 @@ class UserDetailView(DetailView):
                 message = update_watchlist(self.object)
             messages.info(self.request, message, extra_tags='safe')
         return redirect(self.object)
-
-    def get_user_ratings(self):
-        if self.is_other_user:
-            return Rating.objects.filter(user=self.object).extra(select={
-                'req_user_curr_rating': """SELECT rating.rate FROM movie_rating as rating
-                WHERE rating.user_id = %s
-                AND rating.title_id = movie_rating.title_id
-                ORDER BY rating.rate_date DESC LIMIT 1""",
-            }, select_params=[self.request.user.id])
-        return Rating.objects.filter(user=self.object).select_related('title')
 
     def get_ratings_comparision(self):
         """

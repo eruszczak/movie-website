@@ -28,14 +28,14 @@
 {#        </div>#}
 {#      </div>#}
       <div class="right menu">
-          {% if user.is_authenticated %}
+          {% if request.user.is_authenticated %}
               <div class="ui simple dropdown item">
-                {{ user.username }} <i class="dropdown icon"></i> <span class="ui green label">2</span>
+                {{ request.user.username }} <i class="dropdown icon"></i> <span class="ui green label">2</span>
                 <div class="menu">
-                  <a class="item" href="#">Notifications <span class="ui green label">2</span></a>
-                  <a class="item" href="{% url 'user-detail' user.username %}">Profile</a>
+                  <a class="item" href="#"><i class="alarm icon"></i>Notifications <span class="ui green label">2</span></a>
+                  <a class="item" href="{% url 'user-detail' request.user.username %}"><i class="user icon"></i>Profile</a>
                     <div class="divider"></div>
-                  <a href="{% url 'user-edit' user.username %}" class="item"><i class="setting icon"></i>Settings</a>
+                  <a href="{% url 'user-edit' request.user.username %}" class="item"><i class="setting icon"></i>Settings</a>
                   <a href="{% url 'logout' %}" class="item"><i class="sign out icon"></i>Logout</a>
                 </div>
               </div>
