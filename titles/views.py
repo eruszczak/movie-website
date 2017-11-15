@@ -67,6 +67,7 @@ class TitleListView(SearchViewMixin, ListView):
     def get_queryset(self):
         qs = super().get_queryset()
         if self.request.user.is_authenticated:
+            newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
             qs = qs.annotate(
                 has_in_watchlist=Count(
                     Case(
@@ -77,8 +78,9 @@ class TitleListView(SearchViewMixin, ListView):
                 has_in_favourites=Count(
                     Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
                 ),
+                user_rate=Subquery(newest.values('rate')[:1])
             )
-        return qs.order_by('-year', '-votes').prefetch_related('director', 'genre')
+        return qs.order_by('-year', '-name').prefetch_related('director', 'genre')
 
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)

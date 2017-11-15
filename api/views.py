@@ -116,8 +116,8 @@ class TitleToggleFavourite(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
-        add = request.POST.get('add')
-        remove = request.POST.get('remove')
+        add = request.POST.get('rating') == '1'
+        remove = not add
         try:
             title = Title.objects.get(pk=kwargs['pk'])
         except Title.DoesNotExist:
