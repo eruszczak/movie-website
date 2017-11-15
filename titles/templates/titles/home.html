@@ -2,108 +2,29 @@
 {% load static humanize %}
 
 {% block content %}
-<div class="ui breadcrumb">
-  <a class="section">Home</a>
-  <div class="divider"> / </div>
-  <div class="active section">Search for: <a href="#">paper towels</a></div>
-</div>
-<h1 class="ui header">
-  H1
-  <div class="sub header">Sub Header</div>
-</h1>
-<div class="ui large heart rating" data-rating="1" data-max-rating="1"></div>
-
-{#<i class="circular heart icon link" data-content="Hello. This is a small popup" data-variation="small"></i>#}
-
-<div class="ui large star rating"></div>
-
-<div class="ui card">
-  <div class="content">
-    <i class="right floated like icon"></i>
-    <i class="right floated star icon"></i>
-    <div class="header">Cute Dog</div>
-    <div class="description">
-      <p></p>
+    <h1 class="ui header">
+      H1
+      <div class="sub header">Your latest ratings</div>
+      <div class="sub header">Upcoming</div>
+      <div class="sub header">Rating of people you follow</div>
+    </h1>
+    <div class="ui cards">
+        <div class="card title-card">
+            <div class="image">
+{#              <img src="https://image.tmdb.org/t/p/w200/inVq3FRqcYIRl2la8iZikYYxFNR.jpg">#}
+              <img src="https://image.tmdb.org/t/p/w185_and_h278_bestv2/inVq3FRqcYIRl2la8iZikYYxFNR.jpg">
+            </div>
+          <div class="extra content">
+              <div class="ui star mini rating" data-rating="4"></div>
+              <div class="right floated">
+                  <i class="list small icon" data-content="Watchlist" data-variation="mini"></i>
+        {#        <div class="ui large list rating red" type="fav" data-rating="0" data-max-rating="1" data-content="Favourites" data-variation="mini"></div>#}
+                <div class="ui small heart rating red" type="fav" data-rating="1" data-max-rating="1" data-content="Favourite" data-variation="mini"></div>
+              </div>
+              Other user: 7 <i class="star icon green"></i>
+          </div>
+        </div>
     </div>
-  </div>
-  <div class="extra content">
-    <span class="left floated like">
-      <i class="like icon"></i>
-      Like
-    </span>
-    <span class="right floated star">
-      <i class="star icon"></i>
-      Favorite
-    </span>
-  </div>
-</div>
-
-<div class="ui three column grid">
-  <div class="column">
-    <div class="ui fluid card">
-      <div class="image">
-        <img src="/images/avatar/large/daniel.jpg">
-      </div>
-      <div class="content">
-        <a class="header">Daniel Louise</a>
-      </div>
-    </div>
-  </div>
-  <div class="column">
-    <div class="ui fluid card">
-      <div class="image">
-        <img src="/images/avatar/large/helen.jpg">
-      </div>
-      <div class="content">
-        <a class="header">Helen Troy</a>
-      </div>
-    </div>
-  </div>
-  <div class="column">
-    <div class="ui fluid card">
-      <div class="image">
-        <img src="/images/avatar/large/elliot.jpg">
-      </div>
-      <div class="content">
-        <a class="header">Elliot Fu</a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="ui four cards">
-  <div class="card">
-    <div class="image">
-      <img>
-    </div>
-    <div class="extra">
-      Rating:
-      <div class="ui star rating" data-rating="4"></div>
-    </div>
-  </div>
-</div>
-
-<div class="ui card" data-html="<div class='header'>User Rating</div><div class='content'><div class='ui star rating'><i class='active icon'></i><i class='active icon'></i><i class='active icon'></i><i class='icon'></i><i class='icon'></i></div></div>">
-  <div class="image">
-    <img src="/images/movies/totoro-horizontal.jpg">
-  </div>
-  <div class="content">
-    <div class="header">My Neighbor Totoro</div>
-    <div class="description">
-      Two sisters move to the country with their father in order to be closer to their hospitalized mother, and discover the surrounding trees are inhabited by magical spirits.
-    </div>
-  </div>
-  <div class="ui two bottom attached buttons">
-    <div class="ui button">
-      <i class="add icon"></i>
-      Queue
-    </div>
-    <div class="ui primary button">
-      <i class="play icon"></i>
-      Watch
-    </div>
-  </div>
-</div>
 {#    {% if request.user.is_authenticated %}#}
 {#        <div class="row">#}
 {#            <div class="col-md-8 col-md-offset-2">#}
