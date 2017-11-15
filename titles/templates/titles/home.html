@@ -10,7 +10,7 @@
     </h1>
     <div class="ui cards">
         {% for rating in rating_list %}
-            {% include 'titles/title_card.html' with title=rating.title %}
+            {% include 'titles/title_card.html' with title=rating.title score=rating.rate in_fav=rating.has_in_favourites %}
         {% endfor %}
 {#        <div class="card title-card">#}
 {#            <div class="image">#}
