@@ -29,11 +29,11 @@ avg_of_current_user_ratings = """
         ) AS "current_rating",
 
         "movie_title"."id"
-        FROM "auth_user"
+        FROM "accounts_user"
 
         JOIN "movie_rating" ON ("movie_rating"."user_id" = "auth_user"."id")
         JOIN "movie_title" ON ("movie_title"."id" = "movie_rating"."title_id")
-        WHERE "auth_user"."id" = %s
+        WHERE "accounts_user"."id" = %s
     ) as "forEveryTitleCurrentRating"
 """
 
@@ -42,14 +42,14 @@ avg_of_current_ratings_of_title = """
         SELECT DISTINCT
         (SELECT rate FROM movie_rating as rating
         WHERE rating.title_id = movie_title.id
-        AND rating.user_id = "auth_user"."id"
+        AND rating.user_id = "accounts_user"."id"
         ORDER BY rating.rate_date DESC LIMIT 1
         ) AS "current_rating",
 
         "movie_title"."id", "auth_user"."id"
-        FROM "auth_user"
+        FROM "accounts_user"
 
-        JOIN "movie_rating" ON ("movie_rating"."user_id" = "auth_user"."id")
+        JOIN "movie_rating" ON ("movie_rating"."user_id" = "accounts_user"."id")
         JOIN "movie_title" ON ("movie_title"."id" = "movie_rating"."title_id")
         WHERE "movie_title"."id" = %s
     ) as "currentRatingsOfTitle"
@@ -126,7 +126,7 @@ curr_rate_of_followed_user_for_title = """
     "movie_rating"."title_id", "users_userfollow"."user_follower_id", "users_userfollow"."user_followed_id",
     T3.username, T5.picture
     FROM "users_userfollow"
-    INNER JOIN "auth_user" T3 ON ("users_userfollow"."user_followed_id" = T3."id")
+    INNER JOIN "accounts_user" T3 ON ("users_userfollow"."user_followed_id" = T3."id")
     INNER JOIN "movie_rating" ON (T3."id" = "movie_rating"."user_id")
     INNER JOIN "users_user" T5 ON (T3."id" = T5."id")
     WHERE ("users_userfollow"."user_follower_id" = %s AND "movie_rating"."title_id" = %s)
@@ -151,44 +151,50 @@ def dictfetchall(cursor):
 
 
 def rating_distribution(user_id):
-    with connection.cursor() as cursor:
-        cursor.execute(get_count_of_current_rates, [user_id] * 2)
-        return dictfetchall(cursor)
+    # with connection.cursor() as cursor:
+    #     cursor.execute(get_count_of_current_rates, [user_id] * 2)
+    #     return dictfetchall(cursor)
+    pass
 
 
 def avg_of_user_current_ratings(user_id):
-    with connection.cursor() as cursor:
-        cursor.execute(avg_of_current_user_ratings, [user_id] * 2)
-        return dictfetchall(cursor)[0]
+    # with connection.cursor() as cursor:
+    #     cursor.execute(avg_of_current_user_ratings, [user_id] * 2)
+    #     return dictfetchall(cursor)[0]
+    pass
 
 
 # todo this is almost done. i just have to get distinct('user')
 def avg_of_title_current_ratings(title_id):
-    with connection.cursor() as cursor:
-        cursor.execute(avg_of_current_ratings_of_title, [title_id])
-        return dictfetchall(cursor)[0]
+    # with connection.cursor() as cursor:
+    #     cursor.execute(avg_of_current_ratings_of_title, [title_id])
+    #     return dictfetchall(cursor)[0]
+    pass
 
 
 # todo similar as upper. just need to make 2 queries to get avgs but filter common ratings first
 def avgs_of_2_users_common_curr_ratings(user_id, req_user):
-    with connection.cursor() as cursor:
-        cursor.execute(avg_for_2_user_of_only_common_curr_ratings, [user_id, req_user, req_user, user_id])
-        return dictfetchall(cursor)[0]
+    # with connection.cursor() as cursor:
+    #     cursor.execute(avg_for_2_user_of_only_common_curr_ratings, [user_id, req_user, req_user, user_id])
+    #     return dictfetchall(cursor)[0]
+    pass
 
 # todo
 def titles_rated_higher_or_lower(user_id, req_user, sign, limit):
     """
 
     """
-    with connection.cursor() as cursor:
-        rate_diff_col_operation = '-' if sign == '<' else '+'
-        q = '"req_user_rate" + "user_rate"' if rate_diff_col_operation == '-' else '"user_rate" - "req_user_rate"'
-        cursor.execute(rated_higher_or_lower_sorted_by_rate_diff.format(
-            q, sign, limit), [user_id, req_user, req_user, user_id])
-        return dictfetchall(cursor)
+    # with connection.cursor() as cursor:
+    #     rate_diff_col_operation = '-' if sign == '<' else '+'
+    #     q = '"req_user_rate" + "user_rate"' if rate_diff_col_operation == '-' else '"user_rate" - "req_user_rate"'
+    #     cursor.execute(rated_higher_or_lower_sorted_by_rate_diff.format(
+    #         q, sign, limit), [user_id, req_user, req_user, user_id])
+    #     return dictfetchall(cursor)
+    pass
 
 
 def curr_title_rating_of_followed(follower_id, title_id):
-    with connection.cursor() as cursor:
-        cursor.execute(curr_rate_of_followed_user_for_title, [follower_id, title_id])
-        return dictfetchall(cursor)
+    # with connection.cursor() as cursor:
+    #     cursor.execute(curr_rate_of_followed_user_for_title, [follower_id, title_id])
+    #     return dictfetchall(cursor)
+    pass

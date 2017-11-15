@@ -4,10 +4,16 @@
 
 <div class="card title-card">
     <div class="image">
+      <a class="ui left corner label">
+        <i class="heart icon"></i>
+      </a>
+{#      <a class="ui right corner label">#}
+{#        <i class="heart icon"></i>#}
+{#      </a>#}
       <img src="{% static 'img/w185_h278_bestv2.jpg' %}">
     </div>
   <div class="extra content">
-      {{ title.name }} ({{ title.year }})
+      <a href="{{ title.get_absolute_url }}">{{ title.name }} ({{ title.year }})</a>
       <div class="ui star mini rating" data-url="{{ rate_url }}" data-rating="{{ score }}"></div>
       <div class="right floated">
           <i class="list small icon" data-content="Watchlist" data-variation="mini"></i>

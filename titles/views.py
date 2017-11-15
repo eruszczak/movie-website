@@ -123,9 +123,9 @@ class TitleDetailView(DetailView):
                 'is_favourite_for_user': Favourite.objects.filter(user=self.request.user, title=self.object).exists(),
                 'is_in_user_watchlist': Watchlist.objects.filter(user=self.request.user, title=self.object,
                                                                  deleted=False).exists(),
-                'followed_title_not_recommended': UserFollow.objects.filter(user_follower=self.request.user).exclude(
-                    user_followed__rating__title=self.object).exclude(user_followed__recommendation__title=self.object),
-                'followed_saw_title': curr_title_rating_of_followed(self.request.user.id, self.object.pk)
+                'followed_title_not_recommended': UserFollow.objects.filter(follower=self.request.user).exclude(
+                    followed__rating__title=self.object).exclude(followed__recommendation__title=self.object),
+                # 'followed_saw_title': curr_title_rating_of_followed(self.request.user.id, self.object.pk) todo
             }
 
         actors_and_other_titles = []
