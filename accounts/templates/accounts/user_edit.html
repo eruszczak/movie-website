@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}{{ page_title }}{% endblock %}
+{#{% block title %}{{ page_title }}{% endblock %}#}
 
 {% block content %}
+<div class="ui labeled input">
+      <div class="ui label">
+        http://imdb.com/user/
+      </div>
+      <input type="text" placeholder="ur4426481">
+    </div>
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
         <h2 class="text-center">Edit your <a href="{{ object.get_absolute_url }}">profile</a></h2>

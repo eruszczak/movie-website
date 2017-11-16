@@ -65,3 +65,15 @@ $('.user-menu .item').first().click();
 // $('.user-menu .item.active')
 //   .tab()
 // ;
+
+$('.user-list-popup')
+  .popup({
+    inline     : true,
+    hoverable  : true,
+    // position   : 'bottom left',
+    // delay: {
+    //   show: 300,
+    //   hide: 800
+    // }
+  })
+;

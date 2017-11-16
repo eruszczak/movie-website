@@ -1,0 +1,8 @@
+{% load static %}
+
+<div class="ui tiny image" type="tooltip" data-content="{{ title.name }} ({{ title.year }}){% if rate_date %} on {{ rate_date }}{% endif %}" data-variation="small">
+  <a class="ui left corner label">
+    <span class="icon">{{ rate }}</span>
+  </a>
+  <a href="{{ rating.title.get_absolute_url }}" target="_blank"><img src="{% static 'img/w185_h278_bestv2.jpg' %}"></a>
+</div>
