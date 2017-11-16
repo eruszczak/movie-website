@@ -73,8 +73,9 @@ def import_ratings(request):
         rate_date = convert_to_datetime(row['rate_date'], 'exported_from_db')
 
         if title and rate_date:
-            obj, created = Rating.objects.get_or_create(user=request.user, title=title, rate_date=rate_date,
-                                                        defaults={'rate': rate})
+            obj, created = Rating.objects.get_or_create(
+                user=request.user, title=title, rate_date=rate_date, defaults={'rate': rate}
+            )
             if created:
                 created_count += 1
     messages.info(request, 'imported {} out of {} ratings'.format(created_count, total_rows))
@@ -105,20 +106,13 @@ class UserListView(ListView):
         queryset = super().get_queryset()
         if self.request.GET.get('const'):
             self.searched_title = get_object_or_404(Title, const=self.request.GET['const'])
-
-            # queryset = queryset.filter(rating__title=self.searched_title).annotate(
-            #     user_rate=Subquery(
-            #         Rating.objects.filter(
-            #             user=OuterRef('pk'), title=OuterRef('rating__title')
-            #         ).order_by('-rate_date').values('rate')[:1]
-            #     )
-            # ).distinct()
-
-            queryset = queryset.filter(rating__title=self.searched_title).extra(select={
-                'user_rate': """SELECT rating.rate FROM titles_rating as rating, titles_title as title
-                    WHERE rating.title_id = title.id AND rating.user_id = accounts_user.id AND title.id = %s
-                    ORDER BY rating.rate_date DESC LIMIT 1"""
-            }, select_params=[self.searched_title.pk]).distinct() #.order_by('-current_rating', '-username')
+            queryset = queryset.filter(rating__title=self.searched_title).annotate(
+                user_rate=Subquery(
+                    Rating.objects.filter(
+                        user=OuterRef('pk'), title=OuterRef('rating__title')
+                    ).order_by('-rate_date').values('rate')[:1]
+                )
+            ).distinct()
         else:
             queryset = User.objects.annotate(num=Count('rating')).order_by('-num', '-username')
 
