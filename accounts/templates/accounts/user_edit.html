@@ -2,6 +2,19 @@
 
 {#{% block title %}{{ page_title }}{% endblock %}#}
 
+{% block breadcrumb %}
+    <div class="ui breadcrumb">
+        <a class="section" href="{% url 'home' %}">Home</a>
+        <i class="right angle icon divider"></i>
+        <a class="section" href="{% url 'user-list' %}">Users</a>
+        <i class="right angle icon divider"></i>
+        <a class="section" href="{% url 'user-detail' user.username %}">{{ user.username }}</a>
+        <i class="right angle icon divider"></i>
+        <a class="section active" href="{% url 'user-edit' user.username %}">Settings</a>
+    </div>
+    <div class="ui divider"></div>
+{% endblock %}
+
 {% block content %}
     <div class="ui labeled input">
       <div class="ui label">
