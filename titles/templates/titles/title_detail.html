@@ -14,6 +14,13 @@
     <h1 class="title-name">{{ title.name }}</h1>
     <p>genres</p>
 
+{#{% with entry.rate as data %}#}
+{#    {% if data.count and data.avg %}#}
+{#        Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user-list' %}?s={{ entry.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
+{#    {% endif %}#}
+{#{% endwith %}#}
+<a href="{% url 'user-list' %}?const={{ title.const }}">who saw this title</a>
+{#<a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
 
     <div class="ui pointing secondary menu user-menu">
         <a class="item active" data-tab="first">Your data</a>
@@ -118,38 +125,38 @@
 
     {{ title.plot }}
 
-                    <ul class="list-group marginleft">
-                        <li class="list-group-item">
-                            {% for genre in title.genre.all %}
-                                <a href="{{ genre.get_absolute_url }}">{{ genre.name }}<br></a>
-                            {% endfor %}
-                        </li>
-                        <li class="list-group-item">director:
-                            {% for director in title.director.all %}
-                                <a href="{{ director.get_absolute_url }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}<br></a>
-                            {% endfor %}
-                        </li>
+    <ul class="list-group marginleft">
+        <li class="list-group-item">
+            {% for genre in title.genre.all %}
+                <a href="{{ genre.get_absolute_url }}">{{ genre.name }}<br></a>
+            {% endfor %}
+        </li>
+        <li class="list-group-item">director:
+            {% for director in title.director.all %}
+                <a href="{{ director.get_absolute_url }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}<br></a>
+            {% endfor %}
+        </li>
 
-                        {% if title.runtime %}
-                            <li class="list-group-item">Runtime: {{ title.runtime }} mins</li>
-                        {% endif %}
+        {% if title.runtime %}
+            <li class="list-group-item">Runtime: {{ title.runtime }} mins</li>
+        {% endif %}
 
-                        {% if title.votes %}
-                            <li class="list-group-item">IMDb votes: {{ title.votes|intcomma }}</li>
-                        {% endif %}
+        {% if title.votes %}
+            <li class="list-group-item">IMDb votes: {{ title.votes|intcomma }}</li>
+        {% endif %}
 
-                        {% if title.rate_imdb %}
-                            <li class="list-group-item">Avg IMDb ratings: {{ title.rate_imdb }}</li>
-                        {% endif %}
+        {% if title.rate_imdb %}
+            <li class="list-group-item">Avg IMDb ratings: {{ title.rate_imdb }}</li>
+        {% endif %}
 
-                        {% with title.rate as data %}
-                            {% if data.count %}
-                                <li class="list-group-item">Avg ratings: {{ data.avg|floatformat:2 }}
-                                    <a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} user{{ data.count|pluralize }})</a>
-                                </li>
-                            {% endif %}
-                        {% endwith %}
-                    </ul>
+        {% with title.rate as data %}
+            {% if data.count %}
+                <li class="list-group-item">Avg ratings: {{ data.avg|floatformat:2 }}
+                    <a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} user{{ data.count|pluralize }})</a>
+                </li>
+            {% endif %}
+        {% endwith %}
+    </ul>
         </div>
 
 {% endblock %}

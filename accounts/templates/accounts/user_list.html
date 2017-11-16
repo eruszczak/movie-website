@@ -17,7 +17,10 @@
 
 {% block content %}
     {% if title %}
-        <div class="ui info message">Users who have seen <a href="{{ title.get_absolute_url }}">{{ title.name }}</a></div>
+        <div class="ui info message">{{ user_list|length }} users who have seen <a href="{{ title.get_absolute_url }}">{{ title.name }}</a></div>
+
+
+
 {#        {% include 'titles/title_card.html' with title=title score=title.user_rate in_fav=title.has_in_favourites %}#}
 {#  <div class="ui item">#}
 {#    <div class="ui tiny image">#}
@@ -46,7 +49,9 @@
     <div class="content">
       <a href="{{ user_detail_url }}" class="header">{{ user.username }}</a>
 {#    follow button under avatar#}
-        <div class="ui large star rating" type="tooltip" data-url="{% url 'user-follow' user.pk %}" data-rating="{{ user.already_follows }}" data-max-rating="1" data-content="Follow" data-variation="mini"></div>
+        {% if user.pk != request.user.pk %}
+            <div class="ui large star rating" type="tooltip" data-url="{% url 'user-follow' user.pk %}" data-rating="{{ user.already_follows|yesno:"1,0" }}" data-max-rating="1" data-content="Follow" data-variation="mini"></div>
+        {% endif %}
         {% if title %}{{ user.user_rate }} <i class="star icon green"></i>{% endif %}
         <div class="floated right">
             <p>watchlist favourites see_all_lists</p>
