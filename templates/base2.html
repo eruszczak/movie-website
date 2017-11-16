@@ -1,0 +1,52 @@
+{% load compress static %}<!doctype html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock %} | The Movie Website</title>
+        <meta charset="utf-8">
+        <link rel='shortcut icon' type='image/x-icon' href='{% static "img/favicon.png" %}'/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% compress css %}
+    {#        <link rel="stylesheet" href="{% static 'bower_components/jquery-ui/themes/base/jquery-ui.min.css' %}">#}
+            <link rel="stylesheet" href="{% static 'css/iao-alert.css' %}">
+            <link rel="stylesheet" type="text/css" href="{% static 'semantic/dist/semantic.min.css' %}">
+            <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        {% block styles %}{% endblock %}
+        <style type="text/css"></style>
+        {% endcompress %}
+    </head>
+<body>
+    <div class="ui main text container">
+        {% block navbar %}
+            {% include 'navbar.html' %}
+        {% endblock %}
+    </div>
+{#        {% block breadcrumb %}{% endblock %}#}
+{##}
+{#        {% if messages %}#}
+{#            {% for message in messages %}#}
+{#                <div class="ui main text container ignored info message {{ message.tags }}">#}
+{#                    {% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}#}
+{#                </div>#}
+{#            {% endfor %}#}
+{#        {% endif %}#}
+        {% block content %}{% endblock %}
+
+    <div class="ui main text container">
+    </div>
+        {#    <div class="ui secondary vertical footer segment">#}
+        {#        asd#}
+        {#    </div>#}
+        {#	</div>#}
+    {% compress js %}
+        <script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+        <script src="{% static 'semantic/dist/semantic.min.js' %}"></script>
+        <script src="{% static 'js/functions.js' %}"></script>
+        <script src="{% static 'js/custom.js' %}"></script>
+{#        <script src="{% static 'bower_components/jquery-ui/jquery-ui.min.js' %}"></script>#}
+        <script src="{% static 'js/iao-alert.jquery.js' %}"></script>
+        {% block scripts %}{% endblock %}
+        <script></script>
+    {% endcompress %}
+</body>
+</html>

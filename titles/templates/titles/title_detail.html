@@ -1,8 +1,33 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 {% load static humanize %}
 {#{% block title %}{% endblock %}#}
 {% block content %}
-{#     <img src="{% static 'img/1280.jpg' %}">#}
+<div class="still-background">
+    <img class="backdrop" src="{% static 'img/1280.jpg' %}">
+</div>
+
+<div class="ui main text container">
+    <img class="title-poster" src="{% static 'img/w185_h278_bestv2.jpg' %}">
+{#    <div class="ui cards title-poster">#}
+{#        {% include 'titles/title_card.html' with title=title score=current_rating.rate in_fav=title.has_in_favourites %}#}
+{#    </div>#}
+    <h1 class="title-name">{{ title.name }}</h1>
+    <p>genres</p>
+
+
+    <div class="ui pointing secondary menu user-menu">
+        <a class="item active" data-tab="first">Your data</a>
+        <a class="item" data-tab="second">Social</a>
+        <a class="item" data-tab="third">Pictures</a>
+    </div>
+
+<div class="ui tab segment active" data-tab="first"><h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
+<div class="ui tab segment" data-tab="second"><h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
+<div class="ui tab segment" data-tab="third"><h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
+<div class="ui tab segment" data-tab="fourth"><h3 class="ui header">4th</h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
+
+
+
 <table>
     {% for rating in data.user_ratings_of_title %}
         <tr>
@@ -35,9 +60,11 @@
     <div class="ui cards">
         {% include 'titles/title_card.html' with title=title score=current_rating.rate in_fav=title.has_in_favourites %}
     </div>
-    <span class="checkbox">
-        <label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>
-    </span>
+    <div class="ui checkbox">
+      <input type="checkbox" name="insert_as_new">
+      <label for="insert_as_new">insert as a new rating?</label>
+    </div>
+    <br>
     {% if user_ratings_of_title %}
         <a href="{% url 'rating-update' current_rating.pk %}" class="label label-default">
             <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> modify current rating
@@ -76,6 +103,8 @@
         {% include 'titles/title_small.html' with title=title rate=title.user_rate %}
     {% endfor %}
 {% endfor %}
+
+<div class="ui header">Similar titles</div>
 
 
     <br>
@@ -121,4 +150,6 @@
                             {% endif %}
                         {% endwith %}
                     </ul>
+        </div>
+
 {% endblock %}
