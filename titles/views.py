@@ -109,7 +109,11 @@ class TitleDetailView(DetailView):
     def get_object(self, queryset=None):
         if queryset is None:
             queryset = self.get_queryset()
-
+        queryset = queryset.annotate(
+            has_in_favourites=Count(
+                Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
+            ),
+        )
         try:
             return queryset.get(const=self.kwargs['const'])
         except self.model.DoesNotExist:
@@ -119,12 +123,13 @@ class TitleDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
             context.update({
+                # 'rating': Rating.objects.filter(user=self.request.user, title=self.object).latest('rate_date'),
                 'user_ratings_of_title': Rating.objects.filter(user=self.request.user, title=self.object),
                 'is_favourite_for_user': Favourite.objects.filter(user=self.request.user, title=self.object).exists(),
-                'is_in_user_watchlist': Watchlist.objects.filter(user=self.request.user, title=self.object,
-                                                                 deleted=False).exists(),
+                'is_in_user_watchlist': Watchlist.objects.filter(
+                    user=self.request.user, title=self.object, deleted=False).exists(),
                 'followed_title_not_recommended': UserFollow.objects.filter(follower=self.request.user).exclude(
-                    followed__rating__title=self.object).exclude(followed__recommendation__title=self.object),
+                    followed__rating__title=self.object, followed__recommendation__title=self.object),
                 # todo: do this directly on User object because I dont need anything from UserFollow
                 'followed_saw_title': UserFollow.objects.filter(
                     follower=self.request.user, followed__rating__title=self.object).annotate(
