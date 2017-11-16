@@ -32,7 +32,9 @@
 </table>
 
 {% with user_ratings_of_title.0 as current_rating %}
-    {% include 'titles/title_card.html' with title=title score=current_rating in_fav=title.has_in_favourites %}
+    <div class="ui cards">
+        {% include 'titles/title_card.html' with title=title score=current_rating.rate in_fav=title.has_in_favourites %}
+    </div>
     <span class="checkbox">
         <label><input type="checkbox" name="insert_as_new" value="insert_as_new">insert as a new rating?</label>
     </span>
@@ -70,7 +72,8 @@
 {% for actor, titles in actors_and_other_titles %}
     <h4 class="ui header">{{ actor.name }}</h4>
     {% for title in titles %}
-        {% include 'titles/title_small.html' with title=title %}
+{#        show left corner label only if rated#}
+        {% include 'titles/title_small.html' with title=title rate=title.user_rate %}
     {% endfor %}
 {% endfor %}
 
