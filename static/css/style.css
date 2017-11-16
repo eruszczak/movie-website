@@ -41,7 +41,20 @@ body {
     bottom: 20vh;
     margin-left: 200px;
     z-index: 2;
-    font-size: 60px;
+    font-size: 4em;
     color: white;
     text-shadow: 0 4px 10px rgba(0,0,0,.62);
+    overflow:hidden;
+}
+
+.title-genres {
+    position: absolute;
+    bottom: 14vh;
+    margin-left: 200px;
+    z-index: 2;
+    font-size: 2em;
+    color: white;
+    margin-top: 5px;
+    text-shadow: 0 4px 10px rgba(0,0,0,.62);
+    overflow:hidden;
 }

@@ -43,22 +43,22 @@ $('[type="tooltip"]').popup();
 // $('.test .menu .item')
 $('.user-menu .item')//.not('.active')
   .tab({
-    cache: false,
-    // faking API request
-    apiSettings: {
-      loadingDuration : 300,
-      mockResponse: function(settings) {
-        var response = {
-          first  : 'AJAX Tab One',
-          second : 'AJAX Tab Two',
-          third  : 'AJAX Tab Three'
-        };
-        return response[settings.urlData.tab];
-      }
-    },
-    context : 'parent',
-    auto    : true,
-    // path    : '/'
+    // cache: false,
+    // // faking API request
+    // apiSettings: {
+    //   loadingDuration : 300,
+    //   mockResponse: function(settings) {
+    //     var response = {
+    //       first  : 'AJAX Tab One',
+    //       second : 'AJAX Tab Two',
+    //       third  : 'AJAX Tab Three'
+    //     };
+    //     return response[settings.urlData.tab];
+    //   }
+    // },
+    // context : 'parent',
+    // auto    : true,
+    // // path    : '/'
   });
 
 $('.user-menu .item').first().click();
