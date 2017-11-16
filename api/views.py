@@ -144,7 +144,7 @@ class TitleToggleWatchlist(APIView):
             return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class UserToggleFavourite(APIView):
+class FollowUser(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):

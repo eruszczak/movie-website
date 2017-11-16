@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.db.models import Count, When, Case, IntegerField, Subquery
+from django.db.models import Count, When, Case, IntegerField, Subquery, F
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
@@ -118,15 +118,28 @@ class TitleDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['data'] = {
+            context.update({
                 'user_ratings_of_title': Rating.objects.filter(user=self.request.user, title=self.object),
                 'is_favourite_for_user': Favourite.objects.filter(user=self.request.user, title=self.object).exists(),
                 'is_in_user_watchlist': Watchlist.objects.filter(user=self.request.user, title=self.object,
                                                                  deleted=False).exists(),
                 'followed_title_not_recommended': UserFollow.objects.filter(follower=self.request.user).exclude(
                     followed__rating__title=self.object).exclude(followed__recommendation__title=self.object),
-                # 'followed_saw_title': curr_title_rating_of_followed(self.request.user.id, self.object.pk) todo
-            }
+                # todo: do this directly on User object because I dont need anything from UserFollow
+                'followed_saw_title': UserFollow.objects.filter(
+                    follower=self.request.user, followed__rating__title=self.object).annotate(
+                    user_rate=Subquery(
+                        Rating.objects.filter(
+                            user=OuterRef('followed'), title=OuterRef('followed__rating__title')
+                        ).order_by('-rate_date').values('rate')[:1]
+                    ),
+                    user_rate_date=Subquery(
+                        Rating.objects.filter(
+                            user=OuterRef('followed'), title=OuterRef('followed__rating__title')
+                        ).order_by('-rate_date').values('rate_date')[:1]
+                    )
+                )
+            })
 
         actors_and_other_titles = []
         for actor in self.object.actor.all():

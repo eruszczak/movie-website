@@ -109,12 +109,32 @@
         <div class="ui divider"></div>
     </h3>
     {% for rating in rating_list %}
-        <div class="ui tiny image" type="tooltip" data-content="{{ rating.title.name }} ({{ rating.title.year }}) on {{ rating.rate_date }}" data-variation="small">
-          <a class="ui left corner label">
-            <span class="icon">8</span>
-          </a>
-          <a href="{{ rating.title.get_absolute_url }}" target="_blank"><img src="{% static 'img/w185_h278_bestv2.jpg' %}"></a>
-        </div>
+        {% include 'titles/title_small.html' with title=rating.title rate_date=rating.rate_date rate=rating.rate %}
+{#        <div class="ui tiny image" type="tooltip" data-content="{{ rating.title.name }} ({{ rating.title.year }}) on {{ rating.rate_date }}" data-variation="small">#}
+{#          <a class="ui left corner label">#}
+{#            <span class="icon">8</span>#}
+{#          </a>#}
+{#          <a href="{{ rating.title.get_absolute_url }}" target="_blank"><img src="{% static 'img/w185_h278_bestv2.jpg' %}"></a>#}
+{#        </div>#}
+{#        <div class="ui button user-list-popup">Show flowing popup</div>#}
+{#        <div class="ui flowing popup top left transition hidden">#}
+{#          <div class="ui three column divided center aligned grid">#}
+{#            <div class="column">#}
+{#              <h4 class="ui header">Basic Plan</h4>#}
+{#              <p>{{ rating.title.name }}</p>#}
+{#              <div class="ui button">Follow</div>#}
+{#            </div>#}
+{#            <div class="column">#}
+{#              <p>See created lists</p>#}
+{#              <div class="ui button">Choose</div>#}
+{#            </div>#}
+{#            <div class="column">#}
+{#              <h4 class="ui header">Premium Plan</h4>#}
+{#              <p><b>8</b> projects, $25 a month</p>#}
+{#              <div class="ui button">Choose</div>#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
     {% endfor %}
 
 {#<div class="ui horizontal list">#}
