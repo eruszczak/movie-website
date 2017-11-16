@@ -8,32 +8,53 @@
 {#            {% include 'titles/title_card.html' with title=rating.title score=rating.rate in_fav=rating.has_in_favourites other_score=rating.user_rate is_owner=is_owner %}#}
 {#        {% endfor %}#}
 {#    </div>#}
-    <h3 class="ui header">
-        Recently seen
-        <div class="ui divider"></div>
-    </h3>
-    {% for rating in rating_list %}
-        <div class="ui tiny image">
-          <a class="ui left corner label">
-            <span class="icon">8</span>
-    {#          <span class="ui orange circular label">2</span>#}
-          </a>
-          <a href="{{ rating.title.get_absolute_url }}" target="_blank"><img src="{% static 'img/w185_h278_bestv2.jpg' %}" type="tooltip" data-content="{{ rating.title.name }} ({{ rating.title.year }}) on {{ rating.rate_date }}" data-variation="small"></a>
-        </div>
-    {% endfor %}
 
-<h2 class="ui center aligned icon header">
-  <i class="circular users icon"></i>
-  Friends
-</h2>
+{#<h2 class="ui center aligned icon header">#}
+{#  <i class="circular users icon"></i>#}
+{#  Friends#}
+{#</h2>#}
+{##}
+{#<h2 class="ui icon header">#}
+{#  <i class="settings icon"></i>#}
+{#  <div class="content">#}
+{#    Account Settings#}
+{#    <div class="sub header">Manage your account settings and set e-mail preferences.</div>#}
+{#  </div>#}
+{#</h2>#}
 
-<h2 class="ui icon header">
-  <i class="settings icon"></i>
-  <div class="content">
-    Account Settings
-    <div class="sub header">Manage your account settings and set e-mail preferences.</div>
-  </div>
-</h2>
+
+{#    todo follow button, tagline, lists, charts, big image from selected movie#}
+
+{#<div class="test">#}
+{#<div class="ui top attached tabular menu">#}
+{#  <a class="item" data-tab="first">First</a>#}
+{#  <a class="item active" data-tab="second">Second</a>#}
+{#  <a class="item" data-tab="third">Third</a>#}
+{#</div>#}
+{#<div class="ui bottom attached tab segment" data-tab="first">#}
+{#  First#}
+{#</div>#}
+{#<div class="ui bottom attached tab segment active" data-tab="second">#}
+{#  Second#}
+{#</div>#}
+{#<div class="ui bottom attached tab segment" data-tab="third">#}
+{#  Third#}
+{#</div>#}
+
+
+    <div class="ui pointing secondary menu user-menu">
+        <a class="item active" data-tab="first">First</a>
+        <a class="item" data-tab="second">Second</a>
+        <a class="item" data-tab="third">Third</a>
+        <a class="item" data-tab="fourth">Compared with you</a>
+    </div>
+{#</div>#}
+
+<div class="ui tab segment active" data-tab="first"><h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
+<div class="ui tab segment" data-tab="second"><h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
+<div class="ui tab segment" data-tab="third"><h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
+<div class="ui tab segment" data-tab="fourth"><h3 class="ui header">4th</h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
+
 
 <div class="ui statistics">
   <div class="statistic">
@@ -41,7 +62,7 @@
       22
     </div>
     <div class="label">
-      Faves
+      Ratings
     </div>
   </div>
   <div class="statistic">
@@ -70,18 +91,31 @@
   </div>
 </div>
 
-<div class="five ui buttons">
-  <button class="ui button">Overview</button>
-  <button class="ui button">Specs</button>
-  <button class="ui button">Warranty</button>
-  <button class="ui button">Reviews</button>
-  <button class="ui button">Support</button>
-</div>
-<div class="three ui buttons">
-  <button class="ui button">Overview</button>
-  <button class="ui button">Specs</button>
-  <button class="ui button">Support</button>
-</div>
+{#<div class="five ui buttons">#}
+{#  <button class="ui button">Overview</button>#}
+{#  <button class="ui button">Specs</button>#}
+{#  <button class="ui button">Warranty</button>#}
+{#  <button class="ui button">Reviews</button>#}
+{#  <button class="ui button">Support</button>#}
+{#</div>#}
+{#<div class="three ui buttons">#}
+{#  <button class="ui button">Overview</button>#}
+{#  <button class="ui button">Specs</button>#}
+{#  <button class="ui button">Support</button>#}
+{#</div>#}
+
+    <h3 class="ui header">
+        Recently seen
+        <div class="ui divider"></div>
+    </h3>
+    {% for rating in rating_list %}
+        <div class="ui tiny image" type="tooltip" data-content="{{ rating.title.name }} ({{ rating.title.year }}) on {{ rating.rate_date }}" data-variation="small">
+          <a class="ui left corner label">
+            <span class="icon">8</span>
+          </a>
+          <a href="{{ rating.title.get_absolute_url }}" target="_blank"><img src="{% static 'img/w185_h278_bestv2.jpg' %}"></a>
+        </div>
+    {% endfor %}
 
 {#<div class="ui horizontal list">#}
 {#  <div class="item">#}
@@ -127,67 +161,25 @@
 {#  </div>#}
 {#</div>#}
 
-{#<div class="ui list">#}
-{#  <div class="item">#}
-{#    <img class="ui avatar image" src="/images/avatar2/small/rachel.png">#}
-{#    <div class="content">#}
-{#      <a class="header">Rachel</a>#}
-{#      <div class="description">Last seen watching <a><b>Arrested Development</b></a> just now.</div>#}
-{#    </div>#}
-{#  </div>#}
-{#  <div class="item">#}
-{#    <img class="ui avatar image" src="/images/avatar2/small/lindsay.png">#}
-{#    <div class="content">#}
-{#      <a class="header">Lindsay</a>#}
-{#      <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>#}
-{#    </div>#}
-{#  </div>#}
-{#  <div class="item">#}
-{#    <img class="ui avatar image" src="/images/avatar2/small/matthew.png">#}
-{#    <div class="content">#}
-{#      <a class="header">Matthew</a>#}
-{#      <div class="description">Last seen watching <a><b>The Godfather Part 2</b></a> yesterday.</div>#}
-{#    </div>#}
-{#  </div>#}
-{#  <div class="item">#}
-{#    <img class="ui avatar image" src="/images/avatar/small/jenny.jpg">#}
-{#    <div class="content">#}
-{#      <a class="header">Jenny Hess</a>#}
-{#      <div class="description">Last seen watching <a><b>Twin Peaks</b></a> 3 days ago.</div>#}
-{#    </div>#}
-{#  </div>#}
-{#  <div class="item">#}
-{#    <img class="ui avatar image" src="/images/avatar/small/veronika.jpg">#}
-{#    <div class="content">#}
-{#      <a class="header">Veronika Ossi</a>#}
-{#      <div class="description">Has not watched anything recently</div>#}
-{#    </div>#}
-{#  </div>#}
-{#</div>#}
+<div class="ui list">
+  <div class="item">
+    <img class="ui avatar image" src="/images/avatar2/small/rachel.png">
+    <div class="content">
+      <a class="header">Rachel</a>
+      <div class="description">Last seen watching <a><b>Arrested Development</b></a> just now.</div>
+    </div>
+  </div>
+</div>
 {#todo#}
-{#<div class="ui relaxed list">#}
-{#  <div class="item">#}
-{#    <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">#}
-{#    <div class="content">#}
-{#      <a class="header">Daniel Louise</a>#}
-{#      <div class="description">Last seen watching <a><b>Arrested Development</b></a> just now.</div>#}
-{#    </div>#}
-{#  </div>#}
-{#  <div class="item">#}
-{#    <img class="ui avatar image" src="/images/avatar/small/stevie.jpg">#}
-{#    <div class="content">#}
-{#      <a class="header">Stevie Feliciano</a>#}
-{#      <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>#}
-{#    </div>#}
-{#  </div>#}
-{#  <div class="item">#}
-{#    <img class="ui avatar image" src="/images/avatar/small/elliot.jpg">#}
-{#    <div class="content">#}
-{#      <a class="header">Elliot Fu</a>#}
-{#      <div class="description">Last seen watching <a><b>The Godfather Part 2</b></a> yesterday.</div>#}
-{#    </div>#}
-{#  </div>#}
-{#</div>#}
+<div class="ui relaxed list">
+  <div class="item">
+    <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
+    <div class="content">
+      <a class="header">Daniel Louise</a>
+      <div class="description">Last seen watching <a><b>Arrested Development</b></a> just now.</div>
+    </div>
+  </div>
+</div>
 
 
 {#<div class="ui link cards">#}
