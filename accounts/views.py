@@ -105,61 +105,29 @@ class UserListView(ListView):
         queryset = super().get_queryset()
         if self.request.GET.get('const'):
             self.searched_title = get_object_or_404(Title, const=self.request.GET['const'])
-            # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+
             # queryset = queryset.filter(rating__title=self.searched_title).annotate(
-            #     user_rate=Subquery(newest.values('rate')[:1]))
-            # # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
-            # for x in queryset:
-            #     print(x.user_rate)
+            #     user_rate=Subquery(
+            #         Rating.objects.filter(
+            #             user=OuterRef('pk'), title=OuterRef('rating__title')
+            #         ).order_by('-rate_date').values('rate')[:1]
+            #     )
+            # ).distinct()
+
             queryset = queryset.filter(rating__title=self.searched_title).extra(select={
                 'user_rate': """SELECT rating.rate FROM titles_rating as rating, titles_title as title
                     WHERE rating.title_id = title.id AND rating.user_id = accounts_user.id AND title.id = %s
                     ORDER BY rating.rate_date DESC LIMIT 1"""
-            }, select_params=[self.searched_title.pk])#.order_by('-current_rating', '-username')
-            # if self.request.user.is_authenticated:
-            #     pass
-
-            #     qs = User.objects.filter(rating__title=self.searched_title).annotate(
-            #         has_in_watchlist=Count(
-            #             Case(
-            #                 When(title__watchlist__user=self.request.user, title__watchlist__deleted=False, then=1),
-            #                 output_field=IntegerField()
-            #             )
-            #         ),
-            #         has_in_favourites=Count(
-            #             Case(When(title__favourite__user=self.request.user, then=1), output_field=IntegerField())
-            #         ),
-            #     )
-            # queryset = self.get_users_who_saw_a_title()
+            }, select_params=[self.searched_title.pk]).distinct() #.order_by('-current_rating', '-username')
         else:
             queryset = User.objects.annotate(num=Count('rating')).order_by('-num', '-username')
 
         if self.request.user.is_authenticated:
-            # q = queryset.annotate(
-            #     already_follows=Count(
-            #         Case(When(userfollow__follower=self.request.user, then=1), output_field=IntegerField())
-            #     ),
-            #     # test=Count('userfollow__follower')
-            # )
-            print('request user', self.request.user.pk)
-            print(['{} follows {}'.format(x.follower.pk, x.followed.pk) for x in UserFollow.objects.all()])
-            print()
-            print(User.objects.filter(userfollow__follower=self.request.user))
-            # request: test, returns test  todo: should return test2 because test follows test2
-            # request: test2, return test2  todo: again wrong!
-
-            print(User.objects.filter(userfollow__followed=self.request.user))
-            # request: test, returns test2 because test2 is followed by test
-            # request: test2, returns test because test is followed by test
-
-            # print(User.objects.filter(userfollow__followed=User.objects.get(username='test2')))  #
-            print()
-            # for x in q:
-            #     print(x, x.already_follows)
-            queryset = queryset.extra(select={
-                'already_follows': """SELECT 1 FROM accounts_userfollow as followage
-                    WHERE followage.follower_id = %s and followage.followed_id = accounts_user.id""",
-            }, select_params=[self.request.user.pk])
+            queryset = queryset.annotate(
+                already_follows=Subquery(
+                    UserFollow.objects.filter(follower=self.request.user, followed=OuterRef('pk')).values('pk')
+                )
+            )
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -177,7 +145,6 @@ class UserListView(ListView):
 class UserDetailView(DetailView):
     model = User
     template_name = 'accounts/user_detail.html'
-    url_lookup_kwarg = 'username'
     titles_in_a_row = 6
     is_owner = False  # checks if a request user is an owner of the profile
     common = None
@@ -193,7 +160,7 @@ class UserDetailView(DetailView):
         return self.render_to_response(context)
 
     def get_object(self, queryset=None):
-        return self.model.objects.get(username=self.kwargs[self.url_lookup_kwarg])
+        return self.model.objects.get(username=self.kwargs['username'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -202,20 +169,28 @@ class UserDetailView(DetailView):
                 'already_follows': UserFollow.objects.filter(follower=self.request.user, followed=self.object).exists()
             })
             # self.common = self.get_user_ratings()
-            # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
-            # ratings = Rating.objects.filter(user=self.object).annotate(
-            #     user_rate=Subquery(newest.values('rate')[:1])).select_related('title')
-            ratings = Rating.objects.filter(user=self.object).extra(select={
-                'user_rate': """SELECT rating.rate FROM titles_rating as rating
-                WHERE rating.user_id = %s
-                AND rating.title_id = titles_rating.title_id
-                ORDER BY rating.rate_date DESC LIMIT 1""",
-            }, select_params=[self.request.user.id])
-            for r in ratings:
-                print(r.user_rate)
+            ratings = Rating.objects.filter(user=self.object).annotate(
+                user_rate=Subquery(
+                    Rating.objects.filter(
+                        user=self.request.user, title=OuterRef('title')
+                    ).order_by('-rate_date').values('rate')[:1])
+            ).select_related('title')
+            # for r in ratings:
+            #     print(r.user_rate)
+            #
+            # ratings = Rating.objects.filter(user=self.object).extra(select={
+            #     'user_rate': """SELECT rating.rate FROM titles_rating as rating
+            #     WHERE rating.user_id = %s
+            #     AND rating.title_id = titles_rating.title_id
+            #     ORDER BY rating.rate_date DESC LIMIT 1""",
+            # }, select_params=[self.request.user.id])
+            #
+            # for r in ratings:
+            #     print(r.user_rate)
         else:
             ratings = Rating.objects.filter(user=self.object).select_related('title')
 
+        # get_ratings_comparision TODO
         context.update({
             'is_owner': self.is_owner,
             'rating_list': ratings[:self.titles_in_a_row],

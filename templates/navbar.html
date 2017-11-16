@@ -34,9 +34,9 @@
                 {{ request.user.username }} <i class="dropdown icon"></i> <span class="ui green label">2</span>
                 <div class="menu">
                   <a class="item" href="#"><i class="alarm icon"></i>Notifications <span class="ui green label">2</span></a>
-                  <a class="item" href="{% url 'user-detail' request.user.username %}"><i class="user icon"></i>Profile</a>
+                  <a class="item{% if url_name == 'user-detail' %} active{% endif %}" href="{% url 'user-detail' request.user.username %}"><i class="user icon"></i>Profile</a>
                     <div class="divider"></div>
-                  <a href="{% url 'user-edit' request.user.username %}" class="item"><i class="setting icon"></i>Settings</a>
+                  <a href="{% url 'user-edit' request.user.username %}" class="item{% if url_name == 'user-edit' %} active{% endif %}"><i class="setting icon"></i>Settings</a>
                   <a href="{% url 'logout' %}" class="item"><i class="sign out icon"></i>Logout</a>
                 </div>
               </div>
