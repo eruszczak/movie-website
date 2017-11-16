@@ -1,3 +1,6 @@
+from django.views.generic import TemplateView
+
+
 class SearchViewMixin:
     """Mixin that adds search_form to context and calls search method. Form must inherit from SearchFormMixin"""
 
@@ -16,3 +19,7 @@ class SearchViewMixin:
         context = super().get_context_data(**kwargs)
         context['search_form'] = self.search_form
         return context
+
+
+class AboutView(TemplateView):
+    template_name = 'shared/about.html'
