@@ -22,7 +22,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'compressor',
 
-    # 'shared.apps.SharedConfig',
+    'shared.apps.SharedConfig',
     'accounts.apps.AccountsConfig',
     'titles.apps.TitlesConfig',
     'recommend.apps.RecommendConfig',
