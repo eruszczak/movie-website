@@ -1,6 +1,7 @@
 body {
     overflow-y: scroll;
 }
+
 .ui.card>.content .star.icon, .ui.cards>.card>.content .star.icon {
     cursor:default;
 }
@@ -65,7 +66,7 @@ body {
 
 }
 
-.ui.heart.rating .icon, .ui.star.rating .icon {
+.description .ui.heart.rating .icon, .description .ui.star.rating .icon {
     color: #ffffff8f;
 }
 
@@ -81,3 +82,13 @@ body {
     text-shadow: 0 4px 10px rgba(0,0,0,.62);
     overflow:hidden;
 }
+
+.mb10 {margin-bottom: 10px;}
+.mb20 {margin-bottom: 20px;}
+
+.mt10 {margin-top: 10px;}
+.mt20 {margin-top: 20px;}
+
+/*.footer {*/
+    /*margin-top: 25px;*/
+/*}*/

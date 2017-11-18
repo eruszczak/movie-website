@@ -77,3 +77,5 @@ $('.user-list-popup')
     // }
   })
 ;
+
+$('.ui.embed').embed();
