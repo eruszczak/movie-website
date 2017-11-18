@@ -13,7 +13,7 @@ body {
 }
 
 .still-background {
-    height: 80vh;
+    height: 55vh;
     overflow: hidden;
     background-image: -webkit-linear-gradient(89deg,rgba(21,43,55,.87),transparent 67%,rgba(21,43,55,.87));
     background-image: linear-gradient(1deg,rgba(21,43,55,.87),transparent 67%,rgba(21,43,55,.87));
@@ -30,22 +30,45 @@ body {
 }
 
 .title-poster {
-    margin-top: -145px;
-    width: 185px;
-    height: 277px;
+    /*margin-top: -43vh;*/
+    /*width: 185px;*/
+    /*height: 277px;*/
+    /*position: absolute;*/
     box-shadow: 0 2px 14px 0 rgba(0,0,0,.5);
 }
 
-.title-name {
+.title-box {
+    margin-top: -45vh;
+    width:100%;
     position: absolute;
-    bottom: 20vh;
-    margin-left: 200px;
-    z-index: 2;
-    font-size: 4em;
-    color: white;
-    text-shadow: 0 4px 10px rgba(0,0,0,.62);
-    overflow:hidden;
+    /*box-shadow: 0 2px 14px 0 rgba(0,0,0,.5);*/
+    background-image: linear-gradient(1deg,rgba(66, 66, 66, 0.80),rgba(66, 66, 66, 0.60),rgba(66, 66, 66, 0.40));
 }
+
+.title-name {
+    /*position: absolute;*/
+    /*bottom: 20vh;*/
+    /*margin-left: 200px;*/
+    /*z-index: 2;*/
+    /*font-size: 4em;*/
+    color: white!important;
+    /*text-shadow: 0 4px 10px rgba(0,0,0,.62);*/
+    /*overflow:hidden;*/
+}
+
+.title-content {
+    padding: 1rem 1rem 1rem 1rem!important;
+}
+
+.price {
+     color: white!important;
+
+}
+
+.ui.heart.rating .icon, .ui.star.rating .icon {
+    color: #ffffff8f;
+}
+
 
 .title-genres {
     position: absolute;

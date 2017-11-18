@@ -16,10 +16,12 @@
         {% endcompress %}
     </head>
 <body>
-    <div class="ui main text container">
+    <div class="ui container">
         {% block navbar %}
             {% include 'navbar.html' %}
         {% endblock %}
+
+    {#    block image#}
 
         {% block breadcrumb %}{% endblock %}
 
@@ -31,7 +33,7 @@
             {% endfor %}
         {% endif %}
 
-        <div class="ui main text container">
+        <div class="ui grid centered">
             {% block content %}{% endblock %}
         </div>
         {#    <div class="ui secondary vertical footer segment">#}
