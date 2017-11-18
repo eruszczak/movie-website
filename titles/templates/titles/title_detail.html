@@ -1,27 +1,57 @@
 {% extends 'base2.html' %}
 {% load static humanize %}
 {#{% block title %}{% endblock %}#}
+as rate_url %}
+
+
 {% block content %}
 <div class="still-background">
     <img class="backdrop" src="{% static 'img/1280.jpg' %}">
+    <div class="ui grid centered">
+        <div class="six wide column">
+        <div class="title-box">
+            <div class="ui items">
+              <div class="item">
+                <div class="ui image">
+                  <img src="{% static 'img/w185_h278_bestv2.jpg' %}">
+                </div>
+                <div class="content title-content">
+                  <div class="header title-name">{{ title.name }}</div>
+                  <div class="meta">
+                    <span class="price"><i class="calendar icon"></i> {{ title.year }}</span>
+                    <span class="price">1 Month</span>
+                    <div class="ui huge heart rating red" type="tooltip" data-url="{% url 'title-fav' title.pk %}" data-rating="{{ title.has_in_favourites|yesno:"1,0" }}" data-max-rating="1" data-content="Favourite" data-variation="mini"></div>
+                  </div>
+                  <div class="description">
+                    <span class="price"><i class="list small icon red" data-content="Watchlist" data-variation="mini"></i></span>
+                    <div class="ui star huge rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ user_ratings_of_title.0.rate }}"></div>
+                  </div>
+                  <div class="extra">
+                    extra
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div></div>
+    </div>
 </div>
 
 <div class="ui main text container">
-    <img class="title-poster" src="{% static 'img/w185_h278_bestv2.jpg' %}">
+{#    <img class="title-poster" src="{% static 'img/w185_h278_bestv2.jpg' %}">#}
 {#    <div class="ui cards title-poster">#}
 {#        {% include 'titles/title_card.html' with title=title score=current_rating.rate in_fav=title.has_in_favourites %}#}
 {#    </div>#}
-    <h1 class="title-name">{{ title.name }} ({{ title.year }})</h1>
-    <p class="title-genres">
-        {% for genre in title.genre.all %}
-            <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
-        {% endfor %}
-    </p>
+{#    <p class="title-genres">#}
+{#        {% for genre in title.genre.all %}#}
+{#            <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>#}
+{#        {% endfor %}#}
+{#    </p>#}
     {#{% with entry.rate as data %}#}
     {#    {% if data.count and data.avg %}#}
     {#        Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user-list' %}?s={{ entry.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
     {#    {% endif %}#}
     {#{% endwith %}#}
+    <div class="ui divider"></div>
     <a href="{% url 'user-list' %}?const={{ title.const }}">who saw this title</a>
     {#<a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
 
@@ -34,14 +64,14 @@
 
     <div class="ui tab segment active" data-tab="first">
         {% with user_ratings_of_title.0 as current_rating %}
-            <div class="ui cards">
-                {% include 'titles/title_card.html' with title=title score=current_rating.rate in_fav=title.has_in_favourites %}
-            </div>
-            <div class="ui checkbox">
-              <input type="checkbox" name="insert_as_new">
-              <label for="insert_as_new">insert as a new rating?</label>
-            </div>
-            <br>
+{#            <div class="ui cards">#}
+{#                {% include 'titles/title_card.html' with title=title score=current_rating.rate in_fav=title.has_in_favourites %}#}
+{#            </div>#}
+{#            <div class="ui checkbox">#}
+{#              <input type="checkbox" name="insert_as_new">#}
+{#              <label for="insert_as_new">insert as a new rating?</label>#}
+{#            </div>#}
+{#            <br>#}
         {% endwith %}
         {% if user_ratings_of_title %}
             <a href="{% url 'rating-update' user_ratings_of_title.0.pk %}" class="label label-default">
@@ -154,7 +184,7 @@
     </table>
 
 
-    <div class="ui header">Main cast and their other appearances</div>
+    <h1 class="ui header">Main cast and their other appearances</h1>
     {% for actor, titles in actors_and_other_titles %}
         <h4 class="ui header">{{ actor.name }}</h4>
         {% for title in titles %}
@@ -163,7 +193,7 @@
         {% endfor %}
     {% endfor %}
 
-    <div class="ui header">Similar titles</div>
+    <h1 class="ui header">Similar titles</h1>
     <br>
     <br>
 </div>
