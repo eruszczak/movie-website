@@ -6,128 +6,52 @@
     <div class="ui breadcrumb">
         <a class="section" href="{% url 'home' %}">Home</a>
         <i class="right angle icon divider"></i>
-        <a class="section" href="{% url 'title-list' %}">Explore</a>
-        <i class="right angle icon divider"></i>
-        <div class="active section">Search for: <a href="#">paper towels</a></div>
+        <a class="section{% if not request.GET %}active{% endif %}" href="{% url 'title-list' %}">Explore</a>
+        {% if request.GET %}
+            <i class="right angle icon divider"></i>
+            <div class="active section">Search for: <a href="">{% for key, value in request.GET.items %}{{ key }}={{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}</a></div>
+        {% endif %}
     </div>
     <div class="ui divider"></div>
 {% endblock %}
 
 {% block content %}
-{#    {% with title_list.0 as title %}#}
-{#    <div class="ui grid centered">#}
-{#        <div class="six wide column">#}
-{#            <div class="">#}
-{#                <div class="ui items">#}
-{#                  <div class="item">#}
-{#                    <div class="ui image">#}
-{#                      <img src="{% static 'img/w185_h278_bestv2.jpg' %}">#}
-{#                    </div>#}
-{#                    <div class="content title-content">#}
-{#                      <div class="header title-name">{{ title.name }}</div>#}
-{#                      <div class="meta">#}
-{#                        <span class="price"><i class="calendar icon"></i> {{ title.year }}</span>#}
-{#                        <span class="price">1 Month</span>#}
-{#                        <div class="ui huge heart rating red" type="tooltip" data-url="{% url 'title-fav' title.pk %}" data-rating="{{ title.has_in_favourites|yesno:"1,0" }}" data-max-rating="1" data-content="Favourite" data-variation="mini"></div>#}
-{#                      </div>#}
-{#                      <div class="description">#}
-{#                        <span class="price"><i class="list small icon red" data-content="Watchlist" data-variation="mini"></i></span>#}
-{#                        <div class="ui star huge rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ user_ratings_of_title.0.rate }}"></div>#}
-{#                      </div>#}
-{#                      <div class="extra">#}
-{#                        extra#}
-{#                      </div>#}
-{#                    </div>#}
-{#                  </div>#}
-{#                </div>#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
-{#    {% endwith %}#}
 <div class="ui two column grid">
-{% for title in title_list %}
-    <div class="sixteen wide mobile eight wide computer column">
-        <div class="ui card backdrop-card">
-{#          <div class="image">#}
-{#              <a href="http://google.com" class="">#}
+    {% for title in title_list %}
+        <div class="sixteen wide mobile eight wide computer column">
+            <div class="ui card backdrop-card">
               <a href="{{ title.get_absolute_url }}" class="ui image">
                 <img src="{% static 'img/w500_and_h521_bestv2.jpg' %}">
               </a>
-{#          </div>#}
-          <div class="content">
-            <p class="header center aligned">{{ title.name }}</p>
-            <div class="meta">
-              <span class="date">{{ title.plot|truncatewords:25|truncatechars:150 }}</span>
-            </div>
-            <div class="description">
-                <p class="">
-                    {% for genre in title.genre.all %}
-                        <a href="{{ genre.get_absolute_url }}">{{ genre.name }}{% if not forloop.last %},{% endif %}</a>
-                    {% endfor %}
-                    <span class="right floated">
-                        <i class="calendar icon"></i> {{ title.year }}
-                        <i class="star icon"></i>{{ title.rate_imdb }}
-                    </span>
-                </p>
-            </div>
-          </div>
-          <div class="extra content">
-              <div class="ui star rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ title.user_rate }}"></div>
-              <div class="right floated">
-                <span class="price"><i class="list small icon red" data-content="Watchlist" data-variation="mini"></i></span>
-                  <div class="ui heart rating red" type="tooltip" data-url="{% url 'title-fav' title.pk %}" data-rating="{{ title.has_in_favourites|yesno:"1,0" }}" data-max-rating="1" data-content="Favourite" data-variation="mini"></div>
-                <a><i class="user icon"></i>22 Friends</a>
+              <div class="content">
+                <p class="header center aligned">{{ title.name }}</p>
+                <div class="meta">
+                  <span class="date">{{ title.plot|truncatewords:25|truncatechars:150 }}</span>
+                </div>
+                <div class="description">
+                    <p>
+                        {% for genre in title.genre.all %}
+                            <a href="{{ genre.get_absolute_url }}">{{ genre.name }}{% if not forloop.last %},{% endif %}</a>
+                        {% endfor %}
+                        <span class="right floated">
+                            <i class="calendar icon"></i> {{ title.year }}
+                            <i class="star icon"></i>{{ title.rate_imdb }}
+                        </span>
+                    </p>
+                </div>
               </div>
-          </div>
+              <div class="extra content">
+                  <div class="ui star rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ title.user_rate }}"></div>
+                  <div class="right floated">
+                    <span class="price"><i class="list small icon red" data-content="Watchlist" data-variation="mini"></i></span>
+                      <div class="ui heart rating red" type="tooltip" data-url="{% url 'title-fav' title.pk %}" data-rating="{{ title.has_in_favourites|yesno:"1,0" }}" data-max-rating="1" data-content="Favourite" data-variation="mini"></div>
+                    <a><i class="user icon"></i>22 Friends</a>
+                  </div>
+              </div>
+            </div>
         </div>
-    </div>
-{% endfor %}
+    {% endfor %}
 </div>
-    <div class="ui cards">
-        {% for title in title_list %}
-              {% include 'titles/title_card.html' with title=title score=title.user_rate in_fav=title.has_in_favourites %}
-        {% endfor %}
-    </div>
 
-{#<div class="row">#}
-{#    <div class="col-md-10 col-md-offset-1">#}
-{#        <div class="text-center">#}
-{#            <a href="{% url 'group-year' %}" class="btn btn-sm btn-success" role="button">All years</a>#}
-{#            <a href="{% url 'group-genre' %}" class="btn btn-sm btn-success" role="button">All genres</a>#}
-{#        </div>#}
-{#        <hr>#}
-{#        {% if search_result %}#}
-{#            <div class="row">#}
-{#                <div class="col-md-12">#}
-{#                    <div class="alert alert-success" role="alert">#}
-{#                        Search results for:#}
-{#                        <ul>#}
-{#                            {% for q in search_result %}#}
-{#                                <li>{{ q }}</li>#}
-{#                            {% endfor %}#}
-{#                        </ul>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
-{#        {% endif %}#}
-{##}
-{#        <p class="lead text-center search_summary">{{ paginator.count }} result{{ paginator.count|pluralize }}</p>#}
-{##}
-{#        {% include 'includes/pagination.html' %}#}
-{##}
-{#        <div>#}
-{#            <form class="navbar-form navbar-right" role="search">#}
-{#                <div class="form-group">#}
-{#                    {{ search_form.genre }}#}
-{#                </div>#}
-{#            </form>#}
-{#        </div>#}
-{##}
-{#        <table class="table table-hover table-bordered table-condensed" style="margin-top: 10px">#}
-{#            {% include 'titles/titles_in_a_table.html' with title_list=title_list %}#}
-{#        </table>#}
-{##}
-{#        {% include 'includes/pagination.html' %}#}
-{#    </div>#}
-{#</div>#}
+{% include 'includes/pagination.html' %}
 {% endblock %}
