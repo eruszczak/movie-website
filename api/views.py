@@ -97,7 +97,8 @@ class TitleAddRatingView(APIView):
 
     def post(self, request, *args, **kwargs):
         new_rating = request.POST.get('rating')
-        insert_as_new = request.POST.get('insert_as_new', False)
+        # insert_as_new = request.POST.get('insert_as_new', False)
+        insert_as_new = False
         try:
             title = Title.objects.get(pk=kwargs['pk'])
         except Title.DoesNotExist:

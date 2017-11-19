@@ -67,7 +67,7 @@ def create_or_update_rating(title, user, rate, insert_as_new=False):
     today = datetime.now().date()
     current_rating = Rating.objects.filter(user=user, title=title).first()
     todays_rating = Rating.objects.filter(user=user, title=title, rate_date=today)
-    if title:
+    if rate != '0':
         if current_rating and not insert_as_new:
             current_rating.rate = rate
             current_rating.save(update_fields=['rate'])
@@ -78,8 +78,6 @@ def create_or_update_rating(title, user, rate, insert_as_new=False):
         else:
             Rating.objects.create(user=user, title=title, rate=rate, rate_date=today)
             return 'Created rating'
-    elif rate == '0' and title and current_rating:
-        # this is for 'cancel' button in Raty. It deletes current rating
-        # todo. this should be done in another endpoint
+    elif current_rating:
         current_rating.delete()
         return 'Deleted rating'
