@@ -79,3 +79,17 @@ $('.user-list-popup')
 ;
 
 $('.ui.embed').embed();
+
+// $('')
+//   .search({
+//     apiSettings: {
+//       url: ''
+//     },
+//     fields: {
+//       results : 'items',
+//       title   : 'name',
+//       url     : 'html_url'
+//     },
+//     minCharacters : 3
+//   })
+// ;

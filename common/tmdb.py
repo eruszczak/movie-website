@@ -8,6 +8,7 @@ class TMDB:
         'base': 'https://api.themoviedb.org/3/',
         'poster': 'http://image.tmdb.org/t/p/w1280',
         'poster_small': 'http://image.tmdb.org/t/p/w185_and_h278_bestv2',
+        # https://image.tmdb.org/t/p/w500_and_h281_bestv2/tcheoA2nPATCm2vvXw2hVQoaEFD.jpg
 
         'tv_seasons': '/tv/{}/season/{}',
         'tv_episodes': '/tv/{}/season/{}/episode/{}',

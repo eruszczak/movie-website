@@ -16,7 +16,7 @@
         {% endcompress %}
     </head>
 <body>
-    <div class="ui container mb20 mt10">
+    <div class="ui container mt10">
         {% block navbar %}
             {% include 'navbar.html' %}
         {% endblock %}
@@ -36,9 +36,9 @@
         {% block content %}{% endblock %}
     </div>
 
-    <div class="ui secondary vertical footer segment">
-        Footer
-    </div>
+{#    <div class="ui secondary vertical footer segment">#}
+{#        Footer#}
+{#    </div>#}
     {% compress js %}
         <script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
         <script src="{% static 'semantic/dist/semantic.min.js' %}"></script>
