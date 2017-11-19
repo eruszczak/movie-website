@@ -57,36 +57,29 @@
           <div class="content">
             <p class="header center aligned">{{ title.name }}</p>
             <div class="meta">
-              <span class="date">{{ title.plot|truncatewords:25|truncatechars:140 }}</span>
+              <span class="date">{{ title.plot|truncatewords:25|truncatechars:150 }}</span>
             </div>
             <div class="description">
                 <p class="">
                     {% for genre in title.genre.all %}
-                        <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
+                        <a href="{{ genre.get_absolute_url }}">{{ genre.name }}{% if not forloop.last %},{% endif %}</a>
                     {% endfor %}
-                    <span class="right floated"><i class="calendar icon"></i> {{ title.year }}</span>
+                    <span class="right floated">
+                        <i class="calendar icon"></i> {{ title.year }}
+                        <i class="star icon"></i>{{ title.rate_imdb }}
+                    </span>
                 </p>
             </div>
           </div>
           <div class="extra content">
-                              <div class="ui star rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ title.user_rate }}"></div>
-                        <span class="price"><i class="list small icon red" data-content="Watchlist" data-variation="mini"></i></span>
-            <a>
-              <i class="user icon"></i>
-              22 Friends
-            </a>
+              <div class="ui star rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ title.user_rate }}"></div>
+              <div class="right floated">
+                <span class="price"><i class="list small icon red" data-content="Watchlist" data-variation="mini"></i></span>
+                  <div class="ui heart rating red" type="tooltip" data-url="{% url 'title-fav' title.pk %}" data-rating="{{ title.has_in_favourites|yesno:"1,0" }}" data-max-rating="1" data-content="Favourite" data-variation="mini"></div>
+                <a><i class="user icon"></i>22 Friends</a>
+              </div>
           </div>
         </div>
-{#        <img class="ui centered image" src="{% static 'img/w500_and_h521_bestv2.jpg' %}">#}
-{#        <p>{{ title.name }}</p>#}
-{#        <p><div class="ui star rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ title.user_rate }}"></div></p>#}
-{#        <div class="ui heart rating red" type="tooltip" data-url="{% url 'title-fav' title.pk %}" data-rating="{{ title.has_in_favourites|yesno:"1,0" }}" data-max-rating="1" data-content="Favourite" data-variation="mini"></div>#}
-{#        <p class="">#}
-{#            {% for genre in title.genre.all %}#}
-{#                <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>#}
-{#            {% endfor %}#}
-{#        </p>#}
-{#        <p><i class="calendar icon"></i> {{ title.year }}</p>#}
     </div>
 {% endfor %}
 </div>
