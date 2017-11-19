@@ -96,3 +96,7 @@ body {
 .backdrop-card {
     width: 500px!important;
 }
+
+.paginator {
+    cursor: default;
+}

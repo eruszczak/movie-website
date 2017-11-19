@@ -74,7 +74,7 @@ class HomeView(TemplateView):
 class TitleListView(SearchViewMixin, ListView):
     search_form_class = TitleSearchForm
     template_name = 'titles/title_list.html'
-    paginate_by = 25
+    paginate_by = 20
     model = Title
 
     def get_queryset(self):
