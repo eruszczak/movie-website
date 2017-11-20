@@ -43,15 +43,19 @@
 {% for user in user_list %}
     {% url 'user-detail' user.username as user_detail_url %}
   <div class="item">
-    <a href="{{ user_detail_url }}" class="ui tiny image">
-      <img src="{% static 'img/stevie.jpg' %}">
-    </a>
-    <div class="content">
+        <a href="{{ user_detail_url }}" class="ui tiny image">
+          <img src="{% static 'img/stevie.jpg' %}">
+        </a>
+
+    <div class="middle aligned content">
+    {% if user.pk != request.user.pk %}
+      <div class="ui mini follow toggle button right floated{% if user.already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if user.already_follows %}Followed{% else %}Follow{% endif %}</div>
+    {% endif %}
       <a href="{{ user_detail_url }}" class="header">{{ user.username }}</a>
 {#    follow button under avatar#}
-        {% if user.pk != request.user.pk %}
-            <div class="ui large star rating" type="tooltip" data-url="{% url 'user-follow' user.pk %}" data-rating="{{ user.already_follows|yesno:"1,0" }}" data-max-rating="1" data-content="Follow" data-variation="mini"></div>
-        {% endif %}
+{#        {% if user.pk != request.user.pk %}#}
+{#            <div class="ui large star rating" type="tooltip" data-url="{% url 'user-follow' user.pk %}" data-rating="{{ user.already_follows|yesno:"1,0" }}" data-max-rating="1" data-content="Follow" data-variation="mini"></div>#}
+{#        {% endif %}#}
         {% if title %}{{ user.user_rate }} <i class="star icon green"></i>{% endif %}
         <div class="floated right">
             <p>watchlist favourites see_all_lists</p>
@@ -59,25 +63,25 @@
       <div class="description">
         <p>{{ user.tagline|default:'Tagline' }}</p>
         <p>comparision (the same titles - rated 7.5, you 8.0)</p>
-        <div class="ui button user-list-popup">Show flowing popup</div>
-        <div class="ui flowing popup top left transition hidden">
-          <div class="ui three column divided center aligned grid">
-            <div class="column">
+{#        <div class="ui button user-list-popup">Show flowing popup</div>#}
+{#        <div class="ui flowing popup top left transition hidden">#}
+{#          <div class="ui three column divided center aligned grid">#}
+{#            <div class="column">#}
 {#              <h4 class="ui header">Basic Plan</h4>#}
-              <p>You will be notified about this user's activity</p>
-              <div class="ui button">Follow</div>
-            </div>
-            <div class="column">
-              <p>See created lists</p>
-              <div class="ui button">Choose</div>
-            </div>
-            <div class="column">
-              <h4 class="ui header">Premium Plan</h4>
-              <p><b>8</b> projects, $25 a month</p>
-              <div class="ui button">Choose</div>
-            </div>
-          </div>
-        </div>
+{#              <p>You will be notified about this user's activity</p>#}
+{#              <div class="ui button">Follow</div>#}
+{#            </div>#}
+{#            <div class="column">#}
+{#              <p>See created lists</p>#}
+{#              <div class="ui button">Choose</div>#}
+{#            </div>#}
+{#            <div class="column">#}
+{#              <h4 class="ui header">Premium Plan</h4>#}
+{#              <p><b>8</b> projects, $25 a month</p>#}
+{#              <div class="ui button">Choose</div>#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
       </div>
     </div>
   </div>

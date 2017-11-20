@@ -80,16 +80,46 @@ $('.user-list-popup')
 
 $('.ui.embed').embed();
 
-// $('')
-//   .search({
-//     apiSettings: {
-//       url: ''
-//     },
-//     fields: {
-//       results : 'items',
-//       title   : 'name',
-//       url     : 'html_url'
-//     },
-//     minCharacters : 3
-//   })
-// ;
+$('.ui.search').search({
+    minCharacters: 3,
+    apiSettings: {
+        onResponse: function (serverResponse) {
+            var results = [];
+            $.each(serverResponse.results, function(index, item) {
+                // if (index >= 20) {
+                //     return false;
+                // }
+                results.push({
+                    title: item.name,
+                    description: item.type,
+                    url: item.url,
+                    image: item.img
+                });
+            });
+            return {
+                results: results,
+                action: {
+                    actionText: 'See more',
+                    actionURL: 'url'
+                }
+            };
+        }
+    }
+});
+
+$('.follow.button').api({
+    action: 'follow user',
+    method : 'POST',
+    data: {
+      csrfmiddlewaretoken: TOKEN
+    },
+    beforeSend: function(settings) {
+      settings.data.rating = $(this).hasClass('active') ? 0: 1;
+      return settings;
+    }
+}).state({
+    text: {
+      inactive   : 'Follow',
+      active     : 'Followed'
+    }
+});

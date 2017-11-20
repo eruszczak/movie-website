@@ -8,10 +8,22 @@ class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SerializerMethodField()
     director = serializers.SerializerMethodField()
     actor = serializers.SerializerMethodField()
+    # url = serializers.URLField(source='title.get_absolute_url')
+    url = serializers.SerializerMethodField()
+    type = serializers.SerializerMethodField()
+    # url = serializers.HyperlinkedIdentityField(view_name='title-list')
 
     class Meta:
         model = Title
         fields = '__all__'
+
+    @staticmethod
+    def get_type(obj):
+        return obj.type.name
+
+    @staticmethod
+    def get_url(obj):
+        return obj.get_absolute_url()
 
     @staticmethod
     def get_genre(obj):
@@ -34,13 +46,12 @@ class TitlePreviewSerializer(serializers.ModelSerializer):
         fields = ['name', 'year']
 
 
-class RatingListSerializer(serializers.HyperlinkedModelSerializer ):
+class RatingListSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.URLField(source='title.get_absolute_url')
     rate_date_formatted = serializers.SerializerMethodField()
 
     # title = TitlePreviewSerializer()
     title = TitleSerializer()  # this works better than depth
-    # detail_url = serializers.HyperlinkedIdentityField(many=True, view_name='title_detail', lookup_field='slug', read_only=True)
 
     class Meta:
         model = Rating

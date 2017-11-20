@@ -181,3 +181,14 @@ class ReorderFavourite(APIView):
                     user_favourites.filter(title__pk=title_pk).update(order=new_position)
                 return Response({'message': 'Changed order'}, status=status.HTTP_200_OK)
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class Search(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        # t = Title.objects.filter(name__icontains=kwargs.get('name', 'dare'))
+        t = Title.objects.all()[:20]
+        serializer = TitleSerializer(t, many=True)
+        # serializer = TitleSerializer(t, many=True, context={'request': request})
+        return Response({'results': serializer.data}, status=status.HTTP_200_OK)
