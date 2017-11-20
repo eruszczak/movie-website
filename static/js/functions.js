@@ -1,3 +1,9 @@
+$.fn.api.settings.api = {
+    'search': '/api/search?name={query}',
+    'follow user': '/api/user/{pk}/follow',
+    'favourite title': '/api/title/{pk}/favourites'
+};
+
 var TOKEN = getCookie('csrftoken');
 
 function showToast(message, options) {

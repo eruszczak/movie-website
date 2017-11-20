@@ -28,14 +28,15 @@
 {#          <a class="item" href="#">Link Item</a>#}
 {#        </div>#}
 {#      </div>#}
-      <div class="right menu">
-        <div class="ui fluid category search">
+        <div class="ui search">
           <div class="ui icon input">
             <input class="prompt" type="text" placeholder="Search...">
             <i class="search icon"></i>
           </div>
           <div class="results"></div>
         </div>
+      <div class="right menu">
+
           {% if request.user.is_authenticated %}
               <div class="ui simple dropdown item">
                 {{ request.user.username }} <i class="dropdown icon"></i> <span class="ui green label">2</span>
