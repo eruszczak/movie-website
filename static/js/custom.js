@@ -100,7 +100,7 @@ $('.ui.search').search({
                 results: results,
                 action: {
                     actionText: 'See more',
-                    actionURL: 'url'
+                    actionURL: 'http://127.0.0.1:8000/'
                 }
             };
         }
@@ -119,7 +119,39 @@ $('.follow.button').api({
     }
 }).state({
     text: {
-      inactive   : 'Follow',
-      active     : 'Followed'
+      inactive: 'Follow',
+      active: 'Followed'
+    }
+});
+
+$('.title-fav').api({
+    action: 'favourite title',
+    method : 'POST',
+    data: {
+      csrfmiddlewaretoken: TOKEN
+    },
+    beforeSend: function(settings) {
+      settings.data.rating = $(this).hasClass('active') ? 0: 1;
+      return settings;
+    },
+    onSuccess: function(response) {
+        showToast(response.message);
+        $(this).toggleClass('empty').toggleClass('active');
+    }
+});
+
+$('.title-watch').api({
+    action: 'watchlist title',
+    method : 'POST',
+    data: {
+      csrfmiddlewaretoken: TOKEN
+    },
+    beforeSend: function(settings) {
+      settings.data.rating = $(this).hasClass('active') ? 0: 1;
+      return settings;
+    },
+    onSuccess: function(response) {
+        showToast(response.message);
+        $(this).toggleClass('remove').toggleClass('active');
     }
 });

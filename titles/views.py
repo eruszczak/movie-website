@@ -109,11 +109,12 @@ class TitleDetailView(DetailView):
     def get_object(self, queryset=None):
         if queryset is None:
             queryset = self.get_queryset()
-        queryset = queryset.annotate(
-            has_in_favourites=Count(
-                Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
-            ),
-        )
+        if self.request.user.is_authenticated:
+            queryset = queryset.annotate(
+                has_in_favourites=Count(
+                    Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
+                ),
+            )
         try:
             return queryset.get(const=self.kwargs['const'])
         except self.model.DoesNotExist:
