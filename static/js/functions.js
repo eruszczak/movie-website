@@ -1,7 +1,8 @@
 $.fn.api.settings.api = {
     'search': '/api/search?name={query}',
     'follow user': '/api/user/{pk}/follow',
-    'favourite title': '/api/title/{pk}/favourites'
+    'favourite title': '/api/title/{pk}/favourites',
+    'watchlist title': '/api/title/{pk}/watchlist'
 };
 
 var TOKEN = getCookie('csrftoken');
