@@ -57,6 +57,20 @@
             </div>
         </div>
         <div class="eight wide mobile twelve wide computer twelve wide tablet centered column">
+
+        </div>
+    </div>
+
+{#    todo big image from selected movie#}
+
+    <div class="ui pointing secondary menu user-menu">
+        <a class="item active" data-tab="first">Overview</a>
+        <a class="item" data-tab="second">Lists</a>
+        <a class="item" data-tab="third">Charts</a>
+        <a class="item" data-tab="fourth">Compared with you</a>
+    </div>
+
+<div class="ui tab segment active" data-tab="first">
             <div class="ui statistics">
               <div class="statistic">
                 <div class="value">
@@ -91,19 +105,7 @@
                 </div>
               </div>
             </div>
-        </div>
-    </div>
-
-{#    todo big image from selected movie#}
-
-    <div class="ui pointing secondary menu user-menu">
-        <a class="item active" data-tab="first">Overview</a>
-        <a class="item" data-tab="second">Lists</a>
-        <a class="item" data-tab="third">Charts</a>
-        <a class="item" data-tab="fourth">Compared with you</a>
-    </div>
-
-<div class="ui tab segment active" data-tab="first"><h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
+</div>
 <div class="ui tab segment" data-tab="second"><h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
 <div class="ui tab segment" data-tab="third"><h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
 <div class="ui tab segment" data-tab="fourth"><h3 class="ui header">4th</h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
@@ -114,12 +116,11 @@
     <div class="ui list">
     {% for rating in rating_list %}
         {% include 'titles/title_small.html' with title=rating.title rate_date=rating.rate_date rate=rating.rate %}
-        <div class="ui tiny image" type="tooltip" data-content="{{ rating.title.name }} ({{ rating.title.year }}) on {{ rating.rate_date }}" data-variation="small">
-          <a class="ui left corner label">
-            <span class="icon">8</span>
-          </a>
-          <a href="{{ rating.title.get_absolute_url }}" target="_blank"><img src="{% static 'img/w185_h278_bestv2.jpg' %}"></a>
-        </div>
+{#        <div class="ui tiny image" type="tooltip" data-content="{{ rating.title.name }} ({{ rating.title.year }}) on {{ rating.rate_date }}" data-variation="small">#}
+{#          <a class="ui left corner label">#}
+{#            <span class="icon">8</span>#}
+{#          </a>#}
+{#          <a href="{{ rating.title.get_absolute_url }}" target="_blank"><img src="{% static 'img/w185_h278_bestv2.jpg' %}"></a>#}
     {% endfor %}
     </div>
 </div>
