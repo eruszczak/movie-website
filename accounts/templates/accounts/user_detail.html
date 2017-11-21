@@ -116,14 +116,12 @@
   <a class="ui blue ribbon label">Activity</a>
     <span>{{ user.username }}'s latest ratings</span>
     <div class="ui list">
-    {% for rating in rating_list %}
-        {% include 'titles/title_small.html' with title=rating.title rate_date=rating.rate_date rate=rating.rate %}
-{#        <div class="ui tiny image" type="tooltip" data-content="{{ rating.title.name }} ({{ rating.title.year }}) on {{ rating.rate_date }}" data-variation="small">#}
-{#          <a class="ui left corner label">#}
-{#            <span class="icon">8</span>#}
-{#          </a>#}
-{#          <a href="{{ rating.title.get_absolute_url }}" target="_blank"><img src="{% static 'img/w185_h278_bestv2.jpg' %}"></a>#}
-    {% endfor %}
+        {% for rating in rating_list %}
+            {% include 'titles/title_small.html' with title=rating.title rate_date=rating.rate_date rate=rating.rate %}
+        {% endfor %}
+        {% if not rating_list %}
+            <p>No ratings found</p>
+        {% endif %}
     </div>
 </div>
 
@@ -140,6 +138,9 @@
             </div>
           </div>
         {% endfor %}
+        {% if not feed %}
+            <p>No activity found</p>
+        {% endif %}
     </div>
 </div>
 
