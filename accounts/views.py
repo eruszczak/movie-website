@@ -3,7 +3,7 @@ import csv
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Case, When, BooleanField, IntegerField, OuterRef, Subquery
+from django.db.models import Count, Case, When, BooleanField, IntegerField, OuterRef, Subquery, Prefetch, F
 from django.http import HttpResponse
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
@@ -154,7 +154,16 @@ class UserDetailView(DetailView):
         return self.render_to_response(context)
 
     def get_object(self, queryset=None):
-        return self.model.objects.get(username=self.kwargs['username'])
+        return self.model.objects.filter(
+            username=self.kwargs['username']).annotate(
+            total_ratings=Count('rating'),
+            total_movies=Count(Case(When(rating__title__type__name='movie', then=1))),
+            total_series=Count(Case(When(rating__title__type__name='series', then=1))),
+            total_followers=Count(Case(When(userfollow__followed__pk=F('pk'), then=1))),
+            # total_movies=Count(Case(When(rating__title__type__name='movie', then=1)), distinct=True),
+            # total_series=Count(Case(When(rating__title__type__name='series', then=1)), distinct=True),
+            # total_followers=Count('userfollow__followed')
+        ).get()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -186,7 +195,9 @@ class UserDetailView(DetailView):
 
         if self.is_owner:
             context.update({
-                'feed': Rating.objects.filter(user__userfollow__follower=self.object).order_by('-rate_date')[:10]
+                'feed': Rating.objects.filter(
+                    user__userfollow__follower=self.object
+                ).select_related('title', 'user').order_by('-rate_date')[:10]
             })
 
         # get_ratings_comparision TODO
