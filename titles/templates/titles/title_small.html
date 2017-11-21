@@ -1,12 +1,10 @@
 {% load static %}
 <div class="ui tiny image" type="tooltip" data-content="{{ title.name }} ({{ title.year }}){% if rate_date %} on {{ rate_date }}{% endif %}" data-variation="small">
     {% if rate %}
-    <a class="ui left corner label yellow">
-{#    todo link to rated == rate #}
+    <a class="ui left corner label red green">
         <span class="icon">{{ rate }}</span>
     </a>
     {% endif %}
-{#    todo else Add to watchlist#}
   <a href="{{ title.get_absolute_url }}">
 <img src="{% static 'img/w185_h278_bestv2.jpg' %}"></a>
 </div>

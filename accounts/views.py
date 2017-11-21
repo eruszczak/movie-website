@@ -135,7 +135,6 @@ class UserListView(ListView):
         return context
 
 
-# todo this must be UpdateView
 class UserDetailView(DetailView):
     model = User
     template_name = 'accounts/user_detail.html'
@@ -157,9 +156,9 @@ class UserDetailView(DetailView):
         return self.model.objects.filter(
             username=self.kwargs['username']).annotate(
             total_ratings=Count('rating'),
-            total_movies=Count(Case(When(rating__title__type__name='movie', then=1))),
-            total_series=Count(Case(When(rating__title__type__name='series', then=1))),
-            total_followers=Count(Case(When(userfollow__followed__pk=F('pk'), then=1))),
+            total_movies=Count(Case(When(rating__title__type__name='movie', then=1), output_field=IntegerField())),
+            total_series=Count(Case(When(rating__title__type__name='series', then=1), output_field=IntegerField())),
+            total_followers=Count(Case(When(userfollow__followed__pk=F('pk'), then=1), output_field=IntegerField())),
             # total_movies=Count(Case(When(rating__title__type__name='movie', then=1)), distinct=True),
             # total_series=Count(Case(When(rating__title__type__name='series', then=1)), distinct=True),
             # total_followers=Count('userfollow__followed')
