@@ -53,7 +53,9 @@
                   22 Friends
                 </a>
               </div>
-                <div class="ui bottom attached button">Follow</div>
+                {% if user.pk != request.user.pk %}
+                  <div class="ui bottom attached  small follow toggle button{% if already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if already_follows %}Followed{% else %}Follow{% endif %}</div>
+                {% endif %}
             </div>
         </div>
         <div class="eight wide mobile twelve wide computer twelve wide tablet centered column">
