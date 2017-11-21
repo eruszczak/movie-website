@@ -3,7 +3,8 @@ import csv
 
 from django.conf import settings
 from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, add_new_title, valid_csv_headers
-from titles.models import Title, Watchlist, Rating
+from titles.models import Title, Rating
+from lists.models import Watchlist
 
 
 def get_title_or_create(const):
