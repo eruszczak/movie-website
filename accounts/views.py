@@ -184,6 +184,11 @@ class UserDetailView(DetailView):
         else:
             ratings = Rating.objects.filter(user=self.object).select_related('title')
 
+        if self.is_owner:
+            context.update({
+                'feed': Rating.objects.filter(user__userfollow__follower=self.object).order_by('-rate_date')[:10]
+            })
+
         # get_ratings_comparision TODO
         context.update({
             'is_owner': self.is_owner,
