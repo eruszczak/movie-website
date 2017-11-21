@@ -12,7 +12,8 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 
-from titles.models import Rating, Title, Favourite
+from titles.models import Rating, Title
+from lists.models import Favourite
 from accounts.models import UserFollow
 from .serializers import RatingListSerializer, TitleSerializer
 from common.sql_queries import rating_distribution

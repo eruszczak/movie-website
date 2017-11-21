@@ -180,18 +180,19 @@ class UserDetailView(DetailView):
             ratings = Rating.objects.filter(user=self.object).select_related('title')
 
         # if self.is_owner:
+        followed = UserFollow.objects.filter(follower=self.object).values_list('followed', flat=True)
         context.update({
-            'feed': Rating.objects.filter(
-                user__in=UserFollow.objects.filter(follower=self.object).values_list('followed', flat=True)
-            ).select_related('title', 'user').order_by('-rate_date')[:10]
+            'feed': Rating.objects.filter(user__in=followed).select_related('title', 'user').order_by('-rate_date')[:10]
         })
 
         # get_ratings_comparision TODO
         context.update({
+            'is_other_user': self.is_other_user,
             'is_owner': self.is_owner,
             'rating_list': ratings[:self.titles_in_a_row],
             # 'common_with_req_user': self.common
-            'total_followers': UserFollow.objects.filter(followed=self.object).count()
+            'total_followers': UserFollow.objects.filter(followed=self.object).count(),
+            'total_followed': len(followed)
         })
         return context
 

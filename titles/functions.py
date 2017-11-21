@@ -3,7 +3,8 @@ from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.db.models import F
 from recommend.models import Recommendation
-from titles.models import Watchlist, Favourite, Rating
+from titles.models import Rating
+from lists.models import Watchlist, Favourite
 
 User = get_user_model()
 

@@ -26,13 +26,15 @@
 {#  </div>#}
 {#</div>#}
 <div class="four ui buttons">
-  <button class="ui button">Overview</button>
-  <button class="ui button">Lists</button>
-  <button class="ui button">Charts</button>
-  <button class="ui button">Compared with you</button>
+  <a href="" class="ui button active">Overview</a>
+  <a href="" class="ui button">Lists</a>
+  <a href="" class="ui button">Charts</a>
+    {% if is_other_user %}
+        <a href="" class="ui button">Compared with you</a>
+    {% endif %}
 </div>
-    <div class="ui two column centered grid">
-        <div class="eight wide mobile four wide computer four wide tablet column">
+    <div class="ui centered">
+{#        <div class="eight wide mobile four wide computer four wide tablet column">#}
 {#        <div class="column">#}
             <div class="ui card">
               <div class="image">
@@ -43,24 +45,26 @@
                 <div class="meta">
                   <span class="date">Member since {{ user.date_joined|date:"M d, Y" }}</span>
                 </div>
-                <div class="description">
-                  {{ user.tagline }}
-                </div>
+                  {% if user.tagline %}
+                    <div class="description">
+                      {{ user.tagline }}
+                    </div>
+                  {% endif %}
               </div>
               <div class="extra content">
                 <a>
                   <i class="user icon"></i>
-                  22 Friends
+                  Follows {{ total_followed }} people
                 </a>
               </div>
                 {% if already_follows %}
                   <div class="ui bottom attached  small follow toggle button{% if already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if already_follows %}Followed{% else %}Follow{% endif %}</div>
                 {% endif %}
             </div>
-        </div>
-        <div class="eight wide mobile twelve wide computer twelve wide tablet centered column">
+{#        </div>#}
+{#        <div class="eight wide mobile twelve wide computer twelve wide tablet centered column">#}
 
-        </div>
+{#        </div>#}
     </div>
 
 {#    todo big image from selected movie#}
