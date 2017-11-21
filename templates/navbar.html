@@ -1,6 +1,6 @@
 {% load static %}
 {% with url_name=request.resolver_match.url_name %}
-<div class="ui secondary menu">
+<div class="ui secondary top attached menu">
     <div class="ui container">
       <a href="{% url 'home' %}" class="header item">
 {#        <img class="logo" src="assets/images/logo.png">#}
@@ -10,33 +10,14 @@
       <a href="{% url 'title-list' %}" class="item{% if url_name == 'title-list' %} active{% endif %}">Explore</a>
       <a href="{% url 'user-list' %}" class="item{% if url_name == 'user-list' %} active{% endif %}">Users</a>
 {#      <a href="{% url 'about' %}" class="item{% if url_name == 'about' %} active{% endif %}">About</a>#}
-{#      <div class="ui simple pointing dropdown item">#}
-{#        Dropdown <i class="dropdown icon"></i>#}
-{#        <div class="menu">#}
-{#          <a class="item" href="#">Link Item</a>#}
-{#          <a class="item" href="#">Link Item</a>#}
-{#          <div class="divider"></div>#}
-{#          <div class="header">Header Item</div>#}
-{#          <div class="item">#}
-{#            <i class="dropdown icon"></i>#}
-{#            Sub Menu#}
-{#            <div class="menu">#}
-{#              <a class="item" href="#">Link Item</a>#}
-{#              <a class="item" href="#">Link Item</a>#}
-{#            </div>#}
-{#          </div>#}
-{#          <a class="item" href="#">Link Item</a>#}
-{#        </div>#}
-{#      </div>#}
-        <div class="ui search">
+        <div class="ui search item">
           <div class="ui icon input">
-            <input class="prompt" type="text" placeholder="Search...">
+            <input type="text" placeholder="Search...">
             <i class="search icon"></i>
           </div>
           <div class="results"></div>
         </div>
       <div class="right menu">
-
           {% if request.user.is_authenticated %}
               <div class="ui simple dropdown item">
                 {{ request.user.username }} <i class="dropdown icon"></i> <span class="ui green label">2</span>
@@ -52,6 +33,15 @@
               <a href="{% url 'login' %}" class="item{% if url_name == 'login' %} active{% endif %}"><i class="sign in icon"></i>Login</a>
               <a href="{% url 'register' %}" class="item{% if url_name == 'register' %} active{% endif %}"><i class="sign out icon"></i>Sign up</a>
           {% endif %}
+      <div class="ui right dropdown item">
+        My account
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <div class="item">Applications</div>
+          <div class="item">International Students</div>
+          <div class="item">Scholarships</div>
+        </div>
+      </div>
       </div>
     </div>
   </div>

@@ -40,6 +40,13 @@ $('[type="tooltip"]').popup();
 // ;
 
 
+$('.tabular.menu .item').tab();
+$('.ui.menu').tab();
+$('.dropdown.item').dropdown();
+$('.ui.dropdown')
+  .dropdown()
+;
+
 // $('.test .menu .item')
 $('.user-menu .item')//.not('.active')
   .tab({

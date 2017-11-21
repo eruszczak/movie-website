@@ -38,7 +38,18 @@
 {#    </div>#}
 {#  </div>#}
     {% endif %}
-
+<div class="ui right floated text menu">
+  <div class="header item">Sort By</div>
+  <a class="item">
+    Closest
+  </a>
+  <a class="item">
+    Most Comments
+  </a>
+  <a class="item active">
+    Most Popular
+  </a>
+</div>
 <div class="ui items">
 {% for user in user_list %}
     {% url 'user-detail' user.username as user_detail_url %}
@@ -49,7 +60,7 @@
 
     <div class="middle aligned content">
     {% if user.pk != request.user.pk %}
-      <div class="ui mini follow toggle button right floated{% if user.already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if user.already_follows %}Followed{% else %}Follow{% endif %}</div>
+      <div class="ui small follow toggle button right floated{% if user.already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if user.already_follows %}Followed{% else %}Follow{% endif %}</div>
     {% endif %}
       <a href="{{ user_detail_url }}" class="header">{{ user.username }}</a>
 {#    follow button under avatar#}
