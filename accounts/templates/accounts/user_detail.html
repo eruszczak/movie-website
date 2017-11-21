@@ -60,7 +60,7 @@
             <div class="ui statistics">
               <div class="statistic">
                 <div class="value">
-                  22
+                  {{ user.total_ratings }}
                 </div>
                 <div class="label">
                   Ratings
@@ -68,7 +68,7 @@
               </div>
               <div class="statistic">
                 <div class="value">
-                  31,200
+                  {{ user.total_movies }}
                 </div>
                 <div class="label">
                   Movies seen
@@ -76,7 +76,7 @@
               </div>
               <div class="statistic">
                 <div class="value">
-                  31,200
+                  {{ user.total_series }}
                 </div>
                 <div class="label">
                   Tv-shows seen
@@ -84,7 +84,7 @@
               </div>
               <div class="statistic">
                 <div class="value">
-                  22
+                  {{ user.total_followers }}
                 </div>
                 <div class="label">
                   Followers
@@ -94,28 +94,12 @@
         </div>
     </div>
 
-{#    todo follow button, lists, charts, big image from selected movie#}
-
-{#<div class="ui top attached tabular menu">#}
-{#  <a class="item" data-tab="first">First</a>#}
-{#  <a class="item active" data-tab="second">Second</a>#}
-{#  <a class="item" data-tab="third">Third</a>#}
-{#</div>#}
-{#<div class="ui bottom attached tab segment" data-tab="first">#}
-{#  First#}
-{#</div>#}
-{#<div class="ui bottom attached tab segment active" data-tab="second">#}
-{#  Second#}
-{#</div>#}
-{#<div class="ui bottom attached tab segment" data-tab="third">#}
-{#  Third#}
-{#</div>#}
+{#    todo big image from selected movie#}
 
     <div class="ui pointing secondary menu user-menu">
-        <a class="item active" data-tab="first">First</a>
-        <a class="item" data-tab="second">Second</a>
-        <a class="item" data-tab="third">Third</a>
-        <a class="item" data-tab="sda">Charts</a>
+        <a class="item active" data-tab="first">Overview</a>
+        <a class="item" data-tab="second">Lists</a>
+        <a class="item" data-tab="third">Charts</a>
         <a class="item" data-tab="fourth">Compared with you</a>
     </div>
 

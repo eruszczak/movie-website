@@ -61,9 +61,9 @@
     </div>
   </div>
 </div>
-<div class="ui two column grid">
+<div class="ui two column stackable grid">
     {% for title in title_list %}
-        <div class="sixteen wide mobile eight wide computer column">
+        <div class="column">
             <div class="ui card backdrop-card">
               <a href="{{ title.get_absolute_url }}" class="ui image">
                 <img src="{% static 'img/w500_and_h521_bestv2.jpg' %}">
