@@ -53,7 +53,7 @@
                   22 Friends
                 </a>
               </div>
-                {% if user.pk != request.user.pk %}
+                {% if already_follows %}
                   <div class="ui bottom attached  small follow toggle button{% if already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if already_follows %}Followed{% else %}Follow{% endif %}</div>
                 {% endif %}
             </div>
@@ -100,7 +100,7 @@
               </div>
               <div class="statistic">
                 <div class="value">
-                  {{ user.total_followers }}
+                  {{ total_followers }}
                 </div>
                 <div class="label">
                   Followers

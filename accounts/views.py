@@ -158,10 +158,9 @@ class UserDetailView(DetailView):
             total_ratings=Count('rating'),
             total_movies=Count(Case(When(rating__title__type__name='movie', then=1), output_field=IntegerField())),
             total_series=Count(Case(When(rating__title__type__name='series', then=1), output_field=IntegerField())),
-            total_followers=Count(Case(When(userfollow__followed__pk=F('pk'), then=1), output_field=IntegerField())),
+            # total_followers=Count(Case(When(userfollow__followed__pk=F('pk'), then=1), output_field=IntegerField())),
             # total_movies=Count(Case(When(rating__title__type__name='movie', then=1)), distinct=True),
             # total_series=Count(Case(When(rating__title__type__name='series', then=1)), distinct=True),
-            # total_followers=Count('userfollow__followed')
         ).get()
 
     def get_context_data(self, **kwargs):
@@ -192,6 +191,7 @@ class UserDetailView(DetailView):
             'is_owner': self.is_owner,
             'rating_list': ratings[:self.titles_in_a_row],
             # 'common_with_req_user': self.common
+            'total_followers': UserFollow.objects.filter(followed=self.object).count()
         })
         return context
 
