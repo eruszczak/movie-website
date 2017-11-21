@@ -177,25 +177,13 @@ class UserDetailView(DetailView):
                         user=self.request.user, title=OuterRef('title')
                     ).order_by('-rate_date').values('rate')[:1])
             ).select_related('title')
-            # for r in ratings:
-            #     print(r.user_rate)
-            #
-            # ratings = Rating.objects.filter(user=self.object).extra(select={
-            #     'user_rate': """SELECT rating.rate FROM titles_rating as rating
-            #     WHERE rating.user_id = %s
-            #     AND rating.title_id = titles_rating.title_id
-            #     ORDER BY rating.rate_date DESC LIMIT 1""",
-            # }, select_params=[self.request.user.id])
-            #
-            # for r in ratings:
-            #     print(r.user_rate)
         else:
             ratings = Rating.objects.filter(user=self.object).select_related('title')
 
         # if self.is_owner:
         context.update({
             'feed': Rating.objects.filter(
-                user__userfollow__follower=self.object
+                user__in=UserFollow.objects.filter(follower=self.object).values_list('followed', flat=True)
             ).select_related('title', 'user').order_by('-rate_date')[:10]
         })
 
