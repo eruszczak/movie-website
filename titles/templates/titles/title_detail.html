@@ -6,34 +6,30 @@
 <div class="still-background">
     <img class="backdrop" src="{% static 'img/1280.jpg' %}">
     <div class="ui grid centered">
-{#        <div class="six wide column">#}
-            <div class="poster-background">
-                <div class="card1 card-01 height-fix">
-                    <img class="card-img-top" src="http://image.tmdb.org/t/p/w342/rNQH6Q8RPXD59aqGckST3CKQbCf.jpg" alt="Card image cap">
-                    <div class="card-img-overlay">
-                    <h4 class="card-title"><strong>{{ title.name }}</strong></h4>
-                    <p class="card-text">
+        <div class="poster-background">
+            <div class="card1 card-01 height-fix">
+                <img class="card-img-top" src="http://image.tmdb.org/t/p/w342/rNQH6Q8RPXD59aqGckST3CKQbCf.jpg" alt="Card image cap">
+                <div class="card-img-overlay">
+                <h4 class="card-title"><strong>{{ title.name }}</strong></h4>
+                <p class="card-text">
 
-                    </p>
-                    {#            <p class="card-text">Captain Jack Sparrow searches for the trident of Poseidon.</p>#}
-                    <p class="card-text ui star large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ user_ratings_of_title.0.rate }}"></p>
-                    <p class="card-text">
-
-                            <i data-pk="{{ title.pk }}" class="{% if not title.has_in_favourites %}empty {% else %}active {% endif %}red heart icon large title-fav"></i>
-                            <i data-pk="{{ title.pk }}" class="{% if not title.has_in_watchlist %}remove {% else %}active {% endif %}red bookmark icon large title-watch"></i>
-{#                        <div class="right floated">#}
-                        <i class="calendar icon"></i> {{ title.year }}
-                        <i class="star icon"></i>{{ title.rate_imdb }}
-{#                        </div>#}
-                    </p>
-                    <p class="card-text">
-                        {% for genre in title.genre.all %}
-                            <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
-                        {% endfor %}
-                    </p>
-                    </div>
+                </p>
+                {#            <p class="card-text">Captain Jack Sparrow searches for the trident of Poseidon.</p>#}
+                <p class="card-text ui star large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ user_ratings_of_title.0.rate }}"></p>
+                <p class="card-text">
+                    <i class="calendar icon"></i> {{ title.year }}
+                    <i class="star icon"></i>{{ title.rate_imdb }}
+                    <i data-pk="{{ title.pk }}" class="{% if not title.has_in_favourites %}empty {% else %}active {% endif %}red heart icon large title-fav ml10"></i>
+                    <i data-pk="{{ title.pk }}" class="{% if not title.has_in_watchlist %}remove {% else %}active {% endif %}red bookmark icon large title-watch"></i>
+                </p>
+                <p class="card-text">
+                    {% for genre in title.genre.all %}
+                        <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
+                    {% endfor %}
+                </p>
                 </div>
             </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -53,24 +49,23 @@
     {#        Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user-list' %}?s={{ entry.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
     {#    {% endif %}#}
     {#{% endwith %}#}
-    <div class="ui divider"></div>
-<div class="ui fluid three item menu">
-  <a class="item">Buy</a>
-  <a class="item">Sell</a>
-  <a class="item"><i class="video play icon"></i> Rent</a>
-</div>
+{#    <div class="ui divider"></div>#}
+{#<div class="ui fluid three item menu">#}
+{#  <a class="item">Buy</a>#}
+{#  <a class="item">Sell</a>#}
+{#  <a class="item"><i class="video play icon"></i> Rent</a>#}
+{#</div>#}
     {#<a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
 
     <div class="ui pointing secondary menu user-menu">
         <a class="item active" data-tab="third">Title info</a>
-        <a class="item" data-tab="first">Your data</a>
-        <a class="item" data-tab="second">Social</a>
+        <a class="item" data-tab="first">Overview</a>
         <a class="item" data-tab="fourth">Media</a>
     </div>
 
     <div class="ui tab segment" data-tab="first">
-    history ratings<br>
-    edit history hmm
+        history ratings<br>
+        edit history hmm
         {% with user_ratings_of_title.0 as current_rating %}
 {#            <div class="ui cards">#}
 {#                {% include 'titles/title_card.html' with title=title score=current_rating.rate in_fav=title.has_in_favourites %}#}
@@ -86,43 +81,42 @@
 {#                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> modify current rating#}
 {#            </a>#}
 {#        {% endif %}#}
-    </div>
-    <div class="ui tab segment" data-tab="second">
         <a href="{% url 'user-list' %}?const={{ title.const }}">who saw this title</a>
         <br><a href="">lists with this title</a>
 
-        <div class="ui header">Recommend this title</div>
-        <div class="ui primary recommend disabled button" data-pk="{{ title.pk }}">Recommend</div>
-        <div class="ui fluid multiple search selection recommend dropdown">
-          <input type="hidden" name="user_list">
-          <i class="dropdown icon"></i>
-          <div class="default text">People you follow</div>
-          <div class="menu">
-              {% for userfollow in followed_title_not_recommended %}
-                <div class="item" data-value="{{ userfollow.followed.username }}"><img class="ui mini avatar image" src="{% static 'img/stevie.jpg' %}">{{ userfollow.followed.username }}</div>
-              {% endfor %}
+        <div class="ui segment">
+          <a class="ui teal ribbon label">Recommend</a>
+            <span>Recommend this title to people you follow</span> <a class="ui primary mini recommend hide button ml10" data-pk="{{ title.pk }}">Recommend</a>
+            <div class="ui list">
+                <div class="ui fluid multiple search selection recommend dropdown">
+                  <input type="hidden" name="user_list">
+                  <i class="dropdown icon"></i>
+                  <div class="default text">People you follow</div>
+                  <div class="menu">
+                      {% for userfollow in followed_title_not_recommended %}
+                        <div class="item" data-value="{{ userfollow.followed.username }}"><img class="ui mini avatar image" src="{% static 'img/stevie.jpg' %}">{{ userfollow.followed.username }}</div>
+                      {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ui segment">
+          <a class="ui teal ribbon label">Other ratings</a>
+            <span>Followed users who saw this title too</span>
+            <div class="ui list">
+                {% for userfollow in followed_saw_title %}
+                    <a href="{% url 'user-detail' userfollow.followed.username %}" class="ui teal image label">
+                      <img src="{% static 'img/stevie.jpg' %}">
+                      {{ userfollow.followed.username }}
+                      <div class="detail">{{ userfollow.user_rate }} on {{ userfollow.user_rate_date }}</div>
+                    </a>
+                {% endfor %}
+                {% if not followed_saw_title %}
+                    <p>Nothing found</p>
+                {% endif %}
             </div>
         </div>
 
-        {% if followed_saw_title %}
-            <div class="ui hidden divider"></div>
-            <div class="ui header">Followed users who saw this title too</div>
-            {% for userfollow in followed_saw_title %}
-                <a href="{% url 'user-detail' userfollow.followed.username %}" class="ui teal image label">
-                  <img src="{% static 'img/stevie.jpg' %}">
-                  {{ userfollow.followed.username }}
-                  <div class="detail">{{ userfollow.user_rate }} on {{ userfollow.user_rate_date }}</div>
-                </a>
-            {% endfor %}
-        {% endif %}
-        <div class="ui divider"></div>
-
-        <a href="{{ title.url_imdb }}" target="_blank">
-            <img class="image" src="{% static 'img/imdb.png' %}" alt="..." style="width: 70px">
-        </a>
-        <a href="{{ title.url_tomato }}" target="_blank">
-            <img class="image" src="{% static 'img/rt.png' %}" alt="..." style="width: 70px">
-        </a>
     </div>
     <div class="ui tab segment active" data-tab="third">
     {#    <h3 class="ui header"></h3>#}
@@ -146,7 +140,6 @@
                 {% if title.votes %}
                   <div class="item">IMDb votes: {{ title.votes|intcomma }}</div>
                 {% endif %}
-
                 {% if title.rate_imdb %}
                     <div class="item">Avg IMDb ratings: {{ title.rate_imdb }}</div>
                 {% endif %}
@@ -159,9 +152,20 @@
                 {% endwith %}
             </div>
             {% if title.plot %}
-                <div class="ui divider"></div>
+                <div class="ui hidden divider"></div>
                 <p>{{ title.plot }}</p>
             {% endif %}
+            <div class="ui divider"></div>
+            <a href="{{ title.url_imdb }}" target="_blank">
+                <img class="image" src="{% static 'img/imdb.png' %}" alt="..." style="width: 70px">
+            </a>
+            <a href="{{ title.url_tomato }}" target="_blank">
+                <img class="image" src="{% static 'img/rt.png' %}" alt="..." style="width: 70px">
+            </a>
+            <a href="" target="_blank">
+{#                <img class="image" src="{% static 'img/rt.png' %}" alt="..." style="width: 70px">#}
+                TMDB
+            </a>
     </div>
     <div class="ui tab segment" data-tab="fourth">
         <h3 class="ui header">4th</h3>
@@ -195,6 +199,13 @@
 {#            </tr>#}
 {#        {% endfor %}#}
 {#    </table>#}
+    <div class="ui segment">
+      <a class="ui blue ribbon label">Similar</a>
+        <span>Similar titles</span>
+        <div class="ui list">
+
+        </div>
+    </div>
 
     <div class="ui segment">
       <a class="ui blue ribbon label">Cast</a>
@@ -210,13 +221,6 @@
             {% if not actors_and_other_titles %}
                 <p>Nothing found</p>
             {% endif %}
-        </div>
-    </div>
-    <div class="ui segment">
-      <a class="ui blue ribbon label">Similar</a>
-        <span>Similar titles</span>
-        <div class="ui list">
-
         </div>
     </div>
 {% endblock %}
