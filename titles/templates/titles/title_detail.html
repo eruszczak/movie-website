@@ -90,8 +90,9 @@
         <br><a href="">lists with this title</a>
 
         <div class="ui header">Recommend this title</div>
-        <div class="ui fluid multiple search selection dropdown">
-          <input type="hidden" name="country">
+        <div class="ui primary recommend disabled button" data-pk="{{ title.pk }}">Recommend</div>
+        <div class="ui fluid multiple search selection recommend dropdown">
+          <input type="hidden" name="user_list">
           <i class="dropdown icon"></i>
           <div class="default text">People you follow</div>
           <div class="menu">
@@ -101,17 +102,17 @@
             </div>
         </div>
 
-        <div class="ui divider"></div>
-        <div class="ui header">Followed users who saw this title too</div>
-        {% for userfollow in followed_saw_title %}
-        {#    todo color depends on rating#}
-            <a href="{% url 'user-detail' userfollow.followed.username %}" class="ui teal image label">
-              <img src="{% static 'img/stevie.jpg' %}">
-              {{ userfollow.followed.username }}
-              <div class="detail">{{ userfollow.user_rate }} on {{ userfollow.user_rate_date }}</div>
-        {#    {{ user.username }} rated this {{ user.followed_curr_rating }}#}
-            </a>
-        {% endfor %}
+        {% if followed_saw_title %}
+            <div class="ui hidden divider"></div>
+            <div class="ui header">Followed users who saw this title too</div>
+            {% for userfollow in followed_saw_title %}
+                <a href="{% url 'user-detail' userfollow.followed.username %}" class="ui teal image label">
+                  <img src="{% static 'img/stevie.jpg' %}">
+                  {{ userfollow.followed.username }}
+                  <div class="detail">{{ userfollow.user_rate }} on {{ userfollow.user_rate_date }}</div>
+                </a>
+            {% endfor %}
+        {% endif %}
         <div class="ui divider"></div>
 
         <a href="{{ title.url_imdb }}" target="_blank">

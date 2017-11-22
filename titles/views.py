@@ -1,8 +1,7 @@
-from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.db.models import Count, When, Case, IntegerField, Subquery
+from django.db.models import Count, When, Case, IntegerField, Subquery, Q
 from django.db.models import OuterRef
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
@@ -13,7 +12,6 @@ from accounts.models import UserFollow
 from lists.models import Watchlist, Favourite
 from shared.views import SearchViewMixin
 from titles.forms import TitleSearchForm, RateUpdateForm
-from titles.functions import toggle_title_in_watchlist, recommend_title
 from .models import Genre, Director, Title, Rating
 
 User = get_user_model()
@@ -130,7 +128,7 @@ class TitleDetailView(DetailView):
                 'is_in_user_watchlist': Watchlist.objects.filter(
                     user=self.request.user, title=self.object, deleted=False).exists(),
                 'followed_title_not_recommended': UserFollow.objects.filter(follower=self.request.user).exclude(
-                    followed__rating__title=self.object, followed__recommendation__title=self.object),
+                    Q(followed__rating__title=self.object) | Q(followed__recommendation__title=self.object)),
                 # todo: do this directly on User object because I dont need anything from UserFollow
                 'followed_saw_title': UserFollow.objects.filter(
                     follower=self.request.user, followed__rating__title=self.object).annotate(
@@ -167,32 +165,24 @@ class TitleDetailView(DetailView):
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        self.recommend_title_to_other_users()
-        self.delete_rating()
+        # self.delete_rating()
         return redirect(self.object)
 
-    def recommend_title_to_other_users(self):
-        selected_users = self.request.POST.getlist('choose_followed_user')
-        if selected_users:
-            message = recommend_title(self.object, self.request.user, selected_users)
-            if message:
-                messages.info(self.request, message, extra_tags='safe')
-
-    def delete_rating(self):
-        delete_rating = self.request.POST.get('delete_rating')
-        rating_pk = self.request.POST.get('rating_pk')
-        if delete_rating and rating_pk:
-            to_delete = Rating.objects.filter(pk=rating_pk, user=self.request.user).first()
-            query = {
-                    'user': self.request.user,
-                    'title': self.object,
-                    'added_date__date__lte': to_delete.rate_date,
-                    'deleted': True
-            }
-            in_watchlist = Watchlist.objects.filter(**query).first()
-            if in_watchlist:
-                toggle_title_in_watchlist(watch=True, instance=in_watchlist)
-            to_delete.delete()
+    # def delete_rating(self):
+    #     delete_rating = self.request.POST.get('delete_rating')
+    #     rating_pk = self.request.POST.get('rating_pk')
+    #     if delete_rating and rating_pk:
+    #         to_delete = Rating.objects.filter(pk=rating_pk, user=self.request.user).first()
+    #         query = {
+    #                 'user': self.request.user,
+    #                 'title': self.object,
+    #                 'added_date__date__lte': to_delete.rate_date,
+    #                 'deleted': True
+    #         }
+    #         in_watchlist = Watchlist.objects.filter(**query).first()
+    #         if in_watchlist:
+    #             toggle_title_in_watchlist(watch=True, instance=in_watchlist)
+    #         to_delete.delete()
 
 
 class RatingUpdateView(UpdateView):

@@ -1,11 +1,20 @@
 from django.conf import settings
 from django.db import models
-
-# Create your models here.
 from django.urls import reverse
 from django.utils import timezone
 
 from titles.models import Title, Rating
+
+
+# after user is created - create for him default non removable Fav and Watch lists
+# maybe
+class List(models.Model):
+    name = models.CharField(max_length=150)
+    default = models.BooleanField(default=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+
+    class Meta:
+        unique_together = ('name', )
 
 
 class Watchlist(models.Model):
@@ -22,13 +31,13 @@ class Watchlist(models.Model):
     def __str__(self):
         return '{} {}'.format(self.title.name, self.title.year)
 
-    def save(self, *args, **kwargs):
-        if not self.id and self.imdb:
-            # if there's later rating then it's not "active" anymore and should be deleted
-            rated_later = Rating.objects.filter(user=self.user, title=self.title, rate_date__gte=self.added_date.date())
-            if rated_later.exists():
-                self.deleted = True
-        super(Watchlist, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if not self.id and self.imdb:
+    #         # if there's later rating then it's not "active" anymore and should be deleted
+    #         rated_later = Rating.objects.filter(user=self.user, title=self.title, rate_date__gte=self.added_date.date())
+    #         if rated_later.exists():
+    #             self.deleted = True
+    #     super(Watchlist, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('watchlist', kwargs={'username': self.user.username})

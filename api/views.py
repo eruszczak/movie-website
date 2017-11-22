@@ -17,7 +17,8 @@ from lists.models import Favourite
 from accounts.models import UserFollow
 from .serializers import RatingListSerializer, TitleSerializer
 from common.sql_queries import rating_distribution
-from titles.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist
+from titles.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist, \
+    recommend_title
 
 User = get_user_model()
 
@@ -181,6 +182,22 @@ class ReorderFavourite(APIView):
                 for new_position, title_pk in enumerate(new_title_order, 1):
                     user_favourites.filter(title__pk=title_pk).update(order=new_position)
                 return Response({'message': 'Changed order'}, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RecommendTitle(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        selected_users = request.POST.get('user_list')
+        try:
+            title = Title.objects.get(pk=kwargs['pk'])
+        except Title.DoesNotExist:
+            return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            if selected_users:
+                message = recommend_title(title, request.user, selected_users.split(','))
+                return Response({'message': message}, status=status.HTTP_200_OK)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 

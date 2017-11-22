@@ -1,7 +1,9 @@
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-from django.db.models import F
+from django.db.models import F, Q
+
+from accounts.models import UserFollow
 from recommend.models import Recommendation
 from titles.models import Rating
 from lists.models import Watchlist, Favourite
@@ -44,20 +46,22 @@ def recommend_title(title, sender, usernames):
     """
     user recommends the title to list of usernames
     """
-    users = []
-    message = ''
+    pks_of_followed_users = UserFollow.objects.filter(follower=sender).exclude(
+        Q(followed__rating__title=title) | Q(followed__recommendation__title=title)
+    ).values_list('followed__pk', flat=True)
+    counter = 0
     for username in usernames:
-        user = User.objects.filter(username=username).first()
-        if user:
-            is_rated = Rating.objects.filter(user=user, title=title).exists()
-            is_recommended = Recommendation.objects.filter(user=user, title=title).exists()
-            if not is_recommended and not is_rated:
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            pass
+        else:
+            if user.pk in pks_of_followed_users:
+                counter += 1
                 Recommendation.objects.create(user=user, sender=sender, title=title)
-                users.append(user)
-    if users:
-        message = 'You recommended <a href="{}">{}</a> to '.format(title.get_absolute_url(), title.name)
-        message += ', '.join(['<a href="{}">{}</a>'.format(user.get_absolute_url(), user.username) for user in users])
-    return message
+    if counter:
+        return f'Recommended to {counter} users'
+    return 'Already recommended'
 
 
 def create_or_update_rating(title, user, rate, insert_as_new=False):
