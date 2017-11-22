@@ -182,9 +182,9 @@ $('.recommend.dropdown').dropdown({
     onChange: function(value, text, choice) {
         var selectedOptions = value.split(',');
         if (selectedOptions.length > 0 && selectedOptions[0].length > 0) {
-            $('.recommend.button').removeClass('disabled');
+            $('.recommend.button').removeClass('hide');
         } else {
-            $('.recommend.button').addClass('disabled');
+            $('.recommend.button').addClass('hide');
         }
     }
 });

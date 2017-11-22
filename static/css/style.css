@@ -89,6 +89,7 @@ body {
 
 .mt10 {margin-top: 10px;}
 .mt20 {margin-top: 20px;}
+.ml10 {margin-left: 10px;}
 
 /*.footer {*/
     /*margin-top: 25px;*/
@@ -100,6 +101,10 @@ body {
 
 .paginator {
     cursor: default;
+}
+
+.hide {
+    display:none!important;
 }
 
 
@@ -122,7 +127,7 @@ body {
     flex-direction: column;
     min-width: 0;
     word-wrap: break-word;
-    background-color: #fff;
+    /*background-color: #fff;*/
     background-clip: border-box;
     border: 1px solid rgba(0, 0, 0, 0.125);
     border-radius: 0.25rem;
