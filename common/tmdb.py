@@ -6,9 +6,10 @@ class TMDB:
     api_key = config('TMDB_API_KEY')
     urls = {
         'base': 'https://api.themoviedb.org/3/',
-        'poster': 'http://image.tmdb.org/t/p/w1280',
+        'poster_backdrop': 'http://image.tmdb.org/t/p/w1280',
         'poster_small': 'http://image.tmdb.org/t/p/w185_and_h278_bestv2',
-        # https://image.tmdb.org/t/p/w500_and_h281_bestv2/tcheoA2nPATCm2vvXw2hVQoaEFD.jpg
+        'poster_card': 'https://image.tmdb.org/t/p/w500_and_h281_bestv2',
+        'poster_card1': 'https://image.tmdb.org/t/p/342',
 
         'tv_seasons': '/tv/{}/season/{}',
         'tv_episodes': '/tv/{}/season/{}/episode/{}',
@@ -29,11 +30,13 @@ class TMDB:
         response = self.get_response(['find', imdb_id])
         if response is not None:
             for movie in response['movie_results']:
-                poster_url = self.urls['poster'] + movie['poster_path']
+                poster_url = self.urls['poster_backdrop'] + movie['poster_path']
                 poster_url_small = self.urls['poster_small'] + movie['poster_path']
+                poster_url_card = self.urls['poster_card'] + movie['poster_path']
                 print(movie)
                 print(poster_url)
                 print(poster_url_small)
+                print(poster_url_card)
 
     def find_genres(self):
         response = self.get_response(['genre', 'movie', 'list'])
