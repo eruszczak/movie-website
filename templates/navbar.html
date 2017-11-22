@@ -17,88 +17,23 @@
           </div>
           <div class="results"></div>
         </div>
-      <div class="right menu">
-          {% if request.user.is_authenticated %}
-              <div class="ui simple dropdown item">
-                {{ request.user.username }} <i class="dropdown icon"></i> <span class="ui green label">2</span>
-                <div class="menu">
-                  <a class="item" href="#"><i class="alarm icon"></i>Notifications <span class="ui green label">2</span></a>
-                  <a class="item{% if url_name == 'user-detail' %} active{% endif %}" href="{% url 'user-detail' request.user.username %}"><i class="user icon"></i>Profile</a>
-                    <div class="divider"></div>
-                  <a href="{% url 'user-edit' request.user.username %}" class="item{% if url_name == 'user-edit' %} active{% endif %}"><i class="setting icon"></i>Settings</a>
-                  <a href="{% url 'logout' %}" class="item"><i class="sign out icon"></i>Logout</a>
-                </div>
-              </div>
-          {% else %}
+        {% if request.user.is_authenticated %}
+          <div class="ui right dropdown item">
+            <strong>{{ request.user.username }}</strong>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <a class="item{% if url_name == 'user-detail' %} active{% endif %}" href="{% url 'user-detail' request.user.username %}"><i class="user icon"></i>My Account</a>
+              <a href="{% url 'user-edit' request.user.username %}" class="item{% if url_name == 'user-edit' %} active{% endif %}"><i class="setting icon"></i>Settings</a>
+            <div class="divider"></div>
+              <a href="{% url 'logout' %}" class="item"><i class="sign out icon"></i>Logout</a>
+            </div>
+          </div>
+        {% else %}
+            <div class="right menu">
               <a href="{% url 'login' %}" class="item{% if url_name == 'login' %} active{% endif %}"><i class="sign in icon"></i>Login</a>
               <a href="{% url 'register' %}" class="item{% if url_name == 'register' %} active{% endif %}"><i class="sign out icon"></i>Sign up</a>
-          {% endif %}
-      <div class="ui right dropdown item">
-        My account
-        <i class="dropdown icon"></i>
-        <div class="menu">
-          <div class="item">Applications</div>
-          <div class="item">International Students</div>
-          <div class="item">Scholarships</div>
-        </div>
-      </div>
-      </div>
+            </div>
+        {% endif %}
     </div>
   </div>
 {% endwith %}
-{#<nav class="navbar navbar-default navbar-fixed-top">#}
-{#	<div class="container">#}
-{#		<div class="navbar-header">#}
-{#			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">#}
-{#				<span class="sr-only">Toggle navigation</span>#}
-{#				<span class="icon-bar"></span>#}
-{#				<span class="icon-bar"></span>#}
-{#				<span class="icon-bar"></span>#}
-{#			</button>#}
-{#		</div>#}
-{#		<div id="navbar" class="navbar-collapse collapse">#}
-{#			<ul class="nav navbar-nav">#}
-{#				<li class="/"><a href="{% url 'home' %}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> home</a></li>#}
-{#				<li><a href="{% url 'title-list' %}"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> explore</a></li>#}
-{#                <li class="dropdown">#}
-{#                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> more</a>#}
-{#                    <ul class="dropdown-menu">#}
-{#                        <li><a href="{% url 'group-year' %}"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> all years</a></li>#}
-{#                        <li><a href="{% url 'group-genre' %}"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> all genres</a></li>#}
-{#                        <li><a href="{% url 'group-director' %}"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> all directors</a></li>#}
-{#                    </ul>#}
-{#                </li>#}
-{#                <li class="dropdown">#}
-{#                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> {% if request.user.is_authenticated %}{{ request.user.username }}{% else %}users{% endif %}</a>#}
-{#                    <ul class="dropdown-menu">#}
-{#                        <li><a href="{% url 'user-list' %}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> users</a></li>#}
-{#                    {% if request.user.is_authenticated %}#}
-{#                        <li><a href="{{ request.user.get_absolute_url }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> your profile</a></li>#}
-{#                        <li role="separator" class="divider"></li>#}
-{#                        <li><a href="{{ request.user.watchlist_url }}"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist</a></li>#}
-{#                        <li><a href="{{ request.user.favourite_url }}"><span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> favourites</a></li>#}
-{#                        <li><a href="{{ request.user.recommend_url }}"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend</a></li>#}
-{#                        <li role="separator" class="divider"></li>#}
-{#                    {% endif %}#}
-{#                    {% if not request.user.is_authenticated %}#}
-{#                        <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> login</a></li>#}
-{#                        <li><a href="{% url 'register' %}"><span class="glyphicon glyphicon-check" aria-hidden="true"></span> register</a></li>#}
-{#                    {% else %}#}
-{#                        <li class="text-center">#}
-{#                            <a href="{{ request.user.get_absolute_url }}">#}
-{#                                {% if request.user.picture %}#}
-{#                                <img id="avatar" class="img-responsive img-thumbnail" src="{{ request.user.picture.url }}" alt="..." style="width: 100px">#}
-{#                                {% else %}#}
-{#                                <img id="avatar" class="img-responsive img-thumbnail" src="{% static 'img/placeholderavatar.png' %}" alt="..." style="width: 100px">#}
-{#                                {% endif %}#}
-{#                            </a>#}
-{#                        </li>#}
-{#                        <li role="separator" class="divider"></li>#}
-{#                        <li class="text-center"><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> logout</a></li>#}
-{#                    {% endif %}#}
-{#                    </ul>#}
-{#                </li>#}
-{#			</ul>#}
-{#		</div>#}
-{#	</div>#}
-{#</nav>#}
