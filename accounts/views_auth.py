@@ -39,7 +39,8 @@ class RegisterView(CreateView):
 
     def form_valid(self, form):
         valid = super().form_valid(form)
-        login(self.request, self.object)
+        if form.cleaned_data.get('login_after'):
+            login(self.request, self.object)
         return valid
 
 

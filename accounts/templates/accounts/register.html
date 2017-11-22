@@ -1,9 +1,9 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load widget_tweaks %}
 {% block title %}Sign up{% endblock %}
 {% block scripts %}
   <script>
-  $(document)
-    .ready(function() {
+  $(document).ready(function() {
       $('.ui.form')
         .form({
           fields: {
@@ -54,6 +54,24 @@
   </script>
 {% endblock %}
 {% block content %}
+    {% if form.errors %}
+        <div class="ui error">
+          <div class="ui error message">
+{#                <div class="header">Could you check something!</div>#}
+            <ul class="list">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                {% for field in form %}
+                    {% if field.errors %}
+                        <li>{{ field.errors.as_text|cut:'* ' }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+          </div>
+        </div>
+        <div class="ui divider hidden"></div>
+    {% endif %}
     <div class="ui middle aligned center aligned grid">
         <div class="column">
             <h2 class="ui teal image header">
@@ -62,31 +80,28 @@
             </h2>
             <form class="ui large form" action="{% url 'register' %}" method="post">{% csrf_token %}
                 <div class="ui stacked segment">
-                    <div class="field">
+                    <div class="field{% if form.username.errors %} error{% endif %}">
                         <div class="ui left icon input">
                             <i class="user icon"></i>
-                            {{ form.username }}
-{#                            <input type="text" name="email" placeholder="E-mail address">#}
+                            {% render_field form.username placeholder=form.username.label %}
                         </div>
                     </div>
-                    <div class="field">
+                    <div class="field{% if form.password1.errors %} error{% endif %}">
                         <div class="ui left icon input">
                             <i class="lock icon"></i>
-                            {{ form.password1 }}
-{#                            <input type="password" name="password" placeholder="Password">#}
+                            {% render_field form.password1 placeholder=form.password1.label %}
                         </div>
                     </div>
-                    <div class="field">
+                    <div class="field{% if form.password2.errors %} error{% endif %}">
                         <div class="ui left icon input">
                             <i class="lock icon"></i>
-                            {{ form.password2 }}
-{#                            <input type="password" name="password" placeholder="Password">#}
+                            {% render_field form.password2 placeholder=form.password2.label %}
                         </div>
                     </div>
                     <div class="field">
                       <div class="ui checkbox">
-                        {{ form.login_after.label_tag }}
                         {{ form.login_after }}
+                          <label class="control-label" for="{{ form.login_after.auto_id }}">{{ form.login_after.label }}{% if form.login_after.field.required %}<span class="required">*</span>{% endif %}&nbsp;</label>
                       </div>
                     </div>
                     <div class="ui fluid large teal submit button">Create an account</div>

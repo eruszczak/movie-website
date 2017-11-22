@@ -28,6 +28,7 @@ $('.rating').rating({
 });
 
 $('[type="tooltip"]').popup();
+$('.ui.checkbox').checkbox();
 
 // var $toggle  = $('.ui.toggle.button');
 // $toggle
@@ -73,17 +74,17 @@ $('.user-menu .item').first().click();
 //   .tab()
 // ;
 
-$('.user-list-popup')
-  .popup({
-    inline     : true,
-    hoverable  : true,
-    // position   : 'bottom left',
-    // delay: {
-    //   show: 300,
-    //   hide: 800
-    // }
-  })
-;
+// $('.user-list-popup')
+//   .popup({
+//     inline     : true,
+//     hoverable  : true,
+//     // position   : 'bottom left',
+//     // delay: {
+//     //   show: 300,
+//     //   hide: 800
+//     // }
+//   })
+// ;
 
 $('.ui.embed').embed();
 

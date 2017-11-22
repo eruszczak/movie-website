@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'compressor',
+    'widget_tweaks',
 
     'shared.apps.SharedConfig',
     'accounts.apps.AccountsConfig',
