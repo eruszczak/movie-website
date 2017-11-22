@@ -112,6 +112,12 @@ class TitleDetailView(DetailView):
                 has_in_favourites=Count(
                     Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
                 ),
+                has_in_watchlist=Count(
+                    Case(
+                        When(watchlist__user=self.request.user, watchlist__deleted=False, then=1),
+                        output_field=IntegerField()
+                    )
+                ),
             )
         try:
             return queryset.get(const=self.kwargs['const'])
