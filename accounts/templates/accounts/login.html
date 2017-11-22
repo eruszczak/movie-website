@@ -1,19 +1,6 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load widget_tweaks %}
 {% block styles %}
-{#  <style type="text/css">#}
-{#    body {#}
-{#      background-color: #DADADA;#}
-{#    }#}
-{#    body > .grid {#}
-{#      height: 100%;#}
-{#    }#}
-{#    .image {#}
-{#      margin-top: -100px;#}
-{#    }#}
-{#    .column {#}
-{#      max-width: 450px;#}
-{#    }#}
-{#  </style>#}
 {% endblock %}
 {% block scripts %}
   <script>
@@ -64,18 +51,16 @@
             </h2>
             <form class="ui large form" action="{% url 'login' %}" method="post">{% csrf_token %}
                 <div class="ui stacked segment">
-                    <div class="field error required">
+                    <div class="field{% if form.username.errors %} error{% endif %}">
                         <div class="ui left icon input">
                             <i class="user icon"></i>
-                            {{ form.username }}
-{#                            <input type="text" name="email" placeholder="E-mail address">#}
+                            {% render_field form.username placeholder=form.username.label %}
                         </div>
                     </div>
-                    <div class="field">
+                    <div class="field{% if form.username.errors %} error{% endif %}">
                         <div class="ui left icon input">
                             <i class="lock icon"></i>
-                            {{ form.password }}
-{#                            <input type="password" name="password" placeholder="Password"> TODO placeholder#}
+                            {% render_field form.password placeholder=form.password.label %}
                         </div>
                     </div>
                     <div class="ui fluid large teal submit button">Login</div>
@@ -86,28 +71,4 @@
             <div class="ui message">Forgot your password? <a href="">Reset it</a></div>
         </div>
     </div>
-  <div class="center aligned column">
-    <div class="ui big green labeled icon button">
-      <i class="signup icon"></i>
-      Sign Up
-    </div>
-  </div>
-    <div class="ui blue submit button">Login</div>
-{#<div class="row" id="login-page">#}
-{#    <div class="page-header">#}
-{#        <h2 class="text-center">Login</h2>#}
-{#    </div>#}
-{#    <div class="col-md-4 col-md-offset-4">#}
-{#        <form action="" method="post">{% csrf_token %}#}
-{#            {{ form }}#}
-{#            <div class="text-center">#}
-{#                <input id="btnSubmit" type="submit" value="Submit" class="btn btn-success"/>#}
-{#                <br>#}
-{#                <br>#}
-{#                <input id="btnSubmitAsRandom" type="submit" value="Log in as an example user" class="btn btn-success"/>#}
-{#            </div>#}
-{##}
-{#        </form>#}
-{#    </div>#}
-{#</div>#}
 {% endblock %}

@@ -11,7 +11,7 @@ User = get_user_model()
 
 
 class RegisterForm(UserCreationForm):
-    login_after = forms.BooleanField(initial=True, label='Log me in after')
+    login_after = forms.BooleanField(initial=True, label='Log me in after', required=False)
 
     class Meta:
         model = User
