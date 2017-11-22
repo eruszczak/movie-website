@@ -10,9 +10,9 @@
       <a href="{% url 'title-list' %}" class="item{% if url_name == 'title-list' %} active{% endif %}">Explore</a>
       <a href="{% url 'user-list' %}" class="item{% if url_name == 'user-list' %} active{% endif %}">Users</a>
 {#      <a href="{% url 'about' %}" class="item{% if url_name == 'about' %} active{% endif %}">About</a>#}
-        <div class="ui search item">
+        <div class="ui search">
           <div class="ui icon input">
-            <input type="text" placeholder="Search...">
+            <input class="prompt" type="text" placeholder="Search...">
             <i class="search icon"></i>
           </div>
           <div class="results"></div>
