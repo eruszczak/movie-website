@@ -46,6 +46,12 @@ body {
     background-image: linear-gradient(1deg,rgba(66, 66, 66, 0.80),rgba(66, 66, 66, 0.60),rgba(66, 66, 66, 0.40));
 }
 
+.poster-background {
+    margin-top: -47vh;
+    /*width:100%;*/
+    position: absolute;
+}
+
 .title-name {
     /*position: absolute;*/
     /*bottom: 20vh;*/

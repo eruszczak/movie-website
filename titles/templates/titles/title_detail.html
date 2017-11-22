@@ -6,57 +6,39 @@
 <div class="still-background">
     <img class="backdrop" src="{% static 'img/1280.jpg' %}">
     <div class="ui grid centered">
-        <div class="six wide column">
-            <div class="title-box">
-                <div class="ui items">
-                  <div class="item">
-                    <div class="ui image">
-                      <img src="{% static 'img/w185_h278_bestv2.jpg' %}">
+{#        <div class="six wide column">#}
+            <div class="poster-background">
+                <div class="card1 card-01 height-fix">
+                    <img class="card-img-top" src="http://image.tmdb.org/t/p/w342/rNQH6Q8RPXD59aqGckST3CKQbCf.jpg" alt="Card image cap">
+                    <div class="card-img-overlay">
+                    <h4 class="card-title"><strong>{{ title.name }}</strong></h4>
+                    <p class="card-text">
+
+                    </p>
+                    {#            <p class="card-text">Captain Jack Sparrow searches for the trident of Poseidon.</p>#}
+                    <p class="card-text ui star large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ user_ratings_of_title.0.rate }}"></p>
+                    <p class="card-text">
+
+                            <i data-pk="{{ title.pk }}" class="{% if not title.has_in_favourites %}empty {% else %}active {% endif %}red heart icon large title-fav"></i>
+                            <i data-pk="{{ title.pk }}" class="{% if not title.has_in_watchlist %}remove {% else %}active {% endif %}red bookmark icon large title-watch"></i>
+{#                        <div class="right floated">#}
+                        <i class="calendar icon"></i> {{ title.year }}
+                        <i class="star icon"></i>{{ title.rate_imdb }}
+{#                        </div>#}
+                    </p>
+                    <p class="card-text">
+                        {% for genre in title.genre.all %}
+                            <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
+                        {% endfor %}
+                    </p>
                     </div>
-                    <div class="content title-content">
-                      <div class="header title-name">{{ title.name }}</div>
-                      <div class="meta">
-                        <span class="price"><i class="calendar icon"></i> {{ title.year }}</span>
-                        <span class="price">1 Month</span>
-                        <div class="ui huge heart rating red" type="tooltip" data-url="{% url 'title-fav' title.pk %}" data-rating="{{ title.has_in_favourites|yesno:"1,0" }}" data-max-rating="1" data-content="Favourite" data-variation="mini"></div>
-                      </div>
-                      <div class="description">
-                        <span class="price"><i class="list small icon red" data-content="Watchlist" data-variation="mini"></i></span>
-                        <div class="ui star huge rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ user_ratings_of_title.0.rate }}"></div>
-                      </div>
-                      <div class="extra">
-                        extra
-                      </div>
-                    </div>
-                  </div>
                 </div>
             </div>
-        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block content %}
-          <div class="card1 card-01 height-fix">
-          <img class="card-img-top" src="http://image.tmdb.org/t/p/w342/rNQH6Q8RPXD59aqGckST3CKQbCf.jpg" alt="Card image cap">
-          <div class="card-img-overlay">
-            <h4 class="card-title"><strong>{{ title.name }}</strong></h4>
-            <p class="card-text">
-                <i class="calendar icon"></i> {{ title.year }}
-                <i class="star icon"></i>{{ title.rate_imdb }}
-            </p>
-{#            <p class="card-text">Captain Jack Sparrow searches for the trident of Poseidon.</p>#}
-          <p class="card-text ui star large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ user_ratings_of_title.0.rate }}"></p>
-            <p class="card-text">
-
-                    <i data-pk="{{ title.pk }}" class="{% if not title.has_in_favourites %}empty {% else %}active {% endif %}red heart icon large title-fav"></i>
-                    <i data-pk="{{ title.pk }}" class="{% if not title.has_in_watchlist %}remove {% else %}active {% endif %}red bookmark icon large title-watch"></i>
-                <div class="right floated">
-
-                </div>
-            </p>
-          </div>
-        </div>
 {#    <img class="title-poster" src="{% static 'img/w185_h278_bestv2.jpg' %}">#}
 {#    <div class="ui cards title-poster">#}
 {#        {% include 'titles/title_card.html' with title=title score=current_rating.rate in_fav=title.has_in_favourites %}#}
@@ -183,52 +165,58 @@
     </div>
     <div class="ui tab segment" data-tab="fourth">
         <h3 class="ui header">4th</h3>
-        <div class="ui embed" data-source="youtube" data-id="O6Xo21L0ybE">
-</div>
+        <div class="ui embed" data-source="youtube" data-id="O6Xo21L0ybE"></div>
     </div>
 
-
-
-    <table>
-        {% for rating in data.user_ratings_of_title %}
-            <tr>
-                <td class=""><a href="{% url 'title-list' %}?year={{ rating.rate_date|date:'Y' }}&month={{ rating.rate_date|date:'m' }}">{{ rating.rate_date|date:"Y-m-d" }}</a></td>
-                <td class=""><a href="{% url 'title-list' %}?r={{ rating.rate }}">{{ rating.rate }}</a>
-                {% with rating.rated_before_rate_diff as rate_diff %}
-                {% if rate_diff != None %}
-                    {% if rate_diff > 0 %}
-                    <span class="increase">(+{{ rating.rated_before_rate_diff }})</span>
-                    {% elif rate_diff == 0 %}
-                    <span class="">==</span>
-                    {% else %}
-                    <span class="decrease">({{ rate_diff }})</span>
-                    {% endif %}
-                {% endif %}
-                {% endwith %}
-                </td>
-                <td class="text-center">duration: {{ rating.next_rating_days_diff }} days</td>
-                <td>
-                    <form action="" method="post">{% csrf_token %}
-                        <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> delete</button>
-                        <input type="hidden" name="rating_pk" value="{{ rating.pk }}">
-                    </form>
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
+{#    <table>#}
+{#        {% for rating in data.user_ratings_of_title %}#}
+{#            <tr>#}
+{#                <td class=""><a href="{% url 'title-list' %}?year={{ rating.rate_date|date:'Y' }}&month={{ rating.rate_date|date:'m' }}">{{ rating.rate_date|date:"Y-m-d" }}</a></td>#}
+{#                <td class=""><a href="{% url 'title-list' %}?r={{ rating.rate }}">{{ rating.rate }}</a>#}
+{#                {% with rating.rated_before_rate_diff as rate_diff %}#}
+{#                {% if rate_diff != None %}#}
+{#                    {% if rate_diff > 0 %}#}
+{#                    <span class="increase">(+{{ rating.rated_before_rate_diff }})</span>#}
+{#                    {% elif rate_diff == 0 %}#}
+{#                    <span class="">==</span>#}
+{#                    {% else %}#}
+{#                    <span class="decrease">({{ rate_diff }})</span>#}
+{#                    {% endif %}#}
+{#                {% endif %}#}
+{#                {% endwith %}#}
+{#                </td>#}
+{#                <td class="text-center">duration: {{ rating.next_rating_days_diff }} days</td>#}
+{#                <td>#}
+{#                    <form action="" method="post">{% csrf_token %}#}
+{#                        <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> delete</button>#}
+{#                        <input type="hidden" name="rating_pk" value="{{ rating.pk }}">#}
+{#                    </form>#}
+{#                </td>#}
+{#            </tr>#}
+{#        {% endfor %}#}
+{#    </table>#}
 
     <div class="ui segment">
-        <h1 class="ui header">Cast and their other appearances</h1>
-        {% for actor, titles in actors_and_other_titles %}
-            <h4 class="ui header">{{ actor.name }}</h4>
-            {% for title in titles %}
-        {#        show left corner label only if rated#}
-                {% include 'titles/title_small.html' with title=title rate=title.user_rate %}
+      <a class="ui blue ribbon label">Cast</a>
+        <span>Cast and their other appearances</span>
+        <div class="ui list">
+            {% for actor, titles in actors_and_other_titles %}
+                <h4 class="ui header">{{ actor.name }}</h4>
+                {% for title in titles %}
+            {#        show left corner label only if rated#}
+                    {% include 'titles/title_small.html' with title=title rate=title.user_rate %}
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
+            {% if not actors_and_other_titles %}
+                <p>Nothing found</p>
+            {% endif %}
+        </div>
     </div>
-
     <div class="ui segment">
-        <h1 class="ui header">Similar titles</h1>
+      <a class="ui blue ribbon label">Similar</a>
+        <span>Similar titles</span>
+        <div class="ui list">
+
+        </div>
     </div>
 {% endblock %}
