@@ -5,6 +5,7 @@ from django.contrib.auth.views import (
     LogoutView as BaseLogoutView,
     # PasswordChangeView as BasePasswordChangeView
 )
+from django.urls import reverse
 from django.views.generic import CreateView
 
 from accounts.forms import RegisterForm
@@ -32,16 +33,22 @@ class LogoutView(BaseLogoutView):
 class RegisterView(CreateView):
     template_name = 'accounts/register.html'
     form_class = RegisterForm
+    login_after = False
 
     def get_success_url(self):
-        messages.warning(self.request, 'Account created, {}. You are now logged in.'.format(self.object.username))
-        return self.object.get_absolute_url()
+        if self.login_after:
+            messages.warning(self.request, 'Account created. You are now logged in.')
+            return self.object.get_absolute_url()
+
+        messages.warning(self.request, 'Account created')
+        return reverse('login')
 
     def form_valid(self, form):
-        valid = super().form_valid(form)
-        if form.cleaned_data.get('login_after'):
+        self.login_after = form.cleaned_data.get('login_after')
+        form_valid = super().form_valid(form)
+        if self.login_after:
             login(self.request, self.object)
-        return valid
+        return form_valid
 
 
 # class PasswordChangeView(BasePasswordChangeView):
