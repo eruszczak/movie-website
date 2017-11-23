@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
-{% block styles %}
-{% endblock %}
 {% block scripts %}
   <script>
   $(document)
@@ -15,11 +13,7 @@
                 {
                   type   : 'empty',
                   prompt : 'Please enter your username'
-                },
-{#                {#}
-{#                  type   : 'email',#}
-{#                  prompt : 'Please enter a valid e-mail'#}
-{#                }#}
+                }
               ]
             },
             password: {
@@ -28,11 +22,7 @@
                 {
                   type   : 'empty',
                   prompt : 'Please enter your password'
-                },
-{#                {#}
-{#                  type   : 'length[6]',#}
-{#                  prompt : 'Your password must be at least 6 characters'#}
-{#                }#}
+                }
               ]
             }
           }
@@ -43,6 +33,7 @@
   </script>
 {% endblock %}
 {% block content %}
+    {% include 'includes/form_errors.html' %}
     <div class="ui middle aligned center aligned grid">
         <div class="column">
             <h2 class="ui teal image header">

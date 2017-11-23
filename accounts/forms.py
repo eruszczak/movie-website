@@ -18,11 +18,23 @@ class RegisterForm(UserCreationForm):
         fields = ('username', 'password1', 'password2', 'login_after')
 
 
-class EditProfileForm(forms.ModelForm):
+class UserUpdateForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['imdb_id'].widget.attrs.update({'placeholder': 'eg. ur12346789'})
 
     class Meta:
         model = User
-        fields = ('imdb_id', 'csv_ratings', 'picture')
+        fields = ('picture', 'tagline', 'imdb_id', 'csv_ratings')
+        help_texts = {
+            'imdb_id': 'If you will provide your IMDb Id and your lists are public, '
+                       'you will be able to update your ratings/watchlist using buttons on your profile page.',
+            'csv_ratings': 'Do you want to import your existing IMDb ratings? '
+                           'If so, go to your IMDb Ratings List and at the bottom of the page you can export '
+                           'your ratings, then upload it here and you will be able to update your ratings using a '
+                           'button on your profile page.'
+        }
 
     def clean_picture(self):
         picture = self.cleaned_data.get('picture')

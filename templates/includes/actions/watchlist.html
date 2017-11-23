@@ -1,5 +1,0 @@
-{% url 'title-watch' title_pk as url %}
-<span>
-    <a class="btn btn-sm see-again-btn unwatch-btn toggle-watch" name="remove" data-url="{{ url }}" {% if not condition %}style="display:none"{% endif %}><span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist</a>
-    <a class="btn btn-sm see-again-btn watch-btn toggle-watch" name="add" data-url="{{ url }}" {% if condition %}style="display:none"{% endif %}><span class="glyphicon glyphicon-list" aria-hidden="true"></span> add to watchlist</a>
-</span>
