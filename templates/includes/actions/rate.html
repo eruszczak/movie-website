@@ -1,8 +1,0 @@
-{% load static %}
-{% url 'title-rate' title.pk as url %}
-<div style="padding-left: 15px;margin-left:30px;margin-bottom:10px">
-    <div id="{{ title.pk }}" style="display: inline-block" class="raty-stars"
-         data-score="{{ score }}" data-path="{% static 'img' %}" data-url="{{ url }}">
-    </div>
-    <span id="rating-{{ title.pk }}" style="display: inline-block"></span>
-</div>

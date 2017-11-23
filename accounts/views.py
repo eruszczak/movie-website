@@ -14,7 +14,7 @@ from django.views.generic import ListView, UpdateView, DetailView
 
 from titles.models import Title, Rating
 from accounts.models import UserFollow
-from accounts.forms import EditProfileForm
+from accounts.forms import UserUpdateForm
 from accounts.functions import (
     update_ratings_using_csv,
     update_ratings,
@@ -84,7 +84,7 @@ def import_ratings(request):
 
 class UserUpdateView(UpdateView):
     model = User
-    form_class = EditProfileForm
+    form_class = UserUpdateForm
     template_name = 'accounts/user_edit.html'
 
     # only owner can edit
