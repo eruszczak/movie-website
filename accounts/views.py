@@ -3,7 +3,7 @@ import csv
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Case, When, BooleanField, IntegerField, OuterRef, Subquery, Prefetch, F
+from django.db.models import Count, Case, When, BooleanField, IntegerField, OuterRef, Subquery, Prefetch, F, Q
 from django.http import HttpResponse
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
@@ -139,9 +139,9 @@ class UserDetailView(DetailView):
     model = User
     template_name = 'accounts/user_detail.html'
     titles_in_a_row = 6
-    is_owner = False  # checks if a request user is an owner of the profile
+    is_owner = False
     common = None
-    is_other_user = False  # authenticated user who is not an owner of the profile
+    is_other_user = False
     user = None
     object = None
 
@@ -153,101 +153,127 @@ class UserDetailView(DetailView):
         return self.render_to_response(context)
 
     def get_object(self, queryset=None):
-        return self.model.objects.filter(
-            username=self.kwargs['username']).annotate(
+        return self.model.objects.filter(username=self.kwargs['username']).annotate(
             total_ratings=Count('rating'),
-            total_movies=Count(Case(When(rating__title__type__name='movie', then=1), output_field=IntegerField())),
-            total_series=Count(Case(When(rating__title__type__name='series', then=1), output_field=IntegerField())),
+            total_movies=Count(Case(When(rating__title__type__name='movie', then=1), output_field=IntegerField())),  # distinct
+            total_series=Count(Case(When(rating__title__type__name='series', then=1), output_field=IntegerField())),  # distinct
             # total_followers=Count(Case(When(userfollow__followed__pk=F('pk'), then=1), output_field=IntegerField())),
-            # total_movies=Count(Case(When(rating__title__type__name='movie', then=1)), distinct=True),
-            # total_series=Count(Case(When(rating__title__type__name='series', then=1)), distinct=True),
         ).get()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.is_other_user:
-            context.update({
-                'already_follows': UserFollow.objects.filter(follower=self.request.user, followed=self.object).exists()
-            })
-            # self.common = self.get_user_ratings()
+        if not self.is_other_user:
+            ratings = Rating.objects.filter(user=self.object).select_related('title')
+        else:
             ratings = Rating.objects.filter(user=self.object).annotate(
                 user_rate=Subquery(
                     Rating.objects.filter(
                         user=self.request.user, title=OuterRef('title')
                     ).order_by('-rate_date').values('rate')[:1])
             ).select_related('title')
-        else:
-            ratings = Rating.objects.filter(user=self.object).select_related('title')
+            context.update({
+                'already_follows': UserFollow.objects.filter(follower=self.request.user, followed=self.object).exists(),
+                'comparision': self.get_ratings_comparision()
+            })
 
-        # if self.is_owner:
         followed = UserFollow.objects.filter(follower=self.object).values_list('followed', flat=True)
-        context.update({
-            'feed': Rating.objects.filter(user__in=followed).select_related('title', 'user').order_by('-rate_date')[:10]
-        })
-
-        # get_ratings_comparision TODO
         context.update({
             'is_other_user': self.is_other_user,
             'is_owner': self.is_owner,
             'rating_list': ratings[:self.titles_in_a_row],
-            # 'common_with_req_user': self.common
             'total_followers': UserFollow.objects.filter(followed=self.object).count(),
-            'total_followed': len(followed)
+            'total_followed': len(followed),
+            'feed': Rating.objects.filter(user__in=followed).select_related('title', 'user').order_by('-rate_date')[:10]
         })
         return context
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        if self.request.POST.get('confirm-nick'):
-            if self.request.POST['confirm-nick'] == self.request.user.username:
-                deleted_count = Rating.objects.filter(user=self.request.user).delete()[0]
-                message = 'You have deleted your {} ratings'.format(deleted_count)
-            else:
-                message = 'Confirmation failed. Wrong username. No ratings deleted.'
-            messages.info(self.request, message, extra_tags='safe')
-        elif self.is_owner:
-            message = ''
-            if self.request.POST.get('update_csv'):
-                message = update_ratings_using_csv(self.object)
-            elif self.request.POST.get('update_rss') and self.object.imdb_id:
-                message = update_ratings(self.object)
-            elif self.request.POST.get('update_watchlist') and self.object.imdb_id:
-                message = update_watchlist(self.object)
-            messages.info(self.request, message, extra_tags='safe')
+        # if self.request.POST.get('confirm-nick'):
+        #     if self.request.POST['confirm-nick'] == self.request.user.username:
+        #         deleted_count = Rating.objects.filter(user=self.request.user).delete()[0]
+        #         message = 'You have deleted your {} ratings'.format(deleted_count)
+        #     else:
+        #         message = 'Confirmation failed. Wrong username. No ratings deleted.'
+        #     messages.info(self.request, message, extra_tags='safe')
+        # elif self.is_owner:
+        #     message = ''
+        #     if self.request.POST.get('update_csv'):
+        #         message = update_ratings_using_csv(self.object)
+        #     elif self.request.POST.get('update_rss') and self.object.imdb_id:
+        #         message = update_ratings(self.object)
+        #     elif self.request.POST.get('update_watchlist') and self.object.imdb_id:
+        #         message = update_watchlist(self.object)
+        #     messages.info(self.request, message, extra_tags='safe')
         return redirect(self.object)
 
     def get_ratings_comparision(self):
         """
         gets additional context for a user who visits somebody else's profile
         """
-        if self.user_ratings.count() > 0 and self.is_other_user:
-            titles_req_user_rated_higher = titles_rated_higher_or_lower(
-                self.object.id, self.request.user.id, sign='<', limit=self.titles_in_a_row)
-            titles_req_user_rated_lower = titles_rated_higher_or_lower(
-                self.object.id, self.request.user.id, sign='>', limit=self.titles_in_a_row)
+        # common_ratings = Title.objects.filter(Q(rating__user=self.object) & Q(rating__user=self.request.user))
+        common_titles = Title.objects.filter(rating__user=self.object).filter(
+            rating__user=self.request.user).distinct().annotate(
+            user_rate=Subquery(
+                Rating.objects.filter(
+                    user=self.object, title=OuterRef('pk')
+                ).order_by('-rate_date').values('rate')[:1]
+            ),
+            request_user_rate=Subquery(
+                Rating.objects.filter(
+                    user=self.request.user, title=OuterRef('pk')
+                ).order_by('-rate_date').values('rate')[:1]
+            )
+        )
+        # for t in common_titles:
+        #     print(t.request_user_rate, t.user_rate, t)
+        #
+        # print(self.object, 'rated lower')
+        titles_user_rate_higher = common_titles.filter(
+            user_rate__gt=F('request_user_rate')
+        )
+        # for t in titles_user_rate_higher:
+        #     print(self.object, t.user_rate, 'vs', t.request_user_rate)
+        #
+        # print(self.object, 'rated higher')
+        titles_user_rate_lower = common_titles.filter(
+            user_rate__lt=F('request_user_rate')
+        )
+        # for t in titles_user_rate_lower:
+        #     print(self.object, t.user_rate, 'vs', t.request_user_rate)
 
-            # title = Rating.objects.filter(user=request.user).filter(user=user.id)
 
-            common_titles_avgs = avgs_of_2_users_common_curr_ratings(self.object.id, self.request.user.id)
-            common_ratings_len = common_titles_avgs['count']
+        # todo: sort by biggest difference.
+        # maybe show the same ratings too
 
-            not_rated_by_req_user = Title.objects.filter(rating__user=self.object, rating__rate__gte=7).only(
-                'name', 'const').exclude(rating__user=self.request.user).distinct().extra(select={
-                    'user_rate': """SELECT rate FROM movie_rating as rating
-                        WHERE rating.title_id = movie_title.id
-                        AND rating.user_id = %s
-                        ORDER BY rating.rate_date DESC LIMIT 1"""
-                }, select_params=[self.object.id])
+        # return {}
+        # titles_req_user_rated_higher = titles_rated_higher_or_lower(
+        #     self.object.id, self.request.user.id, sign='<', limit=self.titles_in_a_row)
+        # titles_req_user_rated_lower = titles_rated_higher_or_lower(
+        #     self.object.id, self.request.user.id, sign='>', limit=self.titles_in_a_row)
 
-            return {
-                'count': common_ratings_len,
-                'higher': titles_req_user_rated_higher,
-                'lower': titles_req_user_rated_lower,
-                'percentage': round(common_ratings_len / self.object.count_titles, 2) * 100,
-                'user_rate_avg': common_titles_avgs['avg_user'],
-                'req_user_rate_avg': common_titles_avgs['avg_req_user'],
-                'not_rated_by_req_user': not_rated_by_req_user[:self.titles_in_a_row],
-                'not_rated_by_req_user_count': Title.objects.filter(rating__user=self.object).exclude(
-                    rating__user=self.request.user).distinct().count()
-            }
-        return {}
+        # title = Rating.objects.filter(user=request.user).filter(user=user.id)
+
+        # common_titles_avgs = avgs_of_2_users_common_curr_ratings(self.object.id, self.request.user.id)
+        # common_ratings_len = common_titles_avgs['count']
+
+        # not_rated_by_req_user = Title.objects.filter(rating__user=self.object, rating__rate__gte=7).only(
+        #     'name', 'const').exclude(rating__user=self.request.user).distinct().extra(select={
+        #         'user_rate': """SELECT rate FROM movie_rating as rating
+        #             WHERE rating.title_id = movie_title.id
+        #             AND rating.user_id = %s
+        #             ORDER BY rating.rate_date DESC LIMIT 1"""
+        #     }, select_params=[self.object.id])
+
+        return {
+            # 'count': common_ratings_len,
+            'titles_user_rate_higher': titles_user_rate_higher,
+            'titles_user_rate_lower': titles_user_rate_lower,
+            # 'percentage': round(common_ratings_len / self.object.count_titles, 2) * 100,
+            # 'user_rate_avg': common_titles_avgs['avg_user'],
+            # 'req_user_rate_avg': common_titles_avgs['avg_req_user'],
+
+            # 'not_rated_by_req_user': not_rated_by_req_user[:self.titles_in_a_row],
+            # 'not_rated_by_req_user_count': Title.objects.filter(rating__user=self.object).exclude(
+            #     rating__user=self.request.user).distinct().count()
+        }
