@@ -12,7 +12,6 @@
             <div class="active section">Search for: <a href="">{% for key, value in request.GET.items %}{{ key }}={{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}</a></div>
         {% endif %}
     </div>
-    <div class="ui divider"></div>
 {% endblock %}
 
 {% block content %}
