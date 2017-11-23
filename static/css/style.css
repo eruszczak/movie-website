@@ -84,6 +84,17 @@ body {
     overflow:hidden;
 }
 
+.ui.breadcrumb {
+    margin-bottom: 20px;
+}
+.top.menu {
+    margin: 5px 0 20px 0!important;
+}
+
+.ui.attached.menu:not(.tabular) {
+    border:none;
+}
+
 .mb10 {margin-bottom: 10px;}
 .mb20 {margin-bottom: 20px;}
 

@@ -10,7 +10,7 @@
         <i class="right angle icon divider"></i>
         <a class="section active" href="{% url 'user-detail' user.username %}">{{ user.username }}</a>
     </div>
-    <div class="ui divider"></div>
+    <div class="ui hidden divider"></div>
 {% endblock %}
 
 {% block content %}
@@ -25,15 +25,15 @@
 {#    </div>#}
 {#  </div>#}
 {#</div>#}
-<div class="four ui buttons">
-  <a href="" class="ui button active">Overview</a>
-  <a href="" class="ui button">Lists</a>
-  <a href="" class="ui button">Charts</a>
-    {% if is_other_user %}
-        <a href="" class="ui button">Compared with you</a>
-    {% endif %}
-</div>
-    <div class="ui centered">
+{#<div class="four ui buttons">#}
+{#  <a href="" class="ui button active">Overview</a>#}
+{#  <a href="" class="ui button">Lists</a>#}
+{#  <a href="" class="ui button">Charts</a>#}
+{#    {% if is_other_user %}#}
+{#        <a href="" class="ui button">Compared with you</a>#}
+{#    {% endif %}#}
+{#</div>#}
+    <div class="ui centered grid">
 {#        <div class="eight wide mobile four wide computer four wide tablet column">#}
 {#        <div class="column">#}
             <div class="ui card">
@@ -52,10 +52,10 @@
                   {% endif %}
               </div>
               <div class="extra content">
-                <a>
+{#                <a>#}
                   <i class="user icon"></i>
                   Follows {{ total_followed }} people
-                </a>
+{#                </a>#}
               </div>
                 {% if already_follows %}
                   <div class="ui bottom attached  small follow toggle button{% if already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if already_follows %}Followed{% else %}Follow{% endif %}</div>

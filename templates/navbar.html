@@ -1,7 +1,6 @@
 {% load static %}
 {% with url_name=request.resolver_match.url_name %}
 <div class="ui secondary top attached menu">
-    <div class="ui container">
       <a href="{% url 'home' %}" class="header item">
 {#        <img class="logo" src="assets/images/logo.png">#}
         Movie Website
@@ -10,30 +9,32 @@
       <a href="{% url 'title-list' %}" class="item{% if url_name == 'title-list' %} active{% endif %}">Explore</a>
       <a href="{% url 'user-list' %}" class="item{% if url_name == 'user-list' %} active{% endif %}">Users</a>
 {#      <a href="{% url 'about' %}" class="item{% if url_name == 'about' %} active{% endif %}">About</a>#}
-        <div class="ui search">
-          <div class="ui icon input">
-            <input class="prompt" type="text" placeholder="Search...">
-            <i class="search icon"></i>
-          </div>
-          <div class="results"></div>
+        <div class="right menu">
+            <div class="ui search">
+              <div class="ui icon input">
+                <input class="prompt" type="text" placeholder="Search...">
+                <i class="search icon"></i>
+              </div>
+              <div class="results"></div>
+            </div>
+            {% if request.user.is_authenticated %}
+              <div class="ui dropdown item">
+                <strong>{{ request.user.username }}</strong>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                  <a class="item{% if url_name == 'user-detail' %} active{% endif %}" href="{% url 'user-detail' request.user.username %}"><i class="user icon"></i>My Account</a>
+                  <a href="{% url 'user-edit' request.user.username %}" class="item{% if url_name == 'user-edit' %} active{% endif %}"><i class="setting icon"></i>Settings</a>
+                <div class="divider"></div>
+                  <a href="{% url 'logout' %}" class="item"><i class="sign out icon"></i>Logout</a>
+                </div>
+              </div>
+            {% else %}
+                <div class="right menu">
+                  <a href="{% url 'login' %}" class="item{% if url_name == 'login' %} active{% endif %}"><i class="sign in icon"></i>Login</a>
+                  <a href="{% url 'register' %}" class="item{% if url_name == 'register' %} active{% endif %}"><i class="sign out icon"></i>Sign up</a>
+                </div>
+            {% endif %}
         </div>
-        {% if request.user.is_authenticated %}
-          <div class="ui right dropdown item">
-            <strong>{{ request.user.username }}</strong>
-            <i class="dropdown icon"></i>
-            <div class="menu">
-              <a class="item{% if url_name == 'user-detail' %} active{% endif %}" href="{% url 'user-detail' request.user.username %}"><i class="user icon"></i>My Account</a>
-              <a href="{% url 'user-edit' request.user.username %}" class="item{% if url_name == 'user-edit' %} active{% endif %}"><i class="setting icon"></i>Settings</a>
-            <div class="divider"></div>
-              <a href="{% url 'logout' %}" class="item"><i class="sign out icon"></i>Logout</a>
-            </div>
-          </div>
-        {% else %}
-            <div class="right menu">
-              <a href="{% url 'login' %}" class="item{% if url_name == 'login' %} active{% endif %}"><i class="sign in icon"></i>Login</a>
-              <a href="{% url 'register' %}" class="item{% if url_name == 'register' %} active{% endif %}"><i class="sign out icon"></i>Sign up</a>
-            </div>
-        {% endif %}
-    </div>
+
   </div>
 {% endwith %}
