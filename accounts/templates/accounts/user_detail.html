@@ -73,80 +73,113 @@
         <a class="item active" data-tab="first">Overview</a>
         <a class="item" data-tab="second">Lists</a>
         <a class="item" data-tab="third">Charts</a>
-        <a class="item" data-tab="fourth">Compared with you</a>
-    </div>
-
-<div class="ui tab segment active" data-tab="first">
-    <div class="ui statistics">
-      <div class="statistic">
-        <div class="value">
-          {{ user.total_ratings }}
-        </div>
-        <div class="label">
-          Ratings
-        </div>
-      </div>
-      <div class="statistic">
-        <div class="value">
-          {{ user.total_movies }}
-        </div>
-        <div class="label">
-          Movies seen
-        </div>
-      </div>
-      <div class="statistic">
-        <div class="value">
-          {{ user.total_series }}
-        </div>
-        <div class="label">
-          Tv-shows seen
-        </div>
-      </div>
-      <div class="statistic">
-        <div class="value">
-          {{ total_followers }}
-        </div>
-        <div class="label">
-          Followers
-        </div>
-      </div>
-    </div>
-</div>
-<div class="ui tab segment" data-tab="second"><h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
-<div class="ui tab segment" data-tab="third"><h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
-<div class="ui tab segment" data-tab="fourth"><h3 class="ui header">4th</h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png"></div>
-
-<div class="ui segment">
-  <a class="ui blue ribbon label">Activity</a>
-    <span>{{ user.username }}'s latest ratings</span>
-    <div class="ui list">
-        {% for rating in rating_list %}
-            {% include 'titles/title_small.html' with title=rating.title rate_date=rating.rate_date rate=rating.rate %}
-        {% endfor %}
-        {% if not rating_list %}
-            <p>No ratings found</p>
+        {% if is_other_user %}
+            <a class="item" data-tab="fourth">Compared with you</a>
         {% endif %}
     </div>
-</div>
 
-<div class="ui segment">
-  <a class="ui blue ribbon label">Feed</a>
-    <span>Latest activity of {{ user.username }}'s followed users</span>
-    <div class="ui list">
-        {% for rating in feed %}
-          <div class="item">
-            <img class="ui avatar image" src="{% static 'img/stevie.jpg' %}">
-            <div class="content">
-              <span>{{ rating.rate_date }}</span>
-                <div class="description"><a href="{{ rating.user.get_absolute_url }}">{{ rating.user.username }}</a> rated <a href="{{ rating.title.get_absolute_url }}"><b>{{ rating.title.name }}</b></a> {{ rating.rate }}<i class="icon star green"></i></div>
+    <div class="ui tab segment active" data-tab="first">
+        <div class="ui statistics">
+          <div class="statistic">
+            <div class="value">
+              {{ user.total_ratings }}
+            </div>
+            <div class="label">
+              Ratings
             </div>
           </div>
-        {% endfor %}
-        {% if not feed %}
-            <p>No activity found</p>
-        {% endif %}
+          <div class="statistic">
+            <div class="value">
+              {{ user.total_movies }}
+            </div>
+            <div class="label">
+              Movies seen
+            </div>
+          </div>
+          <div class="statistic">
+            <div class="value">
+              {{ user.total_series }}
+            </div>
+            <div class="label">
+              Tv-shows seen
+            </div>
+          </div>
+          <div class="statistic">
+            <div class="value">
+              {{ total_followers }}
+            </div>
+            <div class="label">
+              Followers
+            </div>
+          </div>
+        </div>
     </div>
-</div>
+
+    <div class="ui tab segment" data-tab="second">
+{#        <h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png">#}
+    </div>
+    <div class="ui tab segment" data-tab="third">
+{#        <h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png">#}
+    </div>
+    {% if is_other_user %}
+        <div class="ui tab segment" data-tab="fourth">
+            <div class="ui segment">
+              <a class="ui teal ribbon label">Lower</a>
+                <span>{{ user.username }} rated lower</span>
+                <div class="ui list">
+                    {% for title in comparision.titles_user_rate_lower %}
+                        {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
+                    {% endfor %}
+                    {% if not comparision.titles_user_rate_lower %}
+                        <p>Nothing found</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="ui segment">
+              <a class="ui teal ribbon label">Higher</a>
+                <span>{{ user.username }} rated higher</span>
+                <div class="ui list">
+                    {% for title in comparision.titles_user_rate_higher %}
+                        {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
+                    {% endfor %}
+                    {% if not comparision.titles_user_rate_higher %}
+                        <p>Nothing found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <div class="ui segment">
+      <a class="ui blue ribbon label">Activity</a>
+        <span>{{ user.username }}'s latest ratings</span>
+        <div class="ui list">
+            {% for rating in rating_list %}
+                {% include 'titles/title_small.html' with title=rating.title rate_date=rating.rate_date rate=rating.rate %}
+            {% endfor %}
+            {% if not rating_list %}
+                <p>No ratings found</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="ui segment">
+      <a class="ui blue ribbon label">Feed</a>
+        <span>Latest activity of {{ user.username }}'s followed users</span>
+        <div class="ui list">
+            {% for rating in feed %}
+              <div class="item">
+                <img class="ui avatar image" src="{% static 'img/stevie.jpg' %}">
+                <div class="content">
+                  <span>{{ rating.rate_date }}</span>
+                    <div class="description"><a href="{{ rating.user.get_absolute_url }}">{{ rating.user.username }}</a> rated <a href="{{ rating.title.get_absolute_url }}"><b>{{ rating.title.name }}</b></a> {{ rating.rate }}<i class="icon star green"></i></div>
+                </div>
+              </div>
+            {% endfor %}
+            {% if not feed %}
+                <p>No activity found</p>
+            {% endif %}
+        </div>
+    </div>
 
 {#<div class="row lower">#}
 {#	<div class="col-md-12">#}
