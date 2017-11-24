@@ -146,6 +146,14 @@
                   Your average score
                 </div>
               </div>
+              <div class="statistic">
+                <div class="value">
+                  {{ comparision.percentage }}%
+                </div>
+                <div class="label">
+                  Of his titles you saw
+                </div>
+              </div>
             </div>
             <div class="ui segment">
               <a class="ui teal ribbon label">Lower</a>
@@ -179,6 +187,18 @@
                         {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
                     {% endfor %}
                     {% if not comparision.titles_rated_the_same %}
+                        <p>Nothing found</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="ui segment">
+              <a class="ui teal ribbon label">He likes</a>
+                <span>{{ user.username }} liked but you haven't seen</span>
+                <div class="ui list">
+                    {% for title in comparision.titles_user_liked %}
+                        {% include 'titles/title_small.html' with title=title rate=title.user_rate %}
+                    {% endfor %}
+                    {% if not comparision.titles_user_liked %}
                         <p>Nothing found</p>
                     {% endif %}
                 </div>

@@ -219,6 +219,15 @@ class UserDetailView(DetailView):
             titles_user_rate_higher = common_titles.filter(user_rate__gt=F('request_user_rate'))
             titles_user_rate_lower = common_titles.filter(user_rate__lt=F('request_user_rate'))
             titles_rated_the_same = common_titles.filter(user_rate=F('request_user_rate'))
+            titles_user_liked = Title.objects.filter(rating__user=self.object, rating__rate__gte=7).exclude(
+                rating__user=self.request.user).distinct().annotate(
+                user_rate=Subquery(
+                    Rating.objects.filter(
+                        user=self.object, title=OuterRef('pk')
+                    ).order_by('-rate_date').values('rate')[:1]
+                )
+            )
+
             averages = common_titles.aggregate(user=Avg('user_rate'), request_user=Avg('request_user_rate'))
 
             return {
@@ -227,21 +236,8 @@ class UserDetailView(DetailView):
                 'titles_user_rate_lower': titles_user_rate_lower,
                 'titles_rated_the_same': titles_rated_the_same,
                 'averages': averages,
-                # 'percentage': round(common_ratings_len / self.object.count_titles, 2) * 100,
-                # 'user_rate_avg': common_titles_avgs['avg_user'],
-                # 'req_user_rate_avg': common_titles_avgs['avg_req_user'],
-
-                # 'not_rated_by_req_user': not_rated_by_req_user[:self.titles_in_a_row],
-                # 'not_rated_by_req_user_count': Title.objects.filter(rating__user=self.object).exclude(
-                #     rating__user=self.request.user).distinct().count()
+                'percentage': round((common_titles_length / self.object.count_titles) * 100, 2),
+                'titles_user_liked': titles_user_liked
             }
-
-            # not_rated_by_req_user = Title.objects.filter(rating__user=self.object, rating__rate__gte=7).only(
-            #     'name', 'const').exclude(rating__user=self.request.user).distinct().extra(select={
-            #         'user_rate': """SELECT rate FROM movie_rating as rating
-            #             WHERE rating.title_id = movie_title.id
-            #             AND rating.user_id = %s
-            #             ORDER BY rating.rate_date DESC LIMIT 1"""
-            #     }, select_params=[self.object.id])
 
 
