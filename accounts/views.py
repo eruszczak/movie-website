@@ -2,80 +2,77 @@ import io
 import csv
 from datetime import datetime
 
-from django.contrib.auth import get_user_model
-from django.db.models import Count, Case, When, IntegerField, OuterRef, Subquery, Prefetch, F, Q, Avg
 from django.http import HttpResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth import get_user_model
+from django.db.models import Count, Case, When, IntegerField, OuterRef, Subquery, F, Avg
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
-from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, UpdateView, DetailView
 
 from titles.models import Title, Rating
 from accounts.models import UserFollow
 from accounts.forms import UserUpdateForm
-from accounts.functions import (
-    validate_imported_ratings,
-    create_csv_with_user_ratings
-)
+from accounts.functions import validate_imported_ratings, create_csv_with_user_ratings
 from common.prepareDB_utils import convert_to_datetime
 
 User = get_user_model()
 
 
-def export_ratings(request, username):
-    """
-    exports to a csv file all of user's ratings, so they can be imported later (using view defined below)
-    file consists of lines in format: tt1234567,2017-05-23,7
-    """
-    response = HttpResponse(content_type='text/csv')
-    headers = ['const', 'rate_date', 'rate']
-    user_ratings = Rating.objects.filter(user__username=username).select_related('title')
-
-    writer = csv.DictWriter(response, fieldnames=headers, lineterminator='\n')
-    writer.writeheader()
-    count_ratings, count_titles = create_csv_with_user_ratings(writer, user_ratings)
-
-    filename = '{}_ratings_for_{}_titles_{}'.format(count_ratings, count_titles, datetime.now().strftime('%Y-%m-%d'))
-    response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
-    return response
-
-
-@login_required
-@require_POST
-def import_ratings(request):
-    """
-    from exported csv file import missing ratings. it doesn't add new titles, only new ratings
-    file consists of lines in format: tt1234567,2017-05-23,7
-    """
-    user = User.objects.get(user=request.user)
-    uploaded_file = request.FILES['csv_ratings']
-    file = uploaded_file.read().decode('utf-8')
-    io_string = io.StringIO(file)
-    is_valid, message = validate_imported_ratings(uploaded_file, io_string)
-    if not is_valid:
-        messages.info(request, message)
-        return redirect(user)
-
-    # TODO make a class that handles serialization and deserialization
-    reader = csv.DictReader(io_string)
-    total_rows = 0
-    created_count = 0
-    for row in reader:
-        total_rows += 1
-        const, rate_date, rate = row['const'], row['rate_date'], row['rate']
-        title = Title.objects.filter(const=const).first()
-        rate_date = convert_to_datetime(row['rate_date'], 'exported_from_db')
-
-        if title and rate_date:
-            obj, created = Rating.objects.get_or_create(
-                user=request.user, title=title, rate_date=rate_date, defaults={'rate': rate}
-            )
-            if created:
-                created_count += 1
-    messages.info(request, 'imported {} out of {} ratings'.format(created_count, total_rows))
-    return redirect(user)
+# def export_ratings(request, username):
+#     """
+#     exports to a csv file all of user's ratings, so they can be imported later (using view defined below)
+#     file consists of lines in format: tt1234567,2017-05-23,7
+#     """
+#     response = HttpResponse(content_type='text/csv')
+#     headers = ['const', 'rate_date', 'rate']
+#     user_ratings = Rating.objects.filter(user__username=username).select_related('title')
+#
+#     writer = csv.DictWriter(response, fieldnames=headers, lineterminator='\n')
+#     writer.writeheader()
+#     count_ratings, count_titles = create_csv_with_user_ratings(writer, user_ratings)
+#
+#     filename = '{}_ratings_for_{}_titles_{}'.format(count_ratings, count_titles, datetime.now().strftime('%Y-%m-%d'))
+#     response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
+#     return response
+#
+#
+# @login_required
+# @require_POST
+# def import_ratings(request):
+#     """
+#     from exported csv file import missing ratings. it doesn't add new titles, only new ratings
+#     file consists of lines in format: tt1234567,2017-05-23,7
+#     """
+#     user = User.objects.get(user=request.user)
+#     uploaded_file = request.FILES['csv_ratings']
+#     file = uploaded_file.read().decode('utf-8')
+#     io_string = io.StringIO(file)
+#     is_valid, message = validate_imported_ratings(uploaded_file, io_string)
+#     if not is_valid:
+#         messages.info(request, message)
+#         return redirect(user)
+#
+#     # TODO make a class that handles serialization and deserialization
+#     reader = csv.DictReader(io_string)
+#     total_rows = 0
+#     created_count = 0
+#     for row in reader:
+#         total_rows += 1
+#         const, rate_date, rate = row['const'], row['rate_date'], row['rate']
+#         title = Title.objects.filter(const=const).first()
+#         rate_date = convert_to_datetime(row['rate_date'], 'exported_from_db')
+#
+#         if title and rate_date:
+#             obj, created = Rating.objects.get_or_create(
+#                 user=request.user, title=title, rate_date=rate_date, defaults={'rate': rate}
+#             )
+#             if created:
+#                 created_count += 1
+#     messages.info(request, 'imported {} out of {} ratings'.format(created_count, total_rows))
+#     return redirect(user)
 
 
 class UserUpdateView(UpdateView):
@@ -83,7 +80,6 @@ class UserUpdateView(UpdateView):
     form_class = UserUpdateForm
     template_name = 'accounts/user_edit.html'
 
-    # only owner can edit
     def get_object(self, queryset=None):
         return self.request.user
 
@@ -125,8 +121,6 @@ class UserListView(ListView):
         if self.searched_title:
             context.update({
                 'title': self.searched_title,
-                # 'query_string': '?s=' + self.request.GET['s'] + '&page=',
-                # 'page_title': 'Users who saw {}'.format(str(self.searched_title))
             })
         return context
 
@@ -242,12 +236,12 @@ class UserDetailView(DetailView):
                 #     rating__user=self.request.user).distinct().count()
             }
 
-        # not_rated_by_req_user = Title.objects.filter(rating__user=self.object, rating__rate__gte=7).only(
-        #     'name', 'const').exclude(rating__user=self.request.user).distinct().extra(select={
-        #         'user_rate': """SELECT rate FROM movie_rating as rating
-        #             WHERE rating.title_id = movie_title.id
-        #             AND rating.user_id = %s
-        #             ORDER BY rating.rate_date DESC LIMIT 1"""
-        #     }, select_params=[self.object.id])
+            # not_rated_by_req_user = Title.objects.filter(rating__user=self.object, rating__rate__gte=7).only(
+            #     'name', 'const').exclude(rating__user=self.request.user).distinct().extra(select={
+            #         'user_rate': """SELECT rate FROM movie_rating as rating
+            #             WHERE rating.title_id = movie_title.id
+            #             AND rating.user_id = %s
+            #             ORDER BY rating.rate_date DESC LIMIT 1"""
+            #     }, select_params=[self.object.id])
 
 
