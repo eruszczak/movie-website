@@ -3,7 +3,7 @@ import csv
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Case, When, BooleanField, IntegerField, OuterRef, Subquery, Prefetch, F, Q
+from django.db.models import Count, Case, When, IntegerField, OuterRef, Subquery, Prefetch, F, Q, Avg
 from django.http import HttpResponse
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
@@ -16,13 +16,9 @@ from titles.models import Title, Rating
 from accounts.models import UserFollow
 from accounts.forms import UserUpdateForm
 from accounts.functions import (
-    update_ratings_using_csv,
-    update_ratings,
-    update_watchlist,
     validate_imported_ratings,
     create_csv_with_user_ratings
 )
-from common.sql_queries import avgs_of_2_users_common_curr_ratings, titles_rated_higher_or_lower
 from common.prepareDB_utils import convert_to_datetime
 
 User = get_user_model()
@@ -211,9 +207,8 @@ class UserDetailView(DetailView):
         """
         gets additional context for a user who visits somebody else's profile
         """
-        # common_ratings = Title.objects.filter(Q(rating__user=self.object) & Q(rating__user=self.request.user))
-        common_titles = Title.objects.filter(rating__user=self.object).filter(
-            rating__user=self.request.user).distinct().annotate(
+        common_titles = Title.objects.filter(
+            rating__user=self.object).filter(rating__user=self.request.user).distinct().annotate(
             user_rate=Subquery(
                 Rating.objects.filter(
                     user=self.object, title=OuterRef('pk')
@@ -225,12 +220,33 @@ class UserDetailView(DetailView):
                 ).order_by('-rate_date').values('rate')[:1]
             )
         )
-        titles_user_rate_higher = common_titles.filter(user_rate__gt=F('request_user_rate'))
-        titles_user_rate_lower = common_titles.filter(user_rate__lt=F('request_user_rate'))
-        titles_rated_the_same = common_titles.filter(user_rate=F('request_user_rate'))
+        common_titles_length = common_titles.count()
+        if common_titles_length:
+            # todo: maybe show it on separate page
+            # todo: show generes comparision too? favourites actors
+            # todo: sort by biggest difference.
+            titles_user_rate_higher = common_titles.filter(user_rate__gt=F('request_user_rate'))
+            titles_user_rate_lower = common_titles.filter(user_rate__lt=F('request_user_rate'))
+            titles_rated_the_same = common_titles.filter(user_rate=F('request_user_rate'))
+            averages = common_titles.aggregate(user=Avg('user_rate'), request_user=Avg('request_user_rate'))
+
+            return {
+                # 'common_titles': common_titles,
+                'common_titles_length': common_titles_length,
+                'titles_user_rate_higher': titles_user_rate_higher,
+                'titles_user_rate_lower': titles_user_rate_lower,
+                'titles_rated_the_same': titles_rated_the_same,
+                'averages': averages,
+                # 'percentage': round(common_ratings_len / self.object.count_titles, 2) * 100,
+                # 'user_rate_avg': common_titles_avgs['avg_user'],
+                # 'req_user_rate_avg': common_titles_avgs['avg_req_user'],
+
+                # 'not_rated_by_req_user': not_rated_by_req_user[:self.titles_in_a_row],
+                # 'not_rated_by_req_user_count': Title.objects.filter(rating__user=self.object).exclude(
+                #     rating__user=self.request.user).distinct().count()
+            }
 
 
-        # todo: sort by biggest difference.
 
         # common_titles_avgs = avgs_of_2_users_common_curr_ratings(self.object.id, self.request.user.id)
         # common_ratings_len = common_titles_avgs['count']
@@ -243,16 +259,4 @@ class UserDetailView(DetailView):
         #             ORDER BY rating.rate_date DESC LIMIT 1"""
         #     }, select_params=[self.object.id])
 
-        return {
-            # 'count': common_ratings_len,
-            'titles_user_rate_higher': titles_user_rate_higher,
-            'titles_user_rate_lower': titles_user_rate_lower,
-            'titles_rated_the_same': titles_rated_the_same
-            # 'percentage': round(common_ratings_len / self.object.count_titles, 2) * 100,
-            # 'user_rate_avg': common_titles_avgs['avg_user'],
-            # 'req_user_rate_avg': common_titles_avgs['avg_req_user'],
 
-            # 'not_rated_by_req_user': not_rated_by_req_user[:self.titles_in_a_row],
-            # 'not_rated_by_req_user_count': Title.objects.filter(rating__user=self.object).exclude(
-            #     rating__user=self.request.user).distinct().count()
-        }
