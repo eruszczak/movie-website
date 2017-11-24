@@ -147,6 +147,18 @@
                     {% endif %}
                 </div>
             </div>
+            <div class="ui segment">
+              <a class="ui teal ribbon label">The same</a>
+                <span>{{ user.username }} rated the same</span>
+                <div class="ui list">
+                    {% for title in comparision.titles_rated_the_same %}
+                        {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
+                    {% endfor %}
+                    {% if not comparision.titles_rated_the_same %}
+                        <p>Nothing found</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     {% endif %}
     <div class="ui segment">
