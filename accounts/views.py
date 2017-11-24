@@ -222,16 +222,12 @@ class UserDetailView(DetailView):
         )
         common_titles_length = common_titles.count()
         if common_titles_length:
-            # todo: maybe show it on separate page
-            # todo: show generes comparision too? favourites actors
-            # todo: sort by biggest difference.
             titles_user_rate_higher = common_titles.filter(user_rate__gt=F('request_user_rate'))
             titles_user_rate_lower = common_titles.filter(user_rate__lt=F('request_user_rate'))
             titles_rated_the_same = common_titles.filter(user_rate=F('request_user_rate'))
             averages = common_titles.aggregate(user=Avg('user_rate'), request_user=Avg('request_user_rate'))
 
             return {
-                # 'common_titles': common_titles,
                 'common_titles_length': common_titles_length,
                 'titles_user_rate_higher': titles_user_rate_higher,
                 'titles_user_rate_lower': titles_user_rate_lower,
@@ -245,11 +241,6 @@ class UserDetailView(DetailView):
                 # 'not_rated_by_req_user_count': Title.objects.filter(rating__user=self.object).exclude(
                 #     rating__user=self.request.user).distinct().count()
             }
-
-
-
-        # common_titles_avgs = avgs_of_2_users_common_curr_ratings(self.object.id, self.request.user.id)
-        # common_ratings_len = common_titles_avgs['count']
 
         # not_rated_by_req_user = Title.objects.filter(rating__user=self.object, rating__rate__gte=7).only(
         #     'name', 'const').exclude(rating__user=self.request.user).distinct().extra(select={
