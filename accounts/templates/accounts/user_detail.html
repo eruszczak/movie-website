@@ -79,7 +79,7 @@
     </div>
 
     <div class="ui tab segment active" data-tab="first">
-        <div class="ui statistics">
+        <div class="ui grid centered statistics">
           <div class="statistic">
             <div class="value">
               {{ user.total_ratings }}
@@ -116,14 +116,38 @@
     </div>
 
     <div class="ui tab segment" data-tab="second">
-{#        <h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png">#}
     </div>
     <div class="ui tab segment" data-tab="third">
-{#        <h3 class="ui header"></h3><img class="ui wireframe image" src="/images/wireframe/paragraph.png"><img class="ui wireframe image" src="/images/wireframe/paragraph.png">#}
     </div>
+
     {% if is_other_user %}
         <div class="ui tab segment" data-tab="fourth">
-            <p>You both rated {{ comparision.common_titles_length }} the same titles {{ comparision.averages.user }} {{ comparision.averages.request_user }}</p>
+            <div class="ui grid centered statistics">
+              <div class="statistic">
+                <div class="value">
+                  {{ comparision.common_titles_length }}
+                </div>
+                <div class="label">
+                  the same titles
+                </div>
+              </div>
+              <div class="statistic">
+                <div class="value">
+                  {{ comparision.averages.user }}
+                </div>
+                <div class="label">
+                  His average score
+                </div>
+              </div>
+              <div class="statistic">
+                <div class="value">
+                  {{ comparision.averages.request_user }}
+                </div>
+                <div class="label">
+                  Your average score
+                </div>
+              </div>
+            </div>
             <div class="ui segment">
               <a class="ui teal ribbon label">Lower</a>
                 <span>{{ user.username }} rated lower</span>
@@ -177,7 +201,7 @@
 
     <div class="ui segment">
       <a class="ui blue ribbon label">Feed</a>
-        <span>Latest activity of {{ user.username }}'s followed users</span>
+        <span>Latest activity of users followed by {{ user.username }}</span>
         <div class="ui list">
             {% for rating in feed %}
               <div class="item">
