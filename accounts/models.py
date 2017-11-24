@@ -47,6 +47,9 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+    # def clean_fields(self, exclude=None):
+    #     super().clean_fields(exclude)
+
     def get_absolute_url(self):
         return reverse('user-detail', kwargs={'username': self.username})
 
@@ -77,38 +80,28 @@ class User(AbstractUser):
 
     @property
     def count_titles(self):
-        """
-        counts rated distinct titles
-        """
+        """counts rated distinct titles"""
         return Title.objects.filter(rating__user=self).distinct().count()
 
     @property
     def count_ratings(self):
-        """
-        counts all the ratings
-        """
+        """counts all the ratings"""
         return Title.objects.filter(rating__user=self).count()
 
     @property
     def count_movies(self):
-        """
-        counts rated distinct m
-        """
+        """counts rated distinct movies"""
         return Title.objects.filter(rating__user=self, type__name='movie').distinct().count()
 
     @property
     def count_series(self):
-        """
-        counts rated distinct series
-        """
+        """counts rated distinct series"""
         return Title.objects.filter(rating__user=self, type__name='series').distinct().count()
 
     # TODO
     @property
     def avg_of_current_ratings(self):
-        """
-        returns for a user average of his current ratings eg. {avg: 6.40, count: 1942}
-        """
+        """returns for a user average of his current ratings eg. {avg: 6.40, count: 1942}"""
         return avg_of_user_current_ratings(self.pk)
 
     @property
