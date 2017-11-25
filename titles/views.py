@@ -91,7 +91,7 @@ class TitleListView(SearchViewMixin, ListView):
                 ),
                 user_rate=Subquery(newest.values('rate')[:1])
             )
-        return qs.order_by('-year', '-name')#.prefetch_related('director', 'genre')
+        return qs.order_by('-year', '-name').prefetch_related('genre')
 
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)

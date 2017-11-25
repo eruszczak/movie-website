@@ -9,13 +9,23 @@ from shared.forms import SearchFormMixin
 
 
 class TitleSearchForm(SearchFormMixin, forms.Form):
+    # year = forms.ChoiceField(choices=((d['year'], f'{d["year"]}') for d in Title.objects.values('year').order_by('-year')))
     keyword = forms.CharField(max_length=100, required=False, label='Search by keywords')
     genre = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False)
+    type = forms.NullBooleanField()
+
+    @staticmethod
+    def search_keyword(value):
+        # search_result.append('Title {} "{}"'.format('contains' if len(query) > 2 else 'starts with', query))
+        if len(value) > 2:
+            return Q(name__icontains=value)
+        return Q(name__istartswith=value)
 
     @staticmethod
     def search_genre(value):
         # all of them, not any.
         return Q(genre__in=value)
+        # return [Q(genre=genre) for genre in value]
 
     @staticmethod
     def search_year(value):
@@ -38,26 +48,19 @@ class TitleSearchForm(SearchFormMixin, forms.Form):
             # search_result.append('Type: ' + value)
             return Q(type__name=value)
 
-    @staticmethod
-    def search_query(value):
-        # search_result.append('Title {} "{}"'.format('contains' if len(query) > 2 else 'starts with', query))
-        if len(value) > 2:
-            return Q(name__icontains=value)
-        return Q(name__istartswith=value)
-
-    @staticmethod
-    def search_director(value):
-        # search_result.append('Directed by {}'.format(d.name))
-        return Q(director=value)
-
-    @staticmethod
-    def search_actor(value):
-        # search_result.append('With {}'.format(a.name))
-        return Q(actor=value)
-
-    @staticmethod
-    def search_user(value):
-        pass
+    # @staticmethod
+    # def search_director(value):
+    #     # search_result.append('Directed by {}'.format(d.name))
+    #     return Q(director=value)
+    #
+    # @staticmethod
+    # def search_actor(value):
+    #     # search_result.append('With {}'.format(a.name))
+    #     return Q(actor=value)
+    #
+    # @staticmethod
+    # def search_user(value):
+    #     pass
 
 
 class RateUpdateForm(forms.ModelForm):

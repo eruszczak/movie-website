@@ -51,7 +51,11 @@
     <form action="{% url 'title-list' %}">
         <div class="ui form">
             <div class="inline fields">
-                <div class="eight wide field">
+                <div class="four wide field">
+                    {{ search_form.year.label_tag }}
+                    {{ search_form.year }}
+                </div>
+                <div class="four wide field">
                     {{ search_form.genre.label_tag }}
                     {% render_field search_form.genre|add_class:'ui dropdown search' %}
                 </div>
@@ -59,7 +63,8 @@
                     {% render_field search_form.keyword placeholder=search_form.keyword.label %}
                 </div>
             </div>
-            <button type="submit">send</button>
+            <button class="ui submit button">Submit</button>
+        </div>
     </form>
     <div class="ui divider"></div>
     <div class="ui two column stackable grid">
