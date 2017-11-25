@@ -157,16 +157,3 @@ class Rating(models.Model):
     @property
     def is_current_rating(self):
         return self == Rating.objects.filter(user=self.user, title=self.title).first()
-
-    @property
-    def next_rating_days_diff(self):
-        next_rating = Rating.objects.filter(user=self.user, title=self.title, rate_date__gt=self.rate_date).last()
-        if next_rating:
-            return (next_rating.rate_date - self.rate_date).days
-        return (datetime.now().date() - self.rate_date).days
-
-    # def rated_before_rate_diff(self):
-    #     previous = Rating.objects.filter(user=self.user, title=self.title, rate_date__lt=self.rate_date).first()
-    #     if previous:
-    #         return self.rate - previous.rate
-    #     return None
