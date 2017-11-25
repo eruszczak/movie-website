@@ -104,6 +104,9 @@ class TitleDetailView(DetailView):
     model = Title
     object = None
 
+    # def get_queryset(self):
+    #     return super().get_queryset().prefetch_related('genre', 'actor', 'director')
+
     def get_object(self, queryset=None):
         if queryset is None:
             queryset = self.get_queryset()
@@ -134,8 +137,8 @@ class TitleDetailView(DetailView):
                 'is_in_user_watchlist': Watchlist.objects.filter(
                     user=self.request.user, title=self.object, deleted=False).exists(),
                 'followed_title_not_recommended': UserFollow.objects.filter(follower=self.request.user).exclude(
-                    Q(followed__rating__title=self.object) | Q(followed__recommendation__title=self.object)),
-                # todo: do this directly on User object because I dont need anything from UserFollow
+                    Q(followed__rating__title=self.object) | Q(followed__recommendation__title=self.object)
+                ).select_related('followed'),
                 'followed_saw_title': UserFollow.objects.filter(
                     follower=self.request.user, followed__rating__title=self.object).annotate(
                     user_rate=Subquery(
@@ -148,20 +151,20 @@ class TitleDetailView(DetailView):
                             user=OuterRef('followed'), title=OuterRef('followed__rating__title')
                         ).order_by('-rate_date').values('rate_date')[:1]
                     )
-                )
+                ).select_related('followed')
             })
 
         actors_and_other_titles = []
-        for actor in self.object.actor.all():
-            if self.request.user.is_authenticated:
-                newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
-                titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).annotate(
-                    user_rate=Subquery(newest.values('rate')[:1])).order_by('-votes')[:6]
-            else:
-                titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).order_by('-votes')[:6]
-
-            if titles:
-                actors_and_other_titles.append((actor, titles))
+        # for actor in self.object.actor.all():
+        #     if self.request.user.is_authenticated:
+        #         newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+        #         titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).annotate(
+        #             user_rate=Subquery(newest.values('rate')[:1])).order_by('-votes')
+        #     else:
+        #         titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).order_by('-votes')
+        #
+        #     if titles:
+        #         actors_and_other_titles.append((actor, titles))
 
         context.update({
             'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
