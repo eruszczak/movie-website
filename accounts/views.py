@@ -95,7 +95,7 @@ class UserListView(ListView):
     model = User
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset()#.annotate(titles_count=Count('rating'))
         if self.request.GET.get('const'):
             self.searched_title = get_object_or_404(Title, const=self.request.GET['const'])
             queryset = queryset.filter(rating__title=self.searched_title).annotate(
@@ -105,8 +105,6 @@ class UserListView(ListView):
                     ).order_by('-rate_date').values('rate')[:1]
                 )
             ).distinct()
-        else:
-            queryset = User.objects.annotate(num=Count('rating')).order_by('-num', '-username')
 
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
@@ -114,7 +112,9 @@ class UserListView(ListView):
                     UserFollow.objects.filter(follower=self.request.user, followed=OuterRef('pk')).values('pk')
                 )
             )
-        return queryset
+        return queryset.annotate(
+            #followers=Count('userfollow__follower')
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

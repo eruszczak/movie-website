@@ -115,6 +115,15 @@
         </div>
     </div>
     <div class="ui tab segment" data-tab="second">
+    {#		<a href="{{ object.watchlist_url }}" class="btn btn-sm btn-default">#}
+{#			<span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist#}
+{#		</a>#}
+{#		<a href="{{ object.favourite_url }}" class="btn btn-sm btn-default">#}
+{#			<span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> favourites#}
+{#		</a>#}
+{#		<a href="{{ object.recommend_url }}" class="btn btn-sm btn-default">#}
+{#			<span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend#}
+{#		</a>#}
     </div>
     <div class="ui tab segment" data-tab="third">
     </div>
@@ -135,7 +144,7 @@
                       {{ comparision.averages.user }}
                     </div>
                     <div class="label">
-                      His average score
+                      Average score
                     </div>
                   </div>
                   <div class="statistic">
@@ -209,18 +218,6 @@
         </div>
     {% endif %}
 {% endblock %}
-
-{#		<a href="{{ object.watchlist_url }}" class="btn btn-sm btn-default">#}
-{#			<span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist#}
-{#		</a>#}
-{#		<a href="{{ object.favourite_url }}" class="btn btn-sm btn-default">#}
-{#			<span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> favourites#}
-{#		</a>#}
-{#		<a href="{{ object.recommend_url }}" class="btn btn-sm btn-default">#}
-{#			<span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend#}
-{#		</a>#}
-
-
 
 {#			<form method="post" name="update_titles_form">{% csrf_token %}#}
 {#				{% if user.imdb_id %}#}

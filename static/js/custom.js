@@ -43,7 +43,7 @@ $('.ui.checkbox').checkbox();
 
 $('.tabular.menu .item').tab();
 $('.ui.menu').tab();
-$('.dropdown.item').dropdown();
+$('.ui.dropdown, .dropdown.item').dropdown();
 // $('.ui.dropdown')
 //   .dropdown()
 // ;
