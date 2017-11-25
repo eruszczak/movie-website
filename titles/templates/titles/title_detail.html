@@ -50,23 +50,15 @@
     {#    {% endif %}#}
     {#{% endwith %}#}
 {#    <div class="ui divider"></div>#}
-{#<div class="ui fluid three item menu">#}
-{#  <a class="item">Buy</a>#}
-{#  <a class="item">Sell</a>#}
-{#  <a class="item"><i class="video play icon"></i> Rent</a>#}
-{#</div>#}
+<div class="ui fluid three item menu title-menu">
+  <a class="item active" data-tab="third">Title info</a>
+  <a class="item" data-tab="first">Overview</a>
+  <a class="item" data-tab="fourth"><i class="video play icon"></i> Media</a>
+</div>
     {#<a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
-
-    <div class="ui pointing secondary menu user-menu">
-        <a class="item active" data-tab="third">Title info</a>
-        <a class="item" data-tab="first">Overview</a>
-        <a class="item" data-tab="fourth">Media</a>
-    </div>
 
     <div class="ui tab segment" data-tab="first">
         <div class="ui segment">
-                edit history hmm<br>
-
           <a class="ui teal ribbon label">Rating history</a>
             <div class="ui list">
                 <table class="ui celled unstackable table">
@@ -83,7 +75,7 @@
                     <tr>
         {#                <td class=""><a href="{% url 'title-list' %}?year={{ rating.rate_date|date:'Y' }}&month={{ rating.rate_date|date:'m' }}">{{ rating.rate_date|date:"Y-m-d" }}</a></td>#}
         {#                <td class=""><a href="{% url 'title-list' %}?r={{ rating.rate }}">{{ rating.rate }}</a>#}
-                      <td>{% if forloop.first %}<div class="ui mini yellow ribbon label">current</div>{% endif %}{{ rating.rate_date }}
+                      <td>{{ rating.rate_date }}{% if forloop.first %} <div class="ui yellow small horizontal label">current</div>{% endif %}
                       </td>
                       <td class="{% if diff.rate < 0 %}error{% elif diff.rate > 0 %}positive{% endif %}">
                           {{ rating.rate }}{% if diff.rate %} <small>({{ diff.rate }})</small>{% endif %}
@@ -151,69 +143,88 @@
 
     </div>
     <div class="ui tab segment active" data-tab="third">
-            <div class="ui bulleted list">
-                {% if title.runtime %}
-                  <div class="item">Runtime: {{ title.runtime }} mins</div>
-                {% endif %}
-                {% if title.votes %}
-                  <div class="item">IMDb votes: {{ title.votes|intcomma }}</div>
-                {% endif %}
-                {% if title.rate_imdb %}
-                    <div class="item">Avg IMDb ratings: {{ title.rate_imdb }}</div>
-                {% endif %}
-                {% with title.rate as data %}
-                    {% if data.count %}
-                        <div class="item">Avg ratings: {{ data.avg|floatformat:2 }}
-                            <a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} user{{ data.count|pluralize }})</a>
-                        </div>
-                    {% endif %}
-                {% endwith %}
-                {% for director in title.director.all %}
-                    <a href="{{ director.get_absolute_url }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}<br></a>
-                {% endfor %}
+        <div class="ui grid centered statistics">
+          <div class="statistic">
+            <div class="value">
+              {{ title.runtime }}
             </div>
-            {% if title.plot %}
-                <div class="ui hidden divider"></div>
-                <p>{{ title.plot }}</p>
-            {% endif %}
-            <div class="ui divider"></div>
-            <a href="{{ title.url_imdb }}" target="_blank">
-                <img class="image" src="{% static 'img/imdb.png' %}" alt="..." style="width: 70px">
-            </a>
-            <a href="{{ title.url_tomato }}" target="_blank">
-                <img class="image" src="{% static 'img/rt.png' %}" alt="..." style="width: 70px">
-            </a>
-            <a href="" target="_blank">
+            <div class="label">
+              Runtime (min)
+            </div>
+          </div>
+          <div class="statistic">
+            <div class="value">
+              {{ title.votes|intcomma }}
+            </div>
+            <div class="label">
+              IMDb votes
+            </div>
+          </div>
+          <div class="statistic">
+            <div class="value">
+              {{ title.rate_imdb }}
+            </div>
+            <div class="label">
+              Avg IMDb ratings
+            </div>
+          </div>
+        </div>
+
+{#        {% with title.rate as data %}#}
+{#            {% if data.count %}#}
+{#                <div class="item">Avg ratings: {{ data.avg|floatformat:2 }}#}
+{#                    <a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} user{{ data.count|pluralize }})</a>#}
+{#                </div>#}
+{#            {% endif %}#}
+{#        {% endwith %}#}
+{#        {% for director in title.director.all %}#}
+{#            <a href="{{ director.get_absolute_url }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}<br></a>#}
+{#        {% endfor %}#}
+
+        {% if title.plot %}
+            <div class="ui hidden divider"></div>
+            <p>{{ title.plot }}</p>
+        {% endif %}
+        <div class="ui segment">
+          <a class="ui blue ribbon label">Similar</a>
+            <span>Similar titles</span>
+            <div class="ui list">
+                {% if 1 %}
+                    <p>Nothing found</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="ui divider"></div>
+        <div class="ui segment">
+          <a class="ui blue ribbon label">Cast</a>
+            <span>Cast and their other appearances</span>
+            <div class="ui list">
+                {% for actor, titles in actors_and_other_titles %}
+                    <h4 class="ui header">{{ actor.name }}</h4>
+                    {% for title in titles %}
+                {#        show left corner label only if rated#}
+                        {% include 'titles/title_small.html' with title=title rate=title.user_rate %}
+                    {% endfor %}
+                {% endfor %}
+                {% if not actors_and_other_titles %}
+                    <p>Nothing found</p>
+                {% endif %}
+            </div>
+        </div>
+        <a href="{{ title.url_imdb }}" target="_blank">
+            <img class="image" src="{% static 'img/imdb.png' %}" alt="..." style="width: 70px">
+        </a>
+        <a href="{{ title.url_tomato }}" target="_blank">
+            <img class="image" src="{% static 'img/rt.png' %}" alt="..." style="width: 70px">
+        </a>
+        <a href="" target="_blank">
 {#                <img class="image" src="{% static 'img/rt.png' %}" alt="..." style="width: 70px">#}
-                TMDB
-            </a>
+            TMDB
+        </a>
+        <p>Last updated: {{ title.last_updated }}</p>
     </div>
     <div class="ui tab segment" data-tab="fourth">
-        <h3 class="ui header">4th</h3>
+        <h3 class="ui header">Trailer</h3>
         <div class="ui embed" data-source="youtube" data-id="O6Xo21L0ybE"></div>
-    </div>
-    <div class="ui segment">
-      <a class="ui blue ribbon label">Similar</a>
-        <span>Similar titles</span>
-        <div class="ui list">
-
-        </div>
-    </div>
-
-    <div class="ui segment">
-      <a class="ui blue ribbon label">Cast</a>
-        <span>Cast and their other appearances</span>
-        <div class="ui list">
-            {% for actor, titles in actors_and_other_titles %}
-                <h4 class="ui header">{{ actor.name }}</h4>
-                {% for title in titles %}
-            {#        show left corner label only if rated#}
-                    {% include 'titles/title_small.html' with title=title rate=title.user_rate %}
-                {% endfor %}
-            {% endfor %}
-            {% if not actors_and_other_titles %}
-                <p>Nothing found</p>
-            {% endif %}
-        </div>
     </div>
 {% endblock %}
