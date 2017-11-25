@@ -54,6 +54,7 @@
             <div class="ui card backdrop-card">
               <a href="{{ title.get_absolute_url }}" class="ui image">
                 <img src="{% static 'img/w500_and_h521_bestv2.jpg' %}">
+{#                <img src="{% static 'img/w500_and_h521_bestv2.jpg' %}" data-src="{% if title.img %}{{ title.img.url }}{% endif %}">#}
               </a>
               <div class="content">
                   <p class="header center aligned"><a href="{{ title.get_absolute_url }}">{{ title.name }}</a></p>
