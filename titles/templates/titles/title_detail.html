@@ -184,6 +184,7 @@
         {% if title.plot %}
             <div class="ui hidden divider"></div>
             <p>{{ title.plot }}</p>
+            <div class="ui hidden divider"></div>
         {% endif %}
         <div class="ui segment">
           <a class="ui blue ribbon label">Similar</a>
@@ -211,6 +212,7 @@
                 {% endif %}
             </div>
         </div>
+        <div class="ui hidden divider"></div>
         <a href="{{ title.url_imdb }}" target="_blank">
             <img class="image" src="{% static 'img/imdb.png' %}" alt="..." style="width: 70px">
         </a>

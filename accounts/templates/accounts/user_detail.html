@@ -13,77 +13,41 @@
 {% endblock %}
 
 {% block content %}
-{#<div class="ui four cards">#}
-{#  <div class="card">#}
-{#    <div class="small image">#}
-{#      <img src="{% static 'img/w185_h278_bestv2.jpg' %}">#}
-{#    </div>#}
-{#    <div class="extra">#}
-{#      Rating:#}
-{#      <div class="ui star rating" data-rating="4"></div>#}
-{#    </div>#}
-{#  </div>#}
-{#</div>#}
-{#<div class="four ui buttons">#}
-{#  <a href="" class="ui button active">Overview</a>#}
-{#  <a href="" class="ui button">Lists</a>#}
-{#  <a href="" class="ui button">Charts</a>#}
-{#    {% if is_other_user %}#}
-{#        <a href="" class="ui button">Compared with you</a>#}
-{#    {% endif %}#}
-{#</div>#}
     <div class="ui divider hidden"></div>
     <div class="ui centered grid">
-{#        <div class="eight wide mobile four wide computer four wide tablet column">#}
-{#        <div class="column">#}
-            <div class="ui card">
-              <div class="image">
-                <img src="{% static 'img/stevie.jpg' %}">
-              </div>
-              <div class="content">
-                <a class="header">{{ user.username }}</a>
-                <div class="meta">
-                  <span class="date">Member since {{ user.date_joined|date:"M d, Y" }}</span>
-                </div>
-                  {% if user.tagline %}
-                    <div class="description">
-                      {{ user.tagline }}
-                    </div>
-                  {% endif %}
-              </div>
-              <div class="extra content">
-{#                <a>#}
-                  <i class="user icon"></i>
-                  Follows {{ total_followed }} people
-{#                </a>#}
-              </div>
-                {% if already_follows %}
-                  <div class="ui bottom attached  small follow toggle button{% if already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if already_follows %}Followed{% else %}Follow{% endif %}</div>
-                {% endif %}
+        <div class="ui card">
+          <div class="image">
+            <img src="{% static 'img/stevie.jpg' %}">
+          </div>
+          <div class="content">
+            <a class="header">{{ user.username }}</a>
+            <div class="meta">
+              <span class="date">Member since {{ user.date_joined|date:"M d, Y" }}</span>
             </div>
-{#        </div>#}
-{#        <div class="eight wide mobile twelve wide computer twelve wide tablet centered column">#}
-
-{#        </div>#}
+              {% if user.tagline %}
+                <div class="description">
+                  {{ user.tagline }}
+                </div>
+              {% endif %}
+          </div>
+          <div class="extra content">
+              <i class="user icon"></i>
+              Follows {{ total_followed }} people
+          </div>
+            {% if already_follows %}
+              <div class="ui bottom attached  small follow toggle button{% if already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if already_follows %}Followed{% else %}Follow{% endif %}</div>
+            {% endif %}
+        </div>
     </div>
     <div class="ui divider hidden"></div>
-<div class="ui fluid {% if is_other_user %}four{% else %}three{% endif %} item menu title-menu">
-    <a class="item active" data-tab="first">Overview</a>
-    <a class="item" data-tab="second">Lists</a>
-    <a class="item" data-tab="third">Charts</a>
-    {% if is_other_user %}
-        <a class="item" data-tab="fourth">Compared with you</a>
-    {% endif %}
-</div>
-{#    <div class="ui pointing secondary menu user-menu">#}
-{#        <a class="item active" data-tab="first">Overview</a>#}
-{#        <a class="item" data-tab="second">Lists</a>#}
-{#        <a class="item" data-tab="third">Charts</a>#}
-{#        {% if is_other_user %}#}
-{#            <a class="item teal" data-tab="fourth">Compared with you</a>#}
-{#        {% endif %}#}
-{#    </div>#}
-
+    <div class="ui fluid {% if is_other_user %}four{% else %}three{% endif %} item menu title-menu">
+        <a class="item active" data-tab="first">Overview</a>
+        <a class="item" data-tab="second">Lists</a>
+        <a class="item" data-tab="third">Charts</a>
+        {% if is_other_user %}
+            <a class="item" data-tab="fourth">Compared with you</a>
+        {% endif %}
+    </div>
     <div class="ui tab segment active" data-tab="first">
         <div class="ui grid centered statistics">
           <div class="statistic">
@@ -131,7 +95,6 @@
                 {% endif %}
             </div>
         </div>
-
         <div class="ui segment">
           <a class="ui blue ribbon label">Feed</a>
             <span>Latest activity of users followed by {{ user.username }}</span>
@@ -151,12 +114,10 @@
             </div>
         </div>
     </div>
-
     <div class="ui tab segment" data-tab="second">
     </div>
     <div class="ui tab segment" data-tab="third">
     </div>
-
     {% if is_other_user %}
         <div class="ui tab segment" data-tab="fourth">
             {% if comparision %}
@@ -247,10 +208,7 @@
             {% endif %}
         </div>
     {% endif %}
-{#<img id="avatar" class="img-responsive img-thumbnail center-block"#}
-{#	 src="{% if object.picture %}{{ object.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}"#}
-{#	 alt="...">#}
-{##}
+{% endblock %}
 
 {#		<a href="{{ object.watchlist_url }}" class="btn btn-sm btn-default">#}
 {#			<span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist#}
@@ -261,6 +219,9 @@
 {#		<a href="{{ object.recommend_url }}" class="btn btn-sm btn-default">#}
 {#			<span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend#}
 {#		</a>#}
+
+
+
 {#			<form method="post" name="update_titles_form">{% csrf_token %}#}
 {#				{% if user.imdb_id %}#}
 {#					<button class="btn btn-xs btn-primary" type="submit" name="update_rss" value="update_rss">update ratings</button>#}
@@ -272,11 +233,16 @@
 {#				{% endif %}#}
 {#			</form>#}
 
+
+
 {#				<hr class="visible-sm visible-xs">#}
 {#				<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import-ratings' object.username %}" style="display:none">{% csrf_token %}#}
 {#					<input id="import" name="csv_ratings" type="file" accept=".csv" />#}
 {#				</form>#}
 {##}
+
+
+
 {#				<div style="display:inline;float: right;">#}
 {#					{% if is_owner %}#}
 {#						<form id="clear_ratings_form" method="post" action="{{ request.user.get_absolute_url }}" style="display:inline;margin-right:10px">{% csrf_token %}#}
@@ -304,8 +270,10 @@
 {#</div>#}
 {#{% endif %}#}
 {##}
+
+
+
 {#<div id="dialog-confirm" title="Clear all your ratings?" style="display:none;">#}
 {#	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>You cannot revert this operation. You will lose all of you ratings if you haven't exported them first. As a confirmation - enter your username and press OK.</p>#}
 {#	<input type="text" id="confirm-nickname">#}
 {#</div>#}
-{% endblock %}
