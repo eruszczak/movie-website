@@ -22,6 +22,9 @@ class SearchFormMixin:
                 search_queries.append(query)
 
             if search_queries:
+                # flat_list = [item for sublist in search_queries for item in sublist]
+                # print(flat_list)
+                print(search_queries)
                 return queryset.filter(reduce(and_, search_queries))
 
         return queryset
