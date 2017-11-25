@@ -56,7 +56,7 @@
         {% if user.pk != request.user.pk %}
           <div class="ui small follow toggle button right floated{% if user.already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if user.already_follows %}Followed{% else %}Follow{% endif %}</div>
         {% endif %}
-          <a href="{{ user_detail_url }}" class="header">{{ user.username }}</a>
+          <a href="{{ user_detail_url }}" class="header">{{ user.username }};{{ user.titles_count }};{{ user.followers }}</a>
             {% if title %}{{ user.user_rate }} <i class="star icon green"></i>{% endif %}
             <div class="floated right">
     {#            <p>todo watchlist favourites see_all_lists</p>#}

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static widget_tweaks %}
 {#{% block title %}{{ page_title }}{% endblock %}#}
 
 {% block breadcrumb %}
@@ -31,22 +31,36 @@
                   </a>
                 </div>
             </div>
-            <div class="column">
-                <div class="ui text menu">
-                  <div class="header item">Sort By</div>
-                  <a class="item">
-                    Closest
-                  </a>
-                  <a class="item">
-                    Recent
-                  </a>
-                  <a class="item active">
-                    Most Popular
-                  </a>
-                </div>
-            </div>
+{#            <div class="column">#}
+{#                <div class="right floated ui text menu">#}
+{#                  <div class="header item">Sort By</div>#}
+{#                  <a class="item">#}
+{#                    Closest#}
+{#                  </a>#}
+{#                  <a class="item">#}
+{#                    Recent#}
+{#                  </a>#}
+{#                  <a class="item active">#}
+{#                    Most Popular#}
+{#                  </a>#}
+{#                </div>#}
+{#            </div>#}
         </div>
     </div>
+
+    <form action="{% url 'title-list' %}">
+        <div class="ui form">
+            <div class="inline fields">
+                <div class="eight wide field">
+                    {{ search_form.genre.label_tag }}
+                    {% render_field search_form.genre|add_class:'ui dropdown search' %}
+                </div>
+                <div class="eight wide field">
+                    {% render_field search_form.keyword placeholder=search_form.keyword.label %}
+                </div>
+            </div>
+            <button type="submit">send</button>
+    </form>
     <div class="ui divider"></div>
     <div class="ui two column stackable grid">
         {% for title in title_list %}

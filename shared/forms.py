@@ -9,6 +9,7 @@ class SearchFormMixin:
         if self.is_valid():
             search_queries = []
             for search_key, search_value in self.cleaned_data.items():
+                print(search_key, search_value)
                 if not search_value:
                     continue
 

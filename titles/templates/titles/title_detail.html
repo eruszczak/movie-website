@@ -78,7 +78,7 @@
                       <td>{{ rating.rate_date }}{% if forloop.first %} <div class="ui yellow small horizontal label">current</div>{% endif %}
                       </td>
                       <td class="{% if diff.rate < 0 %}error{% elif diff.rate > 0 %}positive{% endif %}">
-                          {{ rating.rate }}{% if diff.rate %} <small>({{ diff.rate }})</small>{% endif %}
+                          {{ rating.rate }}{% if diff.rate %} <small>({% if diff.rate > 0 %}+{% endif %}{{ diff.rate }})</small>{% endif %}
                       </td>
                       <td>
                         {{ diff.date }}
@@ -126,13 +126,13 @@
         </div>
         <div class="ui segment">
           <a class="ui teal ribbon label">Other ratings</a>
-            <span>Followed users who saw this title too</span>
+            <span>Followed users who saw this title</span>
             <div class="ui list">
                 {% for userfollow in followed_saw_title %}
-                    <a href="{% url 'user-detail' userfollow.followed.username %}" class="ui yellow image label">
+                    <a href="{% url 'user-detail' userfollow.followed.username %}" class="ui image label">
                       <img src="{% static 'img/stevie.jpg' %}">
                       {{ userfollow.followed.username }}
-                      <div class="detail">{{ userfollow.user_rate }} on {{ userfollow.user_rate_date }}</div>
+                      <div class="detail">{{ userfollow.user_rate }} <i class="star icon green"></i> {{ userfollow.user_rate_date }}</div>
                     </a>
                 {% endfor %}
                 {% if not followed_saw_title %}

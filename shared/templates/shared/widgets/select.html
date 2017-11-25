@@ -1,0 +1,26 @@
+{#<div>#}
+{#    <div class="drop-menu">#}
+{#        <div class="select">#}
+{#            <span>Wybierz</span>#}
+{#            <i class="fa fa-chevron-down"></i>#}
+{#        </div>#}
+{#        <input type="hidden" name="{{ widget.name }}">#}
+{#        <ul class="dropeddown">#}
+{#            {% for group_name, group_choices, group_index in widget.optgroups %}#}
+{#                {% for option in group_choices %}#}
+{#                    {% include option.template_name with widget=option %}#}
+{#                {% endfor %}#}
+{#            {% endfor %}#}
+{#        </ul>#}
+{#    </div>#}
+{#    <span class="msg"></span>#}
+{#</div>#}
+
+
+        <select multiple class="ui dropdown" name="{{ widget.name }}">
+            {% for group_name, group_choices, group_index in widget.optgroups %}
+                {% for option in group_choices %}
+                    {% include option.template_name with widget=option %}
+                {% endfor %}
+            {% endfor %}
+        </select>

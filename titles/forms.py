@@ -3,16 +3,19 @@ import re
 from django import forms
 from django.db.models import Q, Count
 
+from shared.widgets import MySelectMultipleWidget
 from titles.models import Title, Genre, Rating
 from shared.forms import SearchFormMixin
 
 
 class TitleSearchForm(SearchFormMixin, forms.Form):
-    genre = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(num=Count('title')).order_by('-num'))
+    keyword = forms.CharField(max_length=100, required=False, label='Search by keywords')
+    genre = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False)
 
     @staticmethod
     def search_genre(value):
-        return Q(genre=value)
+        # all of them, not any.
+        return Q(genre__in=value)
 
     @staticmethod
     def search_year(value):
