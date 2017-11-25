@@ -67,7 +67,7 @@
 {#        </div>#}
     </div>
     <div class="ui divider hidden"></div>
-<div class="ui fluid four item menu title-menu">
+<div class="ui fluid {% if is_other_user %}four{% else %}three{% endif %} item menu title-menu">
     <a class="item active" data-tab="first">Overview</a>
     <a class="item" data-tab="second">Lists</a>
     <a class="item" data-tab="third">Charts</a>
@@ -231,8 +231,8 @@
                     </div>
                 </div>
                 <div class="ui segment">
-                  <a class="ui teal ribbon label">He likes</a>
-                    <span>{{ user.username }} liked but you haven't seen</span>
+                  <a class="ui teal ribbon label">You need to see</a>
+                    <span>{{ user.username }} liked that you haven't seen</span>
                     <div class="ui list">
                         {% for title in comparision.titles_user_liked %}
                             {% include 'titles/title_small.html' with title=title rate=title.user_rate %}
