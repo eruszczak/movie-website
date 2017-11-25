@@ -49,8 +49,9 @@ $('.dropdown.item').dropdown();
 // ;
 
 // $('.test .menu .item')
-$('.user-menu .item')//.not('.active')
-  .tab({
+$('.title-menu .item').tab();
+// $('.user-menu .item')//.not('.active')
+//   .tab({
     // cache: false,
     // // faking API request
     // apiSettings: {
@@ -67,9 +68,9 @@ $('.user-menu .item')//.not('.active')
     // context : 'parent',
     // auto    : true,
     // // path    : '/'
-  });
+  // });
 
-$('.user-menu .item').first().click();
+// $('.user-menu .item.active').click();
 // $('.user-menu .item.active')
 //   .tab()
 // ;

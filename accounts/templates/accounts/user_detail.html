@@ -67,15 +67,22 @@
 {#        </div>#}
     </div>
     <div class="ui divider hidden"></div>
-
-    <div class="ui pointing secondary menu user-menu">
-        <a class="item active" data-tab="first">Overview</a>
-        <a class="item" data-tab="second">Lists</a>
-        <a class="item" data-tab="third">Charts</a>
-        {% if is_other_user %}
-            <a class="item teal" data-tab="fourth">Compared with you</a>
-        {% endif %}
-    </div>
+<div class="ui fluid four item menu title-menu">
+    <a class="item active" data-tab="first">Overview</a>
+    <a class="item" data-tab="second">Lists</a>
+    <a class="item" data-tab="third">Charts</a>
+    {% if is_other_user %}
+        <a class="item" data-tab="fourth">Compared with you</a>
+    {% endif %}
+</div>
+{#    <div class="ui pointing secondary menu user-menu">#}
+{#        <a class="item active" data-tab="first">Overview</a>#}
+{#        <a class="item" data-tab="second">Lists</a>#}
+{#        <a class="item" data-tab="third">Charts</a>#}
+{#        {% if is_other_user %}#}
+{#            <a class="item teal" data-tab="fourth">Compared with you</a>#}
+{#        {% endif %}#}
+{#    </div>#}
 
     <div class="ui tab segment active" data-tab="first">
         <div class="ui grid centered statistics">
@@ -112,6 +119,37 @@
             </div>
           </div>
         </div>
+        <div class="ui segment">
+          <a class="ui blue ribbon label">Activity</a>
+            <span>{{ user.username }}'s latest ratings</span>
+            <div class="ui list">
+                {% for rating in rating_list %}
+                    {% include 'titles/title_small.html' with title=rating.title rate_date=rating.rate_date rate=rating.rate %}
+                {% endfor %}
+                {% if not rating_list %}
+                    <p>No ratings found</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="ui segment">
+          <a class="ui blue ribbon label">Feed</a>
+            <span>Latest activity of users followed by {{ user.username }}</span>
+            <div class="ui list">
+                {% for rating in feed %}
+                  <div class="item">
+                    <img class="ui avatar image" src="{% static 'img/stevie.jpg' %}">
+                    <div class="content">
+                      <span>{{ rating.rate_date }}</span>
+                        <div class="description"><a href="{{ rating.user.get_absolute_url }}">{{ rating.user.username }}</a> rated <a href="{{ rating.title.get_absolute_url }}"><b>{{ rating.title.name }}</b></a> {{ rating.rate }}<i class="icon star green"></i></div>
+                    </div>
+                  </div>
+                {% endfor %}
+                {% if not feed %}
+                    <p>No activity found</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
     <div class="ui tab segment" data-tab="second">
@@ -121,145 +159,99 @@
 
     {% if is_other_user %}
         <div class="ui tab segment" data-tab="fourth">
-            <div class="ui grid centered statistics">
-              <div class="statistic">
-                <div class="value">
-                  {{ comparision.common_titles_length }}
+            {% if comparision %}
+                <div class="ui grid centered statistics">
+                  <div class="statistic">
+                    <div class="value">
+                      {{ comparision.common_titles_length }}
+                    </div>
+                    <div class="label">
+                      the same titles
+                    </div>
+                  </div>
+                  <div class="statistic">
+                    <div class="value">
+                      {{ comparision.averages.user }}
+                    </div>
+                    <div class="label">
+                      His average score
+                    </div>
+                  </div>
+                  <div class="statistic">
+                    <div class="value">
+                      {{ comparision.averages.request_user }}
+                    </div>
+                    <div class="label">
+                      Your average score
+                    </div>
+                  </div>
+                  <div class="statistic">
+                    <div class="value">
+                      {{ comparision.percentage }}%
+                    </div>
+                    <div class="label">
+                      Of his titles you saw
+                    </div>
+                  </div>
                 </div>
-                <div class="label">
-                  the same titles
+                <div class="ui segment">
+                  <a class="ui teal ribbon label">Lower</a>
+                    <span>{{ user.username }} rated lower</span>
+                    <div class="ui list">
+                        {% for title in comparision.titles_user_rate_lower %}
+                            {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
+                        {% endfor %}
+                        {% if not comparision.titles_user_rate_lower %}
+                            <p>Nothing found</p>
+                        {% endif %}
+                    </div>
                 </div>
-              </div>
-              <div class="statistic">
-                <div class="value">
-                  {{ comparision.averages.user }}
+                <div class="ui segment">
+                  <a class="ui teal ribbon label">Higher</a>
+                    <span>{{ user.username }} rated higher</span>
+                    <div class="ui list">
+                        {% for title in comparision.titles_user_rate_higher %}
+                            {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
+                        {% endfor %}
+                        {% if not comparision.titles_user_rate_higher %}
+                            <p>Nothing found</p>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="label">
-                  His average score
+                <div class="ui segment">
+                  <a class="ui teal ribbon label">The same</a>
+                    <span>{{ user.username }} rated the same</span>
+                    <div class="ui list">
+                        {% for title in comparision.titles_rated_the_same %}
+                            {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
+                        {% endfor %}
+                        {% if not comparision.titles_rated_the_same %}
+                            <p>Nothing found</p>
+                        {% endif %}
+                    </div>
                 </div>
-              </div>
-              <div class="statistic">
-                <div class="value">
-                  {{ comparision.averages.request_user }}
+                <div class="ui segment">
+                  <a class="ui teal ribbon label">He likes</a>
+                    <span>{{ user.username }} liked but you haven't seen</span>
+                    <div class="ui list">
+                        {% for title in comparision.titles_user_liked %}
+                            {% include 'titles/title_small.html' with title=title rate=title.user_rate %}
+                        {% endfor %}
+                        {% if not comparision.titles_user_liked %}
+                            <p>Nothing found</p>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="label">
-                  Your average score
-                </div>
-              </div>
-              <div class="statistic">
-                <div class="value">
-                  {{ comparision.percentage }}%
-                </div>
-                <div class="label">
-                  Of his titles you saw
-                </div>
-              </div>
-            </div>
-            <div class="ui segment">
-              <a class="ui teal ribbon label">Lower</a>
-                <span>{{ user.username }} rated lower</span>
-                <div class="ui list">
-                    {% for title in comparision.titles_user_rate_lower %}
-                        {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
-                    {% endfor %}
-                    {% if not comparision.titles_user_rate_lower %}
-                        <p>Nothing found</p>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="ui segment">
-              <a class="ui teal ribbon label">Higher</a>
-                <span>{{ user.username }} rated higher</span>
-                <div class="ui list">
-                    {% for title in comparision.titles_user_rate_higher %}
-                        {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
-                    {% endfor %}
-                    {% if not comparision.titles_user_rate_higher %}
-                        <p>Nothing found</p>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="ui segment">
-              <a class="ui teal ribbon label">The same</a>
-                <span>{{ user.username }} rated the same</span>
-                <div class="ui list">
-                    {% for title in comparision.titles_rated_the_same %}
-                        {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
-                    {% endfor %}
-                    {% if not comparision.titles_rated_the_same %}
-                        <p>Nothing found</p>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="ui segment">
-              <a class="ui teal ribbon label">He likes</a>
-                <span>{{ user.username }} liked but you haven't seen</span>
-                <div class="ui list">
-                    {% for title in comparision.titles_user_liked %}
-                        {% include 'titles/title_small.html' with title=title rate=title.user_rate %}
-                    {% endfor %}
-                    {% if not comparision.titles_user_liked %}
-                        <p>Nothing found</p>
-                    {% endif %}
-                </div>
-            </div>
+            {% else %}
+                <p>{{ user.username }} has no ratings</p>
+            {% endif %}
         </div>
     {% endif %}
-    <div class="ui segment">
-      <a class="ui blue ribbon label">Activity</a>
-        <span>{{ user.username }}'s latest ratings</span>
-        <div class="ui list">
-            {% for rating in rating_list %}
-                {% include 'titles/title_small.html' with title=rating.title rate_date=rating.rate_date rate=rating.rate %}
-            {% endfor %}
-            {% if not rating_list %}
-                <p>No ratings found</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="ui segment">
-      <a class="ui blue ribbon label">Feed</a>
-        <span>Latest activity of users followed by {{ user.username }}</span>
-        <div class="ui list">
-            {% for rating in feed %}
-              <div class="item">
-                <img class="ui avatar image" src="{% static 'img/stevie.jpg' %}">
-                <div class="content">
-                  <span>{{ rating.rate_date }}</span>
-                    <div class="description"><a href="{{ rating.user.get_absolute_url }}">{{ rating.user.username }}</a> rated <a href="{{ rating.title.get_absolute_url }}"><b>{{ rating.title.name }}</b></a> {{ rating.rate }}<i class="icon star green"></i></div>
-                </div>
-              </div>
-            {% endfor %}
-            {% if not feed %}
-                <p>No activity found</p>
-            {% endif %}
-        </div>
-    </div>
-
-{#<div class="row lower">#}
-{#	<div class="col-md-12">#}
-{#		<div class="page-header text-center">#}
-{#			<span class="lead">{{ object.username }}</span>#}
-{#			{% if is_owner %}#}
-{#			<a href="{{ object.edit_url }}">#}
-{#                <button id="editSettings" type="button" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> edit</button>#}
-{#            </a>#}
-{#        	{% endif %}#}
-{#			{% if is_other_user %}#}
-{#                {% include 'includes/actions/follow.html' with user_pk=object.pk condition=already_follows %}#}
-{#			{% endif %}#}
-{#		</div>#}
-{#	</div>#}
-{#</div>#}
-{##}
 {#<img id="avatar" class="img-responsive img-thumbnail center-block"#}
 {#	 src="{% if object.picture %}{{ object.picture.url }}{% else %}{% static 'img/placeholderavatar.png' %}{% endif %}"#}
 {#	 alt="...">#}
 {##}
-{#<div class="row text-center">#}
-{#	<br>#}
-{#	<div class="col-md-12">#}
+
 {#		<a href="{{ object.watchlist_url }}" class="btn btn-sm btn-default">#}
 {#			<span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist#}
 {#		</a>#}
@@ -269,15 +261,6 @@
 {#		<a href="{{ object.recommend_url }}" class="btn btn-sm btn-default">#}
 {#			<span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend#}
 {#		</a>#}
-{#	</div>#}
-{#</div>#}
-{##}
-{#{% if is_owner %}#}
-{#<div class="row text-center">#}
-{#	<br>#}
-{#	<div class="col-md-12">#}
-{#		{% if user.imdb_id or user.csv_ratings %}#}
-{#		<div class="btn-group text-center">#}
 {#			<form method="post" name="update_titles_form">{% csrf_token %}#}
 {#				{% if user.imdb_id %}#}
 {#					<button class="btn btn-xs btn-primary" type="submit" name="update_rss" value="update_rss">update ratings</button>#}
@@ -288,36 +271,7 @@
 {#					<button class="btn btn-xs btn-primary" type="submit" name="update_csv" value="update_csv">update csv</button>#}
 {#				{% endif %}#}
 {#			</form>#}
-{#		</div>#}
-{#		{% endif %}#}
-{#	</div>#}
-{#</div>#}
-{#{% endif %}#}
-{##}
-{#<br>#}
-{#<div class="row">#}
-{#	<div class="col-md-8 col-md-offset-2">#}
-{#		{% if not user_ratings.last_seen and is_owner %}#}
-{#		<div class="text-center">#}
-{#			<div class="alert alert-success alert-resize" role="alert">#}
-{#				<p>You have no ratings yet.</p>#}
-{#				<p><a href="{% url 'title-list' %}">Explore</a> titles or go ahead and <a href="{% url 'user-edit' user.username %}">edit</a> your profile to sync your account with IMDb.</p>#}
-{#			</div>#}
-{#		</div>#}
-{#		{% endif %}#}
-{#		<div class="panel panel-success">#}
-{#			<div class="panel-heading text-center">Most Recently Rated</div>#}
-{#			<div class="panel-body">#}
-{#				{% if user_ratings.last_seen %}#}
-{#				<div class="row">#}
-{#					{% for entry in user_ratings.last_seen %}#}
-{#						{% include 'titles/titles_in_a_row.html' with title=entry.title owner=is_owner rate=entry.rate req_user_rate=entry.req_user_curr_rating %}#}
-{#					{% endfor %}#}
-{#				</div>#}
-{#				<hr>#}
-{#				{% endif %}#}
-{#				See all <a href="{{ object.ratings_url }}">{{ object.count_titles }} titles</a>#}
-{#				or <a href="{{ object.all_ratings_url }}">{{ object.count_ratings }} ratings</a>#}
+
 {#				<hr class="visible-sm visible-xs">#}
 {#				<form id="import_form" method="post" enctype="multipart/form-data" action="{% url 'import-ratings' object.username %}" style="display:none">{% csrf_token %}#}
 {#					<input id="import" name="csv_ratings" type="file" accept=".csv" />#}
@@ -332,60 +286,8 @@
 {#						<a id="import_ratings" href="{% url 'import-ratings' object.username %}" style="margin-right:10px" data-toggle="tooltip" title="You can add ratings from exported file."><button class="btn btn-xs btn-success">import</button></a>#}
 {#					{% endif %}#}
 {#					<a href="{% url 'export-ratings' object.username %}" data-toggle="tooltip" title="You can export all of your ratings as a form of backup. If you will lose some of your ratings, you will be able to import them." target="_blank"><button class="btn btn-xs btn-success">export</button></a>#}
-{#				</div>#}
-{#			</div>#}
-{#		</div>#}
-{#	</div>#}
-{#</div>#}
-{#{% if user_ratings.common_with_req_user %}#}
-{#<div class="row">#}
-{#	<div class="col-md-8 col-md-offset-2">#}
-{#		<div class="panel panel-success">#}
-{#			<div class="panel-heading text-center">Compared to you</div>#}
-{#			<div class="panel-body">#}
-{#				{% if user_ratings.common_with_req_user.not_rated_by_req_user %}#}
-{#				<div>#}
-{#					<div class="row">#}
-{#						<p class="text-center lead">Titles {{ object.username }} liked that you haven't rated</p>#}
-{#						{% for title in user_ratings.common_with_req_user.not_rated_by_req_user %}#}
-{#							{% include 'titles/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate %}#}
-{#						{% endfor %}#}
-{#					</div>#}
-{#					See all <a href="{{ object.ratings_exclude }}">{{ user_ratings.common_with_req_user.not_rated_by_req_user_count }} titles</a> you haven't rated#}
-{#				</div>#}
-{#				<hr>#}
-{#				{% endif %}#}
-{#				{% if user_ratings.common_with_req_user.higher %}#}
-{#				<div class="row">#}
-{#					<p class="text-center lead">Titles you rated higher</p>#}
-{#					{% for title in user_ratings.common_with_req_user.higher %}#}
-{#						{% include 'titles/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}#}
-{#					{% endfor %}#}
-{#				</div>#}
-{#				<hr>#}
-{#				{% endif %}#}
-{#				{% if user_ratings.common_with_req_user.lower %}#}
-{#				<div class="row">#}
-{#					<p class="text-center lead">Titles you rated lower</p>#}
-{#					{% for title in user_ratings.common_with_req_user.lower %}#}
-{#						{% include 'titles/titles_in_a_row.html' with title=title owner=is_owner rate=title.user_rate req_user_rate=title.req_user_rate %}#}
-{#					{% endfor %}#}
-{#				</div>#}
-{#				<hr>#}
-{#				{% endif %}#}
-{#				<p class="text-center lead">Summary</p>#}
-{#				You and {{ object.username }} rated {{ user_ratings.common_with_req_user.count }} the same titles<br>#}
-{#				{% if user_ratings.common_with_req_user.req_user_rate_avg %}#}
-{#					You rated them {{ user_ratings.common_with_req_user.req_user_rate_avg|floatformat:2 }} and {{ object.username }} rated them {{ user_ratings.common_with_req_user.user_rate_avg|floatformat:2 }}<br>#}
-{#				{% endif %}#}
-{#				You saw {{ user_ratings.common_with_req_user.percentage }}% of {{ object.username }}'s#}
-{#				<a href="{{ object.ratings_url }}">{{ object.count_titles }} ratings</a><br>#}
-{#				<a href="{% url 'title-list' %}?u={{ object.username }}&exclude_his=on">See titles</a> that only you have seen#}
-{#			</div>#}
-{#		</div>#}
-{#	</div>#}
-{#</div>#}
-{#{% endif %}#}
+
+
 {#{% if user_ratings.last_seen %}#}
 {#<div class="row">#}
 {#	<div class="col-md-10 col-md-offset-1">#}
