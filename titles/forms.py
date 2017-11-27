@@ -12,6 +12,7 @@ class TitleSearchForm(SearchFormMixin, forms.Form):
     # year = forms.ChoiceField(choices=((d['year'], f'{d["year"]}') for d in Title.objects.values('year').order_by('-year')))
     keyword = forms.CharField(max_length=100, required=False, label='Search by keywords')
     genre = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False)
+    genre2 = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False, widget=MySelectMultipleWidget)
     type = forms.NullBooleanField()
 
     @staticmethod
@@ -131,3 +132,6 @@ class RateUpdateForm(forms.ModelForm):
     #     titles = titles.extra(select={
     #         'req_user_curr_rating': select_current_rating,
     #     }, select_params=[request.user.id])
+
+
+

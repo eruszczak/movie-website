@@ -1,9 +1,13 @@
+import json
+from urllib.parse import parse_qs
+
 from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractYear
 from re import findall
 
 from rest_framework import status
+from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_404
@@ -11,11 +15,13 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
+from six import BytesIO
 
+from recommend.forms import RecommendTitleForm
 from titles.models import Rating, Title
 from lists.models import Favourite
 from accounts.models import UserFollow
-from .serializers import RatingListSerializer, TitleSerializer
+from .serializers import RatingListSerializer, TitleSerializer, UserSerializer
 from common.sql_queries import rating_distribution
 from titles.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist, \
     recommend_title
@@ -189,16 +195,16 @@ class RecommendTitle(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
-        selected_users = request.POST.get('user_list')
+        user_ids = request.POST.getlist('id_user[]')
         try:
             title = Title.objects.get(pk=kwargs['pk'])
         except Title.DoesNotExist:
             return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            if selected_users:
-                message = recommend_title(title, request.user, selected_users.split(','))
-                return Response({'message': message}, status=status.HTTP_200_OK)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            message = ''
+            if user_ids:
+                message = recommend_title(title, request.user, user_ids)
+            return Response({'message': message}, status=status.HTTP_200_OK)
 
 
 class Search(APIView):
