@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize get_rating_diff %}
+{% load static humanize get_rating_diff widget_tweaks %}
 {#{% block title %}{% endblock %}#}
 
 {% block image %}
@@ -110,8 +110,10 @@
 
         <div class="ui segment">
           <a class="ui teal ribbon label">Recommend</a>
-            <span>Recommend it to people you follow</span> <a class="ui primary mini recommend hide button ml10" data-pk="{{ title.pk }}">Recommend</a>
+            <span>Recommend it to people you follow</span> <a class="ui primary mini recommend hide button ml10" data-pk="{{ title.pk }}" data-field-name="{{ recommend_form.user.auto_id }}">Recommend</a>
             <div class="ui list">
+{#                {{ recommend_form.user }}#}
+                {% render_field recommend_form.user|add_class:'ui dropdown search' %}
                 <div class="ui fluid multiple search selection recommend dropdown">
                   <input type="hidden" name="user_list">
                   <i class="dropdown icon"></i>

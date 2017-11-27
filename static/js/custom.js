@@ -172,7 +172,9 @@ $('.recommend.button').api({
       csrfmiddlewaretoken: TOKEN
     },
     beforeSend: function(settings) {
-      settings.data.user_list = $('.recommend.dropdown').find('input').val();
+      // settings.data.userNames = $('.recommend.dropdown').find('input').serialize();
+      var fieldName = $(this).data('field-name');
+      settings.data[fieldName] = $('#' + fieldName).val();
       return settings;
     },
     onSuccess: function(response) {
