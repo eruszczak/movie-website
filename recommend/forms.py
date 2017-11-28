@@ -1,9 +1,17 @@
 from django import forms
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+
+from accounts.models import UserFollow
 from common.prepareDB import get_title_or_create
+from recommend.models import Recommendation
 from titles.models import Rating
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from datetime import date
+
+
+User = get_user_model()
 
 
 class RecommendForm(forms.Form):
@@ -42,3 +50,31 @@ class RecommendForm(forms.Form):
         if not nick:
             raise forms.ValidationError('If you are not logged, you must insert your nickname')
         return nick, False
+
+
+class RecommendTitleForm(forms.ModelForm):
+    user = forms.ModelMultipleChoiceField(queryset=User.objects.none())
+
+    class Meta:
+        model = Recommendation
+        fields = ('user', 'sender', 'title')
+
+    def __init__(self, user, title, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['user'].queryset = User.objects.filter(
+            pk__in=UserFollow.objects.filter(follower=user).exclude(
+                Q(followed__rating__title=title) | Q(followed__recommendation__title=title)
+        ).values_list('followed__pk', flat=True))
+
+        # self.fields['user'].queryset = User.objects.filter(userfollow__follower=user).exclude(
+            # Q(userfollow__followed__rating__title=title) |
+            # Q(userfollow__followed__recommendation__title=title)
+        # ).distinct()
+        print(self.fields['user'].queryset)
+        #.select_related('userfollow__followed')
+
+        print(
+            UserFollow.objects.filter(follower=user).exclude(
+                    Q(followed__rating__title=title) | Q(followed__recommendation__title=title)
+        ).values_list('followed__pk', flat=True)
+        )

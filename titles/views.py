@@ -10,6 +10,7 @@ from django.views.generic import DetailView, TemplateView, RedirectView, ListVie
 
 from accounts.models import UserFollow
 from lists.models import Watchlist, Favourite
+from recommend.forms import RecommendTitleForm
 from shared.views import SearchViewMixin
 from titles.forms import TitleSearchForm, RateUpdateForm
 from .models import Genre, Director, Title, Rating
@@ -103,6 +104,7 @@ class TitleDetailView(DetailView):
     template_name = 'titles/title_detail.html'
     model = Title
     object = None
+    # recommend_form_class = RecommendTitleForm
 
     # def get_queryset(self):
     #     return super().get_queryset().prefetch_related('genre', 'actor', 'director')
@@ -110,6 +112,7 @@ class TitleDetailView(DetailView):
     def get_object(self, queryset=None):
         if queryset is None:
             queryset = self.get_queryset()
+
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
                 has_in_favourites=Count(
@@ -139,6 +142,7 @@ class TitleDetailView(DetailView):
                 'followed_title_not_recommended': UserFollow.objects.filter(follower=self.request.user).exclude(
                     Q(followed__rating__title=self.object) | Q(followed__recommendation__title=self.object)
                 ).select_related('followed'),
+                # 'recommend_form': self.recommend_form_class(self.request.user, self.object),
                 'followed_saw_title': UserFollow.objects.filter(
                     follower=self.request.user, followed__rating__title=self.object).annotate(
                     user_rate=Subquery(
@@ -155,16 +159,19 @@ class TitleDetailView(DetailView):
             })
 
         actors_and_other_titles = []
-        # for actor in self.object.actor.all():
-        #     if self.request.user.is_authenticated:
-        #         newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
-        #         titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).annotate(
-        #             user_rate=Subquery(newest.values('rate')[:1])).order_by('-votes')
-        #     else:
-        #         titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).order_by('-votes')
-        #
-        #     if titles:
-        #         actors_and_other_titles.append((actor, titles))
+        # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+        # test = Title.objects.filter(actor__in=self.object.actor.all())
+        # print(test)
+        for actor in self.object.actor.all():
+            if self.request.user.is_authenticated:
+                newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+                titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).annotate(
+                    user_rate=Subquery(newest.values('rate')[:1])).order_by('-votes')
+            else:
+                titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).order_by('-votes')
+
+            if titles:
+                actors_and_other_titles.append((actor, titles))
 
         context.update({
             'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))

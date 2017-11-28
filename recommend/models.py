@@ -22,9 +22,11 @@ class Recommendation(models.Model):
         unique_together = ('user', 'title')
 
     def __str__(self):
-        return '{} followed "{}" to {}'.format(self.sender.username if self.sender else self.nick,
-                                               self.title.name[:10],
-                                               self.user.username)
+        return '{} recommended "{}" to {}'.format(
+            self.sender.username if self.sender else self.nick,
+            self.title.name[:10],
+            self.user.username
+        )
 
     @property
     def is_active(self):

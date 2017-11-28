@@ -195,7 +195,7 @@ class RecommendTitle(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
-        user_ids = request.POST.getlist('id_user[]')
+        user_ids = request.POST.getlist('recommended_user_ids[]')
         try:
             title = Title.objects.get(pk=kwargs['pk'])
         except Title.DoesNotExist:

@@ -1,7 +1,11 @@
+from django.contrib.auth import get_user_model
 from rest_framework import reverse
 from rest_framework import serializers
 
 from titles.models import Rating, Title
+
+
+User = get_user_model()
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -63,3 +67,8 @@ class RatingListSerializer(serializers.HyperlinkedModelSerializer):
         return obj.rate_date.strftime('%b %d, %A')
 
 
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', )
