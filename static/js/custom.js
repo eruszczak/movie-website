@@ -172,13 +172,14 @@ $('.recommend.button').api({
       csrfmiddlewaretoken: TOKEN
     },
     beforeSend: function(settings) {
-      // settings.data.userNames = $('.recommend.dropdown').find('input').serialize();
-      var fieldName = $(this).data('field-name');
-      settings.data[fieldName] = $('#' + fieldName).val();
+      settings.data.recommended_user_ids = $('[name="recommended_user_ids"]').val().split(',');
+      // var fieldName = $(this).data('field-name');
+      // settings.data[fieldName] = $('#' + fieldName).val();
       return settings;
     },
     onSuccess: function(response) {
         showToast(response.message);
+        // $('[name="recommended_user_ids"]').val('');
     }
 });
 

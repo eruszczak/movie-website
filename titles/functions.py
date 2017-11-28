@@ -44,14 +44,16 @@ def toggle_title_in_favourites(user, title, fav=None, unfav=None):
 
 def recommend_title(title, sender, user_ids):
     """sender recommends the title to user_ids"""
-    pks_of_followed_users = UserFollow.objects.filter(follower=sender, followed__pk__in=user_ids).exclude(
+    pks_of_followed_users = UserFollow.objects.filter(follower=sender).exclude(
         Q(followed__rating__title=title) | Q(followed__recommendation__title=title)
     ).values_list('followed__pk', flat=True)
-    for user in User.objects.filter(pk__in=pks_of_followed_users):
+
+    users = User.objects.filter(Q(pk__in=pks_of_followed_users) & Q(pk__in=user_ids))
+    for user in users:
         Recommendation.objects.create(user=user, sender=sender, title=title)
 
-    if pks_of_followed_users:
-        return f'Recommended to {len(pks_of_followed_users)} users'
+    if users:
+        return f'Recommended to {users.count()} users'
 
     return 'Already recommended'
 
