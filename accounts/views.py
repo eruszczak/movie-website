@@ -95,7 +95,7 @@ class UserListView(ListView):
     model = User
 
     def get_queryset(self):
-        queryset = super().get_queryset()#.annotate(titles_count=Count('rating'))
+        queryset = super().get_queryset()
         if self.request.GET.get('const'):
             self.searched_title = get_object_or_404(Title, const=self.request.GET['const'])
             queryset = queryset.filter(rating__title=self.searched_title).annotate(
@@ -113,8 +113,11 @@ class UserListView(ListView):
                 )
             )
         return queryset.annotate(
-            #followers=Count('userfollow__follower')
-        )
+            # followers_count=Subquery(
+            #     UserFollow.objects.filter(follower=OuterRef('pk')).count()
+            # ),
+            titles_count=Count('rating')
+        ).order_by('-titles_count')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
