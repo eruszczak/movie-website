@@ -1,6 +1,7 @@
 import re
 
 from django import forms
+from django.contrib.auth import get_user_model
 from django.db.models import Q, Count
 
 from shared.widgets import MySelectMultipleWidget
@@ -8,8 +9,12 @@ from titles.models import Title, Genre, Rating
 from shared.forms import SearchFormMixin
 
 
+User = get_user_model()
+
+
 class TitleSearchForm(SearchFormMixin, forms.Form):
     # year = forms.ChoiceField(choices=((d['year'], f'{d["year"]}') for d in Title.objects.values('year').order_by('-year')))
+    user = forms.ModelChoiceField(queryset=User.objects.all())
     keyword = forms.CharField(max_length=100, required=False, label='Search by keywords')
     genre = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False)
     genre2 = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False, widget=MySelectMultipleWidget)
@@ -59,9 +64,9 @@ class TitleSearchForm(SearchFormMixin, forms.Form):
     #     # search_result.append('With {}'.format(a.name))
     #     return Q(actor=value)
     #
-    # @staticmethod
-    # def search_user(value):
-    #     pass
+    @staticmethod
+    def search_user(value):
+        return Q(rating__user=value)
 
 
 class RateUpdateForm(forms.ModelForm):

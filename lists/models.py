@@ -6,15 +6,13 @@ from django.utils import timezone
 from titles.models import Title, Rating
 
 
-# after user is created - create for him default non removable Fav and Watch lists
-# maybe
 class List(models.Model):
     name = models.CharField(max_length=150)
-    default = models.BooleanField(default=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    titles = models.ManyToManyField(Title, blank=True)
 
     class Meta:
-        unique_together = ('name', )
+        unique_together = ('name', 'user')
 
 
 class Watchlist(models.Model):

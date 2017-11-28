@@ -12,43 +12,64 @@
     </div>
 {% endblock %}
 
-{% block content %}
-    <div class="ui divider hidden"></div>
-    <div class="ui centered grid">
-        <div class="ui card">
-          <div class="image">
-            <img src="{% static 'img/stevie.jpg' %}">
-          </div>
-          <div class="content">
-            <a class="header">{{ user.username }}</a>
-            <div class="meta">
-              <span class="date">Member since {{ user.date_joined|date:"M d, Y" }}</span>
+{% block image %}
+<div class="still-background2">
+    <img class="backdrop" src="{% static 'img/w1920_and_h318.jpg' %}">
+    <div class="ui grid centered">
+        <div class="user-background">
+            <div class="card-user card-user-01 height-fix">
+                <img class="card-img-top" src="http://image.tmdb.org/t/p/w342/rNQH6Q8RPXD59aqGckST3CKQbCf.jpg" alt="Card image cap">
             </div>
-              {% if user.tagline %}
-                <div class="description">
-                  {{ user.tagline }}
-                </div>
-              {% endif %}
-          </div>
-          <div class="extra content">
-              <i class="user icon"></i>
-              Follows {{ total_followed }} people
-          </div>
-            {% if already_follows %}
-              <div class="ui bottom attached  small follow toggle button{% if already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if already_follows %}Followed{% else %}Follow{% endif %}</div>
-            {% endif %}
+            <p class="card-username">{{ user.username }}</p>
         </div>
     </div>
+</div>
+{% endblock %}
+
+{% block content %}
     <div class="ui divider hidden"></div>
-    <div class="ui fluid {% if is_other_user %}four{% else %}three{% endif %} item menu title-menu">
-        <a class="item active" data-tab="first">Overview</a>
-        <a class="item" data-tab="second">Lists</a>
-        <a class="item" data-tab="third">Charts</a>
-        {% if is_other_user %}
-            <a class="item" data-tab="fourth">Compared with you</a>
-        {% endif %}
-    </div>
-    <div class="ui tab segment active" data-tab="first">
+            <a class="ui label">Watchlist</a>
+            <a class="ui label">Favourites</a>
+            <a class="ui label">Recommendations</a>
+{#    <div class="ui centered grid">#}
+{#        <div class="ui card">#}
+{#          <div class="image">#}
+{#            <img src="{% static 'img/stevie.jpg' %}">#}
+{#          </div>#}
+{#          <div class="content">#}
+{#            <a class="header">{{ user.username }}</a>#}
+{#            <div class="meta">#}
+{#              <span class="date">Member since {{ user.date_joined|date:"M d, Y" }}</span>#}
+{#            </div>#}
+{#              {% if user.tagline %}#}
+{#                <div class="description">#}
+{#                  {{ user.tagline }}#}
+{#                </div>#}
+{#              {% endif %}#}
+{#          </div>#}
+{#          <div class="extra content">#}
+{#              <i class="user icon"></i>#}
+{#              Follows {{ total_followed }} people#}
+{#          </div>#}
+{#            {% if already_follows %}#}
+{#              <div class="ui bottom attached  small follow toggle button{% if already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if already_follows %}Followed{% else %}Follow{% endif %}</div>#}
+{#            {% endif %}#}
+{#        </div>#}
+{#    </div>#}
+    <div class="ui divider hidden"></div>
+    {% if is_other_user %}
+        <div class="ui fluid {% if is_other_user %}two{% endif %} item menu title-menu">
+            <a class="item active" data-tab="first">Overview</a>
+    {#        <a class="item" data-tab="second">Lists</a>#}
+    {#        <a class="item" data-tab="third">Charts</a>#}
+            {% if is_other_user %}
+                <a class="item" data-tab="fourth">Compared with you</a>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if is_other_user %}
+        <div class="ui tab segment active" data-tab="first">
+    {% endif %}
         <div class="ui grid centered statistics">
           <div class="statistic">
             <div class="value">
@@ -92,6 +113,10 @@
                 {% endfor %}
                 {% if not rating_list %}
                     <p>No ratings found</p>
+                {% else %}
+                    <p>(display Ratings By Year above) and user's avatar; hmm<br>
+                        <a href="{{ user.ratings_url }}">See all</a>
+                    </p>
                 {% endif %}
             </div>
         </div>
@@ -113,8 +138,10 @@
                 {% endif %}
             </div>
         </div>
-    </div>
-    <div class="ui tab segment" data-tab="second">
+    {% if is_other_user %}
+        </div>
+    {% endif %}
+{#    <div class="ui tab segment" data-tab="second">#}
     {#		<a href="{{ object.watchlist_url }}" class="btn btn-sm btn-default">#}
 {#			<span class="glyphicon glyphicon-list" aria-hidden="true"></span> watchlist#}
 {#		</a>#}
@@ -124,7 +151,7 @@
 {#		<a href="{{ object.recommend_url }}" class="btn btn-sm btn-default">#}
 {#			<span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> recommend#}
 {#		</a>#}
-    </div>
+{#    </div>#}
     <div class="ui tab segment" data-tab="third">
     </div>
     {% if is_other_user %}
