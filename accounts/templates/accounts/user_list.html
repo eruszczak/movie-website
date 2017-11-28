@@ -36,13 +36,13 @@
 {#  </div>#}
     {% endif %}
     <div class="ui right floated text menu">
-      <div class="header item">Sort By</div>
-      <a class="item">
-        Most Ratings
-      </a>
-      <a class="item active">
-        Most Popular
-      </a>
+      <div class="header item">Sorted by Most Ratings</div>
+{#      <a class="item">#}
+{#        Most Ratings#}
+{#      </a>#}
+{#      <a class="item active">#}
+{#        Most Popular#}
+{#      </a>#}
     </div>
     <div class="ui items">
     {% for user in user_list %}
@@ -51,18 +51,18 @@
             <a href="{{ user_detail_url }}" class="ui tiny image">
               <img src="{% static 'img/stevie.jpg' %}">
             </a>
-
         <div class="middle aligned content">
         {% if user.pk != request.user.pk %}
           <div class="ui small follow toggle button right floated{% if user.already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if user.already_follows %}Followed{% else %}Follow{% endif %}</div>
         {% endif %}
-          <a href="{{ user_detail_url }}" class="header">{{ user.username }};{{ user.titles_count }};{{ user.followers }}</a>
+          <a href="{{ user_detail_url }}" class="header">{{ user.username }}</a>
             {% if title %}{{ user.user_rate }} <i class="star icon green"></i>{% endif %}
             <div class="floated right">
     {#            <p>todo watchlist favourites see_all_lists</p>#}
             </div>
           <div class="description">
-            <p>{{ user.tagline|default:'Tagline' }}</p>
+            {% if user.tagline %}<p>{{ user.tagline }}</p>{% endif %}
+            <p>{{ user.titles_count }} ratings</p>
           </div>
         </div>
       </div>
