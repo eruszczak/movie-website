@@ -38,13 +38,13 @@ body {
     box-shadow: 0 2px 14px 0 rgba(0,0,0,.5);
 }
 
-.title-box {
-    margin-top: -45vh;
-    width:100%;
-    position: absolute;
-    /*box-shadow: 0 2px 14px 0 rgba(0,0,0,.5);*/
-    background-image: linear-gradient(1deg,rgba(66, 66, 66, 0.80),rgba(66, 66, 66, 0.60),rgba(66, 66, 66, 0.40));
-}
+/*.title-box {*/
+    /*margin-top: -45vh;*/
+    /*width:100%;*/
+    /*position: absolute;*/
+    /*!*box-shadow: 0 2px 14px 0 rgba(0,0,0,.5);*!*/
+    /*background-image: linear-gradient(1deg,rgba(66, 66, 66, 0.80),rgba(66, 66, 66, 0.60),rgba(66, 66, 66, 0.40));*/
+/*}*/
 
 .poster-background {
     margin-top: -47vh;
@@ -69,8 +69,56 @@ body {
 
 .price {
      color: white!important;
+}
+
+
+
+
+.still-background2 {
+    height: 30vh;
+    overflow: hidden;
+    background-image: -webkit-linear-gradient(89deg,rgba(21,43,55,.87),transparent 67%,rgba(21,43,55,.87));
+    background-image: linear-gradient(1deg,rgba(21,43,55,.87),transparent 67%,rgba(21,43,55,.87));
 
 }
+.user-background {
+    margin-top: -25vh;
+    /*width:100%;*/
+    position: absolute;
+}
+.card-user {
+    box-shadow: 2px 2px 20px rgba(0,0,0,0.3);
+    /*margin-bottom: 30px;*/
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    /*background-color: #fff;*/
+    background-clip: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.25rem;
+}
+.card-username {
+    font-size: 1.6em;
+    color: white;
+}
+
+.card-user img {
+    width: 200px;
+    height: 200px;
+}
+.card-user-01.height-fix {
+     height: 200px;
+    overflow: hidden;
+    width: 200px;
+}
+
+
+
+
 
 .title-genres {
     position: absolute;

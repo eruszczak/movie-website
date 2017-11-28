@@ -66,7 +66,7 @@ class User(AbstractUser):
         return reverse('recommend', kwargs={'username': self.username})
 
     def ratings_url(self):
-        return reverse('title-list') + '?u={}'.format(self.username)
+        return reverse('title-list') + '?user={}'.format(self.pk)
 
     def all_ratings_url(self):
         return reverse('title-list') + '?u={}'.format(self.username) + '&all_ratings=on'
