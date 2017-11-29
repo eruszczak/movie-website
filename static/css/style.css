@@ -2,6 +2,14 @@ body {
     overflow-y: scroll;
 }
 
+.ui.text.menu .active.item {
+    font-weight: 600;
+}
+
+.ui.paginator.label {
+    line-height: inherit;
+}
+
 .ui.card>.content .star.icon, .ui.cards>.card>.content .star.icon {
     cursor:default;
 }

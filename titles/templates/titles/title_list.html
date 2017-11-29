@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static widget_tweaks %}
+{% load static widget_tweaks get_query_string %}
 {#{% block title %}{{ page_title }}{% endblock %}#}
 
 {% block image %}
@@ -26,15 +26,17 @@
         <div class="row">
             <div class="column">
 {#                * change card type to list (1 item per row)#}
+                {% get_query_string request.GET 'type' as query_string %}
                 <div class="ui text menu">
                   <div class="header item">Showing</div>
-                  <a class="item active">
+                  <a class="item{% if not request.GET.type %} active{% endif %}" href="?{{ query_string }}">
                     Both
                   </a>
-                  <a class="item">
+
+                  <a class="item{% if request.GET.type == 'movie' %} active{% endif %}" href="?{{ query_string }}{% if query_string %}&{% endif %}type=movie">
                     Movies
                   </a>
-                  <a class="item">
+                  <a class="item{% if request.GET.type == 'series' %} active{% endif %}" href="?{{ query_string }}{% if query_string %}&{% endif %}type=series">
                     TV-Shows
                   </a>
                 </div>
