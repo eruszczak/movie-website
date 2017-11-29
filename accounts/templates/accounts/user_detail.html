@@ -13,17 +13,7 @@
 {% endblock %}
 
 {% block image %}
-<div class="still-background2">
-    <img class="backdrop" src="{% static 'img/w1920_and_h318.jpg' %}">
-    <div class="ui grid centered">
-        <div class="user-background">
-            <div class="card-user card-user-01 height-fix">
-                <img class="card-img-top" src="http://image.tmdb.org/t/p/w342/rNQH6Q8RPXD59aqGckST3CKQbCf.jpg" alt="Card image cap">
-            </div>
-            <p class="card-username">{{ user.username }}</p>
-        </div>
-    </div>
-</div>
+    {% include 'accounts/includes/user_background.html' %}
 {% endblock %}
 
 {% block content %}

@@ -8,7 +8,7 @@
             {% endfor %}
             {% for field in form %}
                 {% if field.errors %}
-                    <li>{{ field.errors.as_text|cut:'* ' }}</li>
+                    <li>{{ field.name|capfirst }}: {{ field.errors.as_text|cut:'* ' }}</li>
                 {% endif %}
             {% endfor %}
         </ul>

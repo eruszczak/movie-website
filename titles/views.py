@@ -75,9 +75,13 @@ class TitleListView(SearchViewMixin, ListView):
     template_name = 'titles/title_list.html'
     paginate_by = 20
     model = Title
+    searched_user = None
 
     def get_queryset(self):
         qs = super().get_queryset()
+        if self.request.GET.get('user'):
+            self.searched_user = self.search_form.cleaned_data.get('user')
+
         if self.request.user.is_authenticated:
             qs = qs.annotate(
                 has_in_watchlist=Count(
@@ -89,17 +93,34 @@ class TitleListView(SearchViewMixin, ListView):
                 has_in_favourites=Count(
                     Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
                 ),
-                user_rate=Subquery(
+                request_user_rate=Subquery(
                     Rating.objects.filter(
                         user=self.request.user, title=OuterRef('pk')
                     ).order_by('-rate_date').values('rate')[:1]
                 )
             )
-        return qs.order_by('-year', '-name').prefetch_related('genre')
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     return context
+        if self.searched_user:
+            # TODO: problem - any annotation makes titles distinct which I don't want in this case
+            # i think i should use Rating qs? because in this case I don't want latest rating
+            # anyway, it will make searching a mess.
+            # maybe use Rating.values(). but it won't make a searching problem disappear
+            qs = qs.annotate(
+                searched_user_rate=Subquery(
+                    Rating.objects.filter(
+                        user=self.searched_user, title=OuterRef('pk')
+                    ).order_by('-rate_date').values('rate')[:1]
+                )
+            ).order_by('-rating__rate_date')
+        else:
+            qs = qs.order_by('-year', '-name')
+
+        return qs.prefetch_related('genre')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['searched_user'] = self.searched_user
+        return context
 
 
 class TitleDetailView(DetailView):
