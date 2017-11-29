@@ -26,8 +26,6 @@ class SearchFormMixin:
                 # print(flat_list)
                 print(search_queries)
                 return queryset.filter(reduce(and_, search_queries))
-        else:
-            print(self.errors)
 
         return queryset
 
