@@ -1,5 +1,5 @@
 from django import template
-from urllib.parse import urlencode, parse_qs, parse_qsl
+from urllib.parse import urlencode, parse_qsl
 
 register = template.Library()
 
