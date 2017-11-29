@@ -14,15 +14,15 @@ User = get_user_model()
 
 class TitleSearchForm(SearchFormMixin, forms.Form):
     # year = forms.ChoiceField(choices=((d['year'], f'{d["year"]}') for d in Title.objects.values('year').order_by('-year')))
-    user = forms.ModelChoiceField(queryset=User.objects.all())
+    user = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
     keyword = forms.CharField(max_length=100, required=False, label='Search by keywords')
     genre = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False)
     genre2 = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False, widget=MySelectMultipleWidget)
-    type = forms.NullBooleanField()
+    type = forms.CharField(required=False)
+    # type = forms.NullBooleanField()
 
     @staticmethod
     def search_keyword(value):
-        # search_result.append('Title {} "{}"'.format('contains' if len(query) > 2 else 'starts with', query))
         if len(value) > 2:
             return Q(name__icontains=value)
         return Q(name__istartswith=value)
@@ -31,39 +31,26 @@ class TitleSearchForm(SearchFormMixin, forms.Form):
     def search_genre(value):
         # all of them, not any.
         return Q(genre__in=value)
-        # return [Q(genre=genre) for genre in value]
 
-    @staticmethod
-    def search_year(value):
-        find_years = re.match(r'(\d{4})-*(\d{4})*', value)
-        if find_years is not None:
-            first_year, second_year = find_years.group(1), find_years.group(2)
-            if first_year and second_year:
-                if second_year < first_year:
-                    first_year, second_year = second_year, first_year
-                # search_result.append('Released between {} and {}'.format(first_year, second_year))
-                return Q(year__lte=second_year, year__gte=first_year)
-            elif first_year:
-                # search_result.append('Released in {}'.format(first_year))
-                return Q(year=first_year)
-        return None
+    # @staticmethod
+    # def search_year(value):
+    #     find_years = re.match(r'(\d{4})-*(\d{4})*', value)
+    #     if find_years is not None:
+    #         first_year, second_year = find_years.group(1), find_years.group(2)
+    #         if first_year and second_year:
+    #             if second_year < first_year:
+    #                 first_year, second_year = second_year, first_year
+    #             return Q(year__lte=second_year, year__gte=first_year)
+    #         elif first_year:
+    #             return Q(year=first_year)
+    #     return Q()
 
     @staticmethod
     def search_type(value):
         if value in ('title', 'series'):
-            # search_result.append('Type: ' + value)
             return Q(type__name=value)
+        return Q()
 
-    # @staticmethod
-    # def search_director(value):
-    #     # search_result.append('Directed by {}'.format(d.name))
-    #     return Q(director=value)
-    #
-    # @staticmethod
-    # def search_actor(value):
-    #     # search_result.append('With {}'.format(a.name))
-    #     return Q(actor=value)
-    #
     @staticmethod
     def search_user(value):
         return Q(rating__user=value)
