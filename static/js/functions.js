@@ -1,5 +1,5 @@
 $.fn.api.settings.api = {
-    'search': '/api/search?name={query}',
+    'search': '/api/search?keyword={query}',
     'follow user': '/api/user/{pk}/follow',
     'favourite title': '/api/title/{pk}/favourites',
     'watchlist title': '/api/title/{pk}/watchlist',

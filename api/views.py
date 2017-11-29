@@ -1,11 +1,12 @@
 import json
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urlencode
 
 from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db.models.functions import ExtractMonth, ExtractYear
 from re import findall
 
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
@@ -18,6 +19,7 @@ from rest_framework.pagination import PageNumberPagination
 from six import BytesIO
 
 from recommend.forms import RecommendTitleForm
+from titles.forms import TitleSearchForm
 from titles.models import Rating, Title
 from lists.models import Favourite
 from accounts.models import UserFollow
@@ -210,8 +212,13 @@ class RecommendTitle(APIView):
 class Search(APIView):
 
     def get(self, request, *args, **kwargs):
-        # t = Title.objects.filter(name__icontains=kwargs.get('name', 'dare'))
-        t = Title.objects.all()[:20]
-        serializer = TitleSerializer(t, many=True)
-        # serializer = TitleSerializer(t, many=True, context={'request': request})
-        return Response({'results': serializer.data}, status=status.HTTP_200_OK)
+        queryset = Title.objects.all()
+        search_form = TitleSearchForm(request.GET)
+        queryset = search_form.search(queryset)
+        serializer = TitleSerializer(queryset[:20], many=True)  # context={'request': request}
+        return Response({
+            'results': serializer.data,
+            'action': {
+                'url': f'{reverse("title-list")}?{urlencode(request.GET)}'
+            }
+        }, status=status.HTTP_200_OK)

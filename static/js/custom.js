@@ -95,12 +95,9 @@ $('.ui.search').search({
         onResponse: function (serverResponse) {
             var results = [];
             $.each(serverResponse.results, function(index, item) {
-                // if (index >= 20) {
-                //     return false;
-                // }
                 results.push({
                     title: item.name,
-                    description: item.type,
+                    description: item.year + ' ' + item.type,
                     url: item.url,
                     image: item.img
                 });
@@ -108,8 +105,8 @@ $('.ui.search').search({
             return {
                 results: results,
                 action: {
-                    actionText: 'See more',
-                    actionURL: 'http://127.0.0.1:8000/'
+                    text: 'See more',
+                    url: serverResponse.action.url
                 }
             };
         }
