@@ -6,8 +6,8 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
 
-from common.sql_queries import avg_of_title_current_ratings
 from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES
 from titles.helpers import validate_rate
 from .managers import TitleQuerySet
@@ -18,29 +18,43 @@ class Keyword(models.Model):
     name = models.CharField(max_length=100, unique=True)
     # tmdb_id
 
+    def __str__(self):
+        return f'{self.name}'
+
 
 class Genre(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     # tmdb_id
+    def __str__(self):
+        return f'{self.name}'
 
 
 class Person(models.Model):
     name = models.CharField(max_length=300)
     # tmdb_id
 
+    def __str__(self):
+        return f'{self.name}'
+
 
 class CastTitle(models.Model):
-    person = models.ForeignKey('Person')
-    title = models.ForeignKey('Title')
+    person = models.ForeignKey('Person', on_delete=models.CASCADE)
+    title = models.ForeignKey('Title', on_delete=models.CASCADE)
     order = models.SmallIntegerField(default=0)
     character = models.CharField(max_length=300, blank=True)
 
+    def __str__(self):
+        return f'{self.person} in {self.title}'
+
 
 class CastCrew(models.Model):
-    person = models.ForeignKey('Person')
-    title = models.ForeignKey('Title')
+    person = models.ForeignKey('Person', on_delete=models.CASCADE)
+    title = models.ForeignKey('Title', on_delete=models.CASCADE)
     job = models.IntegerField(choices=TITLE_CREW_JOB_CHOICES, blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.person} in {self.title}'
 
 
 class Title(models.Model):
@@ -100,14 +114,18 @@ class Title(models.Model):
         # ordering = ('-inserted_date', )
 
     def __str__(self):
-        return '{} {}'.format(self.name, self.year)
+        return f'{self.name} ({self.year})'
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
 
     @property
     def imdb_url(self):
-        return 'http://www.imdb.com/title/{}/'.format(self.imdb_id)
+        return f'http://www.imdb.com/title/{self.imdb_id}/'
 
     @property
     def year(self):
