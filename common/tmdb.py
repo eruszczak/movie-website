@@ -1,7 +1,14 @@
+import os
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
+django.setup()
+
 import requests
 from decouple import config
 from titles.constants import TITLE_CREW_JOB, MOVIE, TITLE_MODEL_MAP
 from titles.models import Genre, Keyword, CastTitle, Person, CastCrew, Title
+
+
 
 
 class TMDB:
@@ -69,24 +76,30 @@ class TMDB:
             'source': self.response
         })
 
-        self.title = Title.objects.get_or_create(imdb_id=self.response['imdb_id'], defaults=dict(**title_data))
-        # if created:
-        #     self.save_keywords()
-        #     self.save_posters()
+        self.title = Title.objects.create(imdb_id=self.response['imdb_id'], **title_data)
+        # self.save_keywords()
+        # self.save_genres()
+        # self.save_posters()
+        self.save_credits()
 
     def save_keywords(self):
+        pks = []
         for keyword in self.response['keywords']['keywords']:
-            keyword = Keyword.objects.get_or_create(pk=keyword['id'], defaults={'name': keyword})
-            self.title.keywords.add(keyword)
+            keyword, created = Keyword.objects.get_or_create(pk=keyword['id'], defaults={'name': keyword})
+            pks.append(keyword.pk)
+        self.title.keywords.add(*pks)
 
     def save_posters(self):
         for name, url in self.urls['poster'].items():
             print(name, url + self.response['poster_path'])
 
     def save_genres(self):
+        pks = []
         for genre in self.response['genres']:
-            genre = Genre.objects.get_or_create(pk=genre['id'], defaults={'name': genre['name']})
-            self.title.genres.add(genre)
+            genre, created = Genre.objects.get_or_create(pk=genre['id'], defaults={'name': genre['name']})
+            pks.append(genre.pk)
+        self.title.genres.add(*pks)
+        print(self.title.genres.all())
 
     def save_similar(self):
         for result in self.response['similar']['results']:
@@ -96,7 +109,7 @@ class TMDB:
 
     def save_credits(self):
         for cast in self.response['credits']['cast']:
-            person = Person.objects.get_or_create(pk=cast['id'], defaults={'name': cast['name']})
+            person, created = Person.objects.get_or_create(pk=cast['id'], defaults={'name': cast['name']})
             # todo: multiple roles for one person can happen
             CastTitle.objects.get_or_create(title=self.title, person=person, defaults={
                 'character': cast['character'],
@@ -104,12 +117,19 @@ class TMDB:
             })
 
         for crew in self.response['credits']['crew']:
-            person = Person.objects.get_or_create(pk=crew['id'], defaults={'name': crew['name']})
+            person, created = Person.objects.get_or_create(pk=crew['id'], defaults={'name': crew['name']})
             CastCrew.objects.create(title=self.title, person=person, job=TITLE_CREW_JOB.get(crew['job'], None))
 
     def get_movie_data(self, imdb_id):
         try:
-            return Title.objects.get(imdb_id=imdb_id)
+            title = Title.objects.get(imdb_id=imdb_id)
+            print(title.keywords)
+            print(title.genres)
+            print(title.cast)
+            print(title.crew)
+            print(title.similar)
+            print(title.delete())
+            # return
         except Title.DoesNotExist:
             pass
 
