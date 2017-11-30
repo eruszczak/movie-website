@@ -1,91 +1,96 @@
 from datetime import datetime
 
 from django.conf import settings
+from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
 from common.sql_queries import avg_of_title_current_ratings
+from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES
 from titles.helpers import validate_rate
 from .managers import TitleQuerySet
 
 
+class Keyword(models.Model):
+    # name i think doesnt have to be unique in this case because the keywords are added by different people
+    name = models.CharField(max_length=100, unique=True)
+    # tmdb_id
+
+
 class Genre(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=255, unique=True)
 
-    def get_absolute_url(self):
-        return reverse('title-list') + '?g={}'.format(self.name)
-
-    def __str__(self):
-        return self.name
+    # tmdb_id
 
 
-class Director(models.Model):
-    name = models.CharField(max_length=150, unique=True)
-
-    def get_absolute_url(self):
-        return reverse('title-list') + '?d={}'.format(self.id)
-
-    def __str__(self):
-        return self.name
+class Person(models.Model):
+    name = models.CharField(max_length=300)
+    # tmdb_id
 
 
-class Actor(models.Model):
-    name = models.CharField(max_length=150, unique=True)
-
-    def get_absolute_url(self):
-        return reverse('title-list') + '?a={}'.format(self.id)
-
-    def __str__(self):
-        return self.name
+class CastTitle(models.Model):
+    person = models.ForeignKey('Person')
+    title = models.ForeignKey('Title')
+    order = models.SmallIntegerField(default=0)
+    character = models.CharField(max_length=300, blank=True)
 
 
-class Type(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-
-    def get_absolute_url(self):
-        return reverse('title-list') + '?t={}'.format(self.name)
-
-    def __str__(self):
-        return self.name
+class CastCrew(models.Model):
+    # credit id
+    job = models.IntegerField(choices=TITLE_CREW_JOB_CHOICES, blank=True, null=True)
 
 
 class Title(models.Model):
-    actor = models.ManyToManyField(Actor)
-    genre = models.ManyToManyField(Genre)
-    director = models.ManyToManyField(Director)
-    type = models.ForeignKey(Type, blank=True, null=True, on_delete=models.CASCADE)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+    source = JSONField(blank=True)
 
-    const = models.CharField(unique=True, max_length=9)
-    name = models.TextField(blank=True, null=True)
+    # videos
+    # images
+    # tagline, overview?
+    # todo: recommendations?
+    # belongs_to_collection
 
-    rate_imdb = models.FloatField(blank=True, null=True)
+    # https://gist.github.com/cyface/3157428
+    cast = models.ManyToManyField('Person', through='CastTitle', blank=True)
+    crew = models.ManyToManyField('Person', through='CastCrew', blank=True)
+    keywords = models.ManyToManyField('Keyword', blank=True)
+    similar = models.ManyToManyField('Title', blank=True)
+    genres = models.ManyToManyField('Genre')
+
+    type = models.IntegerField(choices=TITLE_TYPE_CHOICES, blank=True, null=True)
+    tmdb_id = models.CharField(unique=True, max_length=10)
+    imdb_id = models.CharField(unique=True, max_length=10)
+    name = models.CharField(max_length=300)
+    slug = models.SlugField(max_length=350)
+    overview = models.TextField(blank=True)
+    release_date = models.DateField(blank=True, null=True)  # 1998-10-02
     runtime = models.IntegerField(blank=True, null=True)
-    year = models.IntegerField(blank=True, null=True)
-    release_date = models.DateField(blank=True, null=True)
-    votes = models.IntegerField(blank=True, null=True)
 
-    url_poster = models.URLField(blank=True, null=True, max_length=200)
-    url_imdb = models.URLField(blank=True, null=True, max_length=200)
-    url_tomato = models.URLField(blank=True, null=True, max_length=200)
-    tomato_meter = models.IntegerField(blank=True, null=True)
-    tomato_rating = models.FloatField(blank=True, null=True)
-    tomato_reviews = models.IntegerField(blank=True, null=True)
-    tomato_fresh = models.IntegerField(blank=True, null=True)
-    tomato_rotten = models.IntegerField(blank=True, null=True)
-    tomato_user_meter = models.IntegerField(blank=True, null=True)
-    tomato_user_rating = models.FloatField(blank=True, null=True)
-    tomato_user_reviews = models.IntegerField(blank=True, null=True)
-    tomatoConsensus = models.TextField(blank=True, null=True)
+    poster_path = models.CharField(max_length=300)
 
-    inserted_date = models.DateTimeField(default=timezone.now)
-    last_updated = models.DateTimeField(auto_now=True)
+    # rate_imdb = models.FloatField(blank=True, null=True)
+    # votes = models.IntegerField(blank=True, null=True)
+    #
+    # url_poster = models.URLField(blank=True, null=True, max_length=200)
+    # url_tomato = models.URLField(blank=True, null=True, max_length=200)
 
-    plot = models.TextField(blank=True, null=True)
-    slug = models.SlugField(max_length=300)
-    img = models.ImageField(upload_to='poster', null=True, blank=True)
-    img_thumbnail = models.ImageField(null=True, blank=True)
+    # tomato_meter = models.IntegerField(blank=True, null=True)
+    # tomato_rating = models.FloatField(blank=True, null=True)
+    # tomato_reviews = models.IntegerField(blank=True, null=True)
+    # tomato_fresh = models.IntegerField(blank=True, null=True)
+    # tomato_rotten = models.IntegerField(blank=True, null=True)
+    # tomato_user_meter = models.IntegerField(blank=True, null=True)
+    # tomato_user_rating = models.FloatField(blank=True, null=True)
+    # tomato_user_reviews = models.IntegerField(blank=True, null=True)
+    # tomatoConsensus = models.TextField(blank=True, null=True)
+    #
+    # plot = models.TextField(blank=True, null=True)
+    # img = models.ImageField(upload_to='poster', null=True, blank=True)
+    # img_thumbnail = models.ImageField(null=True, blank=True)
+
 
     objects = TitleQuerySet.as_manager()
 
@@ -97,25 +102,30 @@ class Title(models.Model):
         return '{} {}'.format(self.name, self.year)
 
     def get_absolute_url(self):
-        return reverse('title-detail', kwargs={'const': self.const, 'slug': self.slug})
-
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            self.url_imdb = 'http://www.imdb.com/title/{}/'.format(self.const)
-        super(Title, self).save(*args, **kwargs)
+        return reverse('title-detail', args=[self.imdb_id, self.slug])
 
     @property
-    def rate(self):
-        """
-        gets average of all current ratings for this title. if user1 rated this 5 and later 10 and user2 rated this 10
-        then {count: 2, avg: 10} would be returned
-        :return: eg. {count: 20, avg: 7.0}
-        """
-        return avg_of_title_current_ratings(self.id)
+    def imdb_url(self):
+        return 'http://www.imdb.com/title/{}/'.format(self.imdb_id)
+
+    @property
+    def year(self):
+        return self.release_date.year
+
+    @property
+    def average_rate(self):
+        return 0.0
+        # """
+        # gets average of all current ratings for this title. if user1 rated this 5 and later 10 and user2 rated this 10
+        # then {count: 2, avg: 10} would be returned
+        # :return: eg. {count: 20, avg: 7.0}
+        # """
+        # return avg_of_title_current_ratings(self.id)
 
     @property
     def can_be_updated(self):
-        return (timezone.now() - self.last_updated).seconds > 60 * 10
+        seconds_since_last_update = (timezone.now() - self.update_date).seconds
+        return seconds_since_last_update > 60 * 10
 
 
 class Rating(models.Model):
