@@ -1,7 +1,7 @@
 import requests
 from decouple import config
 from titles.constants import TITLE_CREW_JOB, MOVIE, TITLE_MODEL_MAP
-from titles.models2 import Genre, Keyword, CastTitle, Person, CastCrew, Title
+from titles.models import Genre, Keyword, CastTitle, Person, CastCrew, Title
 
 
 class TMDB:
@@ -102,13 +102,14 @@ class TMDB:
 
         for crew in self.response['credits']['crew']:
             person = Person.objects.get_or_create(pk=crew['id'], defaults={'name': crew['name']})
-            # job: Screenplay / Director
-            job = TITLE_CREW_JOB.get(crew['job'], None)
-            CastCrew.objects.get_or_create(title=self.title, person=person, defaults={
-                'job': job
-            })
+            CastCrew.objects.create(title=self.title, person=person, job=TITLE_CREW_JOB.get(crew['job'], None))
 
     def get_movie_data(self, imdb_id):
+        try:
+            return Title.objects.get(imdb_id=imdb_id)
+        except Title.DoesNotExist:
+            pass
+
         self.query_string.update({
             'append_to_response': 'credits,keywords,similar,videos,images,recommendations'
             # not sure about recommendations
@@ -121,10 +122,9 @@ class TMDB:
     def get_response(self, path_parameters):
         url = self.urls['base'] + '/'.join(path_parameters or [])
         r = requests.get(url, params=self.query_string)
-        print(r.url)
+        print(r.url, r.text)
         if r.status_code == requests.codes.ok:
             return r.json()
-        print(r.text)
         return None
 
 
