@@ -38,7 +38,8 @@ class CastTitle(models.Model):
 
 
 class CastCrew(models.Model):
-    # credit id
+    person = models.ForeignKey('Person')
+    title = models.ForeignKey('Title')
     job = models.IntegerField(choices=TITLE_CREW_JOB_CHOICES, blank=True, null=True)
 
 
@@ -54,8 +55,8 @@ class Title(models.Model):
     # belongs_to_collection
 
     # https://gist.github.com/cyface/3157428
-    cast = models.ManyToManyField('Person', through='CastTitle', blank=True)
-    crew = models.ManyToManyField('Person', through='CastCrew', blank=True)
+    cast = models.ManyToManyField('Person', through='CastTitle', related_name='cast', blank=True)
+    crew = models.ManyToManyField('Person', through='CastCrew', related_name='crew', blank=True)
     keywords = models.ManyToManyField('Keyword', blank=True)
     similar = models.ManyToManyField('Title', blank=True)
     genres = models.ManyToManyField('Genre')
@@ -153,17 +154,17 @@ class Rating(models.Model):
         if Rating.objects.filter(user=self.user, title=self.title, rate_date=self.rate_date).exists():
             raise ValidationError('Rating from this day already exists')
 
-    def save(self, *args, **kwargs):
-        """
-        before creating new Rating, check if this title is in user's watchlist, if it is - delete it
-        """
-        # in_watchlist = Watchlist.objects.filter(user=self.user, title=self.title,
-        #                                         added_date__date__lte=self.rate_date, deleted=False).first()
-        # if in_watchlist:
-        #     toggle_title_in_watchlist(unwatch=True, instance=in_watchlist)
+    # def save(self, *args, **kwargs):
+    #     """
+    #     before creating new Rating, check if this title is in user's watchlist, if it is - delete it
+    #     """
+    #     # in_watchlist = Watchlist.objects.filter(user=self.user, title=self.title,
+    #     #                                         added_date__date__lte=self.rate_date, deleted=False).first()
+    #     # if in_watchlist:
+    #     #     toggle_title_in_watchlist(unwatch=True, instance=in_watchlist)
+    #
+    #     super(Rating, self).save(*args, **kwargs)
 
-        super(Rating, self).save(*args, **kwargs)
-
-    @property
-    def is_current_rating(self):
-        return self == Rating.objects.filter(user=self.user, title=self.title).first()
+    # @property
+    # def is_current_rating(self):
+    #     return self == Rating.objects.filter(user=self.user, title=self.title).first()
