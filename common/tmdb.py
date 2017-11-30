@@ -69,8 +69,8 @@ class TMDB:
         title_data = {
             attr_name: self.response[tmdb_attr_name] for attr_name, tmdb_attr_name in TITLE_MODEL_MAP.items()
         }
-        for key, value in self.response.items():
-            print(key, value)
+        # for key, value in self.response.items():
+        #     print(key, value)
         title_data.update({
             'type': title_type,
             'source': self.response
@@ -80,7 +80,8 @@ class TMDB:
         # self.save_keywords()
         # self.save_genres()
         # self.save_posters()
-        self.save_credits()
+        # self.save_credits()
+        # self.save_similar()
 
     def save_keywords(self):
         pks = []
@@ -93,51 +94,46 @@ class TMDB:
         for name, url in self.urls['poster'].items():
             print(name, url + self.response['poster_path'])
 
-    def save_genres(self):
-        pks = []
-        for genre in self.response['genres']:
-            genre, created = Genre.objects.get_or_create(pk=genre['id'], defaults={'name': genre['name']})
-            pks.append(genre.pk)
-        self.title.genres.add(*pks)
-        print(self.title.genres.all())
+    # def save_genres(self):
+    #     pks = []
+    #     for genre in self.response['genres']:
+    #         genre, created = Genre.objects.get_or_create(pk=genre['id'], defaults={'name': genre['name']})
+    #         pks.append(genre.pk)
+    #     self.title.genres.add(*pks)
 
     def save_similar(self):
+        pks = []
         for result in self.response['similar']['results']:
             # todo: not always a movie!
-            similar_title = TMDB().get_movie_data(result['imdb_id'])
-            self.title.similar.add(similar_title)
+            # details = self.get_response()
+            similar_title = TMDB().get_movie_data(str(result['id']), False)
+            pks.append(similar_title.pk)
+        print(pks)
+        self.title.similar.add(*pks)
 
     def save_credits(self):
         for cast in self.response['credits']['cast']:
             person, created = Person.objects.get_or_create(pk=cast['id'], defaults={'name': cast['name']})
             # todo: multiple roles for one person can happen
-            CastTitle.objects.get_or_create(title=self.title, person=person, defaults={
-                'character': cast['character'],
-                'order': cast['order']
-            })
+            CastTitle.objects.create(title=self.title, person=person, character=cast['character'], order=cast['order'])
 
         for crew in self.response['credits']['crew']:
             person, created = Person.objects.get_or_create(pk=crew['id'], defaults={'name': crew['name']})
-            CastCrew.objects.create(title=self.title, person=person, job=TITLE_CREW_JOB.get(crew['job'], None))
+            job = TITLE_CREW_JOB.get(crew['job'], None)
+            if job is not None:
+                CastCrew.objects.create(title=self.title, person=person, job=job)
 
-    def get_movie_data(self, imdb_id):
+    def get_movie_data(self, title_id, imdb=True):
         try:
-            title = Title.objects.get(imdb_id=imdb_id)
-            print(title.keywords)
-            print(title.genres)
-            print(title.cast)
-            print(title.crew)
-            print(title.similar)
-            print(title.delete())
-            # return
+            return Title.objects.get(**{'imdb_id' if imdb else 'tmdb_id': title_id})
         except Title.DoesNotExist:
-            pass
+            print('title not found')
 
         self.query_string.update({
             'append_to_response': 'credits,keywords,similar,videos,images,recommendations'
             # not sure about recommendations
         })
-        self.response = self.get_response(['movie', imdb_id])
+        self.response = self.get_response(['movie', title_id])
         if self.response is not None:
             return self.save_title(MOVIE)
         return None
@@ -160,7 +156,19 @@ class TMDB:
 # client.find_genres()
 
 client = TMDB()
-client.get_movie_data('tt0120889')
+title = client.get_movie_data('tt0120889')
+
+print(title.keywords)
+print(title.genres)
+print(title.cast)
+print(title.crew)
+print(title.similar)
+# print(title.delete())
+# client = TMDB()
+# client.get_movie_data('795', False)
+
+# for title in Title.objects.all():
+#     print(title.pk, title.imdb_id, title.tmdb_id)
 
 # client = TMDB()
 # client.find_tv('tt4574334')
