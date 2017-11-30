@@ -2,6 +2,7 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.conf import settings
 
+from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES
 from .managers import TitleQuerySet
 
 
@@ -38,6 +39,7 @@ class CastTitle(models.Model):
 class CastCrew(models.Model):
     # job
     # credit id
+    job = models.IntegerField(choices=TITLE_CREW_JOB_CHOICES, blank=True, null=True)
     pass
 
 
@@ -48,16 +50,18 @@ class Title(models.Model):
 
     # videos
     # images
+    # tagline, overview?
     # todo: recommendations?
 
+    # https://gist.github.com/cyface/3157428
     cast = models.ManyToManyField('Person', through='CastTitle', blank=True)
     crew = models.ManyToManyField('Person', through='CastCrew', blank=True)
-    keyword = models.ManyToManyField('Keyword', blank=True)
-    similar = models.ManyToManyField('Title', blank=True)  # todo need to set related name i guess because relation to self
+    keywords = models.ManyToManyField('Keyword', blank=True)
+    similar = models.ManyToManyField('Title', blank=True)
     # director = models.ManyToManyField(Director)
     genres = models.ManyToManyField('Genre')
-    # type = models.ForeignKey(Type, blank=True, null=True, on_delete=models.CASCADE)
 
+    type = models.IntegerField(choices=TITLE_TYPE_CHOICES, blank=True, null=True)
     tmdb_id = models.CharField(unique=True, max_length=10)
     imdb_id = models.CharField(unique=True, max_length=10)
     name = models.CharField(max_length=300)
@@ -89,4 +93,6 @@ class Title(models.Model):
     def get_imdb_url(self):
         return ''
 
-
+    @property
+    def year(self):
+        return self.release_date.year
