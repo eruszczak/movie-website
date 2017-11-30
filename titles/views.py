@@ -13,7 +13,7 @@ from lists.models import Watchlist, Favourite
 from recommend.forms import RecommendTitleForm
 from shared.views import SearchViewMixin
 from titles.forms import TitleSearchForm, RateUpdateForm
-from .models import Genre, Director, Title, Rating
+from .models import Genre, Title, Rating
 
 User = get_user_model()
 

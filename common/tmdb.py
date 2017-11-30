@@ -64,7 +64,10 @@ class TMDB:
         }
         for key, value in self.response.items():
             print(key, value)
-        title_data['type'] = title_type
+        title_data.update({
+            'type': title_type,
+            'source': self.response
+        })
 
         self.title = Title.objects.get_or_create(imdb_id=self.response['imdb_id'], defaults=dict(**title_data))
         # if created:
