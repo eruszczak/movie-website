@@ -66,12 +66,6 @@ class Title(models.Model):
     update_date = models.DateTimeField(auto_now=True)
     source = JSONField(blank=True)
 
-    # videos
-    # images
-    # tagline, overview?
-    # todo: recommendations?
-    # belongs_to_collection
-
     # https://gist.github.com/cyface/3157428
     cast = models.ManyToManyField('Person', through='CastTitle', related_name='cast', blank=True)
     crew = models.ManyToManyField('Person', through='CastCrew', related_name='crew', blank=True)
@@ -96,24 +90,12 @@ class Title(models.Model):
 
     # rate_imdb = models.FloatField(blank=True, null=True)
     # votes = models.IntegerField(blank=True, null=True)
-    #
-    # url_poster = models.URLField(blank=True, null=True, max_length=200)
-    # url_tomato = models.URLField(blank=True, null=True, max_length=200)
-
-    # tomato_meter = models.IntegerField(blank=True, null=True)
-    # tomato_rating = models.FloatField(blank=True, null=True)
-    # tomato_reviews = models.IntegerField(blank=True, null=True)
-    # tomato_fresh = models.IntegerField(blank=True, null=True)
-    # tomato_rotten = models.IntegerField(blank=True, null=True)
-    # tomato_user_meter = models.IntegerField(blank=True, null=True)
-    # tomato_user_rating = models.FloatField(blank=True, null=True)
-    # tomato_user_reviews = models.IntegerField(blank=True, null=True)
-    # tomatoConsensus = models.TextField(blank=True, null=True)
-    #
     # plot = models.TextField(blank=True, null=True)
-    # img = models.ImageField(upload_to='poster', null=True, blank=True)
-    # img_thumbnail = models.ImageField(null=True, blank=True)
-
+    # videos
+    # images
+    # tagline, overview?
+    # todo: recommendations?
+    # belongs_to_collection
 
     objects = TitleQuerySet.as_manager()
 
