@@ -71,7 +71,7 @@ class TMDB:
         self.title = Title.objects.create(imdb_id=self.response['imdb_id'], **title_data)
         # self.save_keywords()
         # self.save_genres()
-        self.save_posters()
+        # self.save_posters()
         # self.save_credits()
         # self.save_similar()
 
@@ -110,7 +110,6 @@ class TMDB:
     def save_credits(self):
         for cast in self.response['credits']['cast']:
             person, created = Person.objects.get_or_create(pk=cast['id'], defaults={'name': cast['name']})
-            # todo: multiple roles for one person can happen
             CastTitle.objects.create(title=self.title, person=person, character=cast['character'], order=cast['order'])
 
         for crew in self.response['credits']['crew']:
@@ -132,7 +131,6 @@ class TMDB:
         # first check if title_id is a movie, then check if it is a series
         for path_parameter, title_type in [('movie', MOVIE), ('tv', SERIES)]:
             self.response, is_success = self.get_response([path_parameter, title_id])
-            print(self.response, is_success)
             if is_success:
                 return self.save_title(title_type)
 
@@ -147,20 +145,12 @@ class TMDB:
         return None, False
 
 
-
-
-# client = TMDB()
-# client.find_by_imdb_id('tt0120889')
-#
-# client = TMDB()
-# client.find_genres()
-
 client = TMDB()
 Title.objects.filter(imdb_id='tt0120889').delete()
 title = client.get_title('tt0120889')
 print(title.poster_backdrop_title)
 print(title.poster_backdrop_user)
-#
+
 # print(title.keywords)
 # print(title.genres)
 # print(title.cast)
@@ -171,6 +161,3 @@ print(title.poster_backdrop_user)
 
 # for title in Title.objects.all():
 #     print(title.pk, title.imdb_id, title.tmdb_id)
-
-# client = TMDB()
-# client.find_tv('tt4574334')
