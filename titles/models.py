@@ -7,9 +7,11 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
+from os.path import join
 
 from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES
 from titles.helpers import validate_rate
+from shared.helpers import get_file_path
 from .managers import TitleQuerySet
 
 
@@ -85,6 +87,10 @@ class Title(models.Model):
     runtime = models.IntegerField(blank=True, null=True)
 
     poster_path = models.CharField(max_length=300)
+    poster_backdrop_title = models.ImageField(upload_to=get_file_path, blank=True, null=True)
+    poster_backdrop_user = models.ImageField(upload_to=get_file_path, blank=True, null=True)
+    poster_small = models.ImageField(upload_to=get_file_path, blank=True, null=True)
+    poster_card = models.ImageField(upload_to=get_file_path, blank=True, null=True)
 
     # rate_imdb = models.FloatField(blank=True, null=True)
     # votes = models.IntegerField(blank=True, null=True)
@@ -122,6 +128,12 @@ class Title(models.Model):
 
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
+
+    def get_folder_path(self, absolute=False):
+        relative_title_folder_path = join('titles', self.imdb_id)
+        if absolute:
+            return join(settings.MEDIA_ROOT, relative_title_folder_path)
+        return relative_title_folder_path
 
     @property
     def imdb_url(self):
