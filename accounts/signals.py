@@ -1,9 +1,9 @@
-import os
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from django.conf import settings
+from shared.helpers import create_instance_folder
+
 
 User = get_user_model()
 
@@ -12,9 +12,7 @@ User = get_user_model()
 def create_user_folder(sender, instance, **kwargs):
     """after registration create folder for user's files"""
     if kwargs['created']:
-        directory = os.path.join(settings.MEDIA_ROOT, 'user_files', instance.username)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        create_instance_folder(instance)
 
 
 # @receiver(post_save, sender=User)

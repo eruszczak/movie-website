@@ -1,35 +1,21 @@
-import os
-from datetime import datetime
+from os.path import join
 
 from django.conf import settings
-from django.db import models
-
-from django.utils import timezone
-from django.forms import ValidationError
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
+from django.db import models
+from django.utils import timezone
 
-from titles.models import Title
 from common.sql_queries import avg_of_user_current_ratings
-
-
-def update_filename(instance, file_name):
-    path = os.path.join('user_files', instance.username)
-    extension = '.' + file_name.split('.')[1]
-    new_file_name = datetime.now().strftime('%Y-%m-%d %H-%M-%S') + extension
-    return os.path.join(path, new_file_name)
-
-
-def validate_file_ext(value):
-    if not value.name.endswith('.csv'):
-        raise ValidationError('Only csv files are supported')
+from shared.helpers import get_file_path, validate_file_ext
+from titles.models import Title
 
 
 class User(AbstractUser):
-    picture = models.ImageField(upload_to=update_filename, blank=True, null=True)
+    picture = models.ImageField(upload_to=get_file_path, blank=True, null=True)
     imdb_id = models.CharField(blank=True, null=True, max_length=15)
     tagline = models.CharField(blank=True, null=True, max_length=100)
-    csv_ratings = models.FileField(upload_to=update_filename, validators=[validate_file_ext], blank=True, null=True)
+    csv_ratings = models.FileField(upload_to=get_file_path, validators=[validate_file_ext], blank=True, null=True)
 
     last_updated_csv_ratings = models.DateTimeField(null=True, blank=True)
     last_updated_rss_ratings = models.DateTimeField(null=True, blank=True)
@@ -73,6 +59,12 @@ class User(AbstractUser):
 
     def ratings_exclude(self):
         return reverse('title-list') + '?u={}&exclude_mine=on'.format(self.username)
+
+    def get_folder_path(self, absolute=False):
+        relative_user_folder_path = join('accounts', self.username)
+        if absolute:
+            return join(settings.MEDIA_ROOT, relative_user_folder_path)
+        return relative_user_folder_path
 
     @property
     def picture_filename(self):

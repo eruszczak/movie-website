@@ -1,4 +1,6 @@
 import os
+from urllib.request import urlretrieve
+
 import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
@@ -13,12 +15,12 @@ class TMDB:
     api_key = config('TMDB_API_KEY')
     urls = {
         'base': 'https://api.themoviedb.org/3/',
+        'poster_base': 'http://image.tmdb.org/t/p/',
         'poster': {
-            'backdrop': 'http://image.tmdb.org/t/p/w1280',
-            'small': 'http://image.tmdb.org/t/p/w185_and_h278_bestv2',
-            'card': 'https://image.tmdb.org/t/p/w500_and_h281_bestv2',
-            # 'card1': 'https://image.tmdb.org/t/p/342',
-            'backdrop_user': 'https://image.tmdb.org/t/p/w1920_and_h318_bestv2'
+            'backdrop_user': 'w1920_and_h318_bestv2',
+            'backdrop_title': 'w1280',
+            'small': 'w185_and_h278_bestv2',
+            'card': 'w500_and_h281_bestv2'
         },
 
         'tv_seasons': '/tv/{}/season/{}',
@@ -29,7 +31,6 @@ class TMDB:
         'discover': '/discover/movie'
     }
     query_string = {}
-    poster_width = {}
     title = None
     response = None
 
@@ -47,12 +48,6 @@ class TMDB:
     #             for key, value in movie.items():
     #                 print(key, value)
 
-    # def find_genres(self):
-    #     response = self.get_response(['genre', 'movie', 'list'])
-    #     if response is not None:
-    #         for genre in response['genres']:
-    #             print(genre)
-
     # def get_tv_data(self, imdb_id, seasons=False, episodes=False):
     #     response = self.get_response(['tv', imdb_id])
     #     if response is not None:
@@ -67,8 +62,7 @@ class TMDB:
         title_data = {
             attr_name: self.response[tmdb_attr_name] for attr_name, tmdb_attr_name in TITLE_MODEL_MAP.items()
         }
-        # for key, value in self.response.items():
-        #     print(key, value)
+
         title_data.update({
             'type': title_type,
             'source': self.response
@@ -77,7 +71,7 @@ class TMDB:
         self.title = Title.objects.create(imdb_id=self.response['imdb_id'], **title_data)
         # self.save_keywords()
         # self.save_genres()
-        # self.save_posters()
+        self.save_posters()
         # self.save_credits()
         # self.save_similar()
 
@@ -90,7 +84,15 @@ class TMDB:
 
     def save_posters(self):
         for name, url in self.urls['poster'].items():
-            print(name, url + self.response['poster_path'])
+            poster_url = self.urls['poster_base'] + url + self.response['poster_path']
+            print(name, poster_url)
+            poster_exists = os.path.isfile(img_path)
+            if not poster_exists:
+                try:
+                    urlretrieve(obj.url_poster, img_path)
+                except (PermissionError, TypeError, ValueError) as e:
+                    print(e)
+                    return
 
     def save_genres(self):
         pks = []
@@ -99,15 +101,12 @@ class TMDB:
             pks.append(genre.pk)
         self.title.genres.add(*pks)
 
-    # def save_similar(self):
-    #     pks = []
-    #     for result in self.response['similar']['results']:
-    #         # todo: not always a movie!
-    #         # details = self.get_response()
-    #         similar_title = TMDB().get_title(str(result['id']), False)
-    #         pks.append(similar_title.pk)
-    #     print(pks)
-    #     self.title.similar.add(*pks)
+    def save_similar(self):
+        pks = []
+        for result in self.response['similar']['results']:
+            similar_title = TMDB().get_title(str(result['id']), False)
+            pks.append(similar_title.pk)
+        self.title.similar.add(*pks)
 
     def save_credits(self):
         for cast in self.response['credits']['cast']:
@@ -158,7 +157,10 @@ class TMDB:
 # client.find_genres()
 
 client = TMDB()
-title = client.get_title('tt0120889')
+# title = client.get_title('tt0120889')
+
+print(Title._meta.model_name)
+# print(title.delete())
 # title = client.get_title('tt0903747')
 #
 # print(title.keywords)
@@ -166,7 +168,6 @@ title = client.get_title('tt0120889')
 # print(title.cast)
 # print(title.crew)
 # print(title.similar)
-# print(title.delete())
 # client = TMDB()
 # client.get_movie_data('795', False)
 
@@ -175,31 +176,3 @@ title = client.get_title('tt0120889')
 
 # client = TMDB()
 # client.find_tv('tt4574334')
-
-"""
-search
-======
-let users to search new titles and they will be added to db when that happens
-
-
-discover
-====
-show recommendations (this + similar titles of liked titles)
-
-
-get details
-====
-cast
-images(posters,backdrops, stills)
-plot keywords
-similar
-primary info
-
-
-seasons
-genres
-directors
-
-https://api.themoviedb.org/3/movie/157336?api_key={api_key}&append_to_response=videos,images
-
-"""
