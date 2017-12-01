@@ -4,9 +4,13 @@ DIRECTOR_DISPLAY = 'Director'
 SCREENPLAY = 1
 SCREENPLAY_DISPLAY = 'Screenplay'
 
+CREATED_BY = 2
+CREATED_BY_DISPLAY = 'Creator'
+
 TITLE_CREW_JOB = {
     DIRECTOR_DISPLAY: DIRECTOR,
-    SCREENPLAY_DISPLAY: SCREENPLAY
+    SCREENPLAY_DISPLAY: SCREENPLAY,
+    CREATED_BY: CREATED_BY_DISPLAY
 }
 
 TITLE_CREW_JOB_CHOICES = ((value, display) for display, value in TITLE_CREW_JOB.items())
@@ -24,7 +28,7 @@ TITLE_TYPE_CHOICES = (
 
 
 # matches my title model attribute names with tmdb's names
-TITLE_MODEL_MAP = {
+MOVIE_MODEL_MAP = {
     'tmdb_id': 'id',
     # 'imdb_id': 'imdb_id',
     'overview': 'overview',
@@ -32,4 +36,19 @@ TITLE_MODEL_MAP = {
     'runtime': 'runtime',
     'name': 'title',
     'poster_path': 'poster_path'
+}
+
+# "backdrop_path": "/56v2KjBlU4XaOv9rVYEQypROD7P.jpg", vs poster_path
+# created_by - CREW
+# seasons
+# episodes
+SERIES_MODEL_MAP = {
+    'release_date': 'first_air_date',
+    'name': 'name',
+    'tmdb_id': 'id',
+}
+
+MODEL_MAP = {
+    MOVIE: MOVIE_MODEL_MAP,
+    SERIES: SERIES_MODEL_MAP
 }
