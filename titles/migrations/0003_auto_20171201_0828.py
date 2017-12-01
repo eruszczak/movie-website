@@ -18,21 +18,21 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='title',
             name='poster_backdrop_title',
-            field=models.ImageField(blank=True, null=True, upload_to=shared.helpers.get_file_path),
+            field=models.ImageField(blank=True, null=True, upload_to=shared.helpers.get_random_file_path),
         ),
         migrations.AlterField(
             model_name='title',
             name='poster_backdrop_user',
-            field=models.ImageField(blank=True, null=True, upload_to=shared.helpers.get_file_path),
+            field=models.ImageField(blank=True, null=True, upload_to=shared.helpers.get_random_file_path),
         ),
         migrations.AlterField(
             model_name='title',
             name='poster_card',
-            field=models.ImageField(blank=True, null=True, upload_to=shared.helpers.get_file_path),
+            field=models.ImageField(blank=True, null=True, upload_to=shared.helpers.get_random_file_path),
         ),
         migrations.AlterField(
             model_name='title',
             name='poster_small',
-            field=models.ImageField(blank=True, null=True, upload_to=shared.helpers.get_file_path),
+            field=models.ImageField(blank=True, null=True, upload_to=shared.helpers.get_random_file_path),
         ),
     ]

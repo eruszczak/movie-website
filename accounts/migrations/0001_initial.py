@@ -35,10 +35,10 @@ class Migration(migrations.Migration):
                 ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
                 ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
-                ('picture', models.ImageField(blank=True, null=True, upload_to=shared.helpers.get_file_path)),
+                ('picture', models.ImageField(blank=True, null=True, upload_to=shared.helpers.get_random_file_path)),
                 ('imdb_id', models.CharField(blank=True, max_length=15, null=True)),
                 ('tagline', models.CharField(blank=True, max_length=100, null=True)),
-                ('csv_ratings', models.FileField(blank=True, null=True, upload_to=shared.helpers.get_file_path, validators=[
+                ('csv_ratings', models.FileField(blank=True, null=True, upload_to=shared.helpers.get_random_file_path, validators=[
                     shared.helpers.validate_file_ext])),
                 ('last_updated_csv_ratings', models.DateTimeField(blank=True, null=True)),
                 ('last_updated_rss_ratings', models.DateTimeField(blank=True, null=True)),
