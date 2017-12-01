@@ -8,7 +8,7 @@ django.setup()
 import requests
 from decouple import config
 from titles.constants import TITLE_CREW_JOB, MOVIE, SERIES, MODEL_MAP
-from titles.models import Genre, Keyword, CastTitle, Person, CastCrew, Title
+from titles.models import Genre, Keyword, CastTitle, Person, CastCrew, Title, Season
 
 
 class TMDB:
@@ -130,6 +130,16 @@ class TMDB:
             job = TITLE_CREW_JOB.get(crew['job'], None)
             if job is not None:
                 CastCrew.objects.create(title=self.title, person=person, job=job)
+
+    def save_seasons(self):
+        if self.title.type == SERIES:
+            data = {
+                'release_date': 'air_date',
+                'episodes': 'episode_count',
+                'number': 'season_number',
+                # "poster_path": "/xRTUb8oeQHGjyBWj7OOpkvUuvKO.jpg",
+            }
+            Season.objects.create(title=self.title, **data)
 
     def get_title(self, title_id, imdb=True):
         try:

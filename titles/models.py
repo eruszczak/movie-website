@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from os.path import join
 
-from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES
+from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES, SERIES
 from titles.helpers import validate_rate
 from shared.helpers import get_instance_file_path
 from .managers import TitleQuerySet
@@ -192,3 +192,10 @@ class Rating(models.Model):
     # @property
     # def is_current_rating(self):
     #     return self == Rating.objects.filter(user=self.user, title=self.title).first()
+
+
+class Season(models.Model):
+    title = models.ForeignKey('Title', on_delete=models.CASCADE, limit_choices_to={'type': SERIES})
+    release_date = models.DateField(blank=True, null=True)  # 1998-10-02
+    number = models.SmallIntegerField(default=1)
+    episodes = models.SmallIntegerField(blank=True, null=True)
