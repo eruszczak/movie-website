@@ -1,7 +1,7 @@
 import os
-from urllib.request import urlretrieve
 
 import django
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 
@@ -75,6 +75,8 @@ class TMDB:
         # self.save_credits()
         # self.save_similar()
 
+        return self.title
+
     def save_keywords(self):
         pks = []
         for keyword in self.response['keywords']['keywords']:
@@ -83,16 +85,13 @@ class TMDB:
         self.title.keywords.add(*pks)
 
     def save_posters(self):
-        for name, url in self.urls['poster'].items():
+        for poster_type, url in self.urls['poster'].items():
             poster_url = self.urls['poster_base'] + url + self.response['poster_path']
-            print(name, poster_url)
-            poster_exists = os.path.isfile(img_path)
-            if not poster_exists:
-                try:
-                    urlretrieve(obj.url_poster, img_path)
-                except (PermissionError, TypeError, ValueError) as e:
-                    print(e)
-                    return
+            extension = self.response['poster_path'].split('.')[-1]
+            file_name = f'{poster_type}.{extension}'
+            self.title.save_poster(file_name, poster_url, poster_type)
+
+        self.title.save()
 
     def save_genres(self):
         pks = []
@@ -157,11 +156,10 @@ class TMDB:
 # client.find_genres()
 
 client = TMDB()
-# title = client.get_title('tt0120889')
-
-print(Title._meta.model_name)
-# print(title.delete())
-# title = client.get_title('tt0903747')
+Title.objects.filter(imdb_id='tt0120889').delete()
+title = client.get_title('tt0120889')
+print(title.poster_backdrop_title)
+print(title.poster_backdrop_user)
 #
 # print(title.keywords)
 # print(title.genres)

@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 
-from shared.helpers import send_email
+# from shared.helpers import send_email
 from .forms import ContactForm
 
 
@@ -15,7 +15,7 @@ def contact(request):
             message = form.cleaned_data.get('message')
             nick = form.cleaned_data.get('nick')
             subject = form.cleaned_data.get('subject')
-            send_email(message='{}. Send by: {}'.format(message, nick), subject=subject)
+            # send_email(message='{}. Send by: {}'.format(message, nick), subject=subject)
             messages.success(request, 'email has been sent')
             return redirect(reverse('contact'))
         # messages.warning(request, 'there was an error')

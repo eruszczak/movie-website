@@ -3,18 +3,23 @@ from os.path import join, exists
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError
-from django.core.mail import mail_admins
+# from django.core.mail import mail_admins
 
 
-def send_email(subject, message):
-    mail_admins(
-        subject,
-        message,
-        # html_message=message,
-    )
+# def send_email(subject, message):
+#     mail_admins(
+#         subject,
+#         message,
+#         # html_message=message,
+#     )
 
 
-def get_file_path(instance, file_name):
+def get_instance_file_path(instance, file_name):
+    folder_path = instance.get_folder_path()
+    return join(folder_path, file_name)
+
+
+def get_random_file_path(instance, file_name):
     folder_path = instance.get_folder_path()
     extension = file_name.split('.')[1]
     random_file_name = f'{str(uuid4().hex)}.{extension}'

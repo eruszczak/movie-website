@@ -1,12 +1,21 @@
 from django.apps import apps
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+
+from shutil import rmtree
 
 from shared.helpers import create_instance_folder
 
 
-@receiver(post_save, sender=apps.get_model('titles', 'Title'))
-def create_user_folder(sender, instance, **kwargs):
-    """after registration create folder for user's files"""
+Title = apps.get_model('titles', 'Title')
+
+
+@receiver(post_save, sender=Title)
+def create_title_folder(sender, instance, **kwargs):
     if kwargs['created']:
         create_instance_folder(instance)
+
+
+@receiver(post_delete, sender=Title)
+def delete_title_folder(sender, instance, **kwargs):
+    rmtree(instance.get_folder_path(absolute=True))

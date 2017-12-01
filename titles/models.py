@@ -1,8 +1,10 @@
 from datetime import datetime
+from urllib.request import urlretrieve
 
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
+from django.core.files import File
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
@@ -11,7 +13,7 @@ from os.path import join
 
 from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES
 from titles.helpers import validate_rate
-from shared.helpers import get_file_path
+from shared.helpers import get_instance_file_path
 from .managers import TitleQuerySet
 
 
@@ -87,10 +89,10 @@ class Title(models.Model):
     runtime = models.IntegerField(blank=True, null=True)
 
     poster_path = models.CharField(max_length=300)
-    poster_backdrop_title = models.ImageField(upload_to=get_file_path, blank=True, null=True)
-    poster_backdrop_user = models.ImageField(upload_to=get_file_path, blank=True, null=True)
-    poster_small = models.ImageField(upload_to=get_file_path, blank=True, null=True)
-    poster_card = models.ImageField(upload_to=get_file_path, blank=True, null=True)
+    poster_backdrop_title = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
+    poster_backdrop_user = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
+    poster_small = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
+    poster_card = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
 
     # rate_imdb = models.FloatField(blank=True, null=True)
     # votes = models.IntegerField(blank=True, null=True)
@@ -134,6 +136,16 @@ class Title(models.Model):
         if absolute:
             return join(settings.MEDIA_ROOT, relative_title_folder_path)
         return relative_title_folder_path
+
+    def save_poster(self, file_name, url, poster_type):
+        """download and save image to a one of poster_ fields"""
+        poster_field = getattr(self, f'poster_{poster_type}')
+        try:
+            image = urlretrieve(url)[0]
+        except (PermissionError, TypeError, ValueError) as e:
+            print(e)
+        else:
+            poster_field.save(file_name, File(open(image, 'rb')))
 
     @property
     def imdb_url(self):

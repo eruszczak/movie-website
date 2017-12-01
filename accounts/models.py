@@ -7,15 +7,15 @@ from django.db import models
 from django.utils import timezone
 
 from common.sql_queries import avg_of_user_current_ratings
-from shared.helpers import get_file_path, validate_file_ext
+from shared.helpers import get_random_file_path, validate_file_ext
 from titles.models import Title
 
 
 class User(AbstractUser):
-    picture = models.ImageField(upload_to=get_file_path, blank=True, null=True)
+    picture = models.ImageField(upload_to=get_random_file_path, blank=True, null=True)
     imdb_id = models.CharField(blank=True, null=True, max_length=15)
     tagline = models.CharField(blank=True, null=True, max_length=100)
-    csv_ratings = models.FileField(upload_to=get_file_path, validators=[validate_file_ext], blank=True, null=True)
+    csv_ratings = models.FileField(upload_to=get_random_file_path, validators=[validate_file_ext], blank=True, null=True)
 
     last_updated_csv_ratings = models.DateTimeField(null=True, blank=True)
     last_updated_rss_ratings = models.DateTimeField(null=True, blank=True)
