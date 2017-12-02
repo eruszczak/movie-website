@@ -82,6 +82,8 @@ class TMDB:
         })
 
         self.title = Title.objects.create(imdb_id=self.response.get('imdb_id', kwargs['title_id']), **title_data)
+
+        self.save_seasons()
         # self.save_keywords()
         # self.save_genres()
         # self.save_posters()
@@ -139,7 +141,9 @@ class TMDB:
                 'number': 'season_number',
                 # "poster_path": "/xRTUb8oeQHGjyBWj7OOpkvUuvKO.jpg",
             }
-            Season.objects.create(title=self.title, **data)
+            for season in self.response['seasons']:
+                season_data = {attr_name: season[tmdb_attr_name] for attr_name, tmdb_attr_name in data.items()}
+                Season.objects.create(title=self.title, **season_data)
 
     def get_title(self, title_id, imdb=True):
         try:

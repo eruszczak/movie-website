@@ -195,7 +195,12 @@ class Rating(models.Model):
 
 
 class Season(models.Model):
-    title = models.ForeignKey('Title', on_delete=models.CASCADE, limit_choices_to={'type': SERIES})
+    title = models.ForeignKey(
+        'Title',
+        on_delete=models.CASCADE,
+        limit_choices_to={'type': SERIES},
+        related_name='seasons'
+    )
     release_date = models.DateField(blank=True, null=True)  # 1998-10-02
     number = models.SmallIntegerField(default=1)
     episodes = models.SmallIntegerField(blank=True, null=True)
