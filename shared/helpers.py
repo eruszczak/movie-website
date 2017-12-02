@@ -35,3 +35,25 @@ def create_instance_folder(instance):
     directory = instance.get_folder_path(absolute=True)
     if not exists(directory):
         makedirs(directory)
+
+
+class SlashDict(dict):
+    """
+    Dict which allows you to get nested values like this: d['key1/key2']
+    https://stackoverflow.com/a/31034040/5821316
+    """
+
+    def __getitem__(self, key):
+        key = key.split('/')
+        if len(key) == 1:
+            return dict.__getitem__(self, key[0])
+
+        # assume that the key is a list of recursively accessible dicts
+        def get_one_level(key_list, level, d):
+            if level >= len(key_list):
+                if level > len(key_list):
+                    raise IndexError
+                return d[key_list[level-1]]
+            return get_one_level(key_list, level+1, d[key_list[level-1]])
+
+        return get_one_level(key, 1, self)
