@@ -27,7 +27,6 @@ class TMDB:
         'tmdb_id': 'id',
         'overview': 'overview',
         'poster_path': 'poster_path'
-
     }
 
     # maps paths in TMDB's response to their method handlers
@@ -42,10 +41,8 @@ class TMDB:
             'small': 'w185_and_h278_bestv2',
             'card': 'w500_and_h281_bestv2'
         },
-
         # 'tv_seasons': '/tv/{}/season/{}',
         # 'tv_episodes': '/tv/{}/season/{}/episode/{}',
-
         # 'people': '/person/{}',
         # 'companies': '/company/{}',
         # 'discover': '/discover/movie'
@@ -54,9 +51,6 @@ class TMDB:
     query_string = {}
 
     def __init__(self):
-        self.query_string['api_key'] = self.api_key
-        self.query_string['language'] = 'language=en-US'
-
         self.response_handlers_map.update({
             'genres': self.save_genres,
             'credits/cast': self.save_cast,
@@ -76,11 +70,16 @@ class TMDB:
 
         self.title = Title.objects.create(imdb_id=self.api_response.get('imdb_id', kwargs['title_id']), **title_data)
         self.save_posters()
+
+        for path, handler in self.response_handlers_map.items():
+            path_value = self.api_response[path]
+            handler(path_value)
+
         return self.title
 
-    def save_keywords(self):
+    def save_keywords(self, value):
         pks = []
-        for keyword in self.api_response['keywords'].get('keywords', self.api_response['keywords']['results']):
+        for keyword in value:
             keyword, created = Keyword.objects.get_or_create(pk=keyword['id'], defaults={'name': keyword})
             pks.append(keyword.pk)
         self.title.keywords.add(*pks)
@@ -91,12 +90,11 @@ class TMDB:
             extension = self.api_response['poster_path'].split('.')[-1]
             file_name = f'{poster_type}.{extension}'
             self.title.save_poster(file_name, poster_url, poster_type)
-
         self.title.save()
 
-    def save_genres(self):
+    def save_genres(self, value):
         pks = []
-        for genre in self.api_response['genres']:
+        for genre in value:
             genre, created = Genre.objects.get_or_create(pk=genre['id'], defaults={'name': genre['name']})
             pks.append(genre.pk)
         self.title.genres.add(*pks)
@@ -108,13 +106,13 @@ class TMDB:
     #         pks.append(similar_title.pk)
     #     self.title.similar.add(*pks)
 
-    def save_cast(self):
-        for cast in self.api_response['credits']['cast']:
+    def save_cast(self, value):
+        for cast in value:
             person, created = Person.objects.get_or_create(pk=cast['id'], defaults={'name': cast['name']})
             CastTitle.objects.create(title=self.title, person=person, character=cast['character'], order=cast['order'])
 
-    def save_crew(self):
-        for crew in self.api_response['credits']['crew']:
+    def save_crew(self, value):
+        for crew in value:
             person, created = Person.objects.get_or_create(pk=crew['id'], defaults={'name': crew['name']})
             job = TITLE_CREW_JOB.get(crew['job'], None)
             if job is not None:
@@ -144,6 +142,12 @@ class TMDB:
 
     # TODO: this must work for find_by_imdb_id and normal cases
     def get_response(self, *path_parameters, imdb_id=''):
+        query_string = {
+            'api_key': self.api_key,
+            'language': 'language=en-US'
+        }
+        query_string.update(self.query_string)
+
         url = self.urls['base'] + '/'.join(path_parameters or [])
         source_file_path = os.path.join(settings.BACKUP_ROOT, 'source', f'{imdb_id}.json')
         response = None
@@ -153,7 +157,7 @@ class TMDB:
             with open(source_file_path, 'r') as outfile:
                 return json.load(outfile), True
         else:
-            r = requests.get(url, params=self.query_string)
+            r = requests.get(url, params=query_string)
             print(r.url, r.text, sep='\n')
             if r.status_code == requests.codes.ok:
                 response = r.json()
