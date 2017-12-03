@@ -12,7 +12,7 @@ django.setup()
 
 import requests
 from decouple import config
-from titles.constants import TITLE_CREW_JOB, MOVIE, SERIES, MODEL_MAP
+from titles.constants import TITLE_CREW_JOB, MOVIE, SERIES
 from titles.models import Genre, Keyword, CastTitle, Person, CastCrew, Title, Season
 
 
@@ -21,10 +21,10 @@ class TMDB:
     title_type = None
     title = None
     api_response = None
+    query_string = {}
 
     # maps Title model attribute names to TMDB's response
     title_model_map = {
-        'tmdb_id': 'id',
         'overview': 'overview',
         'poster_path': 'poster_path'
     }
@@ -48,9 +48,11 @@ class TMDB:
         # 'discover': '/discover/movie'
     }
 
-    query_string = {}
+    def __init__(self, imdb_id, tmdb_id):
+        self.imdb_id = imdb_id
+        self.tmdb_id = tmdb_id
+        self.source_file_path = os.path.join(settings.BACKUP_ROOT, 'source', f'{imdb_id}.json')
 
-    def __init__(self):
         self.response_handlers_map.update({
             'genres': self.save_genres,
             'credits/cast': self.save_cast,
@@ -58,7 +60,14 @@ class TMDB:
             # 'similar/results': self.save_similar
         })
 
-    def save(self, **kwargs):
+        self.query_string = {
+            'api_key': self.api_key,
+            'language': 'language=en-US'
+        }
+
+        # todo: get response and call save
+
+    def save(self):
         title_data = {
             attr_name: self.api_response[tmdb_attr_name] for attr_name, tmdb_attr_name in self.title_model_map.items()
         }
@@ -68,7 +77,7 @@ class TMDB:
             'source': self.api_response
         })
 
-        self.title = Title.objects.create(imdb_id=self.api_response.get('imdb_id', kwargs['title_id']), **title_data)
+        self.title = Title.objects.create(imdb_id=self.imdb_id, tmdb_id=self.tmdb_id, **title_data)
         self.save_posters()
 
         for path, handler in self.response_handlers_map.items():
@@ -76,6 +85,12 @@ class TMDB:
             handler(path_value)
 
         return self.title
+
+    def delete(self):
+        print(self.title.delete())
+
+    def update(self):
+        pass
 
     def save_keywords(self, value):
         pks = []
@@ -118,61 +133,45 @@ class TMDB:
             if job is not None:
                 CastCrew.objects.create(title=self.title, person=person, job=job)
 
-    def get_title(self, title_id, imdb=True):
+    def get_title(self):
         try:
-            return Title.objects.get(**{'imdb_id' if imdb else 'tmdb_id': title_id})
+            return Title.objects.get(imdb_id=self.imdb_id, tmdb_id=self.tmdb_id)
         except Title.DoesNotExist:
             pass
 
-        self.query_string.update({
-            'append_to_response': 'credits,keywords,similar,videos,images,recommendations'  # TODO: not sure about recommendations
-        })
-
-        (self.api_response, is_success), title_type = self.get_title_by_imdb_id(title_id)
-        if is_success:
-            return self.save(title_type, title_id=title_id)
-
-        # # first check if title_id is a movie, then check if it is a series
-        # for path_parameter, title_type in [('movie', MOVIE), ('tv', SERIES)]:
-        #     self.response, is_success = self.get_response([path_parameter, title_id])
-        #     if is_success:
-        #         return self.save_title(title_type)
+        qs = {
+            'append_to_response': 'credits,keywords,similar,videos,images,recommendations'
+        }
+        self.api_response = self.get_tmdb_response(self.urls['details'], self.tmdb_id, qs=qs)
+        if self.api_response is not None:
+            return self.save()
 
         return None
 
     # TODO: this must work for find_by_imdb_id and normal cases
-    def get_response(self, *path_parameters, imdb_id=''):
-        query_string = {
-            'api_key': self.api_key,
-            'language': 'language=en-US'
-        }
+    def get_tmdb_response(self, *path_parameters, **kwargs):
+        query_string = kwargs.get('qs', {})
         query_string.update(self.query_string)
 
-        url = self.urls['base'] + '/'.join(path_parameters or [])
-        source_file_path = os.path.join(settings.BACKUP_ROOT, 'source', f'{imdb_id}.json')
         response = None
 
         # todo: only on imdb_id?? or always
-        if isfile(source_file_path):
-            with open(source_file_path, 'r') as outfile:
-                return json.load(outfile), True
+        if isfile(self.source_file_path):
+            with open(self.source_file_path, 'r') as outfile:
+                response = json.load(outfile)
         else:
+            url = self.urls['base'] + '/'.join(path_parameters)
             r = requests.get(url, params=query_string)
             print(r.url, r.text, sep='\n')
             if r.status_code == requests.codes.ok:
                 response = r.json()
-                if imdb_id:
-                    with open(source_file_path, 'w') as outfile:
-                        json.dump(response, outfile)
+                # if imdb_id:
+                with open(self.source_file_path, 'w') as outfile:
+                    json.dump(response, outfile)
 
-        # if response is None:
-        #     raise
+        return response or SlashDict(response)
 
-        return SlashDict(response)
-        # todo: what to do o failure? i dont need is_success i think just return none at least
 
-    def delete(self):
-        print(self.title.delete())
 
 # client = TMDB()
 # test_id = 'tt4574334'
@@ -183,9 +182,9 @@ class TMDB:
 class MovieTMDB(TMDB):
     title_type = MOVIE
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         # TODO: title_id in init? simpler
-        super().__init__()
+        super().__init__(*args, **kwargs)
         self.title_model_map.update({
             'release_date': 'release_date',
             'runtime': 'runtime',
@@ -195,6 +194,8 @@ class MovieTMDB(TMDB):
         self.response_handlers_map.update({
             'keywords/keywords': self.save_keywords
         })
+
+        self.urls['details'] = 'movie'
 
 
 class SeriesTMDB(TMDB):
@@ -206,8 +207,8 @@ class SeriesTMDB(TMDB):
         # "poster_path": "/xRTUb8oeQHGjyBWj7OOpkvUuvKO.jpg",
     }
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.title_model_map.update({
             'release_date': 'release_date',
             'runtime': 'runtime',
@@ -219,34 +220,38 @@ class SeriesTMDB(TMDB):
             'seasons': self.save_seasons
         })
 
+        self.urls['details'] = 'tv'
+
     def save_seasons(self):
         for season in self.api_response['seasons']:
-            season_data = {attr_name: season[tmdb_attr_name] for attr_name, tmdb_attr_name in self.seasons_model_map.items()}
+            season_data = {
+                attr_name: season[tmdb_attr_name] for attr_name, tmdb_attr_name in self.seasons_model_map.items()
+            }
             Season.objects.create(title=self.title, **season_data)
 
 
 # TODO: i need a regular function to create proper instance?
 # because I dont know if imdb_id is series i movie so I can't know what to create
 
-# def get_title_by_imdb_id(self, imdb_id):
-#     """
-#     I can either call /movie or /tv endpoint. When I have an imdb_id I don't know what type of title it is.
-#     So I tried calling first endpoint and on failure called second - 2 requests at worst to get a response.
-#     But the thing is, you can't call /tv with imdb_id - only tmdb_id. So I use `find` endpoint and it returns
-#     whether an imdb_id is a movie/series and I know its tmdb_id, so I can call any endpoint.
-#     """
-#     self.query_string['external_source'] = 'imdb_id'
-#     response, is_success = self.get_response(['find', imdb_id], imdb_id=imdb_id)
-#     if response is not None:
-#         movie = response['movie_results']
-#         if len(movie) == 1:
-#             tmdb_pk = str(movie[0]['id'])
-#             return self.get_response(['movie', tmdb_pk]), MOVIE
-#
-#         series = response['tv_results']
-#         if len(series) == 1:
-#             tmdb_pk = str(series[0]['id'])
-#             return self.get_response(['tv', tmdb_pk]), SERIES
-#
-#         # later handle the case when TMDB doesn't have a data for a imdb_id
-#         assert len(movie) == 1 or len(series) == 1
+def get_title_by_imdb_id(self, imdb_id):
+    """
+    I can either call /movie or /tv endpoint. When I have an imdb_id I don't know what type of title it is.
+    So I tried calling first endpoint and on failure called second - 2 requests at worst to get a response.
+    But the thing is, you can't call /tv with imdb_id - only tmdb_id. So I use `find` endpoint and it returns
+    whether an imdb_id is a movie/series and I know its tmdb_id, so I can call any endpoint.
+    """
+    self.query_string['external_source'] = 'imdb_id'
+    response, is_success = self.get_tmdb_response(['find', imdb_id], imdb_id=imdb_id)
+    if response is not None:
+        movie = response['movie_results']
+        if len(movie) == 1:
+            tmdb_pk = str(movie[0]['id'])
+            return MovieTMDB(imdb_id, tmdb_pk)
+
+        series = response['tv_results']
+        if len(series) == 1:
+            tmdb_pk = str(series[0]['id'])
+            return SeriesTMDB(imdb_id, tmdb_pk)
+
+
+# todo: get_response mixin?
