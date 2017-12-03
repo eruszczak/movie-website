@@ -1,7 +1,9 @@
 import os
+
 import django
 
 from tmdb.base.base import TmdbResponseMixin, BaseTmdb
+from tmdb.helpers import get_tmdb_wrapper_class
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
@@ -63,15 +65,6 @@ class SeriesTmdb(BaseTmdb):
                 attr_name: season[tmdb_attr_name] for attr_name, tmdb_attr_name in self.seasons_model_map.items()
             }
             Season.objects.create(title=self.title, **season_data)
-
-
-def get_tmdb_wrapper_class(title_type):
-    """depending on title_type, returns MovieTmdb or SeriesTmdb class"""
-    if title_type == MOVIE:
-        return MovieTmdb.__class__
-    elif title_type == SERIES:
-        return SeriesTmdb.__class__
-    return None
 
 
 class Tmdb(TmdbResponseMixin):
