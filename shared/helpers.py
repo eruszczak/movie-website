@@ -2,6 +2,7 @@ from os import makedirs
 from os.path import join, exists
 from uuid import uuid4
 
+import requests
 from django.core.exceptions import ValidationError
 # from django.core.mail import mail_admins
 
@@ -57,3 +58,11 @@ class SlashDict(dict):
             return get_one_level(key_list, level+1, d[key_list[level-1]])
 
         return get_one_level(key, 1, self)
+
+
+def get_json_response(url, qs):
+    r = requests.get(url, params=qs)
+    print(r.url, r.text, sep='\n')
+    if r.status_code == requests.codes.ok:
+        return r.json()
+    return None
