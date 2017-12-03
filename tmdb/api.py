@@ -1,15 +1,7 @@
-import os
-
-import django
-
-from tmdb.base.base import TmdbResponseMixin, BaseTmdb
-from tmdb.helpers import get_tmdb_wrapper_class
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
-django.setup()
-
 import json
 
+from shared.helpers import SlashDict
+from tmdb.base.base import TmdbResponseMixin, BaseTmdb
 from titles.constants import MOVIE, SERIES
 from titles.models import Season
 
@@ -19,7 +11,6 @@ class MovieTmdb(BaseTmdb):
     imdb_id_path = 'imdb_id'
 
     def __init__(self, *args, **kwargs):
-        # TODO: title_id in init? simpler
         super().__init__(*args, **kwargs)
         self.title_model_map.update({
             'release_date': 'release_date',
@@ -67,6 +58,15 @@ class SeriesTmdb(BaseTmdb):
             Season.objects.create(title=self.title, **season_data)
 
 
+def get_tmdb_wrapper_class(title_type):
+    """depending on title_type, returns MovieTmdb or SeriesTmdb class"""
+    if title_type == MOVIE:
+        return MovieTmdb
+    elif title_type == SERIES:
+        return SeriesTmdb
+    return None
+
+
 class Tmdb(TmdbResponseMixin):
     """Based on imdb_id, returns either MovieTmdb or SeriesTmdb instance"""
 
@@ -79,9 +79,10 @@ class Tmdb(TmdbResponseMixin):
         """
         try:
             with open(self.source_file_path.format(title_id), 'r') as outfile:
-                response = json.load(outfile)
+                response = SlashDict(json.load(outfile))
                 wrapper_class = get_tmdb_wrapper_class(response['title_type'])
-                return wrapper_class(response['id'])
+                print('from file')
+                return wrapper_class(response['id'], cached_response=response)
         except FileNotFoundError:
             response = self.get_tmdb_response('find', str(title_id), qs={'external_source': 'imdb_id'})
             if response is not None:

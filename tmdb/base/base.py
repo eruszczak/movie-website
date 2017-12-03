@@ -11,6 +11,21 @@ from titles.models import CastTitle, Person, Genre, CastCrew, Title, Keyword
 class TmdbResponseMixin:
     api_key = config('TMDB_API_KEY')
     source_file_path = os.path.join(settings.BACKUP_ROOT, 'source', '{}.json')
+    urls = {
+        'base': 'https://api.themoviedb.org/3/',
+        'poster_base': 'http://image.tmdb.org/t/p/',
+        'poster': {
+            'backdrop_user': 'w1920_and_h318_bestv2',
+            'backdrop_title': 'w1280',
+            'small': 'w185_and_h278_bestv2',
+            'card': 'w500_and_h281_bestv2'
+        },
+        # 'tv_seasons': '/tv/{}/season/{}',
+        # 'tv_episodes': '/tv/{}/season/{}/episode/{}',
+        # 'people': '/person/{}',
+        # 'companies': '/company/{}',
+        # 'discover': '/discover/movie'
+    }
 
     def __init__(self, *args, **kwargs):
         self.query_string = {
@@ -23,7 +38,9 @@ class TmdbResponseMixin:
         query_string.update(self.query_string)
         url = self.urls['base'] + '/'.join(path_parameters)
         response = get_json_response(url, query_string)
-        return response or SlashDict(response)
+        if response is None:
+            return None
+        return SlashDict(response)
 
 
 class BaseTmdb(TmdbResponseMixin):
@@ -42,25 +59,10 @@ class BaseTmdb(TmdbResponseMixin):
     # maps paths in TMDB's response to their method handlers
     response_handlers_map = {}
 
-    urls = {
-        'base': 'https://api.themoviedb.org/3/',
-        'poster_base': 'http://image.tmdb.org/t/p/',
-        'poster': {
-            'backdrop_user': 'w1920_and_h318_bestv2',
-            'backdrop_title': 'w1280',
-            'small': 'w185_and_h278_bestv2',
-            'card': 'w500_and_h281_bestv2'
-        },
-        # 'tv_seasons': '/tv/{}/season/{}',
-        # 'tv_episodes': '/tv/{}/season/{}/episode/{}',
-        # 'people': '/person/{}',
-        # 'companies': '/company/{}',
-        # 'discover': '/discover/movie'
-    }
-
-    def __init__(self, tmdb_id):
+    def __init__(self, tmdb_id, **kwargs):
         super().__init__()
         self.tmdb_id = tmdb_id
+        self.api_response = kwargs.get('cached_response', None)
 
         self.response_handlers_map.update({
             'genres': self.save_genres,
@@ -81,7 +83,7 @@ class BaseTmdb(TmdbResponseMixin):
         })
 
         self.title = Title.objects.create(tmdb_id=self.tmdb_id, **title_data)
-        self.save_posters()
+        # self.save_posters()
 
         for path, handler in self.response_handlers_map.items():
             path_value = self.api_response[path]
@@ -139,7 +141,10 @@ class BaseTmdb(TmdbResponseMixin):
             if job is not None:
                 CastCrew.objects.create(title=self.title, person=person, job=job)
 
-    def get_title(self):
+    def get_title_or_create(self):
+        if self.api_response is not None:
+            return self.save()
+
         try:
             return Title.objects.get(tmdb_id=self.tmdb_id)
         except Title.DoesNotExist:
@@ -154,6 +159,7 @@ class BaseTmdb(TmdbResponseMixin):
             self.api_response['title_type'] = self.title_type
             for id_value in [imdb_id, self.tmdb_id]:
                 self.save_response_to_file(id_value)
+
             return self.save()
 
         return None
@@ -161,3 +167,4 @@ class BaseTmdb(TmdbResponseMixin):
     def save_response_to_file(self, file_name):
         with open(self.source_file_path.format(file_name), 'w') as outfile:
             json.dump(self.api_response, outfile)
+            print('created', self.source_file_path.format(file_name))
