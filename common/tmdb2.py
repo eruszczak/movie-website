@@ -1,18 +1,17 @@
-import json
 import os
-
 import django
-from django.conf import settings
-from os.path import isfile
-
-from shared.helpers import SlashDict, get_json_response
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 
+import json
+
+from django.conf import settings
+
 from decouple import config
+
 from titles.constants import TITLE_CREW_JOB, MOVIE, SERIES
 from titles.models import Genre, Keyword, CastTitle, Person, CastCrew, Title, Season
+from shared.helpers import SlashDict, get_json_response
 
 
 class TmdbResponseMixin:
@@ -27,19 +26,8 @@ class TmdbResponseMixin:
     def get_tmdb_response(self, *path_parameters, **kwargs):
         query_string = kwargs.get('qs', {})
         query_string.update(self.query_string)
-
-        get_details = False
-
-        if get_details and isfile(self.source_file_path):
-            with open(self.source_file_path, 'r') as outfile:
-                response = json.load(outfile)
-        else:
-            url = self.urls['base'] + '/'.join(path_parameters)
-            response = get_json_response(url, query_string)
-            if get_details and response is not None:
-                with open(self.source_file_path, 'w') as outfile:
-                    json.dump(response, outfile)
-
+        url = self.urls['base'] + '/'.join(path_parameters)
+        response = get_json_response(url, query_string)
         return response or SlashDict(response)
 
 
@@ -49,6 +37,7 @@ class BaseTmdb(TmdbResponseMixin):
     api_response = None
     query_string = {}
     imdb_id_path = None
+    source_file_path = os.path.join(settings.BACKUP_ROOT, 'source', '{}.json')
 
     # maps Title model attribute names to TMDB's response
     title_model_map = {
@@ -78,7 +67,6 @@ class BaseTmdb(TmdbResponseMixin):
     def __init__(self, tmdb_id):
         super().__init__()
         self.tmdb_id = tmdb_id
-        self.source_file_path = os.path.join(settings.BACKUP_ROOT, 'source', f'{tmdb_id}.json')
 
         self.response_handlers_map.update({
             'genres': self.save_genres,
@@ -93,7 +81,7 @@ class BaseTmdb(TmdbResponseMixin):
         }
 
         title_data.update({
-            'imdb_id': self.api_response[self.imdb_id_path],
+            'imdb_id': self.get_imdb_id_from_response(),
             'type': self.title_type,
             'source': self.api_response
         })
@@ -106,6 +94,9 @@ class BaseTmdb(TmdbResponseMixin):
             handler(path_value)
 
         return self.title
+
+    def get_imdb_id_from_response(self):
+        return self.api_response[self.imdb_id_path]
 
     def delete(self):
         print(self.title.delete())
@@ -165,15 +156,13 @@ class BaseTmdb(TmdbResponseMixin):
         }
         self.api_response = self.get_tmdb_response(self.urls['details'], str(self.tmdb_id), qs=qs)
         if self.api_response is not None:
+            imdb_id = self.get_imdb_id_from_response()
+            with open(self.source_file_path.format(imdb_id), 'w') as outfile:
+                self.api_response['title_type'] = self.title_type
+                json.dump(self.api_response, outfile)
             return self.save()
 
         return None
-
-
-# client = TMDB()
-# test_id = 'tt4574334'
-# Title.objects.filter(imdb_id=test_id).delete()
-# title = client.get_title(test_id)
 
 
 class MovieTmdb(BaseTmdb):
@@ -232,15 +221,25 @@ class SeriesTmdb(BaseTmdb):
 class Tmdb(TmdbResponseMixin):
     """Based on imdb_id, returns either MovieTmdb or SeriesTmdb instance"""
 
-    def get_by_imdb_id(self, imdb_id):
+    def find_by_id(self, title_id):
         """
-        I can either call /movie or /tv endpoint. When I have an imdb_id I don't know what type of title it is.
+        I can either call /movie or /tv endpoint. When I have an title_id I don't know what type of title it is.
         So I tried calling first endpoint and on failure called second - 2 requests at worst to get a response.
         But the thing is, you can't call /tv with imdb_id - only tmdb_id. So I use `find` endpoint and it returns
         whether an imdb_id is a movie/series and I know its tmdb_id, so I can call any endpoint.
         """
+        # todo: this must work for imdb_id and tmdb_id
+        # in both cases must to know what source_file to call - maybe save response to 2 files?
+
+        with open(self.source_file_path, 'r') as outfile:
+            response = json.load(outfile)
+            if response['title_type'] == MOVIE:
+                return MovieTmdb()
+            elif response['title_type'] == SERIES:
+                return SeriesTmdb()
+
         self.query_string['external_source'] = 'imdb_id'
-        response = self.get_tmdb_response('find', imdb_id)
+        response = self.get_tmdb_response('find', str(title_id))
         if response is not None:
             movie = response['movie_results']
             if len(movie) == 1:
