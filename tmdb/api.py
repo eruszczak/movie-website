@@ -2,8 +2,8 @@ import json
 
 from shared.helpers import SlashDict
 from tmdb.base.base import TmdbResponseMixin, BaseTmdb
-from titles.constants import MOVIE, SERIES
-from titles.models import Season
+from titles.constants import MOVIE, SERIES, TITLE_CREW_JOB, CREATED_BY
+from titles.models import Season, Person, CastCrew
 
 
 class MovieTmdb(BaseTmdb):
@@ -38,24 +38,29 @@ class SeriesTmdb(BaseTmdb):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title_model_map.update({
-            'release_date': 'release_date',
-            'runtime': 'runtime',
-            'name': 'title',
+            'release_date': 'first_air_date',
+            'name': 'name',
         })
 
         self.response_handlers_map.update({
             'keywords/results': self.save_keywords,
-            'seasons': self.save_seasons
+            'seasons': self.save_seasons,
+            'created_by': self.save_created_by
         })
 
         self.urls['details'] = 'tv'
 
-    def save_seasons(self):
-        for season in self.api_response['seasons']:
+    def save_seasons(self, value):
+        for season in value:
             season_data = {
                 attr_name: season[tmdb_attr_name] for attr_name, tmdb_attr_name in self.seasons_model_map.items()
             }
             Season.objects.create(title=self.title, **season_data)
+
+    def save_created_by(self, value):
+        for creator in value:
+            person, created = Person.objects.get_or_create(pk=creator['id'], defaults={'name': creator['name']})
+            CastCrew.objects.create(title=self.title, person=person, job=CREATED_BY)
 
 
 def get_tmdb_wrapper_class(title_type):
