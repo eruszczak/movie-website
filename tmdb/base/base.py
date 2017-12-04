@@ -49,6 +49,7 @@ class BaseTmdb(TmdbResponseMixin):
     api_response = None
     query_string = {}
     imdb_id_path = None
+    cached_response = False
 
     # maps Title model attribute names to TMDB's response
     title_model_map = {
@@ -62,7 +63,15 @@ class BaseTmdb(TmdbResponseMixin):
     def __init__(self, tmdb_id, **kwargs):
         super().__init__()
         self.tmdb_id = tmdb_id
-        self.api_response = kwargs.get('cached_response', None)
+
+        self.api_response = kwargs.get('cached_response')
+        if self.api_response is not None:
+            self.cached_response = True
+
+        try:
+            self.title = Title.objects.get(tmdb_id=tmdb_id)
+        except Title.DoesNotExist:
+            pass
 
         self.response_handlers_map.update({
             'genres': self.save_genres,
@@ -142,13 +151,11 @@ class BaseTmdb(TmdbResponseMixin):
                 CastCrew.objects.create(title=self.title, person=person, job=job)
 
     def get_title_or_create(self):
-        if self.api_response is not None:
-            return self.save()
+        if self.title:
+            return self.title
 
-        try:
-            return Title.objects.get(tmdb_id=self.tmdb_id)
-        except Title.DoesNotExist:
-            pass
+        if self.cached_response:
+            return self.save()
 
         qs = {
             'append_to_response': 'credits,keywords,similar,videos,images,recommendations,external_ids'
