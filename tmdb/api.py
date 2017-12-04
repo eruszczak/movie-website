@@ -27,8 +27,8 @@ class MovieTmdb(BaseTmdb):
         self.urls['details'] = 'movie'
 
     def save_collection(self, value):
-        collection_id = value.get('id')
-        if not self.ignore_collection and collection_id is not None:
+        if not self.ignore_collection:
+            collection_id = value['id']
             response = self.get_tmdb_response('collection', str(collection_id))
             if response is not None:
                 collection, created = Collection.objects.get_or_create(

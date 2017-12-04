@@ -91,8 +91,9 @@ class BaseTmdb(TmdbResponseMixin):
         # self.save_posters()
 
         for path, handler in self.response_handlers_map.items():
-            path_value = self.api_response[path]
-            handler(path_value)
+            value = self.api_response[path]
+            if value:
+                handler(value)
 
         return self.title
 
