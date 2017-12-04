@@ -13,20 +13,23 @@ from titles.models import Title, Person
 # imdb_id_series = 'tt4574334'
 tmdb_id_series = '66732'
 
+collection_id = 'tt0120737'
+
 # deleted = Title.objects.filter(imdb_id=tmdb_id_movie).delete()
-deleted = Title.objects.filter(tmdb_id=tmdb_id_series).delete()
-# # print(deleted)
+# deleted = Title.objects.filter(imdb_id=collection_id).delete()
+# deleted = Title.objects.filter(tmdb_id=tmdb_id_series).delete()
+# print(deleted)
 #
-client = Tmdb().find_by_id(tmdb_id_series)
+client = Tmdb().find_by_id(collection_id)
 title = client.get_title_or_create()
 
 
-t = Title.objects.get(tmdb_id=tmdb_id_series)
-print(t.cast.all())
-print(t.crew.all())
+# t = Title.objects.get(tmdb_id=tmdb_id_series)
+# print(t.cast.all())
+# print(t.crew.all())
 
-for x in t.casttitle_set.all():
-    print(x)
+# for x in t.casttitle_set.all():
+#     print(x)
 
 # for x in t.castcrew_set.all():
 #     print(x)

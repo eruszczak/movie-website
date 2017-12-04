@@ -19,12 +19,7 @@ class TmdbResponseMixin:
             'backdrop_title': 'w1280',
             'small': 'w185_and_h278_bestv2',
             'card': 'w500_and_h281_bestv2'
-        },
-        # 'tv_seasons': '/tv/{}/season/{}',
-        # 'tv_episodes': '/tv/{}/season/{}/episode/{}',
-        # 'people': '/person/{}',
-        # 'companies': '/company/{}',
-        # 'discover': '/discover/movie'
+        }
     }
 
     def __init__(self, *args, **kwargs):

@@ -2,8 +2,8 @@ import json
 
 from shared.helpers import SlashDict
 from tmdb.base.base import TmdbResponseMixin, BaseTmdb
-from titles.constants import MOVIE, SERIES, TITLE_CREW_JOB, CREATED_BY
-from titles.models import Season, Person, CastCrew
+from titles.constants import MOVIE, SERIES, CREATOR
+from titles.models import Season, Person, CastCrew, Collection
 
 
 class MovieTmdb(BaseTmdb):
@@ -19,10 +19,23 @@ class MovieTmdb(BaseTmdb):
         })
 
         self.response_handlers_map.update({
-            'keywords/keywords': self.save_keywords
+            'keywords/keywords': self.save_keywords,
+            'belongs_to_collection': self.save_collection
         })
 
         self.urls['details'] = 'movie'
+
+    def save_collection(self, value):
+        collection_id = value.get('id')
+        if collection_id is not None:
+            response = self.get_tmdb_response('collection', collection_id)
+            if response is not None:
+                collection, created = Collection.objects.get_or_create(pk=collection_id)
+                title_ids = []
+                for title in response['parts']:
+                    movie = MovieTmdb(title['id']).get_title_or_create()
+                    title_ids.append(movie.pk)
+                collection.titles.add(title_ids)
 
 
 class SeriesTmdb(BaseTmdb):
@@ -60,7 +73,7 @@ class SeriesTmdb(BaseTmdb):
     def save_created_by(self, value):
         for creator in value:
             person, created = Person.objects.get_or_create(pk=creator['id'], defaults={'name': creator['name']})
-            CastCrew.objects.create(title=self.title, person=person, job=CREATED_BY)
+            CastCrew.objects.create(title=self.title, person=person, job=CREATOR)
 
 
 def get_tmdb_wrapper_class(title_type):
