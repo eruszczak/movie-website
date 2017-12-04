@@ -11,6 +11,7 @@ class MovieTmdb(BaseTmdb):
     imdb_id_path = 'imdb_id'
 
     def __init__(self, *args, **kwargs):
+        self.ignore_collection = kwargs.pop('ignore_collection', False)
         super().__init__(*args, **kwargs)
         self.title_model_map.update({
             'release_date': 'release_date',
@@ -19,7 +20,7 @@ class MovieTmdb(BaseTmdb):
         })
 
         self.response_handlers_map.update({
-            'keywords/keywords': self.save_keywords,
+            # 'keywords/keywords': self.save_keywords,
             'belongs_to_collection': self.save_collection
         })
 
@@ -27,15 +28,20 @@ class MovieTmdb(BaseTmdb):
 
     def save_collection(self, value):
         collection_id = value.get('id')
-        if collection_id is not None:
-            response = self.get_tmdb_response('collection', collection_id)
+        if not self.ignore_collection and collection_id is not None:
+            response = self.get_tmdb_response('collection', str(collection_id))
             if response is not None:
-                collection, created = Collection.objects.get_or_create(pk=collection_id)
+                collection, created = Collection.objects.get_or_create(
+                    pk=collection_id, defaults={'name': response['name']}
+                )
                 title_ids = []
+                if not created:
+                    collection.titles.clear()
                 for title in response['parts']:
-                    movie = MovieTmdb(title['id']).get_title_or_create()
-                    title_ids.append(movie.pk)
-                collection.titles.add(title_ids)
+                    movie = MovieTmdb(title['id'], ignore_collection=True).get_title_or_create()
+                    if movie is not None:
+                        title_ids.append(movie.pk)
+                collection.titles.add(*title_ids)
 
 
 class SeriesTmdb(BaseTmdb):
