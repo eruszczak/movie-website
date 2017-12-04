@@ -69,9 +69,10 @@ class BaseTmdb(TmdbResponseMixin):
             pass
 
         self.response_handlers_map.update({
-            'genres': self.save_genres,
-            'credits/cast': self.save_cast,
-            'credits/crew': self.save_crew,
+            # 'genres': self.save_genres,
+            # 'credits/cast': self.save_cast,
+            # 'credits/crew': self.save_crew,
+
             # 'similar/results': self.save_similar
         })
 
