@@ -61,6 +61,11 @@ class CastCrew(models.Model):
         return f'{self.person} in {self.title}'
 
 
+class Collection(models.Model):
+    name = models.CharField(max_length=300)
+    titles = models.ManyToManyField('Title', blank=True, related_name='collection')
+
+
 class Title(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
