@@ -169,22 +169,19 @@ class BaseTmdb(TmdbResponseMixin):
         self.title.genres.add(*pks)
 
     def save_similar(self, value):
-        if not self.avoid_recursion:
-            pks = []
-            for result in value:
-                concrete_class = get_tmdb_concrete_class(self.title_type)
-                similar_title = concrete_class(result['id'], avoid_recursion=True).get_title_or_create()
-                pks.append(similar_title.pk)
-            self.title.similar.add(*pks)
+        self.save_titles_to_attribute(value, self.title.similar)
 
     def save_recommendations(self, value):
+        self.save_titles_to_attribute(value, self.title.recommendation)
+
+    def save_titles_to_attribute(self, value, attribute):
         if not self.avoid_recursion:
             pks = []
             for result in value:
-                concrete_class = get_tmdb_concrete_class(self.title_type)
-                recommended_title = concrete_class(result['id'], avoid_recursion=True).get_title_or_create()
-                pks.append(recommended_title.pk)
-            self.title.recommendations.add(*pks)
+                title = self.__class__(result['id'], avoid_recursion=True).get_title_or_create()
+                if title:
+                    pks.append(title.pk)
+            attribute.add(*pks)
 
     def save_cast(self, value):
         for cast in value:
@@ -304,9 +301,9 @@ class TmdbWrapper(TmdbResponseMixin):
             kwargs.update(cached_response=cached_response)
 
         if wrapper_class:
-            return wrapper_class(imdb_id, **kwargs)
+            return wrapper_class(imdb_id, **kwargs).get_title_or_create()
 
-        raise Exception(f'Imdb_id {imdb_id} not found using `find` endpoint')
+        return None
 
     def call_find_endpoint(self, title_id):
         response = self.get_tmdb_response('find', title_id, qs={'external_source': 'imdb_id'})
@@ -333,6 +330,7 @@ class PopularMovies(TmdbResponseMixin):
             if not popular.titles.count():  # test if need .all()
                 pks = []
                 for result in response['results']:
-                    popular_title = TmdbWrapper().find_by_id(result['id'])
-                    pks.append(popular_title.pk)
+                    popular_title = TmdbWrapper().get(result['id'])
+                    if popular_title:
+                        pks.append(popular_title.pk)
                 popular.titles.add(*pks)
