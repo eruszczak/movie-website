@@ -13,7 +13,7 @@ from lists.models import Watchlist, Favourite
 from recommend.forms import RecommendTitleForm
 from shared.views import SearchViewMixin
 from titles.forms import TitleSearchForm, RateUpdateForm
-from tmdb.api import get_tmdb_wrapper_class
+from tmdb.api import get_tmdb_concrete_class
 from .models import Genre, Title, Rating
 
 User = get_user_model()
@@ -156,7 +156,7 @@ class TitleDetailView(DetailView):
         except self.model.DoesNotExist:
             raise Http404
         else:
-            klass = get_tmdb_wrapper_class(obj.type)
+            klass = get_tmdb_concrete_class(obj.type)
             updater = {
                 'similar': obj.similar.count() > 0,
                 'recommendations': obj.recommendations.count() > 0

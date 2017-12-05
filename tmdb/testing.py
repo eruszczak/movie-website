@@ -5,7 +5,7 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 
-from tmdb.api import Tmdb
+from tmdb.api import TmdbWrapper
 from titles.models import Title, Person, Collection
 
 imdb_id_movie = 'tt0120889'
@@ -22,7 +22,7 @@ deleted = Title.objects.filter(imdb_id=imdb_id_movie).delete()
 # deleted = Title.objects.filter(tmdb_id=tmdb_id_series).delete()
 print(deleted)
 
-client = Tmdb().get(imdb_id_movie)
+client = TmdbWrapper().get(imdb_id_movie)
 title = client.get_title_or_create()
 # print(title.collection.all())
 
