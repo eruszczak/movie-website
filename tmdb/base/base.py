@@ -57,6 +57,7 @@ class BaseTmdb(TmdbResponseMixin):
 
     def __init__(self, tmdb_id, **kwargs):
         super().__init__()
+        self.avoid_infinite_recursion = kwargs.get('avoid_infinite_recursion', False)
         self.tmdb_id = tmdb_id
 
         self.api_response = kwargs.get('cached_response')
@@ -73,7 +74,8 @@ class BaseTmdb(TmdbResponseMixin):
             # 'credits/cast': self.save_cast,
             # 'credits/crew': self.save_crew,
 
-            # 'similar/results': self.save_similar
+            'similar/results': self.save_similar,
+            # 'recommendations/results': self.save_recommendations
         })
 
     def save(self):
@@ -84,7 +86,7 @@ class BaseTmdb(TmdbResponseMixin):
         title_data.update({
             'imdb_id': self.get_imdb_id_from_response(),
             'type': self.title_type,
-            'source': self.api_response
+            'source': self.api_response,
         })
 
         self.title = Title.objects.create(tmdb_id=self.tmdb_id, **title_data)
@@ -128,12 +130,23 @@ class BaseTmdb(TmdbResponseMixin):
             pks.append(genre.pk)
         self.title.genres.add(*pks)
 
-    # def save_similar(self):
-    #     pks = []
-    #     for result in self.api_response['similar']['results']:
-    #         similar_title = TMDB().get_title(str(result['id']), False)
-    #         pks.append(similar_title.pk)
-    #     self.title.similar.add(*pks)
+    def save_similar(self, value):
+        if not self.avoid_infinite_recursion:
+            pks = []
+            for result in value:
+                similar_title = TMDB().get_title(str(result['id']), avoid_infinite_recursion=True)
+                pks.append(similar_title.pk)
+            self.title.similar.add(*pks)
+
+
+    def save_recommendations(self, value):
+        if not self.avoid_infinite_recursion:
+            pks = []
+            for result in value:
+                recommended_title = TMDB().get_title(str(result['id']), avoid_infinite_recursion=True)
+                pks.append(recommended_title.pk)
+            self.title.recommendations.add(*pks)
+
 
     def save_cast(self, value):
         for cast in value:

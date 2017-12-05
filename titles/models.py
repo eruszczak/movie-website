@@ -79,6 +79,7 @@ class Title(models.Model):
     crew = models.ManyToManyField('Person', through='CastCrew', related_name='crew', blank=True)
     keywords = models.ManyToManyField('Keyword', blank=True)
     similar = models.ManyToManyField('Title', blank=True)
+    recommendations = models.ManyToManyField('Title', blank=True)
     genres = models.ManyToManyField('Genre')
 
     type = models.IntegerField(choices=TITLE_TYPE_CHOICES, blank=True, null=True)
