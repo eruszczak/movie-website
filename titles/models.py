@@ -69,6 +69,14 @@ class Collection(models.Model):
         return f'{self.name}'
 
 
+class Popular(models.Model):
+    update_date = models.DateField(auto_now=True)
+    titles = models.ManyToManyField('Title', blank=True, related_name='popular')
+
+    def __str__(self):
+        return f'Popular on {self.update_date}'
+
+
 class Title(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
