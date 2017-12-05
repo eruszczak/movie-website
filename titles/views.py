@@ -13,6 +13,7 @@ from lists.models import Watchlist, Favourite
 from recommend.forms import RecommendTitleForm
 from shared.views import SearchViewMixin
 from titles.forms import TitleSearchForm, RateUpdateForm
+from tmdb.api import get_tmdb_wrapper_class
 from .models import Genre, Title, Rating
 
 User = get_user_model()
@@ -149,10 +150,21 @@ class TitleDetailView(DetailView):
                     )
                 ),
             )
+
         try:
-            return queryset.get(const=self.kwargs['const'])
+            obj = queryset.get(const=self.kwargs['const'])
         except self.model.DoesNotExist:
             raise Http404
+        else:
+            klass = get_tmdb_wrapper_class(obj.type)
+            updater = {
+                'similar': obj.similar.count() > 0,
+                'recommendations': obj.recommendations.count() > 0
+            }
+            klass(title=obj).update(**updater)
+            # TODO: celery
+            # TODO: avoid this queries by using attributes - or check counts() later in celery
+            return obj
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
