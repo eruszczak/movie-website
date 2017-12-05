@@ -2,10 +2,11 @@ import json
 import os
 from decouple import config
 from django.conf import settings
+from django.utils.timezone import now
 
 from shared.helpers import SlashDict, get_json_response
 from titles.constants import TITLE_CREW_JOB
-from titles.models import CastTitle, Person, Genre, CastCrew, Title, Keyword
+from titles.models import CastTitle, Person, Genre, CastCrew, Title, Keyword, Popular
 
 
 class TmdbResponseMixin:
@@ -185,3 +186,18 @@ class BaseTmdb(TmdbResponseMixin):
         with open(self.source_file_path.format(file_name), 'w') as outfile:
             json.dump(self.api_response, outfile)
             print('created', self.source_file_path.format(file_name))
+
+
+
+class PopularMovies(TmdbResponseMixin):
+
+    def get(self):
+        response = self.get_tmdb_response('popular', 'movie')
+        if response is not None:
+            popular, created = Popular.objects.get_or_create(update_date=now().date())
+            if not popular.titles.count():  # test if need .all()
+                pks = []
+                for result in response['results']:
+                    popular_title = TMDB().get_title(str(result['id']))
+                    pks.append(popular_title.pk)
+                popular.titles.add(*pks)
