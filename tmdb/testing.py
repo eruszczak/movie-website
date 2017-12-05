@@ -1,6 +1,7 @@
 import django
 import os
 
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 
@@ -15,15 +16,15 @@ tmdb_id_series = '66732'
 
 collection_id = 'tt0120737'
 
-deleted = Title.objects.filter(imdb_id=collection_id).delete()
-# Collection.objects.all().delete()
 # deleted = Title.objects.filter(imdb_id=collection_id).delete()
+# Collection.objects.all().delete()
+deleted = Title.objects.filter(imdb_id=imdb_id_movie).delete()
 # deleted = Title.objects.filter(tmdb_id=tmdb_id_series).delete()
-# print(deleted)
-#
-client = Tmdb().find_by_id(collection_id)
+print(deleted)
+
+client = Tmdb().get(imdb_id_movie)
 title = client.get_title_or_create()
-print(title.collection.all())
+# print(title.collection.all())
 
 # t = Title.objects.get(tmdb_id=tmdb_id_series)
 # print(t.cast.all())
