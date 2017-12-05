@@ -11,7 +11,7 @@ class MovieTmdb(BaseTmdb):
     imdb_id_path = 'imdb_id'
 
     def __init__(self, *args, **kwargs):
-        self.ignore_collection = kwargs.pop('ignore_collection', False)
+        # self.ignore_collection = kwargs.pop('ignore_collection', False)
         super().__init__(*args, **kwargs)
         self.title_model_map.update({
             'release_date': 'release_date',
@@ -27,7 +27,7 @@ class MovieTmdb(BaseTmdb):
         self.urls['details'] = 'movie'
 
     def save_collection(self, value):
-        if not self.ignore_collection:
+        if not self.avoid_infinite_recursion:
             collection_id = value['id']
             response = self.get_tmdb_response('collection', str(collection_id))
             if response is not None:
@@ -38,7 +38,7 @@ class MovieTmdb(BaseTmdb):
                 if not created:
                     collection.titles.clear()
                 for title in response['parts']:
-                    movie = MovieTmdb(title['id'], ignore_collection=True).get_title_or_create()
+                    movie = MovieTmdb(title['id'], avoid_infinite_recursion=True).get_title_or_create()
                     if movie is not None:
                         title_ids.append(movie.pk)
                 collection.titles.add(*title_ids)
