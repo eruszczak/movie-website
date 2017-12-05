@@ -56,7 +56,7 @@ class BaseTmdb(TmdbResponseMixin):
     # maps paths in TMDB's response to their method handlers
     response_handlers_map = {}
 
-    def __init__(self, tmdb_id, **kwargs):
+    def __init__(self, tmdb_id, title=None, **kwargs):
         super().__init__()
         self.avoid_infinite_recursion = kwargs.get('avoid_infinite_recursion', False)
         self.tmdb_id = tmdb_id
@@ -65,10 +65,11 @@ class BaseTmdb(TmdbResponseMixin):
         if self.api_response is not None:
             self.cached_response = True
 
-        try:
-            self.title = Title.objects.get(tmdb_id=tmdb_id)
-        except Title.DoesNotExist:
-            pass
+        if title is None:
+            try:
+                self.title = Title.objects.get(tmdb_id=tmdb_id)
+            except Title.DoesNotExist:
+                pass
 
         self.response_handlers_map.update({
             # 'genres': self.save_genres,
@@ -106,8 +107,15 @@ class BaseTmdb(TmdbResponseMixin):
     def delete(self):
         print(self.title.delete())
 
-    def update(self):
-        pass
+    def update(self, similar=False, recommendations=False):
+        if similar:
+            value = self.api_response['similar/results']
+            self.save_similar(value)
+
+        if recommendations:
+            value = self.api_response['recommendations/results']
+            self.save_recommendations(value)
+
 
     def save_keywords(self, value):
         pks = []
@@ -138,7 +146,6 @@ class BaseTmdb(TmdbResponseMixin):
                 similar_title = TMDB().get_title(str(result['id']), avoid_infinite_recursion=True)
                 pks.append(similar_title.pk)
             self.title.similar.add(*pks)
-
 
     def save_recommendations(self, value):
         if not self.avoid_infinite_recursion:
