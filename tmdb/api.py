@@ -1,5 +1,6 @@
 import json
 import os
+from time import sleep
 
 from decouple import config
 from django.conf import settings
@@ -63,6 +64,7 @@ class BaseTmdb(TmdbResponseMixin):
     response_handlers_map = {}
 
     def __init__(self, tmdb_id, title=None, **kwargs):
+        sleep(2)
         super().__init__()
         self.avoid_recursion = kwargs.get('avoid_recursion', False)
         self.cached_response = kwargs.get('cached_response', None)
@@ -79,8 +81,8 @@ class BaseTmdb(TmdbResponseMixin):
             # 'credits/cast': self.save_cast,
             # 'credits/crew': self.save_crew,
 
-            'similar/results': self.save_similar,
-            # 'recommendations/results': self.save_recommendations
+            # 'similar/results': self.save_similar,
+            'recommendations/results': self.save_recommendations
         })
 
     def get_title_or_create(self):
@@ -146,6 +148,8 @@ class BaseTmdb(TmdbResponseMixin):
             value = self.api_response['recommendations/results']
             self.save_recommendations(value)
 
+        # collection.
+
     def save_keywords(self, value):
         pks = []
         for keyword in value:
@@ -172,7 +176,7 @@ class BaseTmdb(TmdbResponseMixin):
         self.save_titles_to_attribute(value, self.title.similar)
 
     def save_recommendations(self, value):
-        self.save_titles_to_attribute(value, self.title.recommendation)
+        self.save_titles_to_attribute(value, self.title.recommendations)
 
     def save_titles_to_attribute(self, value, attribute):
         if not self.avoid_recursion:
@@ -283,7 +287,6 @@ def get_tmdb_concrete_class(title_type):
 
 class TmdbWrapper(TmdbResponseMixin):
     """Based on imdb_id, returns either MovieTmdb or SeriesTmdb instance"""
-    title_id = None
 
     def get(self, imdb_id, **kwargs):
         """
@@ -324,13 +327,17 @@ class TmdbWrapper(TmdbResponseMixin):
 class PopularMovies(TmdbResponseMixin):
 
     def get(self):
-        response = self.get_tmdb_response('popular', 'movie')
+        response = self.get_tmdb_response('movie', 'popular')
         if response is not None:
             popular, created = Popular.objects.get_or_create(update_date=now().date())
-            if not popular.titles.count():  # test if need .all()
+            if not popular.titles.count():
                 pks = []
                 for result in response['results']:
-                    popular_title = TmdbWrapper().get(result['id'])
+                    popular_title = MovieTmdb(result['id']).get_title_or_create()
                     if popular_title:
+                        print(popular_title.name)
                         pks.append(popular_title.pk)
                 popular.titles.add(*pks)
+            return popular
+
+        return None
