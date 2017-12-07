@@ -5,8 +5,6 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 
-from tmdb.api import TmdbWrapper, PopularMovies
-from titles.models import Title, Person, Collection
 
 imdb_id_movie = 'tt0120889'
 # tmdb_id_movie = '12159'
@@ -14,7 +12,6 @@ imdb_id_movie = 'tt0120889'
 # imdb_id_series = 'tt4574334'
 tmdb_id_series = '66732'
 
-collection_id = 'tt0120737'
 
 # deleted = Title.objects.filter(imdb_id=collection_id).delete()
 # Collection.objects.all().delete()
@@ -39,8 +36,9 @@ collection_id = 'tt0120737'
 # popular_movies = PopularMovies().get()
 # print(popular_movies)
 
-for title in Title.objects.all():
-    print(title.name)
-    imdb_id = title.imdb_id
-    print(title.delete())
-    TmdbWrapper().get(imdb_id)
+# for title in Title.objects.all():
+#     print(title.name)
+#     imdb_id = title.imdb_id
+#     print(title.delete())
+#     TmdbWrapper().get(imdb_id)
+
