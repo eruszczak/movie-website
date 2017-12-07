@@ -15,8 +15,8 @@ from django.core.exceptions import ValidationError
 #     )
 
 
-def get_instance_file_path(instance, file_name):
-    folder_path = instance.get_folder_path()
+def get_instance_file_path(instance, file_name, **kwargs):
+    folder_path = instance.get_folder_path(**kwargs)
     return join(folder_path, file_name)
 
 

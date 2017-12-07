@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
-from os.path import join
+from os.path import join, isfile
 
 from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES, SERIES, MOVIE
 from shared.helpers import get_instance_file_path
@@ -18,9 +18,7 @@ from .managers import TitleQuerySet
 
 
 class Keyword(models.Model):
-    # name i think doesnt have to be unique in this case because the keywords are added by different people
     name = models.CharField(max_length=100, unique=True)
-    # tmdb_id
 
     def __str__(self):
         return f'{self.name}'
@@ -29,14 +27,12 @@ class Keyword(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
-    # tmdb_id
     def __str__(self):
         return f'{self.name}'
 
 
 class Person(models.Model):
     name = models.CharField(max_length=300)
-    # tmdb_id
 
     def __str__(self):
         return f'{self.name}'
@@ -84,12 +80,12 @@ class Title(models.Model):
     update_date = models.DateTimeField(auto_now=True)
     source = JSONField(blank=True)
 
+    genres = models.ManyToManyField('Genre')
+    keywords = models.ManyToManyField('Keyword', blank=True)
     cast = models.ManyToManyField('Person', through='CastTitle', related_name='cast', blank=True)
     crew = models.ManyToManyField('Person', through='CastCrew', related_name='crew', blank=True)
-    keywords = models.ManyToManyField('Keyword', blank=True)
     similar = models.ManyToManyField('Title', blank=True, related_name='similars')
     recommendations = models.ManyToManyField('Title', blank=True, related_name='recommends')
-    genres = models.ManyToManyField('Genre')
 
     collection = models.ForeignKey('Collection', blank=True, null=True, related_name='titles', on_delete=models.CASCADE)
 
@@ -110,12 +106,7 @@ class Title(models.Model):
 
     # rate_imdb = models.FloatField(blank=True, null=True)
     # votes = models.IntegerField(blank=True, null=True)
-    # plot = models.TextField(blank=True, null=True)
-    # videos
-    # images
-    # tagline, overview?
-    # todo: recommendations?
-    # belongs_to_collection
+    # tagline
 
     objects = TitleQuerySet.as_manager()
 
@@ -145,13 +136,20 @@ class Title(models.Model):
 
     def save_poster(self, file_name, url, poster_type):
         """download and save image to a one of poster_ fields"""
-        poster_field = getattr(self, f'poster_{poster_type}')
-        try:
-            image = urlretrieve(url)[0]
-        except (PermissionError, TypeError, ValueError) as e:
-            print(e)
-        else:
-            poster_field.save(file_name, File(open(image, 'rb')))
+        field_name = f'poster_{poster_type}'
+        poster_field = getattr(self, field_name)
+        file_path = get_instance_file_path(self, file_name, absolute=True)
+        if not isfile(file_path):
+            try:
+                image = urlretrieve(url)[0]
+            except (PermissionError, TypeError, ValueError) as e:
+                print(e)
+            else:
+                poster_field.save(file_name, File(open(image, 'rb')))
+        elif not poster_field:
+            poster_rel_path = get_instance_file_path(self, file_name)
+            setattr(self, field_name, poster_rel_path)
+            self.save()
 
     # def get_tmdb_instance(self):
     #     if self.type == MOVIE:
