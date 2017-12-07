@@ -62,7 +62,6 @@ class SlashDict(dict):
 
 def get_json_response(url, qs):
     r = requests.get(url, params=qs)
-    print(r.url, r.text, sep='\n')
     if r.status_code == requests.codes.ok:
         return r.json()
     return None

@@ -4,7 +4,9 @@
 
 {% block image %}
 <div class="still-background">
-    <img class="backdrop" src="{% static 'img/1280.jpg' %}">
+    <img class="backdrop" src="{{ title.poster_backdrop_title.url }}">
+{#    <img class="backdrop" src="{% static 'title.poster_backdrop_title.' %}">#}
+{#    <img class="backdrop" src="{% static 'img/1280.jpg' %}">#}
     <div class="ui grid centered">
         <div class="poster-background">
             <div class="card1 card-01 height-fix">

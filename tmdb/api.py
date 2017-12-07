@@ -9,7 +9,7 @@ from django.utils.timezone import now
 
 from shared.helpers import get_json_response, SlashDict
 from titles.constants import MOVIE, SERIES, CREATOR, TITLE_CREW_JOB
-from titles.models import Season, Person, CastCrew, Collection, Popular, Title, Keyword, Genre, CastTitle
+from titles.models import Season, Person, CastCrew, Popular, Title, Keyword, Genre, CastTitle, Collection
 
 
 class TmdbResponseMixin:
@@ -26,7 +26,7 @@ class TmdbResponseMixin:
         }
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self.query_string = {
             'api_key': self.api_key,
             'language': 'language=en-US'
@@ -37,6 +37,7 @@ class TmdbResponseMixin:
         query_string.update(self.query_string)
         url = self.urls['base'] + '/'.join(list(map(str, path_parameters)))
         response = get_json_response(url, query_string)
+        print(response.get('name'), response.get('title'), url)
         if response is None:
             return None
         return SlashDict(response)
@@ -44,6 +45,10 @@ class TmdbResponseMixin:
     def get_response_from_file(self, title_id):
         with open(self.source_file_path.format(title_id), 'r') as outfile:
             return SlashDict(json.load(outfile))
+
+    def save_to_file(self, data, file_name):
+        with open(self.source_file_path.format(file_name), 'w') as outfile:
+            json.dump(data, outfile)
 
 
 class BaseTmdb(TmdbResponseMixin):
@@ -66,7 +71,7 @@ class BaseTmdb(TmdbResponseMixin):
     def __init__(self, tmdb_id, title=None, **kwargs):
         sleep(2)
         super().__init__()
-        self.avoid_recursion = kwargs.get('avoid_recursion', False)
+        self.call_updater = kwargs.get('call_updater', False)
         self.cached_response = kwargs.get('cached_response', None)
         self.tmdb_id = tmdb_id
 
@@ -79,22 +84,22 @@ class BaseTmdb(TmdbResponseMixin):
         self.response_handlers_map.update({
             'genres': self.save_genres,
             'credits/cast': self.save_cast,
-            'credits/crew': self.save_crew,
-            'similar/results': self.save_similar,
-            'recommendations/results': self.save_recommendations
+            'credits/crew': self.save_crew
         })
 
-    def get_title_or_create(self):
-        # Title can be passed from title_detail_view. TODO: but i won't call this method at all. Just init and update.
+        print(self.tmdb_id, 'updated', self.call_updater)
+
+    def get_or_create(self):
         if self.title:
             return self.title
 
-        # This is redundant, because I just can find for the second time the cache file
+        # This is really for testing needed. Because once title is added, I won't need it anymore.
         if self.cached_response:
             self.api_response = self.cached_response
             return self.create()
 
         try:
+            # Todo: 'cached_response' but not from TmdbWrapper
             self.api_response = self.get_response_from_file(self.tmdb_id)
         except FileNotFoundError:
             qs = {'append_to_response': 'credits,keywords,similar,videos,images,recommendations,external_ids'}
@@ -104,7 +109,7 @@ class BaseTmdb(TmdbResponseMixin):
             if self.api_response:
                 imdb_id = self.get_imdb_id_from_response()
                 for id_value in [imdb_id, self.tmdb_id]:
-                    self.save_response_to_file(id_value)
+                    self.save_to_file(self.api_response, id_value)
 
         if self.api_response:
             return self.create()
@@ -119,35 +124,24 @@ class BaseTmdb(TmdbResponseMixin):
         title_data.update({
             'imdb_id': self.get_imdb_id_from_response(),
             'type': self.title_type,
-            'source': self.api_response,
+            'source': self.api_response
         })
 
         self.title = Title.objects.create(tmdb_id=self.tmdb_id, **title_data)
-        self.save_posters()
 
         for path, handler in self.response_handlers_map.items():
             value = self.api_response[path]
             if value:
                 handler(value)
 
+        if self.call_updater:
+            TitleUpdater(self.title)
+            # self.title.update()
+
         return self.title
 
     def get_imdb_id_from_response(self):
         return self.api_response[self.imdb_id_path]
-
-    def delete(self):
-        print(self.title.delete())
-
-    def update(self, similar=False, recommendations=False):
-        if similar:
-            value = self.api_response['similar/results']
-            self.save_similar(value)
-
-        if recommendations:
-            value = self.api_response['recommendations/results']
-            self.save_recommendations(value)
-
-        # collection.
 
     def save_keywords(self, value):
         pks = []
@@ -156,35 +150,12 @@ class BaseTmdb(TmdbResponseMixin):
             pks.append(keyword.pk)
         self.title.keywords.add(*pks)
 
-    def save_posters(self):
-        for poster_type, url in self.urls['poster'].items():
-            poster_url = self.urls['poster_base'] + url + self.api_response['poster_path']
-            extension = self.api_response['poster_path'].split('.')[-1]
-            file_name = f'{poster_type}.{extension}'
-            self.title.save_poster(file_name, poster_url, poster_type)
-        self.title.save()
-
     def save_genres(self, value):
         pks = []
         for genre in value:
             genre, created = Genre.objects.get_or_create(pk=genre['id'], defaults={'name': genre['name']})
             pks.append(genre.pk)
         self.title.genres.add(*pks)
-
-    def save_similar(self, value):
-        self.save_titles_to_attribute(value, self.title.similar)
-
-    def save_recommendations(self, value):
-        self.save_titles_to_attribute(value, self.title.recommendations)
-
-    def save_titles_to_attribute(self, value, attribute):
-        if not self.avoid_recursion:
-            pks = []
-            for result in value:
-                title = self.__class__(result['id'], avoid_recursion=True).get_title_or_create()
-                if title:
-                    pks.append(title.pk)
-            attribute.add(*pks)
 
     def save_cast(self, value):
         for cast in value:
@@ -198,10 +169,6 @@ class BaseTmdb(TmdbResponseMixin):
             if job is not None:
                 CastCrew.objects.create(title=self.title, person=person, job=job)
 
-    def save_response_to_file(self, file_name):
-        with open(self.source_file_path.format(file_name), 'w') as outfile:
-            json.dump(self.api_response, outfile)
-
 
 class MovieTmdb(BaseTmdb):
     title_type = MOVIE
@@ -213,31 +180,12 @@ class MovieTmdb(BaseTmdb):
     }
 
     def __init__(self, *args, **kwargs):
-        self.collection = kwargs.pop('collection', None)
         super().__init__(*args, **kwargs)
         self.urls['details'] = 'movie'
         self.title_model_map.update(self.model_map)
         self.response_handlers_map.update({
-            'keywords/keywords': self.save_keywords,
-            'belongs_to_collection': self.save_collection
+            'keywords/keywords': self.save_keywords
         })
-
-    def save_collection(self, value):
-        if not self.avoid_recursion:
-            collection_id = value['id']
-            response = self.get_tmdb_response('collection', collection_id)
-            if response is not None:
-                collection, created = Collection.objects.get_or_create(
-                    pk=collection_id, defaults={'name': response['name']}
-                )
-                title_ids = []
-                if not created:
-                    collection.titles.clear()
-                for title in response['parts']:
-                    movie = MovieTmdb(title['id'], avoid_recursion=True, collection=collection).get_title_or_create()
-                    if movie is not None:
-                        title_ids.append(movie.pk)
-                collection.titles.add(*title_ids)
 
 
 class SeriesTmdb(BaseTmdb):
@@ -305,7 +253,7 @@ class TmdbWrapper(TmdbResponseMixin):
             kwargs.update(cached_response=cached_response)
 
         if wrapper_class:
-            return wrapper_class(tmdb_id, **kwargs).get_title_or_create()
+            return wrapper_class(tmdb_id, **kwargs).get_or_create()
 
         return None
 
@@ -334,7 +282,7 @@ class PopularMovies(TmdbResponseMixin):
             if not popular.titles.count():
                 pks = []
                 for result in response['results'][:10]:
-                    popular_title = MovieTmdb(result['id']).get_title_or_create()
+                    popular_title = MovieTmdb(result['id']).get_or_create()
                     if popular_title:
                         print(popular_title.name)
                         pks.append(popular_title.pk)
@@ -342,3 +290,60 @@ class PopularMovies(TmdbResponseMixin):
             return popular
 
         return None
+
+
+class TitleUpdater(TmdbResponseMixin):
+    """Class that fetches additional information for a title"""
+
+    def __init__(self, title):
+        super().__init__()
+        self.title = title
+        self.api_response = title.source
+        self.tmdb_instance = get_tmdb_concrete_class(title.type)
+
+        self.response_handlers_map = {
+            'belongs_to_collection': self.save_collection,
+            'similar/results': self.save_similar,
+            'recommendations/results': self.save_recommendations
+        }
+
+        for path, handler in self.response_handlers_map.items():
+            value = self.api_response[path]
+            if value:
+                handler(value)
+
+    def save_posters(self):
+        for poster_type, url in self.urls['poster'].items():
+            poster_url = self.urls['poster_base'] + url + self.api_response['poster_path']
+            extension = self.api_response['poster_path'].split('.')[-1]
+            file_name = f'{poster_type}.{extension}'
+            self.title.save_poster(file_name, poster_url, poster_type)
+        self.title.save()
+
+    def save_similar(self, value):
+        self.save_titles_to_attribute(value, self.title.similar)
+
+    def save_recommendations(self, value):
+        self.save_titles_to_attribute(value, self.title.recommendations)
+
+    def save_collection(self, value):
+        if self.title.is_movie:
+            collection, created = Collection.objects.get_or_create(pk=value['id'], defaults={'name': value['name']})
+            response = self.get_tmdb_response('collection', collection.pk)
+            if response is not None:
+                title_pks = []
+                for part in response['parts']:
+                    movie = MovieTmdb(part['id']).get_or_create()
+                    if movie is not None:
+                        title_pks.append(movie.pk)
+
+                collection.titles.all().delete()
+                Title.objects.filter(pk__in=title_pks).update(collection=collection)
+
+    def save_titles_to_attribute(self, value, attribute):
+        pks = []
+        for result in value:
+            title = self.tmdb_instance(result['id']).get_or_create()
+            if title:
+                pks.append(title.pk)
+        attribute.add(*pks)

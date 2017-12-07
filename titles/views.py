@@ -1,20 +1,21 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
 from django.db.models import Count, When, Case, IntegerField, Subquery, Q
 from django.db.models import OuterRef
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
+from django.utils.timezone import now
 from django.views.generic import DetailView, TemplateView, RedirectView, ListView, UpdateView
 
 from accounts.models import UserFollow
 from lists.models import Watchlist, Favourite
-from recommend.forms import RecommendTitleForm
 from shared.views import SearchViewMixin
+# from titles.constants import MOVIE, SERIES
 from titles.forms import TitleSearchForm, RateUpdateForm
 from tmdb.api import get_tmdb_concrete_class
-from .models import Genre, Title, Rating
+from .models import Genre, Title, Rating, Popular
+from .tasks import get_todays_popular_movies
 
 User = get_user_model()
 
@@ -23,51 +24,56 @@ class HomeView(TemplateView):
     template_name = 'titles/home.html'
 
     def get_context_data(self, **kwargs):
+        get_todays_popular_movies.delay()
+
         context = super().get_context_data(**kwargs)
         context.update({
-            'movie_count': Title.objects.filter(type__name='title').count(),
-            'series_count': Title.objects.filter(type__name='series').count(),
+            'popular': Popular.objects.prefetch_related('titles').first()
         })
-        if self.request.user.is_authenticated:
-            user_ratings = Rating.objects.filter(user=self.request.user)
-            # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
-            qs = user_ratings.annotate(
-                has_in_watchlist=Count(
-                    Case(
-                        When(title__watchlist__user=self.request.user, title__watchlist__deleted=False, then=1),
-                        output_field=IntegerField()
-                    )
-                ),
-                has_in_favourites=Count(
-                    Case(When(title__favourite__user=self.request.user, then=1), output_field=IntegerField())
-                ),
-            )
-            context.update({
-                'rating_list': qs[:6],
-                'ratings': user_ratings.select_related('title')[:16],
-
-                'last_movie': user_ratings.filter(title__type__name='title').select_related('title').first(),
-                'last_series': user_ratings.filter(title__type__name='series').select_related('title').first(),
-                'last_good_movie': user_ratings.filter(title__type__name='title', rate__gte=9).select_related(
-                    'title').first(),
-                'movies_my_count': self.request.user.count_movies,
-                'series_my_count': self.request.user.count_series,
-
-                'rated_titles': self.request.user.count_titles,
-                'total_ratings': self.request.user.count_ratings,
-
-                # 'total_movies': reverse('title-list') + '?t=title',
-                # 'total_series': reverse('title-list') + '?t=series',
-                # 'search_movies': reverse('title-list') + '?u={}&t=title'.format(self.request.user.username),
-                # 'search_series': reverse('title-list') + '?u={}&t=series'.format(self.request.user.username)
-            })
-        else:
-            context.update({
-                'ratings': Title.objects.all().order_by('-votes')[:16],
-                'total_movies': reverse('title-list') + '?t=title',
-                'total_series': reverse('title-list') + '?t=series',
-
-            })
+        # context.update({
+        #     'movie_count': Title.objects.filter(type=MOVIE).count(),
+        #     'series_count': Title.objects.filter(type=SERIES).count(),
+        # })
+        # if self.request.user.is_authenticated:
+        #     user_ratings = Rating.objects.filter(user=self.request.user)
+        #     # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+        #     qs = user_ratings.annotate(
+        #         has_in_watchlist=Count(
+        #             Case(
+        #                 When(title__watchlist__user=self.request.user, title__watchlist__deleted=False, then=1),
+        #                 output_field=IntegerField()
+        #             )
+        #         ),
+        #         has_in_favourites=Count(
+        #             Case(When(title__favourite__user=self.request.user, then=1), output_field=IntegerField())
+        #         ),
+        #     )
+        #     context.update({
+        #         'rating_list': qs[:6],
+        #         'ratings': user_ratings.select_related('title')[:16],
+        #
+        #         'last_movie': user_ratings.filter(title__type__name='title').select_related('title').first(),
+        #         'last_series': user_ratings.filter(title__type__name='series').select_related('title').first(),
+        #         'last_good_movie': user_ratings.filter(title__type__name='title', rate__gte=9).select_related(
+        #             'title').first(),
+        #         'movies_my_count': self.request.user.count_movies,
+        #         'series_my_count': self.request.user.count_series,
+        #
+        #         'rated_titles': self.request.user.count_titles,
+        #         'total_ratings': self.request.user.count_ratings,
+        #
+        #         # 'total_movies': reverse('title-list') + '?t=title',
+        #         # 'total_series': reverse('title-list') + '?t=series',
+        #         # 'search_movies': reverse('title-list') + '?u={}&t=title'.format(self.request.user.username),
+        #         # 'search_series': reverse('title-list') + '?u={}&t=series'.format(self.request.user.username)
+        #     })
+        # else:
+        #     context.update({
+        #         'ratings': Title.objects.all().order_by('-votes')[:16],
+        #         'total_movies': reverse('title-list') + '?t=title',
+        #         'total_series': reverse('title-list') + '?t=series',
+        #
+        #     })
         return context
 
 
@@ -152,16 +158,16 @@ class TitleDetailView(DetailView):
             )
 
         try:
-            obj = queryset.get(const=self.kwargs['const'])
+            obj = queryset.get(imdb_id=self.kwargs['imdb_id'])
         except self.model.DoesNotExist:
             raise Http404
         else:
-            klass = get_tmdb_concrete_class(obj.type)
-            updater = {
-                'similar': obj.similar.count() > 0,
-                'recommendations': obj.recommendations.count() > 0
-            }
-            klass(title=obj).update(**updater)
+            # klass = get_tmdb_concrete_class(obj.type)
+            # updater = {
+            #     'similar': obj.similar.count() > 0,
+            #     'recommendations': obj.recommendations.count() > 0
+            # }
+            # klass(title=obj).update(**updater)
             # TODO: celery
             # TODO: avoid this queries by using attributes - or check counts() later in celery
             return obj
@@ -198,20 +204,20 @@ class TitleDetailView(DetailView):
         # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
         # test = Title.objects.filter(actor__in=self.object.actor.all())
         # print(test)
-        for actor in self.object.actor.all():
-            if self.request.user.is_authenticated:
-                newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
-                titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).annotate(
-                    user_rate=Subquery(newest.values('rate')[:1])).order_by('-votes')
-            else:
-                titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).order_by('-votes')
-
-            if titles:
-                actors_and_other_titles.append((actor, titles))
-
-        context.update({
-            'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
-        })
+        # for actor in self.object.actor.all():
+        #     if self.request.user.is_authenticated:
+        #         newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+        #         titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).annotate(
+        #             user_rate=Subquery(newest.values('rate')[:1])).order_by('-votes')
+        #     else:
+        #         titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).order_by('-votes')
+        #
+        #     if titles:
+        #         actors_and_other_titles.append((actor, titles))
+        #
+        # context.update({
+        #     'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
+        # })
         return context
 
     @method_decorator(login_required)

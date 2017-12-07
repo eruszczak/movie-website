@@ -11,9 +11,9 @@ from django.utils import timezone
 from django.utils.text import slugify
 from os.path import join
 
-from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES, SERIES
-from titles.helpers import validate_rate
+from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES, SERIES, MOVIE
 from shared.helpers import get_instance_file_path
+# from titles.helpers import TitleUpdater
 from .managers import TitleQuerySet
 
 
@@ -63,10 +63,9 @@ class CastCrew(models.Model):
 
 class Collection(models.Model):
     name = models.CharField(max_length=300)
-    titles = models.ManyToManyField('Title', blank=True, related_name='collection')
 
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.name} of {self.titles.count()}'
 
 
 class Popular(models.Model):
@@ -85,13 +84,14 @@ class Title(models.Model):
     update_date = models.DateTimeField(auto_now=True)
     source = JSONField(blank=True)
 
-    # https://gist.github.com/cyface/3157428
     cast = models.ManyToManyField('Person', through='CastTitle', related_name='cast', blank=True)
     crew = models.ManyToManyField('Person', through='CastCrew', related_name='crew', blank=True)
     keywords = models.ManyToManyField('Keyword', blank=True)
     similar = models.ManyToManyField('Title', blank=True, related_name='similars')
     recommendations = models.ManyToManyField('Title', blank=True, related_name='recommends')
     genres = models.ManyToManyField('Genre')
+
+    collection = models.ForeignKey('Collection', blank=True, null=True, related_name='titles', on_delete=models.CASCADE)
 
     type = models.IntegerField(choices=TITLE_TYPE_CHOICES, blank=True, null=True)
     tmdb_id = models.CharField(unique=True, max_length=10)
@@ -130,6 +130,10 @@ class Title(models.Model):
         self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+    # def update(self):
+    #     # TODO calls celery task
+    #     TitleUpdater(self)
+
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
 
@@ -148,6 +152,21 @@ class Title(models.Model):
             print(e)
         else:
             poster_field.save(file_name, File(open(image, 'rb')))
+
+    # def get_tmdb_instance(self):
+    #     if self.type == MOVIE:
+    #         return MovieTmdb
+    #     elif title_type == SERIES:
+    #         return SeriesTmdb
+    #     return None
+
+    @property
+    def is_movie(self):
+        return self.type == MOVIE
+
+    @property
+    def is_in_collection(self):
+        return self.collection
 
     @property
     def imdb_url(self):
@@ -189,7 +208,7 @@ class Rating(models.Model):
 
     def clean_fields(self, exclude=None):
         super().clean_fields(exclude)
-        if not validate_rate(self.rate):
+        if not self.validate_rate():
             raise ValidationError('Rating must be integer value between 1-10')
 
         if self.rate_date > datetime.today().date():
@@ -197,6 +216,14 @@ class Rating(models.Model):
 
         if Rating.objects.filter(user=self.user, title=self.title, rate_date=self.rate_date).exists():
             raise ValidationError('Rating from this day already exists')
+
+    def validate_rate(self):
+        """rating must be integer 1-10"""
+        try:
+            rate = int(self.rate)
+        except (ValueError, TypeError):
+            return False
+        return 0 < rate < 11
 
     # def save(self, *args, **kwargs):
     #     """
