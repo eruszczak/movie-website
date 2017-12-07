@@ -91,15 +91,20 @@ class BaseTmdb(TmdbResponseMixin):
 
     def get_or_create(self):
         if self.title:
+            print('found title')
+            # self.save_posters()
+            # todo: not sure if leave it here. a way for updating already added titles
+            # if self.call_updater:
+            #     TitleUpdater(self.title)
             return self.title
 
-        # This is really for testing needed. Because once title is added, I won't need it anymore.
+        # This is for testing. Because once title in production is added, I won't need this file anymore.
         if self.cached_response:
             self.api_response = self.cached_response
             return self.create()
 
         try:
-            # Todo: 'cached_response' but not from TmdbWrapper
+            # it's 'cached_response' but not from TmdbWrapper
             self.api_response = self.get_response_from_file(self.tmdb_id)
         except FileNotFoundError:
             qs = {'append_to_response': 'credits,keywords,similar,videos,images,recommendations,external_ids'}
@@ -129,6 +134,8 @@ class BaseTmdb(TmdbResponseMixin):
 
         self.title = Title.objects.create(tmdb_id=self.tmdb_id, **title_data)
 
+        self.save_posters()
+
         for path, handler in self.response_handlers_map.items():
             value = self.api_response[path]
             if value:
@@ -142,6 +149,14 @@ class BaseTmdb(TmdbResponseMixin):
 
     def get_imdb_id_from_response(self):
         return self.api_response[self.imdb_id_path]
+
+    def save_posters(self):
+        if self.title.poster_path:
+            for poster_type, url in self.urls['poster'].items():
+                poster_url = self.urls['poster_base'] + url + self.title.poster_path
+                extension = self.title.poster_path.split('.')[-1]
+                file_name = f'{poster_type}.{extension}'
+                self.title.save_poster(file_name, poster_url, poster_type)
 
     def save_keywords(self, value):
         pks = []
@@ -298,7 +313,7 @@ class TitleUpdater(TmdbResponseMixin):
     def __init__(self, title):
         super().__init__()
         self.title = title
-        self.api_response = title.source
+        self.api_response = SlashDict(title.source)
         self.tmdb_instance = get_tmdb_concrete_class(title.type)
 
         self.response_handlers_map = {
@@ -311,14 +326,6 @@ class TitleUpdater(TmdbResponseMixin):
             value = self.api_response[path]
             if value:
                 handler(value)
-
-    def save_posters(self):
-        for poster_type, url in self.urls['poster'].items():
-            poster_url = self.urls['poster_base'] + url + self.api_response['poster_path']
-            extension = self.api_response['poster_path'].split('.')[-1]
-            file_name = f'{poster_type}.{extension}'
-            self.title.save_poster(file_name, poster_url, poster_type)
-        self.title.save()
 
     def save_similar(self, value):
         self.save_titles_to_attribute(value, self.title.similar)
@@ -337,7 +344,7 @@ class TitleUpdater(TmdbResponseMixin):
                     if movie is not None:
                         title_pks.append(movie.pk)
 
-                collection.titles.all().delete()
+                collection.titles.update(collection=None)
                 Title.objects.filter(pk__in=title_pks).update(collection=collection)
 
     def save_titles_to_attribute(self, value, attribute):

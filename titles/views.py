@@ -288,5 +288,5 @@ class TitleRedirectView(RedirectView):
     pattern_name = 'title-detail'
 
     def get_redirect_url(self, *args, **kwargs):
-        title = get_object_or_404(Title, const=kwargs['const'])
+        title = get_object_or_404(Title, imdb_id=kwargs['imdb_id'])
         return title.get_absolute_url()

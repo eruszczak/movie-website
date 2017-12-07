@@ -5,12 +5,12 @@
 {% block image %}
 <div class="still-background">
     <img class="backdrop" src="{{ title.poster_backdrop_title.url }}">
-{#    <img class="backdrop" src="{% static 'title.poster_backdrop_title.' %}">#}
 {#    <img class="backdrop" src="{% static 'img/1280.jpg' %}">#}
     <div class="ui grid centered">
         <div class="poster-background">
             <div class="card1 card-01 height-fix">
-                <img class="card-img-top" src="http://image.tmdb.org/t/p/w342/rNQH6Q8RPXD59aqGckST3CKQbCf.jpg" alt="Card image cap">
+                <img class="card-img-top" src="{{ title.poster_small.url }}" alt="Card image cap">
+{#                <img class="card-img-top" src="http://image.tmdb.org/t/p/w342/rNQH6Q8RPXD59aqGckST3CKQbCf.jpg" alt="Card image cap">#}
                 <div class="card-img-overlay">
                 <h4 class="card-title"><strong>{{ title.name }}</strong></h4>
                 <p class="card-text">
@@ -190,16 +190,21 @@
             <p>{{ title.plot }}</p>
             <div class="ui hidden divider"></div>
         {% endif %}
+
         <div class="ui segment">
           <a class="ui blue ribbon label">Similar</a>
             <span>Similar titles</span>
             <div class="ui list">
-                {% if 1 %}
+                {% for title in title.similar.all %}
+                    {% include 'titles/title_small.html' with title=title rate_date=rating.rate_date rate=rating.rate %}
+                {% endfor %}
+                {% if not title.similar %}
                     <p>Nothing found</p>
                 {% endif %}
             </div>
         </div>
         <div class="ui divider"></div>
+
         <div class="ui segment">
           <a class="ui blue ribbon label">Cast</a>
             <span>Cast and their other appearances</span>
