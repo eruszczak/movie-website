@@ -36,5 +36,11 @@ collection_id = 'tt0120737'
 # for x in t.castcrew_set.all():
 #     print(x)
 
-popular_movies = PopularMovies().get()
-print(popular_movies)
+# popular_movies = PopularMovies().get()
+# print(popular_movies)
+
+for title in Title.objects.all():
+    print(title.name)
+    imdb_id = title.imdb_id
+    print(title.delete())
+    TmdbWrapper().get(imdb_id)
