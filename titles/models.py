@@ -70,8 +70,11 @@ class Collection(models.Model):
 
 
 class Popular(models.Model):
-    update_date = models.DateField(auto_now=True)
+    update_date = models.DateField(unique=True)
     titles = models.ManyToManyField('Title', blank=True, related_name='popular')
+
+    class Meta:
+        ordering = ('-update_date',)
 
     def __str__(self):
         return f'Popular on {self.update_date}'

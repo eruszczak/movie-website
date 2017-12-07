@@ -1,3 +1,6 @@
+amqp==2.2.2
+billiard==3.5.0.3
+celery==4.1.0
 click==6.6
 decorator==4.0.10
 dj-database-url==0.4.2
@@ -7,9 +10,11 @@ django-compressor==2.1.1
 django-cors-headers==2.1.0
 django-debug-toolbar==1.6
 django-filter==0.14.0
+django-widget-tweaks==1.4.1
 djangorestframework==3.7.3
 gunicorn==19.6.0
 html5lib==0.9999999
+kombu==4.1.0
 Markdown==2.6.6
 olefile==0.44
 Pillow==4.2.1
@@ -22,3 +27,4 @@ requests==2.10.0
 rjsmin==1.0.12
 six==1.10.0
 sqlparse==0.2.2
+vine==1.1.4

@@ -18,4 +18,4 @@ def create_title_folder(sender, instance, **kwargs):
 
 @receiver(post_delete, sender=Title)
 def delete_title_folder(sender, instance, **kwargs):
-    rmtree(instance.get_folder_path(absolute=True))
+    rmtree(instance.get_folder_path(absolute=True), ignore_errors=True)

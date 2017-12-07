@@ -104,3 +104,4 @@ EMAIL_SUBJECT_PREFIX = '[] '
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 CORS_ORIGIN_WHITELIST = config('CORS_ORIGIN_WHITELIST', cast=Csv())
 
+CELERY_BROKER_URL = 'amqp://localhost'
