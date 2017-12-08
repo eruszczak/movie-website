@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, UpdateView, DetailView
 
+from titles.constants import SERIES, MOVIE
 from titles.models import Title, Rating
 from accounts.models import UserFollow
 from accounts.forms import UserUpdateForm
@@ -148,8 +149,8 @@ class UserDetailView(DetailView):
     def get_object(self, queryset=None):
         return self.model.objects.filter(username=self.kwargs['username']).annotate(
             total_ratings=Count('rating'),
-            total_movies=Count(Case(When(rating__title__type__name='movie', then=1), output_field=IntegerField())),  # distinct
-            total_series=Count(Case(When(rating__title__type__name='series', then=1), output_field=IntegerField())),  # distinct
+            total_movies=Count(Case(When(rating__title__type=MOVIE, then=1), output_field=IntegerField())),  # distinct
+            total_series=Count(Case(When(rating__title__type=SERIES, then=1), output_field=IntegerField())),  # distinct
             # total_followers=Count(Case(When(userfollow__followed__pk=F('pk'), then=1), output_field=IntegerField())),
         ).get()
 
