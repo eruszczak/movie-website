@@ -91,11 +91,7 @@ class BaseTmdb(TmdbResponseMixin):
 
     def get_or_create(self):
         if self.title:
-            print('found title')
-            # self.save_posters()
-            # todo: not sure if leave it here. a way for updating already added titles
-            # if self.call_updater:
-            #     TitleUpdater(self.title)
+            print('title existed', self.title.name)
             return self.title
 
         # This is for testing. Because once title in production is added, I won't need this file anymore.

@@ -120,9 +120,9 @@ class TitleListView(SearchViewMixin, ListView):
                 )
             ).order_by('-rating__rate_date')
         else:
-            qs = qs.order_by('-year', '-name')
+            qs = qs.order_by('-release_date', '-name')
 
-        return qs.prefetch_related('genre')
+        return qs.prefetch_related('genres')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

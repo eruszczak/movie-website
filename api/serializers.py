@@ -9,9 +9,10 @@ User = get_user_model()
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    genre = serializers.SerializerMethodField()
-    director = serializers.SerializerMethodField()
-    actor = serializers.SerializerMethodField()
+    genres = serializers.SerializerMethodField()
+    # director = serializers.SerializerMethodField()
+    # actor = serializers.SerializerMethodField()
+    year = serializers.SerializerMethodField()
     # url = serializers.URLField(source='title.get_absolute_url')
     url = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
@@ -23,24 +24,28 @@ class TitleSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_type(obj):
-        return obj.type.name
+        return obj.get_type_display()
 
     @staticmethod
     def get_url(obj):
         return obj.get_absolute_url()
 
     @staticmethod
-    def get_genre(obj):
-        return [g.name for g in obj.genre.all()]
+    def get_genres(obj):
+        return [g.name for g in obj.genres.all()]
 
     @staticmethod
-    def get_actor(obj):
-        return [a.name for a in obj.actor.all()]
+    def get_year(obj):
+        return obj.year
 
-    @staticmethod
-    def get_director(obj):
-        directors = [d.name for d in obj.director.all()]
-        return directors if directors[0] != 'N/A' else None
+    # @staticmethod
+    # def get_actor(obj):
+    #     return [a.name for a in obj.actor.all()]
+    #
+    # @staticmethod
+    # def get_director(obj):
+    #     directors = [d.name for d in obj.director.all()]
+    #     return directors if directors[0] != 'N/A' else None
 
 
 class TitlePreviewSerializer(serializers.ModelSerializer):

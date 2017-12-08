@@ -98,7 +98,8 @@
                             <span class="icon">{{ title.searched_user_rate }}</span>
                         </a>
                       {% endif %}
-                        <img src="{% static 'img/w500_and_h521_bestv2.jpg' %}">
+                        <img src="{{ title.poster_card.url }}">
+{#                        <img src="{% static 'img/w500_and_h521_bestv2.jpg' %}">#}
     {#                <img src="{% static 'img/w500_and_h521_bestv2.jpg' %}" data-src="{% if title.img %}{{ title.img.url }}{% endif %}">#}
                   </a>
                   <div class="content">
@@ -108,12 +109,12 @@
                     </div>
                     <div class="description">
                         <p>
-                            {% for genre in title.genre.all %}
+                            {% for genre in title.genres.all %}
                                 <a href="{{ genre.get_absolute_url }}">{{ genre.name }}{% if not forloop.last %},{% endif %}</a>
                             {% endfor %}
                             <span class="right floated">
                                 <i class="calendar icon"></i> {{ title.year }}
-                                <i class="star icon"></i>{{ title.rate_imdb }}
+{#                                <i class="star icon"></i>{{ title.rate_imdb }}#}
                             </span>
                         </p>
                     </div>
