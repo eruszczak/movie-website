@@ -2,6 +2,19 @@
 {% load static humanize %}
 {#{% block title %}{{ page_title }}{% endblock %}#}
 
+{#{% block image %}#}
+{#    <div class="your-class">#}
+{#      <div>your content</div>#}
+{#      <div>your content</div>#}
+{#      <div>your content</div>#}
+{#    </div>#}
+{#{% endblock %}#}
+{% block image %}
+    {% for title in popular.titles.all %}
+        {% include 'titles/includes/title_background.html' with title=title %}
+    {% endfor %}
+{% endblock %}
+
 {% block content %}
     <b>neutral site </b>
     <p>see by genre</p>
