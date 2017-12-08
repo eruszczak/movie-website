@@ -197,3 +197,9 @@ $('.grid .backdrop-card img').visibility({
     transition : 'fade in',
     duration   : 1000
 });
+
+$(document).ready(function(){
+  $('.your-class').slick({
+      // lazyLoad: 'ondemand progressive'
+  });
+});

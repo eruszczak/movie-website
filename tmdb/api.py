@@ -292,10 +292,9 @@ class PopularMovies(TmdbResponseMixin):
             popular, created = Popular.objects.get_or_create(update_date=now().date())
             if not popular.titles.count():
                 pks = []
-                for result in response['results'][:10]:
+                for result in response['results']:
                     popular_title = MovieTmdb(result['id']).get_or_create()
                     if popular_title:
-                        print(popular_title.name)
                         pks.append(popular_title.pk)
                 popular.titles.add(*pks)
             return popular

@@ -13,6 +13,10 @@
             <link rel="stylesheet" href="{% static 'css/style.css' %}">
         {% block styles %}{% endblock %}
         {% endcompress %}
+        <!-- Add the slick-theme.css if you want default styling -->
+        <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.css"/>
+        <!-- Add the slick-theme.css if you want default styling -->
+        <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick-theme.css"/>
     </head>
 <body>
     <div class="ui container">
@@ -49,5 +53,6 @@
         {% block scripts %}{% endblock %}
         <script></script>
     {% endcompress %}
+    <script type="text/javascript" src="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.min.js"></script>
 </body>
 </html>
