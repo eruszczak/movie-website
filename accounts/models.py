@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from common.sql_queries import avg_of_user_current_ratings
 from shared.helpers import get_random_file_path, validate_file_ext
-from titles.models import Title
+from titles.models import Title, Rating
 
 
 class User(AbstractUser):
@@ -65,6 +65,12 @@ class User(AbstractUser):
         if absolute:
             return join(settings.MEDIA_ROOT, relative_user_folder_path)
         return relative_user_folder_path
+
+    @property
+    def latest_rating_poster(self):
+        return Rating.objects.filter(
+            user=self, title__poster_backdrop_user__isnull=False
+        ).latest('rate_date').title.poster_backdrop_user.url
 
     @property
     def picture_filename(self):
