@@ -1,7 +1,7 @@
 {% load static %}
 
 <div class="still-background2">
-    <img class="backdrop" src="{% static 'img/w1920_and_h318.jpg' %}">
+    <img class="backdrop" src="{{ user.latest_rating_poster }}">
     <div class="ui grid centered">
         <div class="user-background">
             <div class="card-user card-user-01 height-fix">

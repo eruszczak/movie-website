@@ -132,7 +132,7 @@ class UserListView(ListView):
 class UserDetailView(DetailView):
     model = User
     template_name = 'accounts/user_detail.html'
-    titles_in_a_row = 6
+    # titles_in_a_row = 6
     is_owner = False
     common = None
     is_other_user = False
@@ -174,7 +174,7 @@ class UserDetailView(DetailView):
         context.update({
             'is_other_user': self.is_other_user,
             'is_owner': self.is_owner,
-            'rating_list': ratings[:self.titles_in_a_row],
+            'rating_list': ratings,
             'total_followers': UserFollow.objects.filter(followed=self.object).count(),
             'total_followed': len(followed),
             'feed': Rating.objects.filter(user__in=followed).select_related('title', 'user').order_by('-rate_date')[:10]
