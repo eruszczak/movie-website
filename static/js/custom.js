@@ -28,7 +28,16 @@ $('.rating').rating({
 });
 
 $('[type="tooltip"]').popup();
+// $('body').on('[type="tooltip"]').popup();
 $('.ui.checkbox').checkbox();
+
+$('body').on('change', '[type="tooltip"]', function() {
+    //Your code
+    console.log('year')
+    console.log($(this))
+    $(this).popup();
+    // $('[type="tooltip"]').popup();
+});
 
 // var $toggle  = $('.ui.toggle.button');
 // $toggle
@@ -200,25 +209,67 @@ $('.grid .backdrop-card img').visibility({
 
 $(document).ready(function() {
     var $slickCarousel = $('.slick-carousel');
-    $slickCarousel.on('init', function(event, slick) {
-        // on init, show card of first carousel item. it is hidden on init load to avoid weird `flickering`
-        $('.slick-slide.slick-current.slick-active').find('.card1').first().fadeIn();
-    });
+    if ($slickCarousel) {
+        $slickCarousel.on('init', function(event, slick) {
+            // on init, show card of first carousel item. it is hidden on init load to avoid weird `flickering`
+            $('.slick-slide.slick-current.slick-active').find('.card1').first().fadeIn();
+            $('[type="tooltip"]').popup();
+        });
 
-    $slickCarousel.slick({
-      // lazyLoad: 'ondemand progressive'
-      // 'centerMode': true,
-      'dots': true,
-      lazyLoad: 'ondemand',
-      // 'dotsClass': '',
-      // 'mobileFirst': true,
-      // 'respondTo': 'slider'  // window, slider min,
-      // 'responsive': ''
-    });
+        $slickCarousel.slick({
+          // 'centerMode': true,
+          'dots': true,
+          lazyLoad: 'ondemand',
+          // 'dotsClass': '',
+          // 'mobileFirst': true,
+          // 'respondTo': 'slider'  // window, slider min,
+          // 'responsive': ''
+        });
 
-    $slickCarousel.on('beforeChange', function(event, slick, currentSlide, nextSlide) {
-        $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
-        // $('.slick-slide.slick-current.slick-active').find('.still-background').first().css('visibility', 'visible');
-    });
+        $slickCarousel.on('beforeChange', function(event, slick, currentSlide, nextSlide) {
+            $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
+            // $('.slick-slide.slick-current.slick-active').find('.still-background').first().css('visibility', 'visible');
+        });
+    }
+
+    var $slickCarouselSimilar = $('.slick-carousel-similar');
+    if ($slickCarouselSimilar) {
+        $slickCarouselSimilar.slick({
+            infinite: false,
+            lazyLoad: 'ondemand',
+            slidesToShow: 7,
+            responsive: [
+                {
+                    breakpoint: 1024,
+                    settings: {
+                        slidesToShow: 4,
+                        infinite: true
+                    }
+                },
+                {
+                    breakpoint: 800,
+                    settings: {
+                        slidesToShow: 3,
+                        // dots: true
+                    }
+                },
+                {
+                    breakpoint: 600,
+                    settings: {
+                        slidesToShow: 2,
+                        // dots: true
+                    }
+                },
+                // {
+                //     breakpoint: 300,
+                //     settings: "unslick" // destroys slick
+                // }
+            ]
+        });
+        $slickCarouselSimilar.on('beforeChange', function(event, slick, currentSlide, nextSlide) {
+            $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
+            console.log(nextSlide);
+        });
+    }
 });
 
