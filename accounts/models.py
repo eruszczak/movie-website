@@ -8,10 +8,12 @@ from django.utils import timezone
 
 from common.sql_queries import avg_of_user_current_ratings
 from shared.helpers import get_random_file_path, validate_file_ext
+from shared.models import FolderPathMixin
+from titles.constants import MOVIE, SERIES
 from titles.models import Title, Rating
 
 
-class User(AbstractUser):
+class User(FolderPathMixin, AbstractUser):
     picture = models.ImageField(upload_to=get_random_file_path, blank=True, null=True)
     imdb_id = models.CharField(blank=True, null=True, max_length=15)
     tagline = models.CharField(blank=True, null=True, max_length=100)
@@ -21,6 +23,8 @@ class User(AbstractUser):
     last_updated_rss_ratings = models.DateTimeField(null=True, blank=True)
     last_updated_rss_watchlist = models.DateTimeField(null=True, blank=True)
     last_updated_profile = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+    MODEL_FOLDER_NAME = 'accounts'
 
     # __original_picture = None
     # __original_csv = None
@@ -33,23 +37,20 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
-    # def clean_fields(self, exclude=None):
-    #     super().clean_fields(exclude)
-
     def get_absolute_url(self):
-        return reverse('user-detail', kwargs={'username': self.username})
+        return reverse('user-detail', args=[self.username])
 
     def edit_url(self):
-        return reverse('user-edit', kwargs={'username': self.username})
+        return reverse('user-edit', args=[self.username])
 
     def watchlist_url(self):
-        return reverse('watchlist', kwargs={'username': self.username})
+        return reverse('watchlist', args=[self.username])
 
     def favourite_url(self):
-        return reverse('favourite', kwargs={'username': self.username})
+        return reverse('favourite', args=[self.username])
 
     def recommend_url(self):
-        return reverse('recommend', kwargs={'username': self.username})
+        return reverse('recommend', args=[self.username])
 
     def ratings_url(self):
         return reverse('title-list') + '?user={}'.format(self.pk)
@@ -60,14 +61,8 @@ class User(AbstractUser):
     def ratings_exclude(self):
         return reverse('title-list') + '?u={}&exclude_mine=on'.format(self.username)
 
-    def get_folder_path(self, absolute=False):
-        relative_user_folder_path = join('accounts', self.username)
-        if absolute:
-            return join(settings.MEDIA_ROOT, relative_user_folder_path)
-        return relative_user_folder_path
-
     @property
-    def latest_rating_poster(self):
+    def poster_of_latest_rating(self):
         return Rating.objects.filter(
             user=self, title__poster_backdrop_user__isnull=False
         ).latest('rate_date').title.poster_backdrop_user.url
@@ -89,12 +84,12 @@ class User(AbstractUser):
     @property
     def count_movies(self):
         """counts rated distinct movies"""
-        return Title.objects.filter(rating__user=self, type__name='movie').distinct().count()
+        return Title.objects.filter(rating__user=self, type=MOVIE).distinct().count()
 
     @property
     def count_series(self):
         """counts rated distinct series"""
-        return Title.objects.filter(rating__user=self, type__name='series').distinct().count()
+        return Title.objects.filter(rating__user=self, type=SERIES).distinct().count()
 
     # TODO
     @property

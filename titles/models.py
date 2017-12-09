@@ -9,8 +9,9 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
-from os.path import join, isfile
+from os.path import isfile
 
+from shared.models import FolderPathMixin
 from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES, SERIES, MOVIE
 from shared.helpers import get_instance_file_path
 # from titles.helpers import TitleUpdater
@@ -31,8 +32,11 @@ class Genre(models.Model):
         return f'{self.name}'
 
 
-class Person(models.Model):
+class Person(FolderPathMixin, models.Model):
     name = models.CharField(max_length=300)
+    picture = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
+
+    MODEL_FOLDER_NAME = 'people'
 
     def __str__(self):
         return f'{self.name}'
@@ -75,7 +79,7 @@ class Popular(models.Model):
         return f'Popular on {self.update_date}'
 
 
-class Title(models.Model):
+class Title(FolderPathMixin, models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     source = JSONField(blank=True)
@@ -106,8 +110,8 @@ class Title(models.Model):
 
     # rate_imdb = models.FloatField(blank=True, null=True)
     # votes = models.IntegerField(blank=True, null=True)
-    # tagline
-
+    MODEL_FOLDER_NAME = 'titles'
+    INSTANCE_FOLDER_NAME = 'imdb_id'
     objects = TitleQuerySet.as_manager()
 
     class Meta:
@@ -127,12 +131,6 @@ class Title(models.Model):
 
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
-
-    def get_folder_path(self, absolute=False):
-        relative_title_folder_path = join('titles', self.imdb_id)
-        if absolute:
-            return join(settings.MEDIA_ROOT, relative_title_folder_path)
-        return relative_title_folder_path
 
     def save_poster(self, file_name, url, poster_type):
         """download and save image to a one of poster_ fields"""
