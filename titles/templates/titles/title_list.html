@@ -29,16 +29,11 @@
                 {% get_query_string request.GET 'type' as query_string %}
                 <div class="ui text menu">
                   <div class="header item">Showing</div>
-                  <a class="item{% if not request.GET.type %} active{% endif %}" href="?{{ query_string }}">
-                    Both
-                  </a>
-
-                  <a class="item{% if request.GET.type == 'movie' %} active{% endif %}" href="?{{ query_string }}{% if query_string %}&{% endif %}type=movie">
-                    Movies
-                  </a>
-                  <a class="item{% if request.GET.type == 'series' %} active{% endif %}" href="?{{ query_string }}{% if query_string %}&{% endif %}type=series">
-                    TV-Shows
-                  </a>
+                    {% for value, display in type_choices %}
+                      <a class="item{% ifequal request.GET.type value %} active{% endifequal %}" href="?{{ query_string }}{% if query_string %}&{% endif %}type={{ value }}">
+                        {{ display }}
+                      </a>
+                    {% endfor %}
                 </div>
             </div>
 {#            <div class="column">#}

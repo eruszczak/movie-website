@@ -17,7 +17,7 @@ class TitleSearchForm(SearchFormMixin, forms.Form):
     user = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
     keyword = forms.CharField(max_length=100, required=False, label='Search by keywords')
     genre = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False)
-    genre2 = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False, widget=MySelectMultipleWidget)
+    # genre2 = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False, widget=MySelectMultipleWidget)
     type = forms.CharField(required=False)
     # type = forms.NullBooleanField()
 
@@ -30,7 +30,7 @@ class TitleSearchForm(SearchFormMixin, forms.Form):
     @staticmethod
     def search_genre(value):
         # all of them, not any.
-        return Q(genre__in=value)
+        return Q(genres__in=value)
 
     # @staticmethod
     # def search_year(value):
@@ -47,9 +47,7 @@ class TitleSearchForm(SearchFormMixin, forms.Form):
 
     @staticmethod
     def search_type(value):
-        if value in ('title', 'series'):
-            return Q(type__name=value)
-        return Q()
+        return Q(type=value)
 
     @staticmethod
     def search_user(value):
