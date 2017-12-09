@@ -10,9 +10,11 @@
 {#    </div>#}
 {#{% endblock %}#}
 {% block image %}
-    {% for title in popular.titles.all %}
-        {% include 'titles/includes/title_background.html' with title=title %}
-    {% endfor %}
+    <div class="your-class">
+        {% for title in popular.titles.all %}
+            {% include 'titles/includes/title_background.html' with title=title slick=True %}
+        {% endfor %}
+    </div>
 {% endblock %}
 
 {% block content %}

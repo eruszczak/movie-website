@@ -201,5 +201,12 @@ $('.grid .backdrop-card img').visibility({
 $(document).ready(function(){
   $('.your-class').slick({
       // lazyLoad: 'ondemand progressive'
+      // 'centerMode': true,
+      'dots': true,
+      lazyLoad: 'ondemand',
+      // 'dotsClass': '',
+      // 'mobileFirst': true,
+      // 'respondTo': 'slider'  // window, slider min,
+      // 'responsive': ''
   });
 });
