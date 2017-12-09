@@ -163,17 +163,9 @@
 
         <div class="ui segment">
           <a class="ui blue ribbon label">Similar</a>
-{#            <span>Similar titles</span>#}
             <div class="ui list">
-{#                {% for title in title.similar.all %}#}
-{#                    {% include 'titles/title_small.html' with title=title rate_date=rating.rate_date rate=rating.rate %}#}
-{#                {% endfor %}#}
-{#                {% if not title.similar %}#}
-{#                    <p>Nothing found</p>#}
-{#                {% endif %}#}
-{#            how to decide how much in a row?#}
                 <div class="slick-carousel-similar">
-                    {% for title in title.similar.all %}
+                    {% for title in similar %}
                         <div>
                             {% include 'titles/includes/title_small_slick.html' with title=title rate_date=rating.rate_date rate=rating.rate slick=True counter=forloop.counter0 %}
                         </div>
@@ -181,7 +173,21 @@
                 </div>
             </div>
         </div>
-        <div class="ui divider"></div>
+
+        {% if title.collection %}
+            <div class="ui segment">
+              <a class="ui blue ribbon label">{{ title.collection.name }}</a>
+                <div class="ui list">
+                    <div class="slick-carousel-similar">
+                        {% for title in title.collection.titles.all %}
+                            <div>
+                                {% include 'titles/includes/title_small_slick.html' with title=title rate_date=rating.rate_date rate=rating.rate slick=True counter=forloop.counter0 %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
 
         <div class="ui segment">
           <a class="ui blue ribbon label">Cast</a>
@@ -199,18 +205,24 @@
                 {% endif %}
             </div>
         </div>
-        <div class="ui hidden divider"></div>
-        <a href="{{ title.url_imdb }}" target="_blank">
-            <img class="image" src="{% static 'img/imdb.png' %}" alt="..." style="width: 70px">
-        </a>
-        <a href="{{ title.url_tomato }}" target="_blank">
-            <img class="image" src="{% static 'img/rt.png' %}" alt="..." style="width: 70px">
-        </a>
-        <a href="" target="_blank">
-{#                <img class="image" src="{% static 'img/rt.png' %}" alt="..." style="width: 70px">#}
-            TMDB
-        </a>
-        <p>Last updated: {{ title.last_updated }}</p>
+
+        <div class="ui segment">
+          <a class="ui blue ribbon label">More</a>
+            <div class="ui list">
+                <a href="{{ title.imdb_url }}" target="_blank">
+                    <img class="image" src="{% static 'img/imdb.png' %}" alt="..." style="height: 50px">
+                </a>
+        {#        <a href="{{ title.url_tomato }}" target="_blank">#}
+        {#            <img class="image" src="{% static 'img/rt.png' %}" alt="..." style="width: 70px">#}
+        {#        </a>#}
+                <a href="{{ title.tmdb_url }}" target="_blank">
+                    <img class="image" src="{% static 'img/tmdb.png' %}" alt="..." style="height: 50px">
+                </a>
+        {#        <p>Last updated: {{ title.last_updated }}</p>#}
+            </div>
+        </div>
+
+
     </div>
     <div class="ui tab segment" data-tab="fourth">
         <h3 class="ui header">Trailer</h3>

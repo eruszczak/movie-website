@@ -225,16 +225,21 @@ class TitleDetailView(DetailView):
         #     if titles:
         #         actors_and_other_titles.append((actor, titles))
         #
-        # context.update({
-        #     'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
-        # })
+        pks_of_titles_in_collection = []
+        if self.object.collection:
+            pks_of_titles_in_collection = self.object.collection.titles.all().values_list('pk', flat=True)
+
+        context.update({
+            'similar': self.object.similar.exclude(pk__in=pks_of_titles_in_collection),
+            # 'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
+        })
         return context
 
-    @method_decorator(login_required)
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        # self.delete_rating()
-        return redirect(self.object)
+    # @method_decorator(login_required)
+    # def post(self, request, *args, **kwargs):
+    #     self.object = self.get_object()
+    #     # self.delete_rating()
+    #     return redirect(self.object)
 
     # def delete_rating(self):
     #     delete_rating = self.request.POST.get('delete_rating')

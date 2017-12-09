@@ -171,6 +171,10 @@ class Title(models.Model):
         return f'http://www.imdb.com/title/{self.imdb_id}/'
 
     @property
+    def tmdb_url(self):
+        return f'http://www.themoviedb.org/movie/{self.tmdb_id}/'
+
+    @property
     def year(self):
         return self.release_date.year
 
