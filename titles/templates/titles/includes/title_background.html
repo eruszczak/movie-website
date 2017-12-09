@@ -1,29 +1,31 @@
-<div>
-    <div class="still-background slick-item"{% if counter > 0 %} style="visibility: hidden"{% endif %}>
-        <img class="backdrop" {% if slick %}data-lazy{% else %}src{% endif %}="{{ title.poster_backdrop_title.url }}">
-        <div class="ui grid centered">
-            <div class="poster-background">
-                <div class="card1 card-01 height-fix">
-                    <img class="card-img-top" {% if slick %}data-lazy{% else %}src{% endif %}="{{ title.poster_small.url }}" alt="Card image cap">
-                    <div class="card-img-overlay">
-                    <h4 class="card-title"><strong>{{ title.name }}</strong></h4>
-                    <p class="card-text">
+<div class="still-background slick-item"{% if counter > 0 %} style="visibility: hidden"{% endif %}>
+    <img class="backdrop" {% if slick %}data-lazy{% else %}src{% endif %}="{{ title.poster_backdrop_title.url }}" alt="{{ title.name }}">
+    <div class="ui grid centered">
+        <div class="poster-background">
+            <div class="card1 card-01 height-fix"{% if slick and counter == 0 %} style="display: none"{% endif %}>
+                {% if slick %}
+                    <a href="{{ title.get_absolute_url }}"><img class="card-img-top" {% if slick1 %}data-lazy{% else %}src{% endif %}="{{ title.poster_small.url }}" alt="{{ title.name }}"></a>
+                {% else %}
+                    <img class="card-img-top" {% if slick %}data-lazy{% else %}src{% endif %}="{{ title.poster_small.url }}" alt="{{ title.name }}">
+                {% endif %}
+                <div class="card-img-overlay">
+                <h4 class="card-title"><strong>{{ title.name }}</strong></h4>
+                <p class="card-text">
 
-                    </p>
-                    {#            <p class="card-text">Captain Jack Sparrow searches for the trident of Poseidon.</p>#}
-                    <p class="card-text ui star large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ user_ratings_of_title.0.rate }}"></p>
-                    <p class="card-text">
-                        <i class="calendar icon"></i> {{ title.year }}
-                        <i class="star icon"></i>{{ title.rate_imdb }}
-                        <i data-pk="{{ title.pk }}" class="{% if not title.has_in_favourites %}empty {% else %}active {% endif %}red heart icon large title-fav ml10"></i>
-                        <i data-pk="{{ title.pk }}" class="{% if not title.has_in_watchlist %}remove {% else %}active {% endif %}red bookmark icon large title-watch"></i>
-                    </p>
-                    <p class="card-text">
-                        {% for genre in title.genre.all %}
-                            <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
-                        {% endfor %}
-                    </p>
-                    </div>
+                </p>
+                {#            <p class="card-text">Captain Jack Sparrow searches for the trident of Poseidon.</p>#}
+                <p class="card-text ui star large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ user_ratings_of_title.0.rate }}"></p>
+                <p class="card-text">
+                    <i class="calendar icon"></i> {{ title.year }}
+                    <i class="star icon"></i>{{ title.rate_imdb }}
+                    <i data-pk="{{ title.pk }}" class="{% if not title.has_in_favourites %}empty {% else %}active {% endif %}red heart icon large title-fav ml10"></i>
+                    <i data-pk="{{ title.pk }}" class="{% if not title.has_in_watchlist %}remove {% else %}active {% endif %}red bookmark icon large title-watch"></i>
+                </p>
+                <p class="card-text">
+                    {% for genre in title.genre.all %}
+                        <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
+                    {% endfor %}
+                </p>
                 </div>
             </div>
         </div>

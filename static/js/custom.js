@@ -198,8 +198,14 @@ $('.grid .backdrop-card img').visibility({
     duration   : 1000
 });
 
-$(document).ready(function(){
-  $('.slick-carousel').slick({
+$(document).ready(function() {
+    var $slickCarousel = $('.slick-carousel');
+    $slickCarousel.on('init', function(event, slick) {
+        // on init, show card of first carousel item. it is hidden on init load to avoid weird `flickering`
+        $('.slick-slide.slick-current.slick-active').find('.card1').first().fadeIn();
+    });
+
+    $slickCarousel.slick({
       // lazyLoad: 'ondemand progressive'
       // 'centerMode': true,
       'dots': true,
@@ -208,10 +214,11 @@ $(document).ready(function(){
       // 'mobileFirst': true,
       // 'respondTo': 'slider'  // window, slider min,
       // 'responsive': ''
-  });
+    });
+
+    $slickCarousel.on('beforeChange', function(event, slick, currentSlide, nextSlide) {
+        $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
+        // $('.slick-slide.slick-current.slick-active').find('.still-background').first().css('visibility', 'visible');
+    });
 });
 
-$('.slick-carousel').on('beforeChange', function(event, slick, currentSlide, nextSlide){
-    $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
-    // console.log($('.slick-slide.slick-current.slick-active').find('.still-background').first().css('visibility', 'visible'));
-});
