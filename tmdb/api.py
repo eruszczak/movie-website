@@ -170,15 +170,22 @@ class BaseTmdb(TmdbResponseMixin):
 
     def save_cast(self, value):
         for cast in value:
-            person, created = Person.objects.get_or_create(pk=cast['id'], defaults={'name': cast['name']})
+            person = self.get_or_create_person(cast)
             CastTitle.objects.create(title=self.title, person=person, character=cast['character'], order=cast['order'])
 
     def save_crew(self, value):
         for crew in value:
-            person, created = Person.objects.get_or_create(pk=crew['id'], defaults={'name': crew['name']})
-            job = TITLE_CREW_JOB.get(crew['job'], None)
-            if job is not None:
+            person = self.get_or_create_person(crew)
+            job = TITLE_CREW_JOB.get(crew['job'])
+            if job:
                 CastCrew.objects.create(title=self.title, person=person, job=job)
+
+    @staticmethod
+    def get_or_create_person(value):
+        person, created = Person.objects.get_or_create(
+            pk=value['id'], defaults={'name': value['name'], 'picture_path': value['profile_path']}
+        )
+        return person
 
 
 class MovieTmdb(BaseTmdb):

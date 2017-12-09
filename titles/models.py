@@ -35,6 +35,7 @@ class Genre(models.Model):
 class Person(FolderPathMixin, models.Model):
     name = models.CharField(max_length=300)
     picture = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
+    picture_path = models.CharField(max_length=300)
 
     MODEL_FOLDER_NAME = 'people'
 
@@ -111,7 +112,7 @@ class Title(FolderPathMixin, models.Model):
     # rate_imdb = models.FloatField(blank=True, null=True)
     # votes = models.IntegerField(blank=True, null=True)
     MODEL_FOLDER_NAME = 'titles'
-    INSTANCE_FOLDER_NAME = 'imdb_id'
+    ATTRIBUTE_FOR_FOLDER_NAME = 'imdb_id'
     objects = TitleQuerySet.as_manager()
 
     class Meta:
