@@ -12,6 +12,7 @@ from accounts.models import UserFollow
 from lists.models import Watchlist, Favourite
 from shared.views import SearchViewMixin
 # from titles.constants import MOVIE, SERIES
+from titles.constants import TITLE_TYPE_CHOICES
 from titles.forms import TitleSearchForm, RateUpdateForm
 from tmdb.api import get_tmdb_concrete_class
 from .models import Genre, Title, Rating, Popular
@@ -126,8 +127,17 @@ class TitleListView(SearchViewMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['searched_user'] = self.searched_user
+        context.update({
+            'searched_user': self.searched_user,
+            'type_choices': self.get_title_type_choices()
+        })
         return context
+
+    @staticmethod
+    def get_title_type_choices():
+        type_choices = [('', 'Both')]
+        type_choices.extend([(str(value), display) for value, display in TITLE_TYPE_CHOICES])
+        return type_choices
 
 
 class TitleDetailView(DetailView):
