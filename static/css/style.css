@@ -225,3 +225,15 @@ body {
     left: 0;
     padding: 1.25rem;
 }
+
+.slick-arrow {
+    z-index: 2000;
+}
+
+.slick-next {
+    right: 35px;
+}
+
+.slick-prev {
+    left: 35px;
+}
