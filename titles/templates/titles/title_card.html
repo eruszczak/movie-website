@@ -10,7 +10,7 @@
 {#      <a class="ui right corner label">#}
 {#        <i class="heart icon"></i>#}
 {#      </a>#}
-      <img src="{% static 'img/w185_h278_bestv2.jpg' %}">
+      <img src="{{ title.poster_small.url }}">
     </div>
   <div class="extra content">
       <a href="{{ title.get_absolute_url }}">{{ title.name }} ({{ title.year }})</a>
