@@ -199,7 +199,7 @@ $('.grid .backdrop-card img').visibility({
 });
 
 $(document).ready(function(){
-  $('.your-class').slick({
+  $('.slick-carousel').slick({
       // lazyLoad: 'ondemand progressive'
       // 'centerMode': true,
       'dots': true,
@@ -209,4 +209,9 @@ $(document).ready(function(){
       // 'respondTo': 'slider'  // window, slider min,
       // 'responsive': ''
   });
+});
+
+$('.slick-carousel').on('beforeChange', function(event, slick, currentSlide, nextSlide){
+    $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
+    // console.log($('.slick-slide.slick-current.slick-active').find('.still-background').first().css('visibility', 'visible'));
 });

@@ -10,9 +10,9 @@
 {#    </div>#}
 {#{% endblock %}#}
 {% block image %}
-    <div class="your-class">
+    <div class="slick-carousel">
         {% for title in popular.titles.all %}
-            {% include 'titles/includes/title_background.html' with title=title slick=True %}
+            {% include 'titles/includes/title_background.html' with title=title slick=True counter=forloop.counter0 %}
         {% endfor %}
     </div>
 {% endblock %}

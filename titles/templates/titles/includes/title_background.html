@@ -1,5 +1,5 @@
 <div>
-    <div class="still-background">
+    <div class="still-background slick-item"{% if counter > 0 %} style="visibility: hidden"{% endif %}>
         <img class="backdrop" {% if slick %}data-lazy{% else %}src{% endif %}="{{ title.poster_backdrop_title.url }}">
         <div class="ui grid centered">
             <div class="poster-background">
