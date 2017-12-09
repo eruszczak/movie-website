@@ -184,6 +184,12 @@ class TitleDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        collection_titles = Title.objects.none()
+        similar_titles = self.object.similar.all()
+        if self.object.collection:
+            collection_titles = self.object.collection.titles.all()
+            similar_titles = similar_titles.exclude(pk__in=collection_titles.values_list('pk', flat=True))
+
         if self.request.user.is_authenticated:
             context.update({
                 # 'rating': Rating.objects.filter(user=self.request.user, title=self.object).latest('rate_date'),
@@ -210,6 +216,18 @@ class TitleDetailView(DetailView):
                 ).select_related('followed')
             })
 
+            request_user_newest_ratings = Rating.objects.filter(
+                user=self.request.user, title=OuterRef('pk')
+            ).order_by('-rate_date').values('rate')[:1]
+
+            collection_titles = collection_titles.annotate(
+                request_user_rate=Subquery(request_user_newest_ratings)
+            )
+
+            similar_titles = similar_titles.annotate(
+                request_user_rate=Subquery(request_user_newest_ratings)
+            )
+
         actors_and_other_titles = []
         # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
         # test = Title.objects.filter(actor__in=self.object.actor.all())
@@ -226,22 +244,8 @@ class TitleDetailView(DetailView):
         #         actors_and_other_titles.append((actor, titles))
         #
 
-        pks_of_collection_titles = []
-        collection_titles = []
-        if self.object.collection:
-            collection_titles = self.object.collection.titles.all()
-            if self.request.user.is_authenticated:
-                collection_titles = collection_titles.annotate(
-                    request_user_rate=Subquery(
-                        Rating.objects.filter(
-                            user=self.request.user, title=OuterRef('pk')
-                        ).order_by('-rate_date').values('rate')[:1]
-                    )
-                )
-            pks_of_collection_titles = self.object.collection.titles.all().values_list('pk', flat=True)
-
         context.update({
-            'similar': self.object.similar.exclude(pk__in=pks_of_collection_titles),
+            'similar': similar_titles,
             'collection_titles': collection_titles
             # 'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
         })
