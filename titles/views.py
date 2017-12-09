@@ -225,12 +225,24 @@ class TitleDetailView(DetailView):
         #     if titles:
         #         actors_and_other_titles.append((actor, titles))
         #
-        pks_of_titles_in_collection = []
+
+        pks_of_collection_titles = []
+        collection_titles = []
         if self.object.collection:
-            pks_of_titles_in_collection = self.object.collection.titles.all().values_list('pk', flat=True)
+            collection_titles = self.object.collection.titles.all()
+            if self.request.user.is_authenticated:
+                collection_titles = collection_titles.annotate(
+                    request_user_rate=Subquery(
+                        Rating.objects.filter(
+                            user=self.request.user, title=OuterRef('pk')
+                        ).order_by('-rate_date').values('rate')[:1]
+                    )
+                )
+            pks_of_collection_titles = self.object.collection.titles.all().values_list('pk', flat=True)
 
         context.update({
-            'similar': self.object.similar.exclude(pk__in=pks_of_titles_in_collection),
+            'similar': self.object.similar.exclude(pk__in=pks_of_collection_titles),
+            'collection_titles': collection_titles
             # 'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
         })
         return context

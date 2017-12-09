@@ -179,9 +179,9 @@
               <a class="ui blue ribbon label">{{ title.collection.name }}</a>
                 <div class="ui list">
                     <div class="slick-carousel-similar">
-                        {% for title in title.collection.titles.all %}
+                        {% for title in collection_titles %}
                             <div>
-                                {% include 'titles/includes/title_small_slick.html' with title=title rate_date=rating.rate_date rate=rating.rate slick=True counter=forloop.counter0 %}
+                                {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate_date=rating.rate_date rate2=title.request_user_rate %}
                             </div>
                         {% endfor %}
                     </div>
