@@ -22,11 +22,11 @@
     {#    {% endif %}#}
     {#{% endwith %}#}
 {#    <div class="ui divider"></div>#}
-<div class="ui fluid three item menu title-menu">
-  <a class="item active" data-tab="third">Title info</a>
-  <a class="item" data-tab="first">Overview</a>
-  <a class="item" data-tab="fourth"><i class="video play icon"></i> Media</a>
-</div>
+    <div class="ui fluid three item menu title-menu">
+      <a class="item active" data-tab="third">Title info</a>
+      <a class="item" data-tab="first">Overview</a>
+      <a class="item" data-tab="fourth"><i class="video play icon"></i> Media</a>
+    </div>
     {#<a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
 
     <div class="ui tab segment" data-tab="first">
@@ -163,14 +163,22 @@
 
         <div class="ui segment">
           <a class="ui blue ribbon label">Similar</a>
-            <span>Similar titles</span>
+{#            <span>Similar titles</span>#}
             <div class="ui list">
-                {% for title in title.similar.all %}
-                    {% include 'titles/title_small.html' with title=title rate_date=rating.rate_date rate=rating.rate %}
-                {% endfor %}
-                {% if not title.similar %}
-                    <p>Nothing found</p>
-                {% endif %}
+{#                {% for title in title.similar.all %}#}
+{#                    {% include 'titles/title_small.html' with title=title rate_date=rating.rate_date rate=rating.rate %}#}
+{#                {% endfor %}#}
+{#                {% if not title.similar %}#}
+{#                    <p>Nothing found</p>#}
+{#                {% endif %}#}
+{#            how to decide how much in a row?#}
+                <div class="slick-carousel-similar">
+                    {% for title in title.similar.all %}
+                        <div>
+                            {% include 'titles/includes/title_small_slick.html' with title=title rate_date=rating.rate_date rate=rating.rate slick=True counter=forloop.counter0 %}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
         <div class="ui divider"></div>
