@@ -23,8 +23,8 @@
     {#{% endwith %}#}
 {#    <div class="ui divider"></div>#}
     <div class="ui fluid three item menu title-menu">
-      <a class="item active" data-tab="third">Title info</a>
-      <a class="item" data-tab="first">Overview</a>
+      <a class="item active" data-tab="third">Title Details</a>
+      <a class="item" data-tab="first">Your Overview</a>
       <a class="item" data-tab="fourth"><i class="video play icon"></i> Media</a>
     </div>
     {#<a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
@@ -160,7 +160,9 @@
             <p>{{ title.plot }}</p>
             <div class="ui hidden divider"></div>
         {% endif %}
-
+        <div>
+            {% include 'titles/includes/title_small_slick.html' with title=similar.0 rate2=title.request_user_rate %}
+        </div>
         <div class="ui segment">
           <a class="ui blue ribbon label">Similar</a>
             <div class="ui list">
