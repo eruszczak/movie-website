@@ -193,18 +193,16 @@
 
         <div class="ui segment">
           <a class="ui blue ribbon label">Cast</a>
-            <span>Cast and their other appearances</span>
+{#            <span>Cast and their other appearances</span>#}
             <div class="ui list">
-                {% for actor, titles in actors_and_other_titles %}
-                    <h4 class="ui header">{{ actor.name }}</h4>
-                    {% for title in titles %}
-                {#        show left corner label only if rated#}
-                        {% include 'titles/title_small.html' with title=title rate=title.user_rate %}
+                <div class="slick-carousel-similar">
+                    {% for cast in cast_list %}
+                        <div>
+{#                        {{ cast.person }} - {{ cast.person.picture }}<br>#}
+                        {% include 'titles/includes/person_small_slick.html' with slick=True person=cast.person character=cast.character %}
+                        </div>
                     {% endfor %}
-                {% endfor %}
-                {% if not actors_and_other_titles %}
-                    <p>Nothing found</p>
-                {% endif %}
+                </div>
             </div>
         </div>
 

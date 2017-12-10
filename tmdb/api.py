@@ -94,8 +94,8 @@ class BaseTmdb(TmdbResponseMixin):
         if self.title:
             print('title existed', self.title.name)
 
-            self.save_cast(self.cached_response['credits/cast'])
-            self.save_crew(self.cached_response['credits/crew'])
+            # self.save_cast(self.cached_response['credits/cast'])
+            # self.save_crew(self.cached_response['credits/crew'])
             return self.title
 
         # This is for testing. Because once title in production is added, I won't need this file anymore.
@@ -327,7 +327,6 @@ class TitleUpdater(TmdbResponseMixin):
             poster_url = self.urls['poster_base'] + self.urls['poster']['small'] + person.picture_path
             extension = person.picture_path.split('.')[-1]
             file_name = f'picture_path.{extension}'
-
             person.save_picture(file_name, poster_url)
 
     def save_similar(self, value):

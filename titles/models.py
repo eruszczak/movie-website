@@ -68,7 +68,7 @@ class CastTitle(models.Model):
         return f'{self.person} in {self.title}'
 
     class Meta:
-        ordering = ('-order',)
+        ordering = ('order',)
 
 
 class CastCrew(models.Model):

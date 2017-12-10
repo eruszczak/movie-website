@@ -15,7 +15,7 @@ from shared.views import SearchViewMixin
 from titles.constants import TITLE_TYPE_CHOICES
 from titles.forms import TitleSearchForm, RateUpdateForm
 from tmdb.api import get_tmdb_concrete_class
-from .models import Genre, Title, Rating, Popular
+from .models import Genre, Title, Rating, Popular, CastTitle
 from .tasks import get_todays_popular_movies
 
 User = get_user_model()
@@ -238,10 +238,13 @@ class TitleDetailView(DetailView):
         #     if titles:
         #         actors_and_other_titles.append((actor, titles))
         #
-
+        # cast = CastTitle.objects.filter(title=self.object)
+        # for c in cast:
+        #     print(c, c.order)
         context.update({
             'similar': similar_titles,
-            'collection_titles': collection_titles
+            'collection_titles': collection_titles,
+            'cast_list': CastTitle.objects.filter(title=self.object).select_related('person')
             # 'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
         })
         return context
