@@ -42,6 +42,9 @@ class Person(FolderPathMixin, models.Model):
     def __str__(self):
         return f'{self.name}'
 
+    def get_absolute_url(self):
+        return reverse('person-detail', args=[self.pk])
+
     def save_picture(self, file_name, url):
         """download and save image to picture"""
         file_path = get_instance_file_path(self, file_name, absolute=True)

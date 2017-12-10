@@ -13,4 +13,5 @@
     <a href="{{ title.get_absolute_url }}">
         <img {% if slick %}data-lazy{% else %}src{% endif %}="{{ title.poster_small.url }}">
     </a>
+    <small>{{ title.name }} ({{ title.year }})</small>
 </div>
