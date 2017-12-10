@@ -26,6 +26,12 @@ TITLE_TYPE_CHOICES = (
     (SERIES, SERIES_DISPLAY)
 )
 
+IMAGE_SIZES = {
+    'backdrop_user': 'w1920_and_h318_bestv2',
+    'backdrop_title': 'w1280',
+    'small': 'w185_and_h278_bestv2',
+    'card': 'w500_and_h281_bestv2'
+}
 
 # "backdrop_path": "/56v2KjBlU4XaOv9rVYEQypROD7P.jpg", vs poster_path
 # created_by - CREW
