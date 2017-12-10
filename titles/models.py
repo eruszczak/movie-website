@@ -13,7 +13,7 @@ from os.path import isfile
 
 from .helpers import tmdb_image
 from shared.models import FolderPathMixin
-from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES, SERIES, MOVIE
+from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES, SERIES, MOVIE, IMAGE_SIZES
 from shared.helpers import get_instance_file_path
 # from titles.helpers import TitleUpdater
 from .managers import TitleQuerySet
@@ -54,7 +54,7 @@ class Person(models.Model):
     @property
     @tmdb_image
     def picture(self):
-        return 'w185_and_h278_bestv2'
+        return IMAGE_SIZES['small']
 
     # def save_picture(self, file_name, url=None):
     #     """download and save image to picture"""
@@ -192,22 +192,22 @@ class Title(models.Model):
     @property
     @tmdb_image
     def poster_backdrop_user(self):
-        return 'w1920_and_h318_bestv2'
+        return IMAGE_SIZES['backdrop_user']
 
     @property
     @tmdb_image
     def poster_backdrop_title(self):
-        return 'w1280'
+        return IMAGE_SIZES['backdrop_title']
 
     @property
     @tmdb_image
     def poster_small(self):
-        return 'w185_and_h278_bestv2'
+        return IMAGE_SIZES['small']
 
     @property
     @tmdb_image
     def poster_card(self):
-        return 'w500_and_h281_bestv2'
+        return IMAGE_SIZES['card']
 
     @property
     def is_movie(self):
