@@ -4,6 +4,7 @@ from time import sleep
 
 from decouple import config
 from django.conf import settings
+from django.db.models import Q
 
 from django.utils.timezone import now
 
@@ -92,6 +93,9 @@ class BaseTmdb(TmdbResponseMixin):
     def get_or_create(self):
         if self.title:
             print('title existed', self.title.name)
+
+            self.save_cast(self.cached_response['credits/cast'])
+            self.save_crew(self.cached_response['credits/crew'])
             return self.title
 
         # This is for testing. Because once title in production is added, I won't need this file anymore.
@@ -129,6 +133,7 @@ class BaseTmdb(TmdbResponseMixin):
         })
 
         self.title = Title.objects.create(tmdb_id=self.tmdb_id, **title_data)
+        # update_or_create
 
         self.save_posters()
 
@@ -170,19 +175,19 @@ class BaseTmdb(TmdbResponseMixin):
 
     def save_cast(self, value):
         for cast in value:
-            person = self.get_or_create_person(cast)
+            person = self.get_person(cast)
             CastTitle.objects.create(title=self.title, person=person, character=cast['character'], order=cast['order'])
 
     def save_crew(self, value):
         for crew in value:
-            person = self.get_or_create_person(crew)
             job = TITLE_CREW_JOB.get(crew['job'])
             if job:
+                person = self.get_person(crew)
                 CastCrew.objects.create(title=self.title, person=person, job=job)
 
     @staticmethod
-    def get_or_create_person(value):
-        person, created = Person.objects.get_or_create(
+    def get_person(value):
+        person, created = Person.objects.update_or_create(
             pk=value['id'], defaults={'name': value['name'], 'picture_path': value['profile_path']}
         )
         return person
@@ -291,24 +296,6 @@ class TmdbWrapper(TmdbResponseMixin):
         return None
 
 
-class PopularMovies(TmdbResponseMixin):
-
-    def get(self):
-        response = self.get_tmdb_response('movie', 'popular')
-        if response is not None:
-            popular, created = Popular.objects.get_or_create(update_date=now().date())
-            if not popular.titles.count():
-                pks = []
-                for result in response['results']:
-                    popular_title = MovieTmdb(result['id']).get_or_create()
-                    if popular_title:
-                        pks.append(popular_title.pk)
-                popular.titles.add(*pks)
-            return popular
-
-        return None
-
-
 class TitleUpdater(TmdbResponseMixin):
     """Class that fetches additional information for a title"""
 
@@ -324,10 +311,24 @@ class TitleUpdater(TmdbResponseMixin):
             'recommendations/results': self.save_recommendations
         }
 
-        for path, handler in self.response_handlers_map.items():
-            value = self.api_response[path]
-            if value:
-                handler(value)
+        self.download_pictures_for_people()
+
+        # for path, handler in self.response_handlers_map.items():
+        #     value = self.api_response[path]
+        #     if value:
+        #         handler(value)
+
+    def download_pictures_for_people(self):
+        titles_people = Person.objects.filter(
+            Q(casttitle__title=self.title, picture='', picture_path__isnull=False) |
+            Q(castcrew__title=self.title, picture='', picture_path__isnull=False)
+        )
+        for person in titles_people:
+            poster_url = self.urls['poster_base'] + self.urls['poster']['small'] + person.picture_path
+            extension = person.picture_path.split('.')[-1]
+            file_name = f'picture_path.{extension}'
+
+            person.save_picture(file_name, poster_url)
 
     def save_similar(self, value):
         self.save_titles_to_attribute(value, self.title.similar)
@@ -356,3 +357,25 @@ class TitleUpdater(TmdbResponseMixin):
             if title:
                 pks.append(title.pk)
         attribute.add(*pks)
+
+
+class PopularMovies(TmdbResponseMixin):
+
+    def get(self):
+        response = self.get_tmdb_response('movie', 'popular')
+        if response is not None:
+            popular, created = Popular.objects.get_or_create(update_date=now().date())
+            if not popular.titles.count():
+                pks = []
+                for result in response['results']:
+                    popular_title = MovieTmdb(result['id']).get_or_create()
+                    if popular_title:
+                        pks.append(popular_title.pk)
+                popular.titles.add(*pks)
+            return popular
+
+        return None
+
+
+class PopularPeople(TmdbResponseMixin):
+    pass

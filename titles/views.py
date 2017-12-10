@@ -220,13 +220,8 @@ class TitleDetailView(DetailView):
                 user=self.request.user, title=OuterRef('pk')
             ).order_by('-rate_date').values('rate')[:1]
 
-            collection_titles = collection_titles.annotate(
-                request_user_rate=Subquery(request_user_newest_ratings)
-            )
-
-            similar_titles = similar_titles.annotate(
-                request_user_rate=Subquery(request_user_newest_ratings)
-            )
+            collection_titles = collection_titles.annotate(request_user_rate=Subquery(request_user_newest_ratings))
+            similar_titles = similar_titles.annotate(request_user_rate=Subquery(request_user_newest_ratings))
 
         actors_and_other_titles = []
         # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
@@ -296,10 +291,10 @@ class GroupByDirectorView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({
-            'director': Director.objects.filter(
-                title__type__name='title').annotate(num=Count('title')).order_by('-num')[:50]
-        })
+        # context.update({
+        #     'director': Director.objects.filter(
+        #         title__type__name='title').annotate(num=Count('title')).order_by('-num')[:50]
+        # })
         return context
 
 
