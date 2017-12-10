@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from os.path import isfile
 
+from .helpers import tmdb_image
 from shared.models import FolderPathMixin
 from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES, SERIES, MOVIE
 from shared.helpers import get_instance_file_path
@@ -35,7 +36,7 @@ class Genre(models.Model):
 class Person(models.Model):
     name = models.CharField(max_length=300)
     # picture = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
-    picture_path = models.CharField(max_length=300)
+    image_path = models.CharField(max_length=300)
     slug = models.SlugField(max_length=350)
 
     # MODEL_FOLDER_NAME = 'people'
@@ -49,6 +50,11 @@ class Person(models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+
+    @property
+    @tmdb_image
+    def picture(self):
+        return 'w185_and_h278_bestv2'
 
     # def save_picture(self, file_name, url=None):
     #     """download and save image to picture"""
@@ -129,7 +135,7 @@ class Title(models.Model):
     release_date = models.DateField(blank=True, null=True)  # 1998-10-02
     runtime = models.IntegerField(blank=True, null=True)
 
-    poster_path = models.CharField(max_length=300)
+    image_path = models.CharField(max_length=300)
     # poster_backdrop_title = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
     # poster_backdrop_user = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
     # poster_small = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
@@ -139,7 +145,6 @@ class Title(models.Model):
     # votes = models.IntegerField(blank=True, null=True)
     # MODEL_FOLDER_NAME = 'titles'
     # ATTRIBUTE_FOR_FOLDER_NAME = 'imdb_id'
-    poster_base = 'http://image.tmdb.org/t/p'
     objects = TitleQuerySet.as_manager()
 
     class Meta:
@@ -185,20 +190,24 @@ class Title(models.Model):
     #     return None
 
     @property
+    @tmdb_image
     def poster_backdrop_user(self):
-        return f'{self.poster_base}/w1920_and_h318_bestv2/{self.poster_path}'
+        return 'w1920_and_h318_bestv2'
 
     @property
+    @tmdb_image
     def poster_backdrop_title(self):
-        return f'{self.poster_base}/w1280/{self.poster_path}'
+        return 'w1280'
 
     @property
+    @tmdb_image
     def poster_small(self):
-        return f'{self.poster_base}/w185_and_h278_bestv2/{self.poster_path}'
+        return 'w185_and_h278_bestv2'
 
     @property
+    @tmdb_image
     def poster_card(self):
-        return f'{self.poster_base}/w500_and_h281_bestv2/{self.poster_path}'
+        return 'w500_and_h281_bestv2'
 
     @property
     def is_movie(self):
