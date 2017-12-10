@@ -35,12 +35,27 @@ class Genre(models.Model):
 class Person(FolderPathMixin, models.Model):
     name = models.CharField(max_length=300)
     picture = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
-    picture_path = models.CharField(max_length=300)
+    picture_path = models.CharField(max_length=300, blank=True, null=True)
 
     MODEL_FOLDER_NAME = 'people'
 
     def __str__(self):
         return f'{self.name}'
+
+    def save_picture(self, file_name, url):
+        """download and save image to picture"""
+        file_path = get_instance_file_path(self, file_name, absolute=True)
+        if not isfile(file_path):
+            try:
+                image = urlretrieve(url)[0]
+            except (PermissionError, TypeError, ValueError) as e:
+                print(e)
+            else:
+                self.picture.save(file_name, File(open(image, 'rb')))
+        elif not self.picture:
+            poster_rel_path = get_instance_file_path(self, file_name)
+            self.picture = poster_rel_path
+            self.save()
 
 
 class CastTitle(models.Model):
@@ -51,6 +66,9 @@ class CastTitle(models.Model):
 
     def __str__(self):
         return f'{self.person} in {self.title}'
+
+    class Meta:
+        ordering = ('-order',)
 
 
 class CastCrew(models.Model):
