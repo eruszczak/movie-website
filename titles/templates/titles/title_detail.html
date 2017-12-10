@@ -31,7 +31,7 @@
 
     <div class="ui tab segment" data-tab="first">
         <div class="ui segment">
-          <a class="ui teal ribbon label">Rating history</a>
+          <span class="ui teal ribbon label">Rating history</span>
             <div class="ui list">
                 <table class="ui celled unstackable table">
                   <thead>
@@ -81,7 +81,7 @@
 {#        <br><a href="">lists with this title</a>#}
 
         <div class="ui segment">
-          <a class="ui teal ribbon label">Recommend</a>
+          <span class="ui teal ribbon label">Recommend</span>
             <span>Recommend it to people you follow</span> <a class="ui primary mini recommend hide button ml10" data-pk="{{ title.pk }}" data-field-name="{{ recommend_form.user.auto_id }}">Recommend</a>
             <div class="ui list">
 {#                {{ recommend_form.user }}#}
@@ -99,7 +99,7 @@
             </div>
         </div>
         <div class="ui segment">
-          <a class="ui teal ribbon label">Other ratings</a>
+          <span class="ui teal ribbon label">Other ratings</span>
             <span>Followed users who saw this title</span>
             <div class="ui list">
                 {% for userfollow in followed_saw_title %}
@@ -163,22 +163,25 @@
         <div>
             {% include 'titles/includes/title_small_slick.html' with title=similar.0 rate2=title.request_user_rate %}
         </div>
-        <div class="ui segment">
-          <a class="ui blue ribbon label">Similar</a>
-            <div class="ui list">
-                <div class="slick-carousel-similar">
-                    {% for title in similar %}
-                        <div>
-                            {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
-                        </div>
-                    {% endfor %}
+
+        {% if similar %}
+            <div class="ui segment">
+              <span class="ui blue ribbon label">Similar</span>
+                <div class="ui list">
+                    <div class="slick-carousel-similar">
+                        {% for title in similar %}
+                            <div>
+                                {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
 
         {% if title.collection %}
             <div class="ui segment">
-              <a class="ui blue ribbon label">{{ title.collection.name }}</a>
+              <span class="ui blue ribbon label">{{ title.collection.name }}</span>
                 <div class="ui list">
                     <div class="slick-carousel-similar">
                         {% for title in collection_titles %}
@@ -192,14 +195,12 @@
         {% endif %}
 
         <div class="ui segment">
-          <a class="ui blue ribbon label">Cast</a>
-{#            <span>Cast and their other appearances</span>#}
+          <span class="ui blue ribbon label">Cast</span>
             <div class="ui list">
                 <div class="slick-carousel-similar">
                     {% for cast in cast_list %}
                         <div>
-{#                        {{ cast.person }} - {{ cast.person.picture }}<br>#}
-                        {% include 'titles/includes/person_small_slick.html' with slick=True person=cast.person character=cast.character %}
+                            {% include 'titles/includes/person_small_slick.html' with slick=True person=cast.person character=cast.character %}
                         </div>
                     {% endfor %}
                 </div>
@@ -207,7 +208,20 @@
         </div>
 
         <div class="ui segment">
-          <a class="ui blue ribbon label">More</a>
+          <span class="ui blue ribbon label">Crew</span>
+            <div class="ui list">
+                <div class="slick-carousel-similar">
+                    {% for crew in crew_list %}
+                        <div>
+                            {% include 'titles/includes/person_small_slick.html' with slick=True person=crew.person character=crew.get_job_display %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="ui segment">
+          <span class="ui blue ribbon label">More</span>
             <div class="ui list">
                 <a href="{{ title.imdb_url }}" target="_blank">
                     <img class="image" src="{% static 'img/imdb.png' %}" alt="..." style="height: 50px">

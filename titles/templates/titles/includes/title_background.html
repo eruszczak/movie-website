@@ -1,12 +1,12 @@
 <div class="still-background slick-item"{% if counter > 0 %} style="visibility: hidden"{% endif %}>
-    <img class="backdrop" {% if slick %}data-lazy{% else %}src{% endif %}="{{ title.poster_backdrop_title.url }}" alt="{{ title.name }}">
+    <img class="backdrop" {% if slick %}data-lazy{% else %}src{% endif %}="{{ title.poster_backdrop_title }}" alt="{{ title.name }}">
     <div class="ui grid centered">
         <div class="poster-background">
             <div class="card1 card-01 height-fix"{% if slick and counter == 0 %} style="display: none"{% endif %}>
                 {% if slick %}
-                    <a href="{{ title.get_absolute_url }}"><img class="card-img-top" {% if slick1 %}data-lazy{% else %}src{% endif %}="{{ title.poster_small.url }}" alt="{{ title.name }}"></a>
+                    <a href="{{ title.get_absolute_url }}"><img class="card-img-top" {% if slick1 %}data-lazy{% else %}src{% endif %}="{{ title.poster_small }}" alt="{{ title.name }}"></a>
                 {% else %}
-                    <img class="card-img-top" {% if slick %}data-lazy{% else %}src{% endif %}="{{ title.poster_small.url }}" alt="{{ title.name }}">
+                    <img class="card-img-top" {% if slick %}data-lazy{% else %}src{% endif %}="{{ title.poster_small }}" alt="{{ title.name }}">
                 {% endif %}
                 <div class="card-img-overlay">
                 <h4 class="card-title"><strong>{{ title.name }}</strong></h4>

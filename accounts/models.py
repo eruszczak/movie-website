@@ -13,7 +13,7 @@ from titles.constants import MOVIE, SERIES
 from titles.models import Title, Rating
 
 
-class User(FolderPathMixin, AbstractUser):
+class User(AbstractUser):
     picture = models.ImageField(upload_to=get_random_file_path, blank=True, null=True)
     imdb_id = models.CharField(blank=True, null=True, max_length=15)
     tagline = models.CharField(blank=True, null=True, max_length=100)
@@ -24,7 +24,7 @@ class User(FolderPathMixin, AbstractUser):
     last_updated_rss_watchlist = models.DateTimeField(null=True, blank=True)
     last_updated_profile = models.DateTimeField(auto_now=True, null=True, blank=True)
 
-    MODEL_FOLDER_NAME = 'accounts'
+    # MODEL_FOLDER_NAME = 'accounts'
 
     # __original_picture = None
     # __original_csv = None
@@ -65,7 +65,7 @@ class User(FolderPathMixin, AbstractUser):
     def poster_of_latest_rating(self):
         return Rating.objects.filter(
             user=self, title__poster_backdrop_user__isnull=False
-        ).latest('rate_date').title.poster_backdrop_user.url
+        ).latest('rate_date').title.poster_backdrop_user
 
     @property
     def picture_filename(self):

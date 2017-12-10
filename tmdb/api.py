@@ -10,7 +10,7 @@ from django.utils.timezone import now
 
 from shared.helpers import get_json_response, SlashDict
 from titles.constants import MOVIE, SERIES, CREATOR, TITLE_CREW_JOB
-from titles.models import Season, Person, CastCrew, Popular, Title, Keyword, Genre, CastTitle, Collection
+from titles.models import Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection
 
 
 class TmdbResponseMixin:
@@ -18,13 +18,13 @@ class TmdbResponseMixin:
     source_file_path = os.path.join(settings.BACKUP_ROOT, 'source', '{}.json')
     urls = {
         'base': 'https://api.themoviedb.org/3/',
-        'poster_base': 'http://image.tmdb.org/t/p/',
-        'poster': {
-            'backdrop_user': 'w1920_and_h318_bestv2',
-            'backdrop_title': 'w1280',
-            'small': 'w185_and_h278_bestv2',
-            'card': 'w500_and_h281_bestv2'
-        }
+        # 'poster_base': 'http://image.tmdb.org/t/p/',
+        # 'poster': {
+        #     'backdrop_user': 'w1920_and_h318_bestv2',
+        #     'backdrop_title': 'w1280',
+        #     'small': 'w185_and_h278_bestv2',
+        #     'card': 'w500_and_h281_bestv2'
+        # }
     }
 
     def __init__(self):
@@ -70,7 +70,9 @@ class BaseTmdb(TmdbResponseMixin):
     response_handlers_map = {}
 
     def __init__(self, tmdb_id, title=None, **kwargs):
-        sleep(2)
+        # todo: decide about limits
+        if not settings.DEBUG:
+            sleep(2)
         super().__init__()
         self.call_updater = kwargs.get('call_updater', False)
         self.cached_response = kwargs.get('cached_response', None)
@@ -135,7 +137,7 @@ class BaseTmdb(TmdbResponseMixin):
         self.title = Title.objects.create(tmdb_id=self.tmdb_id, **title_data)
         # update_or_create
 
-        self.save_posters()
+        # self.save_posters()
 
         for path, handler in self.response_handlers_map.items():
             value = self.api_response[path]
@@ -151,13 +153,13 @@ class BaseTmdb(TmdbResponseMixin):
     def get_imdb_id_from_response(self):
         return self.api_response[self.imdb_id_path]
 
-    def save_posters(self):
-        if self.title.poster_path:
-            for poster_type, url in self.urls['poster'].items():
-                poster_url = self.urls['poster_base'] + url + self.title.poster_path
-                extension = self.title.poster_path.split('.')[-1]
-                file_name = f'{poster_type}.{extension}'
-                self.title.save_poster(file_name, poster_url, poster_type)
+    # def save_posters(self):
+    #     if self.title.poster_path:
+    #         for poster_type, url in self.urls['poster'].items():
+    #             poster_url = self.urls['poster_base'] + url + self.title.poster_path
+    #             extension = self.title.poster_path.split('.')[-1]
+    #             file_name = f'{poster_type}.{extension}'
+    #             self.title.save_poster(file_name, poster_url, poster_type)
 
     def save_keywords(self, value):
         pks = []
@@ -183,7 +185,7 @@ class BaseTmdb(TmdbResponseMixin):
             job = TITLE_CREW_JOB.get(crew['job'])
             if job:
                 person = self.get_person(crew)
-                CastCrew.objects.create(title=self.title, person=person, job=job)
+                CrewTitle.objects.create(title=self.title, person=person, job=job)
 
     @staticmethod
     def get_person(value):
@@ -244,7 +246,7 @@ class SeriesTmdb(BaseTmdb):
     def save_created_by(self, value):
         for creator in value:
             person, created = Person.objects.get_or_create(pk=creator['id'], defaults={'name': creator['name']})
-            CastCrew.objects.create(title=self.title, person=person, job=CREATOR)
+            CrewTitle.objects.create(title=self.title, person=person, job=CREATOR)
 
 
 def get_tmdb_concrete_class(title_type):
@@ -311,23 +313,23 @@ class TitleUpdater(TmdbResponseMixin):
             'recommendations/results': self.save_recommendations
         }
 
-        self.download_pictures_for_people()
+        # self.download_pictures_for_people()
 
         # for path, handler in self.response_handlers_map.items():
         #     value = self.api_response[path]
         #     if value:
         #         handler(value)
 
-    def download_pictures_for_people(self):
-        titles_people = Person.objects.filter(
-            Q(casttitle__title=self.title, picture='', picture_path__isnull=False) |
-            Q(castcrew__title=self.title, picture='', picture_path__isnull=False)
-        )
-        for person in titles_people:
-            poster_url = self.urls['poster_base'] + self.urls['poster']['small'] + person.picture_path
-            extension = person.picture_path.split('.')[-1]
-            file_name = f'picture_path.{extension}'
-            person.save_picture(file_name, poster_url)
+    # def download_pictures_for_people(self):
+    #     titles_people = Person.objects.filter(
+    #         Q(casttitle__title=self.title, picture='', picture_path__isnull=False) |
+    #         Q(crewtitle__title=self.title, picture='', picture_path__isnull=False)
+    #     )
+    #     for person in titles_people:
+    #         poster_url = self.urls['poster_base'] + self.urls['poster']['small'] + person.picture_path
+    #         extension = person.picture_path.split('.')[-1]
+    #         file_name = f'picture_path.{extension}'
+    #         person.save_picture(file_name, poster_url)
 
     def save_similar(self, value):
         self.save_titles_to_attribute(value, self.title.similar)

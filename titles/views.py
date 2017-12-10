@@ -15,7 +15,7 @@ from shared.views import SearchViewMixin
 from titles.constants import TITLE_TYPE_CHOICES
 from titles.forms import TitleSearchForm, RateUpdateForm
 from tmdb.api import get_tmdb_concrete_class
-from .models import Genre, Title, Rating, Popular, CastTitle, Person
+from .models import Genre, Title, Rating, Popular, CastTitle, Person, CrewTitle
 from .tasks import get_todays_popular_movies
 
 User = get_user_model()
@@ -244,7 +244,8 @@ class TitleDetailView(DetailView):
         context.update({
             'similar': similar_titles,
             'collection_titles': collection_titles,
-            'cast_list': CastTitle.objects.filter(title=self.object).select_related('person')
+            'cast_list': CastTitle.objects.filter(title=self.object).select_related('person'),
+            'crew_list': CrewTitle.objects.filter(title=self.object).select_related('person'),
             # 'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
         })
         return context
@@ -326,4 +327,5 @@ class PersonDetailView(DetailView):
     template_name = 'titles/person_detail.html'
 
     def get_queryset(self):
-        return super().get_queryset().prefetch_related('casttitle_set', 'castcrew_set')
+        return super().get_queryset().prefetch_related('casttitle_set__title', )
+        # return super().get_queryset().prefetch_related('casttitle_set__title', 'crewtitle_set__title')
