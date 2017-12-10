@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static humanize get_rating_diff widget_tweaks %}
+{#{% block title %}{% endblock %}#}
+
+{% block image %}
+{#    {% include 'titles/includes/title_background.html' with title=title %}#}
+{% endblock %}
+
+{% block content %}
+    <div class="ui centered grid">
+        <div class="ui segment">
+            <h1 class="ui header">{{ person.name }}</h1>
+            <div class="row">
+                {% if person.picture %}<img class="ui bordered image" src="{{ person.picture.url }}">{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="ui hidden divider"></div>
+    <div class="ui segment">
+        <span class="ui blue ribbon label">Cast</span>
+        <div class="ui list">
+            {% for cast in person.casttitle_set.all %}
+                  <div class="item">
+                    <img class="ui mini image" src="{{ cast.title.poster_small.url }}">
+                    <div class="content">
+                      <p class="header">{{ cast.character }}</p>
+                        <div class="description"><a href="{{ cast.title.get_absolute_url }}">{{ cast.title.name }} ({{ cast.title.year }})</a></div>
+                    </div>
+                  </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="ui segment">
+      <span class="ui blue ribbon label">Crew</span>
+        <div class="ui list">
+            {% for crew in person.castcrew_set.all %}
+                  <div class="item">
+                    <img class="ui mini image" src="{{ crew.title.poster_small.url }}">
+                    <div class="content">
+                      <p class="header">{{ crew.get_job_display }}</p>
+                        <div class="description"><a href="{{ crew.title.get_absolute_url }}">{{ crew.title.name }} ({{ crew.title.year }})</a></div>
+                    </div>
+                  </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

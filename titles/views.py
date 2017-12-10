@@ -15,7 +15,7 @@ from shared.views import SearchViewMixin
 from titles.constants import TITLE_TYPE_CHOICES
 from titles.forms import TitleSearchForm, RateUpdateForm
 from tmdb.api import get_tmdb_concrete_class
-from .models import Genre, Title, Rating, Popular, CastTitle
+from .models import Genre, Title, Rating, Popular, CastTitle, Person
 from .tasks import get_todays_popular_movies
 
 User = get_user_model()
@@ -319,3 +319,11 @@ class TitleRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         title = get_object_or_404(Title, imdb_id=kwargs['imdb_id'])
         return title.get_absolute_url()
+
+
+class PersonDetailView(DetailView):
+    model = Person
+    template_name = 'titles/person_detail.html'
+
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related('casttitle_set', 'castcrew_set')
