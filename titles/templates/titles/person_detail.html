@@ -11,7 +11,7 @@
         <div class="ui segment">
             <h1 class="ui header">{{ person.name }}</h1>
             <div class="row">
-                {% if person.picture %}<img class="ui bordered image" src="{{ person.picture.url }}">{% endif %}
+                {% if person.picture %}<img class="ui centered bordered image" src="{{ person.picture.url }}">{% endif %}
             </div>
         </div>
     </div>
@@ -22,7 +22,7 @@
         <div class="ui list">
             {% for cast in person.casttitle_set.all %}
                   <div class="item">
-                    <img class="ui mini image" src="{{ cast.title.poster_small.url }}">
+                    <img class="ui mini image" src="{{ cast.title.poster_small }}">
                     <div class="content">
                       <p class="header">{{ cast.character }}</p>
                         <div class="description"><a href="{{ cast.title.get_absolute_url }}">{{ cast.title.name }} ({{ cast.title.year }})</a></div>
@@ -35,9 +35,9 @@
     <div class="ui segment">
       <span class="ui blue ribbon label">Crew</span>
         <div class="ui list">
-            {% for crew in person.castcrew_set.all %}
+            {% for crew in person.crewtitle_set.all %}
                   <div class="item">
-                    <img class="ui mini image" src="{{ crew.title.poster_small.url }}">
+                    <img class="ui mini image" src="{{ crew.title.poster_small }}">
                     <div class="content">
                       <p class="header">{{ crew.get_job_display }}</p>
                         <div class="description"><a href="{{ crew.title.get_absolute_url }}">{{ crew.title.name }} ({{ crew.title.year }})</a></div>

@@ -32,12 +32,13 @@ class Genre(models.Model):
         return f'{self.name}'
 
 
-class Person(FolderPathMixin, models.Model):
+class Person(models.Model):
     name = models.CharField(max_length=300)
-    picture = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
-    picture_path = models.CharField(max_length=300, blank=True, null=True)
+    # picture = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
+    picture_path = models.CharField(max_length=300)
+    slug = models.SlugField(max_length=350)
 
-    MODEL_FOLDER_NAME = 'people'
+    # MODEL_FOLDER_NAME = 'people'
 
     def __str__(self):
         return f'{self.name}'
@@ -45,20 +46,24 @@ class Person(FolderPathMixin, models.Model):
     def get_absolute_url(self):
         return reverse('person-detail', args=[self.pk])
 
-    def save_picture(self, file_name, url):
-        """download and save image to picture"""
-        file_path = get_instance_file_path(self, file_name, absolute=True)
-        if not isfile(file_path):
-            try:
-                image = urlretrieve(url)[0]
-            except (PermissionError, TypeError, ValueError) as e:
-                print(e)
-            else:
-                self.picture.save(file_name, File(open(image, 'rb')))
-        elif not self.picture:
-            poster_rel_path = get_instance_file_path(self, file_name)
-            self.picture = poster_rel_path
-            self.save()
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    # def save_picture(self, file_name, url=None):
+    #     """download and save image to picture"""
+    #     file_path = get_instance_file_path(self, file_name, absolute=True)
+    #     if url and not isfile(file_path):
+    #         try:
+    #             image = urlretrieve(url)[0]
+    #         except (PermissionError, TypeError, ValueError) as e:
+    #             print(e)
+    #         else:
+    #             self.picture.save(file_name, File(open(image, 'rb')))
+    #     elif not self.picture:
+    #         poster_rel_path = get_instance_file_path(self, file_name)
+    #         self.picture = poster_rel_path
+    #         self.save()
 
 
 class CastTitle(models.Model):
@@ -74,7 +79,7 @@ class CastTitle(models.Model):
         ordering = ('order',)
 
 
-class CastCrew(models.Model):
+class CrewTitle(models.Model):
     person = models.ForeignKey('Person', on_delete=models.CASCADE)
     title = models.ForeignKey('Title', on_delete=models.CASCADE)
     job = models.IntegerField(choices=TITLE_CREW_JOB_CHOICES, blank=True, null=True)
@@ -87,7 +92,7 @@ class Collection(models.Model):
     name = models.CharField(max_length=300)
 
     def __str__(self):
-        return f'{self.name} of {self.titles.count()}'
+        return f'{self.name} - {self.titles.count()}'
 
 
 class Popular(models.Model):
@@ -101,7 +106,7 @@ class Popular(models.Model):
         return f'Popular on {self.update_date}'
 
 
-class Title(FolderPathMixin, models.Model):
+class Title(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     source = JSONField(blank=True)
@@ -109,7 +114,7 @@ class Title(FolderPathMixin, models.Model):
     genres = models.ManyToManyField('Genre')
     keywords = models.ManyToManyField('Keyword', blank=True)
     cast = models.ManyToManyField('Person', through='CastTitle', related_name='cast', blank=True)
-    crew = models.ManyToManyField('Person', through='CastCrew', related_name='crew', blank=True)
+    crew = models.ManyToManyField('Person', through='CrewTitle', related_name='crew', blank=True)
     similar = models.ManyToManyField('Title', blank=True, related_name='similars')
     recommendations = models.ManyToManyField('Title', blank=True, related_name='recommends')
 
@@ -125,15 +130,16 @@ class Title(FolderPathMixin, models.Model):
     runtime = models.IntegerField(blank=True, null=True)
 
     poster_path = models.CharField(max_length=300)
-    poster_backdrop_title = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
-    poster_backdrop_user = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
-    poster_small = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
-    poster_card = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
+    # poster_backdrop_title = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
+    # poster_backdrop_user = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
+    # poster_small = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
+    # poster_card = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
 
     # rate_imdb = models.FloatField(blank=True, null=True)
     # votes = models.IntegerField(blank=True, null=True)
-    MODEL_FOLDER_NAME = 'titles'
-    ATTRIBUTE_FOR_FOLDER_NAME = 'imdb_id'
+    # MODEL_FOLDER_NAME = 'titles'
+    # ATTRIBUTE_FOR_FOLDER_NAME = 'imdb_id'
+    poster_base = 'http://image.tmdb.org/t/p'
     objects = TitleQuerySet.as_manager()
 
     class Meta:
@@ -154,22 +160,22 @@ class Title(FolderPathMixin, models.Model):
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
 
-    def save_poster(self, file_name, url, poster_type):
-        """download and save image to a one of poster_ fields"""
-        field_name = f'poster_{poster_type}'
-        poster_field = getattr(self, field_name)
-        file_path = get_instance_file_path(self, file_name, absolute=True)
-        if not isfile(file_path):
-            try:
-                image = urlretrieve(url)[0]
-            except (PermissionError, TypeError, ValueError) as e:
-                print(e)
-            else:
-                poster_field.save(file_name, File(open(image, 'rb')))
-        elif not poster_field:
-            poster_rel_path = get_instance_file_path(self, file_name)
-            setattr(self, field_name, poster_rel_path)
-            self.save()
+    # def save_poster(self, file_name, url, poster_type):
+    #     """download and save image to a one of poster_ fields"""
+    #     field_name = f'poster_{poster_type}'
+    #     poster_field = getattr(self, field_name)
+    #     file_path = get_instance_file_path(self, file_name, absolute=True)
+    #     if not isfile(file_path):
+    #         try:
+    #             image = urlretrieve(url)[0]
+    #         except (PermissionError, TypeError, ValueError) as e:
+    #             print(e)
+    #         else:
+    #             poster_field.save(file_name, File(open(image, 'rb')))
+    #     elif not poster_field:
+    #         poster_rel_path = get_instance_file_path(self, file_name)
+    #         setattr(self, field_name, poster_rel_path)
+    #         self.save()
 
     # def get_tmdb_instance(self):
     #     if self.type == MOVIE:
@@ -177,6 +183,22 @@ class Title(FolderPathMixin, models.Model):
     #     elif title_type == SERIES:
     #         return SeriesTmdb
     #     return None
+
+    @property
+    def poster_backdrop_user(self):
+        return f'{self.poster_base}/w1920_and_h318_bestv2/{self.poster_path}'
+
+    @property
+    def poster_backdrop_title(self):
+        return f'{self.poster_base}/w1280/{self.poster_path}'
+
+    @property
+    def poster_small(self):
+        return f'{self.poster_base}/w185_and_h278_bestv2/{self.poster_path}'
+
+    @property
+    def poster_card(self):
+        return f'{self.poster_base}/w500_and_h281_bestv2/{self.poster_path}'
 
     @property
     def is_movie(self):

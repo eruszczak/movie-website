@@ -95,7 +95,7 @@
           </div>
         </div>
         <div class="ui segment">
-          <a class="ui blue ribbon label">Activity</a>
+          <span class="ui blue ribbon label">Activity</span>
             <span>{{ user.username }}'s latest ratings</span>
             <div class="ui list">
                 {% for rating in rating_list %}
@@ -111,7 +111,7 @@
             </div>
         </div>
         <div class="ui segment">
-          <a class="ui blue ribbon label">Feed</a>
+          <span class="ui blue ribbon label">Feed</span>
             <span>Latest activity of users followed by {{ user.username }}</span>
             <div class="ui list">
                 {% for rating in feed %}
@@ -182,7 +182,7 @@
                   </div>
                 </div>
                 <div class="ui segment">
-                  <a class="ui teal ribbon label">Lower</a>
+                  <span class="ui teal ribbon label">Lower</span>
                     <span>{{ user.username }} rated lower</span>
                     <div class="ui list">
                         {% for title in comparision.titles_user_rate_lower %}
@@ -194,7 +194,7 @@
                     </div>
                 </div>
                 <div class="ui segment">
-                  <a class="ui teal ribbon label">Higher</a>
+                  <span class="ui teal ribbon label">Higher</span>
                     <span>{{ user.username }} rated higher</span>
                     <div class="ui list">
                         {% for title in comparision.titles_user_rate_higher %}
@@ -206,7 +206,7 @@
                     </div>
                 </div>
                 <div class="ui segment">
-                  <a class="ui teal ribbon label">The same</a>
+                  <span class="ui teal ribbon label">The same</span>
                     <span>{{ user.username }} rated the same</span>
                     <div class="ui list">
                         {% for title in comparision.titles_rated_the_same %}
@@ -218,7 +218,7 @@
                     </div>
                 </div>
                 <div class="ui segment">
-                  <a class="ui teal ribbon label">You need to see</a>
+                  <span class="ui teal ribbon label">You need to see</span>
                     <span>{{ user.username }} liked that you haven't seen</span>
                     <div class="ui list">
                         {% for title in comparision.titles_user_liked %}
