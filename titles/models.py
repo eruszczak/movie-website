@@ -283,3 +283,6 @@ class Season(models.Model):
     release_date = models.DateField(blank=True, null=True)  # 1998-10-02
     number = models.SmallIntegerField(default=1)
     episodes = models.SmallIntegerField(blank=True, null=True)
+
+    class Meta:
+        ordering = ('-number',)
