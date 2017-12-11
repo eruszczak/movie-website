@@ -45,7 +45,7 @@ class Person(models.Model):
         return f'{self.name}'
 
     def get_absolute_url(self):
-        return reverse('person-detail', args=[self.pk])
+        return reverse('person-detail', args=[self.pk, self.slug])
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -54,7 +54,7 @@ class Person(models.Model):
     @property
     @tmdb_image
     def picture(self):
-        return IMAGE_SIZES['small']
+        return IMAGE_SIZES['small_person']
 
     # def save_picture(self, file_name, url=None):
     #     """download and save image to picture"""
