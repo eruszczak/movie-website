@@ -104,9 +104,8 @@
                 {% if not rating_list %}
                     <p>No ratings found</p>
                 {% else %}
-                    <p>(display Ratings By Year above) and user's avatar; hmm<br>
-                        <a href="{{ user.ratings_url }}">See all</a>
-                    </p>
+                    <div class="ui divider"></div>
+                    <p><a href="{{ user.ratings_url }}">See all</a></p>
                 {% endif %}
             </div>
         </div>
