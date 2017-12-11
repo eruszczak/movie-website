@@ -1,21 +1,15 @@
 from datetime import datetime
-from urllib.request import urlretrieve
 
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
-from django.core.files import File
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
-from os.path import isfile
 
 from .helpers import tmdb_image
-from shared.models import FolderPathMixin
 from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES, SERIES, MOVIE, IMAGE_SIZES
-from shared.helpers import get_instance_file_path
-# from titles.helpers import TitleUpdater
 from .managers import TitleQuerySet
 
 
@@ -55,21 +49,6 @@ class Person(models.Model):
     @tmdb_image
     def picture(self):
         return IMAGE_SIZES['small_person']
-
-    # def save_picture(self, file_name, url=None):
-    #     """download and save image to picture"""
-    #     file_path = get_instance_file_path(self, file_name, absolute=True)
-    #     if url and not isfile(file_path):
-    #         try:
-    #             image = urlretrieve(url)[0]
-    #         except (PermissionError, TypeError, ValueError) as e:
-    #             print(e)
-    #         else:
-    #             self.picture.save(file_name, File(open(image, 'rb')))
-    #     elif not self.picture:
-    #         poster_rel_path = get_instance_file_path(self, file_name)
-    #         self.picture = poster_rel_path
-    #         self.save()
 
 
 class CastTitle(models.Model):
