@@ -63,7 +63,7 @@ class BaseTmdb(TmdbResponseMixin):
     # maps Title model attribute names to TMDB's response
     title_model_map = {
         'overview': 'overview',
-        'poster_path': 'poster_path'
+        'image_path': 'poster_path'
     }
 
     # maps paths in TMDB's response to their method handlers
@@ -190,7 +190,7 @@ class BaseTmdb(TmdbResponseMixin):
     @staticmethod
     def get_person(value):
         person, created = Person.objects.update_or_create(
-            pk=value['id'], defaults={'name': value['name'], 'picture_path': value['profile_path']}
+            pk=value['id'], defaults={'name': value['name'], 'image_path': value['profile_path'] or ''}
         )
         return person
 
@@ -315,10 +315,10 @@ class TitleUpdater(TmdbResponseMixin):
 
         # self.download_pictures_for_people()
 
-        # for path, handler in self.response_handlers_map.items():
-        #     value = self.api_response[path]
-        #     if value:
-        #         handler(value)
+        for path, handler in self.response_handlers_map.items():
+            value = self.api_response[path]
+            if value:
+                handler(value)
 
     # def download_pictures_for_people(self):
     #     titles_people = Person.objects.filter(

@@ -279,39 +279,39 @@ class RatingUpdateView(UpdateView):
     form_class = RateUpdateForm
 
 
-class GroupByGenreView(TemplateView):
-    template_name = 'titles/group_by_genre.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'genre': Genre.objects.annotate(num=Count('title')).order_by('-num')
-        })
-        return context
-
-
-class GroupByDirectorView(TemplateView):
-    template_name = 'titles/group_by_director.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # context.update({
-        #     'director': Director.objects.filter(
-        #         title__type__name='title').annotate(num=Count('title')).order_by('-num')[:50]
-        # })
-        return context
-
-
-class GroupByYearView(TemplateView):
-    template_name = 'titles/group_by_year.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'year_count': Title.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
-            'title_count': Title.objects.all().count()
-        })
-        return context
+# class GroupByGenreView(TemplateView):
+#     template_name = 'titles/group_by_genre.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context.update({
+#             'genre': Genre.objects.annotate(num=Count('title')).order_by('-num')
+#         })
+#         return context
+#
+#
+# class GroupByDirectorView(TemplateView):
+#     template_name = 'titles/group_by_director.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         # context.update({
+#         #     'director': Director.objects.filter(
+#         #         title__type__name='title').annotate(num=Count('title')).order_by('-num')[:50]
+#         # })
+#         return context
+#
+#
+# class GroupByYearView(TemplateView):
+#     template_name = 'titles/group_by_year.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context.update({
+#             'year_count': Title.objects.values('year').annotate(the_count=Count('year')).order_by('-year'),
+#             'title_count': Title.objects.all().count()
+#         })
+#         return context
 
 
 class TitleRedirectView(RedirectView):
@@ -327,5 +327,4 @@ class PersonDetailView(DetailView):
     template_name = 'titles/person_detail.html'
 
     def get_queryset(self):
-        return super().get_queryset().prefetch_related('casttitle_set__title', )
-        # return super().get_queryset().prefetch_related('casttitle_set__title', 'crewtitle_set__title')
+        return super().get_queryset().prefetch_related('casttitle_set__title', 'crewtitle_set__title')
