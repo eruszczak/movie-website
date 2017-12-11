@@ -4,7 +4,6 @@ from uuid import uuid4
 
 import requests
 from django.core.exceptions import ValidationError
-# from django.core.mail import mail_admins
 
 
 # def send_email(subject, message):
@@ -13,11 +12,6 @@ from django.core.exceptions import ValidationError
 #         message,
 #         # html_message=message,
 #     )
-
-
-def get_instance_file_path(instance, file_name, **kwargs):
-    folder_path = instance.get_folder_path(**kwargs)
-    return join(folder_path, file_name)
 
 
 def get_random_file_path(instance, file_name):
