@@ -273,3 +273,16 @@ body {
     width: 100%;
   }
 }
+
+.ui.footer.segment {
+    padding: 5px;
+}
+
+.footer-credit {
+    /*width: 40px;*/
+    height: 30px;
+}
+
+.footer-link {
+    color: #332f2f;
+}
