@@ -1,9 +1,9 @@
-from sys import platform
+from decouple import config
 
-is_production = platform == 'linux'  # os.environ.get('ENV') or from .env
 
+is_production = config('DEBUG', default=False, cast=bool)
 
 if is_production:
-    from mysite.settings.settings_production import *
+    from .settings_production import *
 else:
-    from mysite.settings.settings_local import *
+    from .settings_local import *
