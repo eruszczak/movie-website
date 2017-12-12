@@ -1,5 +1,7 @@
 body {
     overflow-y: scroll;
+    /*height: 100%;*/
+    /*position: relative;*/
 }
 
 .ui.text.menu .active.item {
@@ -250,4 +252,24 @@ body {
 .ui.search>.results .result .image {
     width: auto;
     height: 2em;
+}
+
+/*.main{min-height:100%;*/
+      /*!*padding-bottom:60px;*!*/
+      /*box-sizing:border-box;}*/
+/*.footer {*/
+  /*background-color: #212121;*/
+  /*position: absolute;*/
+  /*!* bottom: 0;  remove this *!*/
+  /*!*margin-top: -50px; !* add this *!*!*/
+  /*left: 0;*/
+  /*width: 100%;*/
+  /*padding: 15px 0;*/
+/*}*/
+@media (min-height: 320px) {
+  .ui.footer.form-page { /* Increased specificity for SO snippet priority */
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+  }
 }
