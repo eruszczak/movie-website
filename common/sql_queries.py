@@ -1,5 +1,6 @@
 from django.db import connection
 
+# TODO wystarczy przeciez wziac wszystkie ocenione titles.distinct()
 get_count_of_current_rates = """
     SELECT COUNT("rate") as "the_count", "rate" FROM (
         SELECT DISTINCT
