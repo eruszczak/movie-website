@@ -223,30 +223,11 @@ class TitleDetailView(DetailView):
             collection_titles = collection_titles.annotate(request_user_rate=Subquery(request_user_newest_ratings))
             similar_titles = similar_titles.annotate(request_user_rate=Subquery(request_user_newest_ratings))
 
-        actors_and_other_titles = []
-        # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
-        # test = Title.objects.filter(actor__in=self.object.actor.all())
-        # print(test)
-        # for actor in self.object.actor.all():
-        #     if self.request.user.is_authenticated:
-        #         newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
-        #         titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).annotate(
-        #             user_rate=Subquery(newest.values('rate')[:1])).order_by('-votes')
-        #     else:
-        #         titles = Title.objects.filter(actor=actor).exclude(const=self.object.const).order_by('-votes')
-        #
-        #     if titles:
-        #         actors_and_other_titles.append((actor, titles))
-        #
-        # cast = CastTitle.objects.filter(title=self.object)
-        # for c in cast:
-        #     print(c, c.order)
         context.update({
             'similar': similar_titles,
             'collection_titles': collection_titles,
             'cast_list': CastTitle.objects.filter(title=self.object).select_related('person'),
             'crew_list': CrewTitle.objects.filter(title=self.object).select_related('person'),
-            # 'actors_and_other_titles': sorted(actors_and_other_titles, key=lambda x: len(x[1]))
         })
         return context
 

@@ -20,10 +20,10 @@ from six import BytesIO
 
 from recommend.forms import RecommendTitleForm
 from titles.forms import TitleSearchForm
-from titles.models import Rating, Title
+from titles.models import Rating, Title, Person
 from lists.models import Favourite
 from accounts.models import UserFollow
-from .serializers import RatingListSerializer, TitleSerializer, UserSerializer
+from .serializers import RatingListSerializer, TitleSerializer, UserSerializer, PersonSerializer
 from common.sql_queries import rating_distribution
 from titles.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist, \
     recommend_title
@@ -209,15 +209,30 @@ class RecommendTitle(APIView):
             return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class Search(APIView):
+class SearchAPIView(APIView):
+    MAX_RESULTS = 15
 
     def get(self, request, *args, **kwargs):
-        queryset = Title.objects.all()
-        search_form = TitleSearchForm(request.GET)
-        queryset = search_form.search(queryset)
-        serializer = TitleSerializer(queryset[:20], many=True)  # context={'request': request}
+        queryset_title = Title.objects.all()
+        queryset_title = TitleSearchForm(request.GET).search(queryset_title)
+        queryset_person = Person.objects.filter(name__icontains=request.GET['keyword'])
+
+        len_titles = 10
+        len_persons = 5
+        len_qs_title = queryset_title.count()
+        len_qs_person = queryset_person.count()
+        if len_qs_title < len_titles:
+            len_persons = self.MAX_RESULTS - len_qs_title
+
+        if len_qs_person < len_persons:
+            len_titles = self.MAX_RESULTS - len_qs_person
+
+        serializer_title = TitleSerializer(queryset_title[:len_titles], many=True)  # context={'request': request}
+        serializer_person = PersonSerializer(queryset_person[:len_persons], many=True)
+
         return Response({
-            'results': serializer.data,
+            'titles': serializer_title.data,
+            'persons': serializer_person.data,
             'action': {
                 'url': f'{reverse("title-list")}?{urlencode(request.GET)}'
             }

@@ -100,13 +100,22 @@ $('.ui.embed').embed();
 
 $('.ui.search').search({
     minCharacters: 3,
+    maxResults: 15,
     apiSettings: {
         onResponse: function (serverResponse) {
             var results = [];
-            $.each(serverResponse.results, function(index, item) {
+            $.each(serverResponse.titles, function(index, item) {
                 results.push({
                     title: item.name,
                     description: item.year + ' ' + item.type,
+                    url: item.url,
+                    image: item.img
+                });
+            });
+            $.each(serverResponse.persons, function(index, item) {
+                results.push({
+                    title: item.name,
+                    description: 'Actor',
                     url: item.url,
                     image: item.img
                 });
