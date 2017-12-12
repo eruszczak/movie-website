@@ -14,6 +14,25 @@ from titles.constants import MOVIE, SERIES, CREATOR, TITLE_CREW_JOB
 from titles.models import Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection
 
 
+class PersonMixin:
+
+    def get_person(self, value):
+        person, created = Person.objects.update_or_create(
+            pk=value['id'], defaults={'name': value['name'], 'image_path': value['profile_path'] or ''}
+        )
+        # if not person.slug:
+        #     # person doesnt have a slug so I have to get details about that person to check alternative names
+        #     person_details = self.get_tmdb_response('person', value['id'])
+        #     if person_details is not None:
+        #         aka = person_details['also_known_as']
+        #         for other_name in aka:
+        #             if slugify(other_name):
+        #                 person.name = other_name
+        #                 person.save()
+        #                 break
+        return person
+
+
 class TmdbResponseMixin:
     api_key = config('TMDB_API_KEY')
     source_file_path = os.path.join(settings.BACKUP_ROOT, 'source', '{}.json')
@@ -46,7 +65,7 @@ class TmdbResponseMixin:
             json.dump(data, outfile)
 
 
-class BaseTmdb(TmdbResponseMixin):
+class BaseTmdb(PersonMixin, TmdbResponseMixin):
     title_type = None
     title = None
     api_response = None
@@ -170,22 +189,6 @@ class BaseTmdb(TmdbResponseMixin):
             if job:
                 person = self.get_person(crew)
                 CrewTitle.objects.create(title=self.title, person=person, job=job)
-
-    def get_person(self, value):
-        person, created = Person.objects.update_or_create(
-            pk=value['id'], defaults={'name': value['name'], 'image_path': value['profile_path'] or ''}
-        )
-        # if not person.slug:
-        #     # person doesnt have a slug so I have to get details about that person to check alternative names
-        #     person_details = self.get_tmdb_response('person', value['id'])
-        #     if person_details is not None:
-        #         aka = person_details['also_known_as']
-        #         for other_name in aka:
-        #             if slugify(other_name):
-        #                 person.name = other_name
-        #                 person.save()
-        #                 break
-        return person
 
 
 class MovieTmdb(BaseTmdb):
@@ -361,5 +364,18 @@ class PopularMovies(TmdbResponseMixin):
         return None
 
 
-class PopularPeople(TmdbResponseMixin):
-    pass
+class PopularPeople(PersonMixin, TmdbResponseMixin):
+
+    def get(self):
+        response = self.get_tmdb_response('person', 'popular')
+        if response is not None:
+            popular, created = Popular.objects.get_or_create(update_date=now().date())
+            if not popular.persons.count():
+                pks = []
+                for result in response['results']:
+                    person = self.get_person(result)
+                    pks.append(person.pk)
+                popular.persons.add(*pks)
+            return popular
+
+        return None

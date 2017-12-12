@@ -29,11 +29,8 @@ class Genre(models.Model):
 
 class Person(models.Model):
     name = models.CharField(max_length=300)
-    # picture = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
     image_path = models.CharField(max_length=300)
     slug = models.SlugField(max_length=350)
-
-    # MODEL_FOLDER_NAME = 'people'
 
     def __str__(self):
         return f'{self.name}'
@@ -83,12 +80,13 @@ class Collection(models.Model):
 class Popular(models.Model):
     update_date = models.DateField(unique=True)
     titles = models.ManyToManyField('Title', blank=True, related_name='popular')
+    persons = models.ManyToManyField('Person', blank=True, related_name='popular')
 
     class Meta:
         ordering = ('-update_date',)
 
     def __str__(self):
-        return f'Popular on {self.update_date}'
+        return f'Popular on {self.update_date} - {self.titles.count()} titles, {self.persons.count()} people'
 
 
 class Title(models.Model):

@@ -25,11 +25,11 @@ class HomeView(TemplateView):
     template_name = 'titles/home.html'
 
     def get_context_data(self, **kwargs):
-        get_todays_popular_movies.delay()
+        # get_todays_popular_movies.delay()
 
         context = super().get_context_data(**kwargs)
         context.update({
-            'popular': Popular.objects.prefetch_related('titles').first()
+            'popular': Popular.objects.prefetch_related('titles', 'persons').first(),
         })
         # context.update({
         #     'movie_count': Title.objects.filter(type=MOVIE).count(),
