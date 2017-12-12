@@ -242,3 +242,12 @@ body {
     width: 40px !important;
     height: 40px !important;
 }
+
+.ui.search>.results .result {
+    padding: .2em .5em;
+}
+
+.ui.search>.results .result .image {
+    width: auto;
+    height: 2em;
+}

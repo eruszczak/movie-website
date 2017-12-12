@@ -8,7 +8,7 @@ router = SimpleRouter()
 router.register(r'ratings', views.RatingsViewSet)
 
 urlpatterns = [
-    url(r'^search', views.Search.as_view(), name='search'),
+    url(r'^search', views.SearchAPIView.as_view(), name='search'),
     url(r'^title/(?P<pk>\d+)/rate', views.TitleAddRatingView.as_view(), name='title-rate'),
     url(r'^title/(?P<pk>\d+)/favourites', views.TitleToggleFavourite.as_view(), name='title-fav'),
     url(r'^title/(?P<pk>\d+)/watchlist', views.TitleToggleWatchlist.as_view(), name='title-watch'),
