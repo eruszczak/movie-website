@@ -5,6 +5,7 @@ from time import sleep
 from decouple import config
 from django.conf import settings
 from django.db.models import Q
+from django.utils.text import slugify
 
 from django.utils.timezone import now
 
@@ -170,11 +171,20 @@ class BaseTmdb(TmdbResponseMixin):
                 person = self.get_person(crew)
                 CrewTitle.objects.create(title=self.title, person=person, job=job)
 
-    @staticmethod
-    def get_person(value):
+    def get_person(self, value):
         person, created = Person.objects.update_or_create(
             pk=value['id'], defaults={'name': value['name'], 'image_path': value['profile_path'] or ''}
         )
+        # if not person.slug:
+        #     # person doesnt have a slug so I have to get details about that person to check alternative names
+        #     person_details = self.get_tmdb_response('person', value['id'])
+        #     if person_details is not None:
+        #         aka = person_details['also_known_as']
+        #         for other_name in aka:
+        #             if slugify(other_name):
+        #                 person.name = other_name
+        #                 person.save()
+        #                 break
         return person
 
 
@@ -291,10 +301,13 @@ class TitleUpdater(TmdbResponseMixin):
         self.tmdb_instance = get_tmdb_concrete_class(title.type)
 
         self.response_handlers_map = {
-            'belongs_to_collection': self.save_collection,
             'similar/results': self.save_similar,
             'recommendations/results': self.save_recommendations
         }
+        if self.title.is_movie:
+            self.response_handlers_map.update({
+                'belongs_to_collection': self.save_collection,
+            })
 
         for path, handler in self.response_handlers_map.items():
             value = self.api_response[path]

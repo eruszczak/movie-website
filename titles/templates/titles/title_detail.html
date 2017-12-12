@@ -224,14 +224,16 @@
             <div class="ui segment">
               <span class="ui blue ribbon label">Seasons</span>
                 <div class="ui list">
-                    <div class="slick-carousel-similar">
+                    <div class="ui hidden divider"></div>
+                    <div class="ui centered grid">
                         {% for season in title.seasons.all %}
-                            <div>
-                                <p>season {{ season.number }} ({{ season.release_date.year }})</p>
-                                <p>{{ season.episodes }} episodes</p>
-                            </div>
+                            <span class="ui label">
+                                {{ season.number }} ({{ season.episodes }} episodes)
+                                <div class="detail">({{ season.release_date.year }})</div>
+                            </span>
                         {% endfor %}
                     </div>
+                    <div class="ui hidden divider"></div>
                 </div>
             </div>
         {% endif %}
