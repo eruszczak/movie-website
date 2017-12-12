@@ -3,9 +3,10 @@ __pycache__
 
 *.sqlite3
 *.zip
-common/playingaround.py
 
-bower_components/
 node_modules/
 /dist
 .env
+
+/semantic
+semantic.json
