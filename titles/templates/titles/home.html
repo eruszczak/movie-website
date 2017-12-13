@@ -2,17 +2,10 @@
 {% load static humanize %}
 {#{% block title %}{{ page_title }}{% endblock %}#}
 
-{#{% block image %}#}
-{#    <div class="your-class">#}
-{#      <div>your content</div>#}
-{#      <div>your content</div>#}
-{#      <div>your content</div>#}
-{#    </div>#}
-{#{% endblock %}#}
 {% block image %}
-    {% if popular_titles %}
+    {% if popular_movies %}
         <div class="slick-carousel">
-            {% for title in popular_titles %}
+            {% for title in popular_movies %}
                 <div>
                     {% include 'titles/includes/title_background.html' with title=title rate=title.request_user_rate slick=True counter=forloop.counter0 %}
                 </div>
@@ -22,29 +15,14 @@
 {% endblock %}
 
 {% block content %}
-    <p>see by genre</p>
-    <p>see by year</p>
-    <p>upcoming movies?</p>
-
     <div class="ui segment">
-      <span class="ui blue ribbon label">Popular people</span>
+      <span class="ui blue ribbon label">Upcoming</span>
         <div class="ui list">
             <div class="slick-carousel-similar">
-                {% for person in popular_persons %}
+                {% for title in upcoming %}
                     <div>
-                        {% include 'titles/includes/person_small_slick.html' with slick=True person=person %}
+                        {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
                     </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <div class="ui segment">
-      <span class="ui blue ribbon label">Popular</span>
-        <div class="ui list">
-            <div class="ui cards">
-                {% for title in popular_titles %}
-{#                    {% include 'titles/title_card.html' with title=title score=title.rate in_fav=rating.has_in_favourites %}#}
                 {% endfor %}
             </div>
         </div>
@@ -64,12 +42,25 @@
     </div>
 
     <div class="ui segment">
-      <span class="ui blue ribbon label">Upcoming</span>
+      <span class="ui blue ribbon label">Popular TV Shows</span>
         <div class="ui list">
             <div class="slick-carousel-similar">
-                {% for title in upcoming %}
+                {% for title in popular_tv %}
                     <div>
                         {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="ui segment">
+      <span class="ui blue ribbon label">Popular people</span>
+        <div class="ui list">
+            <div class="slick-carousel-similar">
+                {% for person in popular_persons %}
+                    <div>
+                        {% include 'titles/includes/person_small_slick.html' with slick=True person=person %}
                     </div>
                 {% endfor %}
             </div>
