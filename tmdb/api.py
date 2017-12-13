@@ -100,7 +100,6 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         self.response_handlers_map.update({
             'genres': self.save_genres,
             'credits/cast': self.save_cast,
-            'credits/crew': self.save_crew
         })
 
         print(self.tmdb_id, 'updated', self.call_updater)
@@ -183,13 +182,6 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
             person = self.get_person(cast)
             CastTitle.objects.create(title=self.title, person=person, character=cast['character'], order=cast['order'])
 
-    def save_crew(self, value):
-        for crew in value:
-            job = TITLE_CREW_JOB.get(crew['job'])
-            if job:
-                person = self.get_person(crew)
-                CrewTitle.objects.create(title=self.title, person=person, job=job)
-
 
 class MovieTmdb(BaseTmdb):
     title_type = MOVIE
@@ -205,8 +197,16 @@ class MovieTmdb(BaseTmdb):
         self.urls['details'] = 'movie'
         self.title_model_map.update(self.model_map)
         self.response_handlers_map.update({
-            'keywords/keywords': self.save_keywords
+            'keywords/keywords': self.save_keywords,
+            'credits/crew': self.save_crew
         })
+
+    def save_crew(self, value):
+        for crew in value:
+            job = TITLE_CREW_JOB.get(crew['job'])
+            if job:
+                person = self.get_person(crew)
+                CrewTitle.objects.create(title=self.title, person=person, job=job)
 
 
 class SeriesTmdb(BaseTmdb):
