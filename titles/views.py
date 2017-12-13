@@ -12,6 +12,7 @@ from titles.constants import TITLE_TYPE_CHOICES
 from titles.forms import TitleSearchForm, RateUpdateForm
 from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPlaying, Upcoming
 
+
 User = get_user_model()
 
 
@@ -22,9 +23,10 @@ class HomeView(TemplateView):
         # get_todays_popular_movies.delay()
 
         context = super().get_context_data(**kwargs)
-        current_popular = Popular.objects.prefetch_related('titles', 'persons').first()
+        current_popular = Popular.objects.prefetch_related('movies', 'tv', 'persons').first()
         context.update({
-            'popular_titles': current_popular.titles.all(),
+            'popular_movies': current_popular.movies.all(),
+            'popular_tv': current_popular.tv.all(),
             'popular_persons': current_popular.persons.all(),
             'now_playing': NowPlaying.objects.prefetch_related('titles').first().titles.all().order_by('-release_date'),
             'upcoming': Upcoming.objects.prefetch_related('titles').first().titles.upcoming().order_by('release_date'),
@@ -35,7 +37,7 @@ class HomeView(TemplateView):
                 user=self.request.user, title=OuterRef('pk')
             ).order_by('-rate_date').values('rate')
 
-            context['popular_titles'] = context['popular_titles'].annotate(
+            context['popular_movies'] = context['popular_movies'].annotate(
                 has_in_watchlist=Count(
                     Case(
                         When(watchlist__user=self.request.user, watchlist__deleted=False, then=1),
@@ -45,6 +47,9 @@ class HomeView(TemplateView):
                 has_in_favourites=Count(
                     Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
                 ),
+                request_user_rate=Subquery(request_user_ratings[:1])
+            )
+            context['popular_tv'] = context['popular_tv'].annotate(
                 request_user_rate=Subquery(request_user_ratings[:1])
             )
             context['now_playing'] = context['now_playing'].annotate(

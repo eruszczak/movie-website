@@ -347,19 +347,22 @@ class TitleUpdater(TmdbResponseMixin):
         attribute.add(*pks)
 
 
+# class DailyTask(PersonMixin, TmdbResponseMixin)
+
+
 class PopularMovies(TmdbResponseMixin):
 
     def get(self):
         response = self.get_tmdb_response('movie', 'popular')
         if response is not None:
             popular, created = Popular.objects.get_or_create(update_date=now().date())
-            if not popular.titles.count():
+            if not popular.movies.count():
                 pks = []
                 for result in response['results']:
                     popular_title = MovieTmdb(result['id']).get_or_create()
                     if popular_title:
                         pks.append(popular_title.pk)
-                popular.titles.add(*pks)
+                popular.movies.add(*pks)
             return popular
 
         return None
@@ -414,5 +417,23 @@ class UpcomingMovies(TmdbResponseMixin):
                         pks.append(popular_title.pk)
                 upcoming.titles.add(*pks)
             return upcoming
+
+        return None
+
+
+class PopularTV(TmdbResponseMixin):
+
+    def get(self):
+        response = self.get_tmdb_response('tv', 'popular')
+        if response is not None:
+            popular, created = Popular.objects.get_or_create(update_date=now().date())
+            if not popular.tv.count():
+                pks = []
+                for result in response['results']:
+                    popular_title = SeriesTmdb(result['id']).get_or_create()
+                    if popular_title:
+                        pks.append(popular_title.pk)
+                    popular.tv.add(*pks)
+            return popular
 
         return None

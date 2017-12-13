@@ -79,14 +79,16 @@ class Collection(models.Model):
 
 class Popular(models.Model):
     update_date = models.DateField(unique=True)
-    titles = models.ManyToManyField('Title', blank=True, related_name='popular')
+    movies = models.ManyToManyField('Title', blank=True, related_name='popular_movies')
+    tv = models.ManyToManyField('Title', blank=True, related_name='popular_tv')
     persons = models.ManyToManyField('Person', blank=True, related_name='popular')
 
     class Meta:
         ordering = ('-update_date',)
 
     def __str__(self):
-        return f'Popular on {self.update_date} - {self.titles.count()} titles, {self.persons.count()} people'
+        return f'Popular on {self.update_date} - {self.movies.count() + self.tv.count()} titles, ' \
+               f'{self.persons.count()} people'
 
 
 class NowPlaying(models.Model):

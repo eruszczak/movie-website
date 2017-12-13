@@ -16,7 +16,7 @@ User = get_user_model()
 collection_id = 119
 
 from tmdb.api import TmdbWrapper, PopularMovies, TitleUpdater, MovieTmdb, TmdbResponseMixin, PopularPeople, \
-    NowPlayingMovies, UpcomingMovies
+    NowPlayingMovies, UpcomingMovies, PopularTV
 from titles.models import Title, Person, Collection
 
 # c = Collection.objects.get(id=119)
@@ -53,12 +53,15 @@ def database_is_clean():
 #         print(p.slug)
 
 def get_daily():
-    # PopularPeople().get()
-    # PopularMovies().get()
-    # NowPlayingMovies().get()
+    PopularPeople().get()
+    PopularMovies().get()
+    NowPlayingMovies().get()
     UpcomingMovies().get()
+    PopularTV().get()
 
 # get_daily()
+t = Title.objects.get(imdb_id='tt0898266')
+print(t, t.overview)
 
 def get_person(value):
     person, created = Person.objects.update_or_create(
