@@ -16,12 +16,10 @@ from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPla
 User = get_user_model()
 
 
-class HomeView(TemplateView):
+class HomeTemplateView(TemplateView):
     template_name = 'titles/home.html'
 
     def get_context_data(self, **kwargs):
-        # get_todays_popular_movies.delay()
-
         context = super().get_context_data(**kwargs)
         current_popular = Popular.objects.prefetch_related('movies', 'tv', 'persons').first()
         context.update({

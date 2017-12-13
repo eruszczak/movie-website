@@ -58,6 +58,7 @@ class TmdbResponseMixin:
         return SlashDict(response)
 
     def get_response_from_file(self, title_id):
+        os.makedirs(os.path.dirname(self.source_file_path), exist_ok=True)
         with open(self.source_file_path.format(title_id), 'r') as outfile:
             return SlashDict(json.load(outfile))
 
@@ -381,18 +382,26 @@ class DailyTmdbTask(TmdbResponseMixin):
 
 class PopularMoviesTmdbTask(MovieTmdbTaskMixin, DailyTmdbTask):
     path_parameters = ('movie', 'popular')
+    model = Popular
+    attribute_name = 'movies'
 
 
 class NowPlayingMoviesTmdbTask(MovieTmdbTaskMixin, DailyTmdbTask):
     path_parameters = ('movie', 'now_playing')
+    model = NowPlaying
+    attribute_name = 'titles'
 
 
 class UpcomingMoviesTmdbTask(MovieTmdbTaskMixin, DailyTmdbTask):
     path_parameters = ('movie', 'upcoming')
+    model = Upcoming
+    attribute_name = 'titles'
 
 
-class PopularTV(DailyTmdbTask):
+class PopularTVTmdbTask(DailyTmdbTask):
     path_parameters = ('tv', 'popular')
+    model = Popular
+    attribute_name = 'tv'
 
     def get_instance(self, result):
         return SeriesTmdb(result['id']).get_or_create()
@@ -400,6 +409,8 @@ class PopularTV(DailyTmdbTask):
 
 class PopularPeopleTmdbTask(PersonMixin, DailyTmdbTask):
     path_parameters = ('person', 'popular')
+    model = Popular
+    attribute_name = 'persons'
 
     def get_instance(self, result):
         return self.get_person(result)
