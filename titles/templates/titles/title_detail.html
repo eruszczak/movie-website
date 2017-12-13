@@ -118,14 +118,26 @@
     </div>
     <div class="ui tab segment active" data-tab="third">
         <div class="ui grid centered statistics">
-          <div class="statistic">
-            <div class="value">
-              {{ title.runtime }}
-            </div>
-            <div class="label">
-              Runtime (min)
-            </div>
-          </div>
+          {% if title.runtime %}
+              <div class="statistic">
+                <div class="value">
+                  {{ title.runtime }}
+                </div>
+                <div class="label">
+                  Runtime (min)
+                </div>
+              </div>
+          {% endif %}
+          {% if not title.is_movie %}
+              <div class="statistic">
+                <div class="value">
+                  {{ title.seasons.all|length }}
+                </div>
+                <div class="label">
+                  Seasons
+                </div>
+              </div>
+          {% endif %}
           <div class="statistic">
             <div class="value">
               {{ title.votes|intcomma }}
@@ -136,10 +148,10 @@
           </div>
           <div class="statistic">
             <div class="value">
-              {{ title.release_date }}
+              {{ title.release_date|date:'d.m.y' }}
             </div>
             <div class="label">
-              Avg IMDb ratings
+              Release date
             </div>
           </div>
         </div>
@@ -160,9 +172,6 @@
             <p>{{ title.overview }}</p>
             <div class="ui hidden divider"></div>
         {% endif %}
-        <div>
-            {% include 'titles/includes/title_small_slick.html' with title=similar.0 rate2=title.request_user_rate %}
-        </div>
 
         {% if similar %}
             <div class="ui segment">
