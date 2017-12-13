@@ -14,10 +14,10 @@
 
                 </p>
                 {#            <p class="card-text">Captain Jack Sparrow searches for the trident of Poseidon.</p>#}
-                <p class="card-text ui star large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ user_ratings_of_title.0.rate }}"></p>
+                <p class="card-text ui star large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ rate }}"></p>
                 <p class="card-text">
                     <i class="calendar icon"></i> {{ title.year }}
-                    <i class="star icon"></i>{{ title.rate_imdb }}
+{#                    <i class="star icon"></i>{{ title.rate_imdb }}#}
                     <i data-pk="{{ title.pk }}" class="{% if not title.has_in_favourites %}empty {% else %}active {% endif %}red heart icon large title-fav ml10"></i>
                     <i data-pk="{{ title.pk }}" class="{% if not title.has_in_watchlist %}remove {% else %}active {% endif %}red bookmark icon large title-watch"></i>
                 </p>

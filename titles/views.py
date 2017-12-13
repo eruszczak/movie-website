@@ -28,14 +28,33 @@ class HomeView(TemplateView):
         # get_todays_popular_movies.delay()
 
         context = super().get_context_data(**kwargs)
+        current_popular = Popular.objects.prefetch_related('titles', 'persons').first()
         context.update({
-            'popular': Popular.objects.prefetch_related('titles', 'persons').first(),
+            'popular_titles': current_popular.titles.all(),
+            'popular_persons': current_popular.persons.all()
         })
         # context.update({
         #     'movie_count': Title.objects.filter(type=MOVIE).count(),
         #     'series_count': Title.objects.filter(type=SERIES).count(),
         # })
-        # if self.request.user.is_authenticated:
+        if self.request.user.is_authenticated:
+            context['popular_titles'] = context['popular_titles'].annotate(
+                has_in_watchlist=Count(
+                    Case(
+                        When(watchlist__user=self.request.user, watchlist__deleted=False, then=1),
+                        output_field=IntegerField()
+                    )
+                ),
+                has_in_favourites=Count(
+                    Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
+                ),
+                request_user_rate=Subquery(
+                    Rating.objects.filter(
+                        user=self.request.user, title=OuterRef('pk')
+                    ).order_by('-rate_date').values('rate')[:1]
+                )
+            )
+
         #     user_ratings = Rating.objects.filter(user=self.request.user)
         #     # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
         #     qs = user_ratings.annotate(

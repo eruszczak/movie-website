@@ -3,7 +3,7 @@
     <a href="{{ person.get_absolute_url }}">
         <img {% if slick %}data-lazy{% else %}src{% endif %}="{{ person.picture }}">
     </a>
-    <small>{{ person.name }} - {{ character }}</small>
+    <small>{{ person.name }}{% if character %} - {{ character }}{% endif %}</small>
 {#<a class="ui yellow image label">#}
 {#  {{ person.name }}#}
 {#</a>#}
