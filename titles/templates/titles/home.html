@@ -40,11 +40,37 @@
     </div>
 
     <div class="ui segment">
-      <span class="ui blue ribbon label">Popular {{ popular.update_date }}</span>
+      <span class="ui blue ribbon label">Popular</span>
         <div class="ui list">
             <div class="ui cards">
                 {% for title in popular_titles %}
-                    {% include 'titles/title_card.html' with title=title score=title.rate in_fav=rating.has_in_favourites %}
+{#                    {% include 'titles/title_card.html' with title=title score=title.rate in_fav=rating.has_in_favourites %}#}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="ui segment">
+      <span class="ui blue ribbon label">Now playing</span>
+        <div class="ui list">
+            <div class="slick-carousel-similar">
+                {% for title in now_playing %}
+                    <div>
+                        {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="ui segment">
+      <span class="ui blue ribbon label">Upcoming</span>
+        <div class="ui list">
+            <div class="slick-carousel-similar">
+                {% for title in upcoming %}
+                    <div>
+                        {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
+                    </div>
                 {% endfor %}
             </div>
         </div>

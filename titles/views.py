@@ -1,22 +1,16 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
 from django.db.models import Count, When, Case, IntegerField, Subquery, Q
 from django.db.models import OuterRef
 from django.http import Http404
-from django.shortcuts import redirect, get_object_or_404
-from django.utils.decorators import method_decorator
-from django.utils.timezone import now
+from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, TemplateView, RedirectView, ListView, UpdateView
 
 from accounts.models import UserFollow
 from lists.models import Watchlist, Favourite
 from shared.views import SearchViewMixin
-# from titles.constants import MOVIE, SERIES
 from titles.constants import TITLE_TYPE_CHOICES
 from titles.forms import TitleSearchForm, RateUpdateForm
-from tmdb.api import get_tmdb_concrete_class
-from .models import Genre, Title, Rating, Popular, CastTitle, Person, CrewTitle
-from .tasks import get_todays_popular_movies
+from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPlaying, Upcoming
 
 User = get_user_model()
 
@@ -31,13 +25,16 @@ class HomeView(TemplateView):
         current_popular = Popular.objects.prefetch_related('titles', 'persons').first()
         context.update({
             'popular_titles': current_popular.titles.all(),
-            'popular_persons': current_popular.persons.all()
+            'popular_persons': current_popular.persons.all(),
+            'now_playing': NowPlaying.objects.prefetch_related('titles').first().titles.all().order_by('-release_date'),
+            'upcoming': Upcoming.objects.prefetch_related('titles').first().titles.upcoming().order_by('release_date'),
         })
-        # context.update({
-        #     'movie_count': Title.objects.filter(type=MOVIE).count(),
-        #     'series_count': Title.objects.filter(type=SERIES).count(),
-        # })
+
         if self.request.user.is_authenticated:
+            request_user_ratings = Rating.objects.filter(
+                user=self.request.user, title=OuterRef('pk')
+            ).order_by('-rate_date').values('rate')
+
             context['popular_titles'] = context['popular_titles'].annotate(
                 has_in_watchlist=Count(
                     Case(
@@ -48,52 +45,15 @@ class HomeView(TemplateView):
                 has_in_favourites=Count(
                     Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
                 ),
-                request_user_rate=Subquery(
-                    Rating.objects.filter(
-                        user=self.request.user, title=OuterRef('pk')
-                    ).order_by('-rate_date').values('rate')[:1]
-                )
+                request_user_rate=Subquery(request_user_ratings[:1])
+            )
+            context['now_playing'] = context['now_playing'].annotate(
+                request_user_rate=Subquery(request_user_ratings[:1])
+            )
+            context['upcoming'] = context['upcoming'].annotate(
+                request_user_rate=Subquery(request_user_ratings[:1])
             )
 
-        #     user_ratings = Rating.objects.filter(user=self.request.user)
-        #     # newest = Rating.objects.filter(user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
-        #     qs = user_ratings.annotate(
-        #         has_in_watchlist=Count(
-        #             Case(
-        #                 When(title__watchlist__user=self.request.user, title__watchlist__deleted=False, then=1),
-        #                 output_field=IntegerField()
-        #             )
-        #         ),
-        #         has_in_favourites=Count(
-        #             Case(When(title__favourite__user=self.request.user, then=1), output_field=IntegerField())
-        #         ),
-        #     )
-        #     context.update({
-        #         'rating_list': qs[:6],
-        #         'ratings': user_ratings.select_related('title')[:16],
-        #
-        #         'last_movie': user_ratings.filter(title__type__name='title').select_related('title').first(),
-        #         'last_series': user_ratings.filter(title__type__name='series').select_related('title').first(),
-        #         'last_good_movie': user_ratings.filter(title__type__name='title', rate__gte=9).select_related(
-        #             'title').first(),
-        #         'movies_my_count': self.request.user.count_movies,
-        #         'series_my_count': self.request.user.count_series,
-        #
-        #         'rated_titles': self.request.user.count_titles,
-        #         'total_ratings': self.request.user.count_ratings,
-        #
-        #         # 'total_movies': reverse('title-list') + '?t=title',
-        #         # 'total_series': reverse('title-list') + '?t=series',
-        #         # 'search_movies': reverse('title-list') + '?u={}&t=title'.format(self.request.user.username),
-        #         # 'search_series': reverse('title-list') + '?u={}&t=series'.format(self.request.user.username)
-        #     })
-        # else:
-        #     context.update({
-        #         'ratings': Title.objects.all().order_by('-votes')[:16],
-        #         'total_movies': reverse('title-list') + '?t=title',
-        #         'total_series': reverse('title-list') + '?t=series',
-        #
-        #     })
         return context
 
 
@@ -164,10 +124,6 @@ class TitleDetailView(DetailView):
     template_name = 'titles/title_detail.html'
     model = Title
     object = None
-    # recommend_form_class = RecommendTitleForm
-
-    # def get_queryset(self):
-    #     return super().get_queryset().prefetch_related('genre', 'actor', 'director')
 
     def get_object(self, queryset=None):
         if queryset is None:

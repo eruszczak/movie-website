@@ -1,4 +1,5 @@
 from django.db.models.query import QuerySet
+from django.utils.timezone import now
 
 from titles.constants import MOVIE, SERIES
 
@@ -31,3 +32,6 @@ class TitleQuerySet(QuerySet):
 
     def series(self):
         return self.filter(type=SERIES)
+
+    def upcoming(self):
+        return self.filter(release_date__gte=now().date())

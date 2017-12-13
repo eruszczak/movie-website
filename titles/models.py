@@ -89,6 +89,28 @@ class Popular(models.Model):
         return f'Popular on {self.update_date} - {self.titles.count()} titles, {self.persons.count()} people'
 
 
+class NowPlaying(models.Model):
+    update_date = models.DateField(unique=True)
+    titles = models.ManyToManyField('Title', blank=True, related_name='nowplaying')
+
+    class Meta:
+        ordering = ('-update_date',)
+
+    def __str__(self):
+        return f'Now playing on {self.update_date} - {self.titles.count()} titles'
+
+
+class Upcoming(models.Model):
+    update_date = models.DateField(unique=True)
+    titles = models.ManyToManyField('Title', blank=True, related_name='upcoming')
+
+    class Meta:
+        ordering = ('-update_date',)
+
+    def __str__(self):
+        return f'Upcoming on {self.update_date} - {self.titles.count()} titles'
+
+
 class Title(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
