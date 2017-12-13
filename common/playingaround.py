@@ -15,8 +15,8 @@ from mysite.settings import MEDIA_ROOT
 User = get_user_model()
 collection_id = 119
 
-from tmdb.api import TmdbWrapper, PopularMovies, TitleUpdater, MovieTmdb, TmdbResponseMixin, PopularPeople, \
-    NowPlayingMovies, UpcomingMovies, PopularTV
+from tmdb.api import TmdbWrapper, PopularMoviesTmdbTask, TitleUpdater, MovieTmdb, TmdbResponseMixin, PopularPeopleTmdbTask, \
+    NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTV
 from titles.models import Title, Person, Collection
 
 # c = Collection.objects.get(id=119)
@@ -27,6 +27,7 @@ from titles.models import Title, Person, Collection
 
 title_in_collection = 'tt0120737'
 xfiles = 'tt0106179'
+tbbt = 'tt0898266'
 # Title.objects.filter(imdb_id=title_in_collection).delete()
 # TmdbWrapper().get(title_in_collection, call_updater=True)
 # person, created = Person.objects.update_or_create(pk=1000,
@@ -41,7 +42,7 @@ xfiles = 'tt0106179'
 def database_is_clean():
     title_in_collection = 'tt0120737'
     TmdbWrapper().get(title_in_collection, call_updater=True)
-    PopularMovies().get()
+    PopularMoviesTmdbTask().get()
     User.objects.create_user(username='test', password='123')
 # database_is_clean()
 
@@ -53,15 +54,18 @@ def database_is_clean():
 #         print(p.slug)
 
 def get_daily():
-    PopularPeople().get()
-    PopularMovies().get()
-    NowPlayingMovies().get()
-    UpcomingMovies().get()
+    PopularPeopleTmdbTask().get()
+    PopularMoviesTmdbTask().get()
+    NowPlayingMoviesTmdbTask().get()
+    UpcomingMoviesTmdbTask().get()
     PopularTV().get()
 
 # get_daily()
-t = Title.objects.get(imdb_id='tt0898266')
-print(t, t.overview)
+# t = Title.objects.filter(imdb_id=tbbt).delete()
+# print(t)
+#
+# TmdbWrapper().get(tbbt)
+
 
 def get_person(value):
     person, created = Person.objects.update_or_create(

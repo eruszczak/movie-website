@@ -347,93 +347,62 @@ class TitleUpdater(TmdbResponseMixin):
         attribute.add(*pks)
 
 
-# class DailyTask(PersonMixin, TmdbResponseMixin)
-
-
-class PopularMovies(TmdbResponseMixin):
+class DailyTmdbTask(TmdbResponseMixin):
+    path_parameters = ()
+    today = now().date()
+    model = None
+    attribute_name = None
 
     def get(self):
-        response = self.get_tmdb_response('movie', 'popular')
+        response = self.get_tmdb_response(*self.path_parameters)
         if response is not None:
-            popular, created = Popular.objects.get_or_create(update_date=now().date())
-            if not popular.movies.count():
+            obj, created = self.model.objects.get_or_create(update_date=self.today)
+            attribute = getattr(obj, self.attribute_name)
+            if not attribute.count():
                 pks = []
                 for result in response['results']:
-                    popular_title = MovieTmdb(result['id']).get_or_create()
-                    if popular_title:
-                        pks.append(popular_title.pk)
-                popular.movies.add(*pks)
-            return popular
+                    instance = self.get_instance(result)
+                    if instance:
+                        pks.append(instance.pk)
+                attribute.add(*pks)
+            return obj
 
         return None
 
-
-class PopularPeople(PersonMixin, TmdbResponseMixin):
-
-    def get(self):
-        response = self.get_tmdb_response('person', 'popular')
-        if response is not None:
-            popular, created = Popular.objects.get_or_create(update_date=now().date())
-            if not popular.persons.count():
-                pks = []
-                for result in response['results']:
-                    person = self.get_person(result)
-                    pks.append(person.pk)
-                popular.persons.add(*pks)
-            return popular
-
-        return None
+    def get_instance(self, *args):
+        raise NotImplementedError
 
 
-class NowPlayingMovies(TmdbResponseMixin):
+class PopularMoviesTmdbTask(DailyTmdbTask):
+    path_parameters = ('movie', 'popular')
 
-    def get(self):
-        response = self.get_tmdb_response('movie', 'now_playing')
-        if response is not None:
-            now_playing, created = NowPlaying.objects.get_or_create(update_date=now().date())
-            if not now_playing.titles.count():
-                pks = []
-                for result in response['results']:
-                    popular_title = MovieTmdb(result['id']).get_or_create()
-                    if popular_title:
-                        pks.append(popular_title.pk)
-                now_playing.titles.add(*pks)
-            return now_playing
-
-        return None
+    def get_instance(self, result):
+        return MovieTmdb(result['id']).get_or_create()
 
 
-class UpcomingMovies(TmdbResponseMixin):
+class PopularPeopleTmdbTask(PersonMixin, DailyTmdbTask):
+    path_parameters = ('person', 'popular')
 
-    def get(self):
-        response = self.get_tmdb_response('movie', 'upcoming')
-        if response is not None:
-            upcoming, created = Upcoming.objects.get_or_create(update_date=now().date())
-            if not upcoming.titles.count():
-                pks = []
-                for result in response['results']:
-                    popular_title = MovieTmdb(result['id']).get_or_create()
-                    if popular_title:
-                        pks.append(popular_title.pk)
-                upcoming.titles.add(*pks)
-            return upcoming
-
-        return None
+    def get_instance(self, result):
+        return self.get_person(result)
 
 
-class PopularTV(TmdbResponseMixin):
+class NowPlayingMoviesTmdbTask(DailyTmdbTask):
+    path_parameters = ('movie', 'now_playing')
 
-    def get(self):
-        response = self.get_tmdb_response('tv', 'popular')
-        if response is not None:
-            popular, created = Popular.objects.get_or_create(update_date=now().date())
-            if not popular.tv.count():
-                pks = []
-                for result in response['results']:
-                    popular_title = SeriesTmdb(result['id']).get_or_create()
-                    if popular_title:
-                        pks.append(popular_title.pk)
-                    popular.tv.add(*pks)
-            return popular
+    def get_instance(self, result):
+        return MovieTmdb(result['id']).get_or_create()
 
-        return None
+
+class UpcomingMoviesTmdbTask(DailyTmdbTask):
+    path_parameters = ('movie', 'upcoming')
+
+    def get_instance(self, result):
+        return MovieTmdb(result['id']).get_or_create()
+
+
+class PopularTV(DailyTmdbTask):
+    path_parameters = ('tv', 'popular')
+
+    def get_instance(self, result):
+        return SeriesTmdb(result['id']).get_or_create()
