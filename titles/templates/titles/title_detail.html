@@ -138,12 +138,22 @@
                 </div>
               </div>
           {% endif %}
+            {% if summary.avg %}
+              <div class="statistic">
+                <div class="value">
+                  {{ summary.avg }}
+                </div>
+                <div class="label">
+                  Avg
+                </div>
+              </div>
+            {% endif %}
           <div class="statistic">
             <div class="value">
-              {{ title.votes|intcomma }}
+              {{ summary.votes|intcomma }}
             </div>
             <div class="label">
-              IMDb votes
+              Votes
             </div>
           </div>
           <div class="statistic">
