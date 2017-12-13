@@ -51,8 +51,8 @@ class TmdbResponseMixin:
         query_string = kwargs.get('qs', {})
         query_string.update(self.query_string)
         url = self.urls['base'] + '/'.join(list(map(str, path_parameters)))
-        response = get_json_response(url, query_string)
-        print(response.get('name'), response.get('title'), url)
+        response, response_url = get_json_response(url, query_string)
+        print('name/title', response.get('name'), 'or', response.get('title'), response_url)
         if response is None:
             return None
         return SlashDict(response)
@@ -71,20 +71,19 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
     title_type = None
     title = None
     api_response = None
-    query_string = {}
     imdb_id_path = None
     cached_response = False
 
-    # maps Title model attribute names to TMDB's response
-    title_model_map = {
-        'overview': 'overview',
-        'image_path': 'poster_path'
-    }
-
-    # maps paths in TMDB's response to their method handlers
-    response_handlers_map = {}
-
     def __init__(self, tmdb_id, title=None, **kwargs):
+        # maps Title model attribute names to TMDB's response
+        self.title_model_map = {
+            'overview': 'overview',
+            'image_path': 'poster_path'
+        }
+
+        # maps paths in TMDB's response to their method handlers
+        self.response_handlers_map = {}
+
         # todo: decide about limits
         if not settings.DEBUG:
             sleep(2)
