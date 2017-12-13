@@ -10,11 +10,11 @@
 {#    </div>#}
 {#{% endblock %}#}
 {% block image %}
-    {% if popular.titles %}
+    {% if popular_titles %}
         <div class="slick-carousel">
-            {% for title in popular.titles.all %}
+            {% for title in popular_titles %}
                 <div>
-                    {% include 'titles/includes/title_background.html' with title=title slick=True counter=forloop.counter0 %}
+                    {% include 'titles/includes/title_background.html' with title=title rate=title.request_user_rate slick=True counter=forloop.counter0 %}
                 </div>
             {% endfor %}
         </div>
@@ -30,7 +30,7 @@
       <span class="ui blue ribbon label">Popular people</span>
         <div class="ui list">
             <div class="slick-carousel-similar">
-                {% for person in popular.persons.all %}
+                {% for person in popular_persons %}
                     <div>
                         {% include 'titles/includes/person_small_slick.html' with slick=True person=person %}
                     </div>
@@ -43,7 +43,7 @@
       <span class="ui blue ribbon label">Popular {{ popular.update_date }}</span>
         <div class="ui list">
             <div class="ui cards">
-                {% for title in popular.titles.all %}
+                {% for title in popular_titles %}
                     {% include 'titles/title_card.html' with title=title score=title.rate in_fav=rating.has_in_favourites %}
                 {% endfor %}
             </div>

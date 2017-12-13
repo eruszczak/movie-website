@@ -64,6 +64,9 @@ def get_person(value):
     return person
 
 
+for t in Title.objects.all():
+    print(t.overview)
+
 # def random_date():
 #     start = datetime(2010, 1, 1, tzinfo=pytz.utc)
 #     end = datetime.now(tz=pytz.utc)
