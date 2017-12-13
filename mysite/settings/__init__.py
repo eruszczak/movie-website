@@ -1,9 +1,9 @@
 from decouple import config
 
 
-is_production = config('DEBUG', default=False, cast=bool)
+debug = config('DEBUG', default=False, cast=bool)
 
-if is_production:
-    from .settings_production import *
-else:
+if debug:
     from .settings_local import *
+else:
+    from .settings_production import *

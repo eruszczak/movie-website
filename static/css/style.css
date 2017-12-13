@@ -266,16 +266,19 @@ body {
   /*width: 100%;*/
   /*padding: 15px 0;*/
 /*}*/
-@media (min-height: 320px) {
-  .ui.footer.form-page { /* Increased specificity for SO snippet priority */
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-  }
-}
+/*@media (min-height: 320px) {*/
+  /*.ui.footer.form-page { !* Increased specificity for SO snippet priority *!*/
+    /*position: absolute;*/
+    /*bottom: 0;*/
+    /*width: 100%;*/
+  /*}*/
+/*}*/
 
 .ui.footer.segment {
+    margin-top: 10px;
+    margin-bottom: 10px;
     padding: 10px;
+    border-bottom: none;
 }
 
 .footer-credit {
