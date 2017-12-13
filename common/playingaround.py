@@ -16,7 +16,7 @@ User = get_user_model()
 collection_id = 119
 
 from tmdb.api import TmdbWrapper, PopularMoviesTmdbTask, TitleUpdater, MovieTmdb, TmdbResponseMixin, PopularPeopleTmdbTask, \
-    NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTV
+    NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTVTmdbTask
 from titles.models import Title, Person, Collection
 
 # c = Collection.objects.get(id=119)
@@ -52,15 +52,17 @@ def database_is_clean():
 #     if not p.slug:
 #         print(p.name)
 #         print(p.slug)
+print(Title.objects.all().count())
 
 def get_daily():
     PopularPeopleTmdbTask().get()
     PopularMoviesTmdbTask().get()
     NowPlayingMoviesTmdbTask().get()
     UpcomingMoviesTmdbTask().get()
-    PopularTV().get()
+    PopularTVTmdbTask().get()
 
-# get_daily()
+# print(TmdbResponseMixin().source_file_path)
+get_daily()
 # t = Title.objects.filter(imdb_id=tbbt).delete()
 # print(t)
 #
@@ -72,7 +74,6 @@ def get_person(value):
         pk=value['id'], defaults={'name': value['name'], 'image_path': value['profile_path'] or ''}
     )
     return person
-
 
 # for t in Title.objects.all():
 #     print(t.overview)
