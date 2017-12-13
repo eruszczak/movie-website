@@ -17,7 +17,7 @@ collection_id = 119
 
 from tmdb.api import TmdbWrapper, PopularMoviesTmdbTask, TitleUpdater, MovieTmdb, TmdbResponseMixin, PopularPeopleTmdbTask, \
     NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTVTmdbTask
-from titles.models import Title, Person, Collection
+from titles.models import Title, Person, Collection, Upcoming, Popular, NowPlaying
 
 # c = Collection.objects.get(id=119)
 # print(c)
@@ -54,11 +54,24 @@ def database_is_clean():
 #         print(p.slug)
 print(Title.objects.all().count())
 
+def clean_models():
+    Upcoming.objects.all().delete()
+    Popular.objects.all().delete()
+    NowPlaying.objects.all().delete()
+
+Title.objects.all().delete()
+clean_models()
+
 def get_daily():
+    print('1')
     PopularPeopleTmdbTask().get()
+    print('2')
     PopularMoviesTmdbTask().get()
+    print('3')
     NowPlayingMoviesTmdbTask().get()
+    print('4')
     UpcomingMoviesTmdbTask().get()
+    print('5')
     PopularTVTmdbTask().get()
 
 # print(TmdbResponseMixin().source_file_path)
