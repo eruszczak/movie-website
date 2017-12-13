@@ -11,7 +11,8 @@ from django.utils.timezone import now
 
 from shared.helpers import get_json_response, SlashDict
 from titles.constants import MOVIE, SERIES, CREATOR, TITLE_CREW_JOB
-from titles.models import Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection
+from titles.models import Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection, NowPlaying, \
+    Upcoming
 
 
 class PersonMixin:
@@ -377,5 +378,41 @@ class PopularPeople(PersonMixin, TmdbResponseMixin):
                     pks.append(person.pk)
                 popular.persons.add(*pks)
             return popular
+
+        return None
+
+
+class NowPlayingMovies(TmdbResponseMixin):
+
+    def get(self):
+        response = self.get_tmdb_response('movie', 'now_playing')
+        if response is not None:
+            now_playing, created = NowPlaying.objects.get_or_create(update_date=now().date())
+            if not now_playing.titles.count():
+                pks = []
+                for result in response['results']:
+                    popular_title = MovieTmdb(result['id']).get_or_create()
+                    if popular_title:
+                        pks.append(popular_title.pk)
+                now_playing.titles.add(*pks)
+            return now_playing
+
+        return None
+
+
+class UpcomingMovies(TmdbResponseMixin):
+
+    def get(self):
+        response = self.get_tmdb_response('movie', 'upcoming')
+        if response is not None:
+            upcoming, created = Upcoming.objects.get_or_create(update_date=now().date())
+            if not upcoming.titles.count():
+                pks = []
+                for result in response['results']:
+                    popular_title = MovieTmdb(result['id']).get_or_create()
+                    if popular_title:
+                        pks.append(popular_title.pk)
+                upcoming.titles.add(*pks)
+            return upcoming
 
         return None

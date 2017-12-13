@@ -15,7 +15,8 @@ from mysite.settings import MEDIA_ROOT
 User = get_user_model()
 collection_id = 119
 
-from tmdb.api import TmdbWrapper, PopularMovies, TitleUpdater, MovieTmdb, TmdbResponseMixin, PopularPeople
+from tmdb.api import TmdbWrapper, PopularMovies, TitleUpdater, MovieTmdb, TmdbResponseMixin, PopularPeople, \
+    NowPlayingMovies, UpcomingMovies
 from titles.models import Title, Person, Collection
 
 # c = Collection.objects.get(id=119)
@@ -51,11 +52,13 @@ def database_is_clean():
 #         print(p.name)
 #         print(p.slug)
 
-def get_popular():
-    PopularPeople().get()
-    PopularMovies().get()
+def get_daily():
+    # PopularPeople().get()
+    # PopularMovies().get()
+    # NowPlayingMovies().get()
+    UpcomingMovies().get()
 
-# get_popular()
+# get_daily()
 
 def get_person(value):
     person, created = Person.objects.update_or_create(
@@ -64,8 +67,8 @@ def get_person(value):
     return person
 
 
-for t in Title.objects.all():
-    print(t.overview)
+# for t in Title.objects.all():
+#     print(t.overview)
 
 # def random_date():
 #     start = datetime(2010, 1, 1, tzinfo=pytz.utc)
