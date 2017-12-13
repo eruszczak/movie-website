@@ -59,8 +59,8 @@ def clean_models():
     Popular.objects.all().delete()
     NowPlaying.objects.all().delete()
 
-Title.objects.all().delete()
-clean_models()
+# Title.objects.all().delete()
+# clean_models()
 
 def get_daily():
     print('1')

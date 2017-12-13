@@ -360,17 +360,19 @@ class DailyTmdbTask(TmdbResponseMixin):
     attribute_name = None
 
     def get(self):
+        obj, created = self.model.objects.get_or_create(update_date=self.today)
+        attribute = getattr(obj, self.attribute_name)
+        if attribute.count():
+            return
+
         response = self.get_tmdb_response(*self.path_parameters)
         if response is not None:
-            obj, created = self.model.objects.get_or_create(update_date=self.today)
-            attribute = getattr(obj, self.attribute_name)
-            if not attribute.count():
-                pks = []
-                for result in response['results']:
-                    instance = self.get_instance(result)
-                    if instance:
-                        pks.append(instance.pk)
-                attribute.add(*pks)
+            pks = []
+            for result in response['results']:
+                instance = self.get_instance(result)
+                if instance:
+                    pks.append(instance.pk)
+            attribute.add(*pks)
             return obj
 
         return None
