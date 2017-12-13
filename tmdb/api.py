@@ -347,6 +347,12 @@ class TitleUpdater(TmdbResponseMixin):
         attribute.add(*pks)
 
 
+class MovieTmdbTaskMixin:
+
+    def get_instance(self, result):
+        return MovieTmdb(result['id']).get_or_create()
+
+
 class DailyTmdbTask(TmdbResponseMixin):
     path_parameters = ()
     today = now().date()
@@ -373,32 +379,16 @@ class DailyTmdbTask(TmdbResponseMixin):
         raise NotImplementedError
 
 
-class PopularMoviesTmdbTask(DailyTmdbTask):
+class PopularMoviesTmdbTask(MovieTmdbTaskMixin, DailyTmdbTask):
     path_parameters = ('movie', 'popular')
 
-    def get_instance(self, result):
-        return MovieTmdb(result['id']).get_or_create()
 
-
-class PopularPeopleTmdbTask(PersonMixin, DailyTmdbTask):
-    path_parameters = ('person', 'popular')
-
-    def get_instance(self, result):
-        return self.get_person(result)
-
-
-class NowPlayingMoviesTmdbTask(DailyTmdbTask):
+class NowPlayingMoviesTmdbTask(MovieTmdbTaskMixin, DailyTmdbTask):
     path_parameters = ('movie', 'now_playing')
 
-    def get_instance(self, result):
-        return MovieTmdb(result['id']).get_or_create()
 
-
-class UpcomingMoviesTmdbTask(DailyTmdbTask):
+class UpcomingMoviesTmdbTask(MovieTmdbTaskMixin, DailyTmdbTask):
     path_parameters = ('movie', 'upcoming')
-
-    def get_instance(self, result):
-        return MovieTmdb(result['id']).get_or_create()
 
 
 class PopularTV(DailyTmdbTask):
@@ -406,3 +396,10 @@ class PopularTV(DailyTmdbTask):
 
     def get_instance(self, result):
         return SeriesTmdb(result['id']).get_or_create()
+
+
+class PopularPeopleTmdbTask(PersonMixin, DailyTmdbTask):
+    path_parameters = ('person', 'popular')
+
+    def get_instance(self, result):
+        return self.get_person(result)
