@@ -113,20 +113,13 @@ class Title(models.Model):
     runtime = models.IntegerField(blank=True, null=True)
 
     image_path = models.CharField(max_length=300)
-    # poster_backdrop_title = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
-    # poster_backdrop_user = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
-    # poster_small = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
-    # poster_card = models.ImageField(upload_to=get_instance_file_path, blank=True, null=True)
 
     # rate_imdb = models.FloatField(blank=True, null=True)
     # votes = models.IntegerField(blank=True, null=True)
-    # MODEL_FOLDER_NAME = 'titles'
-    # ATTRIBUTE_FOR_FOLDER_NAME = 'imdb_id'
     objects = TitleQuerySet.as_manager()
 
     class Meta:
         ordering = ()
-        # ordering = ('-inserted_date', )
 
     def __str__(self):
         return f'{self.name} ({self.year})'
@@ -141,23 +134,6 @@ class Title(models.Model):
 
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
-
-    # def save_poster(self, file_name, url, poster_type):
-    #     """download and save image to a one of poster_ fields"""
-    #     field_name = f'poster_{poster_type}'
-    #     poster_field = getattr(self, field_name)
-    #     file_path = get_instance_file_path(self, file_name, absolute=True)
-    #     if not isfile(file_path):
-    #         try:
-    #             image = urlretrieve(url)[0]
-    #         except (PermissionError, TypeError, ValueError) as e:
-    #             print(e)
-    #         else:
-    #             poster_field.save(file_name, File(open(image, 'rb')))
-    #     elif not poster_field:
-    #         poster_rel_path = get_instance_file_path(self, file_name)
-    #         setattr(self, field_name, poster_rel_path)
-    #         self.save()
 
     # def get_tmdb_instance(self):
     #     if self.type == MOVIE:
