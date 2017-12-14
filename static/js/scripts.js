@@ -229,17 +229,3 @@ function showWaitingDialog(secs) {
         waitingDialog.hide();
     }, secs * 1000);
 }
-
-function showToast(message, options) {
-    options = options || {};
-    if (message) {
-        $.iaoAlert({
-            msg: message,
-            type: options.type || 'notification', // success error warning notification
-            alertTime: '1500',
-            position: 'top-right',
-            mode: 'dark',
-            fadeOnHover: true
-        })
-    }
-}

@@ -54,7 +54,7 @@ var API_SETTINGS_BASE = {
         if (xhr.status === 403 && xhr.responseText.indexOf('credentials were not provided') > -1) {
             window.location = '/accounts/login?next=/' + (location.pathname+location.search).substr(1);
         } else {
-            // TODO show error
+            showToast('There was an error', {type: 'error'})
         }
     }
 };
@@ -103,9 +103,9 @@ var followSettings = $.extend(true, {
       settings.data.rating = $(this).hasClass('active') ? 0: 1;
       return settings;
     },
-    // onSuccess: function(response) {
-    //     showToast(response.message);
-    // }
+    onSuccess: function(response) {
+        showToast(response.message);
+    }
 }, API_SETTINGS_BASE);
 
 $('.title-fav').api(titleFavSettings);
