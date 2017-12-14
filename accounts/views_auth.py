@@ -39,6 +39,9 @@ class RegisterView(CreateView):
     login_after = False
 
     def get_success_url(self):
+        if self.request.GET.get('next') is not None:
+            return self.request.GET['next']
+
         if self.login_after:
             messages.warning(self.request, 'Account created. You are now logged in.')
             return self.object.get_absolute_url()
@@ -51,6 +54,7 @@ class RegisterView(CreateView):
         form_valid = super().form_valid(form)
         if self.login_after:
             login(self.request, self.object)
+            messages.warning(self.request, 'Welcome, {}.'.format(self.object.username))
         return form_valid
 
 
