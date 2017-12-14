@@ -61,17 +61,17 @@ def clean_models():
     NowPlaying.objects.all().delete()
 
 # Title.objects.all().delete()
-clean_models()
+# clean_models()
 
 def get_daily():
-    # print('1')
-    # PopularPeopleTmdbTask().get()
-    # print('2')
-    # PopularMoviesTmdbTask().get()
-    # print('3')
-    # NowPlayingMoviesTmdbTask().get()
-    # print('4')
-    # UpcomingMoviesTmdbTask().get()
+    print('1')
+    PopularPeopleTmdbTask().get()
+    print('2')
+    PopularMoviesTmdbTask().get()
+    print('3')
+    NowPlayingMoviesTmdbTask().get()
+    print('4')
+    UpcomingMoviesTmdbTask().get()
     print('5')
     PopularTVTmdbTask().get()
 
@@ -81,6 +81,7 @@ get_daily()
 # print(t)
 #
 # TmdbWrapper().get(tbbt)
+Title.objects.get(tmdb_id=7859).similar.all().count()
 
 
 def get_person(value):
