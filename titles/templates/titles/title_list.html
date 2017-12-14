@@ -30,7 +30,7 @@
                 <div class="ui text menu">
                   <div class="header item">Showing</div>
                     {% for value, display in type_choices %}
-                      <a class="item{% ifequal request.GET.type value %} active{% endifequal %}" href="?{{ query_string }}{% if query_string %}&{% endif %}type={{ value }}">
+                      <a class="item{% if request.GET.type == value or not request.GET.type and forloop.counter0 == 0 %} active{% endif %}" href="?{{ query_string }}{% if query_string %}&{% endif %}type={{ value }}">
                         {{ display }}
                       </a>
                     {% endfor %}
