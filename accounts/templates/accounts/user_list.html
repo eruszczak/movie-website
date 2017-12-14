@@ -47,7 +47,7 @@
                 </a>
             <div class="middle aligned content">
             {% if user.pk != request.user.pk %}
-              <div class="ui small follow toggle button right floated{% if user.already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if user.already_follows %}Followed{% else %}Follow{% endif %}</div>
+              <div {% if not request.user.is_authenticated %}type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %}class="ui small follow toggle button right floated{% if user.already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if user.already_follows %}Followed{% else %}Follow{% endif %}</div>
             {% endif %}
               <a href="{{ user_detail_url }}" class="header">{{ user.username }}</a>
                 {% if title %}{{ user.user_rate }} <i class="star icon green"></i>{% endif %}
