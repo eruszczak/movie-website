@@ -53,53 +53,53 @@ class TitleDetailView(RetrieveAPIView):
     lookup_field = 'slug'
 
 
-class Genres(ListAPIView):
-    def get(self, request, *args, **kwargs):
-        username = self.request.query_params.get('u')
-        if username is not None:
-            genre_count = Title.objects.filter(rating__user__username=username).values('genre__name')\
-                .annotate(the_count=Count('pk', distinct=True)).filter(genre__name__isnull=False).order_by('the_count')
-            return Response(genre_count)
-
-        genre_count = Title.objects.all().values('genre__name')\
-            .annotate(the_count=Count('pk', distinct=True)).filter(genre__name__isnull=False).order_by('the_count')
-        return Response(genre_count)
-
-
-class Years(ListAPIView):
-    def get(self, request, *args, **kwargs):
-        username = self.request.query_params.get('u')
-        if username is not None:
-            year_count = Title.objects.filter(rating__user__username=username).values('year')\
-                .annotate(the_count=Count('pk', distinct=True)).order_by('year')
-            return Response(year_count)
-
-        year_count = Title.objects.all().values('year').annotate(the_count=Count('pk')).order_by('year')
-        return Response(year_count)
-
-
-class Rates(ListAPIView):
-    def get(self, request, *args, **kwargs):
-        username = self.request.query_params.get('u')
-        if username is not None:
-            user = get_object_or_404(User, username=username)
-            data = {'data_rates': rating_distribution(user.id)}
-            return Response(data)
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class MonthlyRatings(ListAPIView):
-    def get(self, request, *args, **kwargs):
-        username = self.request.query_params.get('u')
-        if username is not None:
-            count_per_months = Rating.objects.filter(user__username=username)\
-                .annotate(month=ExtractMonth('rate_date'), year=ExtractYear('rate_date'))\
-                .values('month', 'year').order_by('year', 'month')\
-                .annotate(the_count=Count('title'))
-            return Response(count_per_months)
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
+# class Genres(ListAPIView):
+#     def get(self, request, *args, **kwargs):
+#         username = self.request.query_params.get('u')
+#         if username is not None:
+#             genre_count = Title.objects.filter(rating__user__username=username).values('genre__name')\
+#                 .annotate(the_count=Count('pk', distinct=True)).filter(genre__name__isnull=False).order_by('the_count')
+#             return Response(genre_count)
+#
+#         genre_count = Title.objects.all().values('genre__name')\
+#             .annotate(the_count=Count('pk', distinct=True)).filter(genre__name__isnull=False).order_by('the_count')
+#         return Response(genre_count)
+#
+#
+# class Years(ListAPIView):
+#     def get(self, request, *args, **kwargs):
+#         username = self.request.query_params.get('u')
+#         if username is not None:
+#             year_count = Title.objects.filter(rating__user__username=username).values('year')\
+#                 .annotate(the_count=Count('pk', distinct=True)).order_by('year')
+#             return Response(year_count)
+#
+#         year_count = Title.objects.all().values('year').annotate(the_count=Count('pk')).order_by('year')
+#         return Response(year_count)
+#
+#
+# class Rates(ListAPIView):
+#     def get(self, request, *args, **kwargs):
+#         username = self.request.query_params.get('u')
+#         if username is not None:
+#             user = get_object_or_404(User, username=username)
+#             data = {'data_rates': rating_distribution(user.id)}
+#             return Response(data)
+#
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+#
+#
+# class MonthlyRatings(ListAPIView):
+#     def get(self, request, *args, **kwargs):
+#         username = self.request.query_params.get('u')
+#         if username is not None:
+#             count_per_months = Rating.objects.filter(user__username=username)\
+#                 .annotate(month=ExtractMonth('rate_date'), year=ExtractYear('rate_date'))\
+#                 .values('month', 'year').order_by('year', 'month')\
+#                 .annotate(the_count=Count('title'))
+#             return Response(count_per_months)
+#
+#         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TitleAddRatingView(APIView):

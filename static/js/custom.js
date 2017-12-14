@@ -27,17 +27,22 @@ $('.rating').rating({
     }
 });
 
+// console.log($('[type="tooltip"]'));
 $('[type="tooltip"]').popup();
 // $('body').on('[type="tooltip"]').popup();
 $('.ui.checkbox').checkbox();
 
-$('body').on('change', '[type="tooltip"]', function() {
-    //Your code
-    console.log('year')
-    console.log($(this))
-    $(this).popup();
-    // $('[type="tooltip"]').popup();
-});
+// $('body').on('change', '[type="tooltip"]', function() {
+//     //Your code
+//     console.log('year')
+//     console.log($(this))
+//     $(this).popup();
+//     // $('[type="tooltip"]').popup();
+// });
+
+// $('body').on('load', '[type="tooltip"]', function() {
+//     $('[type="tooltip"]').popup();
+// });
 
 // var $toggle  = $('.ui.toggle.button');
 // $toggle
@@ -161,6 +166,12 @@ $('.title-fav').api({
     onSuccess: function(response) {
         showToast(response.message);
         $(this).toggleClass('empty').toggleClass('active');
+    },
+    onError: function(errorMessage, element, xhr) {
+        console.log(xhr);
+        if (xhr.status === 403 && xhr.responseText.indexOf('credentials were not provided') > -1) {
+            window.location = '/accounts/login?next=/' + (location.pathname+location.search).substr(1);
+        }
     }
 });
 
@@ -222,7 +233,6 @@ $(document).ready(function() {
         $slickCarousel.on('init', function(event, slick) {
             // on init, show card of first carousel item. it is hidden on init load to avoid weird `flickering`
             $('.slick-slide.slick-current.slick-active').find('.card1').first().fadeIn();
-            $('[type="tooltip"]').popup();
         });
 
         $slickCarousel.slick({
@@ -277,7 +287,6 @@ $(document).ready(function() {
         });
         $slickCarouselSimilar.on('beforeChange', function(event, slick, currentSlide, nextSlide) {
             $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
-            console.log(nextSlide);
         });
     }
 });

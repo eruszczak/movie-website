@@ -19,6 +19,9 @@ class LoginView(BaseLoginView):
 
     def get_success_url(self):
         messages.warning(self.request, 'Welcome, {}.'.format(self.request.user.username))
+        if self.request.GET.get('next') is not None:
+            return self.request.GET['next']
+
         return self.request.user.get_absolute_url()
 
 
