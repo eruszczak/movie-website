@@ -19,7 +19,7 @@ class LoginView(BaseLoginView):
 
     def get_success_url(self):
         messages.warning(self.request, 'Welcome, {}.'.format(self.request.user.username))
-        if self.request.GET.get('next') is not None:
+        if self.request.GET.get('next'):
             return self.request.GET['next']
 
         return self.request.user.get_absolute_url()
@@ -39,7 +39,7 @@ class RegisterView(CreateView):
     login_after = False
 
     def get_success_url(self):
-        if self.request.GET.get('next') is not None:
+        if self.request.GET.get('next'):
             return self.request.GET['next']
 
         if self.login_after:
