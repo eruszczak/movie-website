@@ -46,6 +46,10 @@
 {#            {% endif %}#}
 {#        </div>#}
 {#    </div>#}
+    {% if user.pk != request.user.pk %}
+      <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui small follow toggle button right floated{% if user.already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if user.already_follows %}Followed{% else %}Follow{% endif %}</div>
+    {% endif %}
+
     <div class="ui divider hidden"></div>
     {% if is_other_user %}
         <div class="ui fluid {% if is_other_user %}two{% endif %} item menu title-menu">
