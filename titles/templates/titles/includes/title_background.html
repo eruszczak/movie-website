@@ -14,7 +14,7 @@
 
                 </p>
                 {#            <p class="card-text">Captain Jack Sparrow searches for the trident of Poseidon.</p>#}
-                <p class="card-text ui star large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ rate }}"></p>
+                <p{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="card-text ui star large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ rate }}"></p>
                 <p class="card-text">
                     <i class="calendar icon"></i> {{ title.year }}
 {#                    <i class="star icon"></i>{{ title.rate_imdb }}#}

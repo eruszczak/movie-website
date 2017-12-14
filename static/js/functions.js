@@ -1,10 +1,10 @@
-$.fn.api.settings.api = {
-    'search': '/api/search?keyword={query}',
-    'follow user': '/api/user/{pk}/follow',
-    'favourite title': '/api/title/{pk}/favourites',
-    'watchlist title': '/api/title/{pk}/watchlist',
-    'recommend title': '/api/title/{pk}/recommend'
-};
+function showErrorToastOrRedirectToLoginWithNext(xhr) {
+    if (xhr.status === 403 && xhr.responseText.indexOf('credentials were not provided') > -1) {
+        window.location = '/accounts/login?next=/' + (location.pathname+location.search).substr(1);
+    } else {
+        showToast('There was an error', {type: 'error'})
+    }
+}
 
 var TOKEN = getCookie('csrftoken');
 
@@ -52,8 +52,8 @@ function ajax_request(data, options, cb) {
                 window.location.reload(false);
             }
         },
-        error: function() {
-            showToast('There was an error', {type: 'error'});
+        error: function(xhr, ajaxOptions, thrownErro) {
+            showErrorToastOrRedirectToLoginWithNext(xhr);
         }
     });
 }

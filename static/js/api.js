@@ -1,9 +1,16 @@
+$.fn.api.settings.api = {
+    'search': '/api/search?keyword={query}',
+    'follow user': '/api/user/{pk}/follow',
+    'favourite title': '/api/title/{pk}/favourites',
+    'watchlist title': '/api/title/{pk}/watchlist',
+    'recommend title': '/api/title/{pk}/recommend'
+};
+
 $('.rating').rating({
     initialRating: 0,
     maxRating: 10,
     clearable:true,
     onRate: function (rating) {
-        console.log(rating);
         var data = {
             'rating': rating,
             'insert_as_new': false
@@ -51,11 +58,7 @@ var API_SETTINGS_BASE = {
       csrfmiddlewaretoken: TOKEN
     },
     onError: function(errorMessage, element, xhr) {
-        if (xhr.status === 403 && xhr.responseText.indexOf('credentials were not provided') > -1) {
-            window.location = '/accounts/login?next=/' + (location.pathname+location.search).substr(1);
-        } else {
-            showToast('There was an error', {type: 'error'})
-        }
+        showErrorToastOrRedirectToLoginWithNext(xhr);
     }
 };
 
