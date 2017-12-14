@@ -48,7 +48,7 @@
 {#                <img src="assets/images/logo.png" class="image">#}
                 <div class="content">Sign up</div>
             </h2>
-            <form class="ui large form" action="{% url 'register' %}" method="post">{% csrf_token %}
+            <form class="ui large form" action="{% url 'register' %}?next={{ request.GET.next }}" method="post">{% csrf_token %}
                 <div class="ui stacked segment">
                     <div class="field{% if form.username.errors %} error{% endif %}">
                         <div class="ui left icon input">

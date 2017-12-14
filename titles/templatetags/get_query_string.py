@@ -7,9 +7,9 @@ register = template.Library()
 @register.simple_tag(name='get_query_string')
 def get_query_string(get_request, *args):
     """
-        returns encoded query string without page parameter and extra parameter names passed as *args
-        Using parse_qsl because I need a list and get_request.urlencode() because it gives an access to multiple values
-        eg. genre=2&genre=8
+    returns encoded query string without page parameter and extra parameter names passed as *args
+    Using parse_qsl because I need a list and get_request.urlencode() because it gives an access to multiple values
+    eg. genre=2&genre=8
     """
     get_request = get_request.copy()
     parameters_to_exclude = ['page']
