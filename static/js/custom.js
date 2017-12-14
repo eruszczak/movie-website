@@ -13,19 +13,7 @@
 
 // $('.ui.dropdown').dropdown();
 
-$('.rating').rating({
-    initialRating: 0,
-    maxRating: 10,
-    clearable:true,
-    onRate: function (rating) {
-        console.log(rating);
-        var data = {
-            'rating': rating,
-            'insert_as_new': false
-        };
-        ajax_request(data, {url: $(this).data('url')});
-    }
-});
+
 
 // console.log($('[type="tooltip"]'));
 $('[type="tooltip"]').popup();
@@ -103,111 +91,7 @@ $('.title-menu .item').tab();
 
 $('.ui.embed').embed();
 
-$('.ui.search').search({
-    minCharacters: 3,
-    maxResults: 15,
-    apiSettings: {
-        onResponse: function (serverResponse) {
-            var results = [];
-            $.each(serverResponse.titles, function(index, item) {
-                results.push({
-                    title: item.name,
-                    description: item.year + ' ' + item.type,
-                    url: item.url,
-                    image: item.img
-                });
-            });
-            $.each(serverResponse.persons, function(index, item) {
-                results.push({
-                    title: item.name,
-                    description: 'Actor',
-                    url: item.url,
-                    image: item.img
-                });
-            });
-            return {
-                results: results,
-                action: {
-                    text: 'See more',
-                    url: serverResponse.action.url
-                }
-            };
-        }
-    }
-});
 
-$('.follow.button').api({
-    action: 'follow user',
-    method : 'POST',
-    data: {
-      csrfmiddlewaretoken: TOKEN
-    },
-    beforeSend: function(settings) {
-      settings.data.rating = $(this).hasClass('active') ? 0: 1;
-      return settings;
-    }
-}).state({
-    text: {
-      inactive: 'Follow',
-      active: 'Followed'
-    }
-});
-
-$('.title-fav').api({
-    action: 'favourite title',
-    method : 'POST',
-    data: {
-      csrfmiddlewaretoken: TOKEN
-    },
-    beforeSend: function(settings) {
-      settings.data.rating = $(this).hasClass('active') ? 0: 1;
-      return settings;
-    },
-    onSuccess: function(response) {
-        showToast(response.message);
-        $(this).toggleClass('empty').toggleClass('active');
-    },
-    onError: function(errorMessage, element, xhr) {
-        console.log(xhr);
-        if (xhr.status === 403 && xhr.responseText.indexOf('credentials were not provided') > -1) {
-            window.location = '/accounts/login?next=/' + (location.pathname+location.search).substr(1);
-        }
-    }
-});
-
-$('.title-watch').api({
-    action: 'watchlist title',
-    method : 'POST',
-    data: {
-      csrfmiddlewaretoken: TOKEN
-    },
-    beforeSend: function(settings) {
-      settings.data.rating = $(this).hasClass('active') ? 0: 1;
-      return settings;
-    },
-    onSuccess: function(response) {
-        showToast(response.message);
-        $(this).toggleClass('remove').toggleClass('active');
-    }
-});
-
-$('.recommend.button').api({
-    action: 'recommend title',
-    method : 'POST',
-    data: {
-      csrfmiddlewaretoken: TOKEN
-    },
-    beforeSend: function(settings) {
-      settings.data.recommended_user_ids = $('[name="recommended_user_ids"]').val().split(',');
-      // var fieldName = $(this).data('field-name');
-      // settings.data[fieldName] = $('#' + fieldName).val();
-      return settings;
-    },
-    onSuccess: function(response) {
-        showToast(response.message);
-        // $('[name="recommended_user_ids"]').val('');
-    }
-});
 
 $('.recommend.dropdown').dropdown({
     onChange: function(value, text, choice) {
@@ -227,67 +111,4 @@ $('.grid .backdrop-card img').visibility({
     duration   : 1000
 });
 
-$(document).ready(function() {
-    var $slickCarousel = $('.slick-carousel');
-    if ($slickCarousel) {
-        $slickCarousel.on('init', function(event, slick) {
-            // on init, show card of first carousel item. it is hidden on init load to avoid weird `flickering`
-            $('.slick-slide.slick-current.slick-active').find('.card1').first().fadeIn();
-        });
-
-        $slickCarousel.slick({
-          // 'centerMode': true,
-          'dots': true,
-          lazyLoad: 'ondemand',
-          // 'dotsClass': '',
-          // 'mobileFirst': true,
-          // 'respondTo': 'slider'  // window, slider min,
-          // 'responsive': ''
-        });
-
-        $slickCarousel.on('beforeChange', function(event, slick, currentSlide, nextSlide) {
-            $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
-            // $('.slick-slide.slick-current.slick-active').find('.still-background').first().css('visibility', 'visible');
-        });
-    }
-
-    var $slickCarouselSimilar = $('.slick-carousel-similar');
-    if ($slickCarouselSimilar) {
-        $slickCarouselSimilar.slick({
-            infinite: false,
-            lazyLoad: 'ondemand',
-            slidesToShow: 7,
-            responsive: [
-                {
-                    breakpoint: 1024,
-                    settings: {
-                        slidesToShow: 4,
-                        // infinite: true
-                    }
-                },
-                {
-                    breakpoint: 800,
-                    settings: {
-                        slidesToShow: 3,
-                        // dots: true
-                    }
-                },
-                {
-                    breakpoint: 600,
-                    settings: {
-                        slidesToShow: 2,
-                        // dots: true
-                    }
-                },
-                // {
-                //     breakpoint: 300,
-                //     settings: "unslick" // destroys slick
-                // }
-            ]
-        });
-        $slickCarouselSimilar.on('beforeChange', function(event, slick, currentSlide, nextSlide) {
-            $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
-        });
-    }
-});
 
