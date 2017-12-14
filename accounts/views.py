@@ -141,18 +141,27 @@ class UserDetailView(DetailView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        self.is_owner = self.object == self.request.user
+        self.is_owner = self.object.pk == self.request.user.pk
         self.is_other_user = self.request.user.is_authenticated and not self.is_owner
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
 
     def get_object(self, queryset=None):
-        return self.model.objects.filter(username=self.kwargs['username']).annotate(
+        queryset = self.model.objects.filter(username=self.kwargs['username']).annotate(
             total_ratings=Count('rating'),
             total_movies=Count(Case(When(rating__title__type=MOVIE, then=1), output_field=IntegerField())),  # distinct
             total_series=Count(Case(When(rating__title__type=SERIES, then=1), output_field=IntegerField())),  # distinct
             # total_followers=Count(Case(When(userfollow__followed__pk=F('pk'), then=1), output_field=IntegerField())),
-        ).get()
+
+        )
+        if self.request.user.is_authenticated:
+            queryset = queryset.annotate(
+                already_follows=Subquery(
+                    UserFollow.objects.filter(follower=self.request.user, followed=OuterRef('pk')).values('pk')
+                )
+            )
+
+        return queryset.get()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

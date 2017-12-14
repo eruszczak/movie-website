@@ -84,8 +84,8 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         self.response_handlers_map = {}
 
         # todo: decide about limits
-        if not settings.DEBUG:
-            sleep(2)
+        # if not settings.DEBUG:
+        sleep(1)
         super().__init__()
         self.call_updater = kwargs.get('call_updater', False)
         self.cached_response = kwargs.get('cached_response', None)
