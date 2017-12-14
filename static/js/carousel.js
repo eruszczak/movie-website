@@ -55,9 +55,11 @@ $(document).ready(function() {
                 //     settings: "unslick" // destroys slick
                 // }
             ]
-        });
-        $slickCarouselSimilar.on('beforeChange', function(event, slick, currentSlide, nextSlide) {
+        }).on('beforeChange', function(event, slick, currentSlide, nextSlide) {
             $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
+        }).on('lazyLoaded', function(event, slick, image, imageSource){
+            console.log($(image));
+            $('[type="tooltip"]').popup();
         });
     }
 });

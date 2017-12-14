@@ -350,7 +350,7 @@ class TitleUpdater(TmdbResponseMixin):
 class MovieTmdbTaskMixin:
 
     def get_instance(self, result):
-        return MovieTmdb(result['id']).get_or_create()
+        return MovieTmdb(result['id'], call_updater=True).get_or_create()
 
 
 class DailyTmdbTask(TmdbResponseMixin):
@@ -405,7 +405,7 @@ class PopularTVTmdbTask(DailyTmdbTask):
     attribute_name = 'tv'
 
     def get_instance(self, result):
-        return SeriesTmdb(result['id']).get_or_create()
+        return SeriesTmdb(result['id'], call_updater=True).get_or_create()
 
 
 class PopularPeopleTmdbTask(PersonMixin, DailyTmdbTask):

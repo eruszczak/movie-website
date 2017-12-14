@@ -44,7 +44,7 @@ def database_is_clean():
     TmdbWrapper().get(title_in_collection, call_updater=True)
     PopularMoviesTmdbTask().get()
     User.objects.create_user(username='test', password='123')
-User.objects.create_user(username='test2', password='123')
+    User.objects.create_user(username='test2', password='123')
 # database_is_clean()
 
 # print(Person.objects.get(pk=17051).name)
@@ -61,22 +61,22 @@ def clean_models():
     NowPlaying.objects.all().delete()
 
 # Title.objects.all().delete()
-# clean_models()
+clean_models()
 
 def get_daily():
-    print('1')
-    PopularPeopleTmdbTask().get()
-    print('2')
-    PopularMoviesTmdbTask().get()
-    print('3')
-    NowPlayingMoviesTmdbTask().get()
-    print('4')
-    UpcomingMoviesTmdbTask().get()
+    # print('1')
+    # PopularPeopleTmdbTask().get()
+    # print('2')
+    # PopularMoviesTmdbTask().get()
+    # print('3')
+    # NowPlayingMoviesTmdbTask().get()
+    # print('4')
+    # UpcomingMoviesTmdbTask().get()
     print('5')
     PopularTVTmdbTask().get()
 
 # print(TmdbResponseMixin().source_file_path)
-# get_daily()
+get_daily()
 # t = Title.objects.filter(imdb_id=tbbt).delete()
 # print(t)
 #
