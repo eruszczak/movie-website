@@ -16,29 +16,44 @@ from fabric.state import env
 
 env.src_folder = os.path.dirname(os.path.realpath(__file__))
 env.project_folder = os.path.dirname(env.src_folder)
-env.is_linux = platform == 'linux'
-env.activate = 'source ../venv/bin/activate' if env.is_linux else '..\\venv\\Scripts\\activate.bat'
+env.is_linux = 'linux' in platform
+env.activate = '/bin/bash -l -c "source ../venv/bin/activate"' if env.is_linux else '..\\venv\\Scripts\\activate.bat'
 env.venv_folder = os.path.join(env.project_folder, 'venv')
 
 
 def init():
     def create_venv():
+        # result = local(env.activate)
+        # print(result)
+        # return
+
         if not os.path.exists(env.venv_folder):
-            python_interpreter = ' -p python3.6' if env.is_linux else ''
-            local(f'virtualenv ../venv{python_interpreter}')
+            python_interpreter = ' -p python3' if env.is_linux else ''
+            local('virtualenv ../venv' + python_interpreter)
             with virtualenv():
                 local('pip install gunicorn')
             requirements()
         else:
             print('venv existed', env.venv_folder)
 
+    def create_folders_and_files():
+        BACKUP_ROOT = os.path.join(env.project_folder, 'backup')
+        LOGS_ROOT = os.path.join(env.project_folder, 'logs', 'logs.txt')
+        if not os.path.exists(BACKUP_ROOT):
+            os.mkdir(BACKUP_ROOT)
+        if not os.path.exists(os.path.dirname(LOGS_ROOT)):
+            os.mkdir(os.path.dirname(LOGS_ROOT))
+            open(LOGS_ROOT, 'a').close()
+
     create_venv()
+    create_folders_and_files()
 
 
 @contextmanager
 def virtualenv():
     with prefix(env.activate):
-        local('where python')
+        command = 'where' if not env.is_linux else 'which'
+        local(command + ' python')
         yield
 
 
