@@ -68,3 +68,11 @@ def makemigrations():
 
 def backup():
     pass
+
+
+def restart():
+    # user=movie, db_name=movie, supervisor=movie -- this will make it easier because I can get user's name I am logged as
+    pass
+    # gunicorn
+    # nginx
+    # supervisor
