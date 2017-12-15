@@ -7,14 +7,10 @@ from fabric.context_managers import prefix
 from fabric.state import env
 
 
-# fab hello:name=Jeff
-# fab hello:Jeff
 # with settings(warn_only=True):
 #     result = local('./manage.py test my_app', capture=True)
 # if result.failed and not confirm("Tests failed. Continue anyway?"):
 #     abort("Aborting at user request.")
-
-
 # run("python manage.py makemigrations --settings=project.settings.development")
 
 
@@ -22,17 +18,19 @@ env.src_folder = os.path.dirname(os.path.realpath(__file__))
 env.project_folder = os.path.dirname(env.src_folder)
 env.is_linux = platform == 'linux'
 env.activate = 'source ../venv/bin/activate' if env.is_linux else '..\\venv\\Scripts\\activate.bat'
+env.venv_folder = os.path.join(env.project_folder, 'venv')
 
 
 def init():
-    # TODO: create backup, logs -- import from settings
     def create_venv():
-        if not os.path.exists(os.path.join(env.project_folder, 'venv')):
-            # TODO: virtualenv -p /usr/bin/python3.4 venv
-            local('virtualenv ../venv')
+        if not os.path.exists(env.venv_folder):
+            python_interpreter = ' -p python3.6' if env.is_linux else ''
+            local(f'virtualenv ../venv{python_interpreter}')
+            with virtualenv():
+                local('pip install gunicorn')
             requirements()
         else:
-            print('venv existed')
+            print('venv existed', env.venv_folder)
 
     create_venv()
 
@@ -46,8 +44,8 @@ def virtualenv():
 
 def cs():
     with virtualenv():
-        local('python manage.py collectstatic')
         # needs to be confirmed
+        local('python manage.py collectstatic')
 
 
 def pull():
