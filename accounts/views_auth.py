@@ -30,6 +30,9 @@ class LogoutView(BaseLogoutView):
 
     def get_next_page(self):
         messages.warning(self.request, 'You have been logged out.')
+        next_page = self.request.GET.get('next')
+        if next_page:
+            return next_page
         return super().get_next_page()
 
 
