@@ -204,7 +204,10 @@ class Title(models.Model):
 
     @property
     def year(self):
-        return self.release_date.year
+        try:
+            return self.release_date.year
+        except AttributeError:
+            return ''
 
     @property
     def average_rate(self):
