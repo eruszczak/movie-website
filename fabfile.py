@@ -1,4 +1,12 @@
+import os
+from sys import platform
+from contextlib import contextmanager
+
 from fabric.api import local
+from fabric.context_managers import prefix
+from fabric.state import env
+
+
 # fab hello:name=Jeff
 # fab hello:Jeff
 # with settings(warn_only=True):
@@ -6,72 +14,77 @@ from fabric.api import local
 # if result.failed and not confirm("Tests failed. Continue anyway?"):
 #     abort("Aborting at user request.")
 
-# code_dir = '/srv/django/myproject'
-# with cd(code_dir):
-
-
-# code_dir = 'backend-directory'
-#
-# if exists(code_dir):
-#    run('cd %s && git pull' % (code_dir,))
-# else:
-#    run("git clone git://serveraddress/projects/backend-directory")
-
-# with cd(code_dir):
-#   sudo("pip install virtualenv")
-#   run("virtualenv -p /usr/bin/python3.4 venv")
-#   run("source venv/bin/activate")
-#   #sudo("pip install -r requirements/dev.txt")
-#   sudo("pip install -r requirements/production.txt")
-
-# with settings(warn_only=True):
-#     with settings(sudo_user='postgres'):
-#         sudo("psql -c " + '"CREATE USER new_user WITH PASSWORD ' + "'new_password';" + '"')
-#         sudo("psql -c 'ALTER USER new_user CREATEDB;'")
-#         sudo("psql -c 'CREATE DATABASE newdb;'")
-#         sudo("psql -c 'GRANT ALL PRIVILEGES ON DATABASE 'newdb' to new_user;'")
-#
-#     if run("nginx -v").failed:
-#         sudo(" apt-get install nginx -y")
 
 # run("python manage.py makemigrations --settings=project.settings.development")
-# run("python manage.py migrate --settings=project.settings.development")
-# sudo("/etc/init.d/nginx start")
 
-# gunicorn +x
+
+env.src_folder = os.path.dirname(os.path.realpath(__file__))
+env.project_folder = os.path.dirname(env.src_folder)
+env.is_linux = platform == 'linux'
+env.activate = 'source ../venv/bin/activate' if env.is_linux else '..\\venv\\Scripts\\activate.bat'
+
+
+def init():
+    # TODO: create backup, logs -- import from settings
+    def create_venv():
+        if not os.path.exists(os.path.join(env.project_folder, 'venv')):
+            # TODO: virtualenv -p /usr/bin/python3.4 venv
+            local('virtualenv ../venv')
+            requirements()
+        else:
+            print('venv existed')
+
+    create_venv()
+
+
+@contextmanager
+def virtualenv():
+    with prefix(env.activate):
+        local('where python')
+        yield
+
 
 def cs():
-    local('python manage.py collectstatic')
-    # need to be confirmed
+    with virtualenv():
+        local('python manage.py collectstatic')
+        # needs to be confirmed
 
 
 def pull():
     local('git pull')
 
 
+def makemigrations():
+    with virtualenv():
+        local('python manage.py makemigrations')
+
+
 def migrate():
-    local('python manage.py migrate')
+    with virtualenv():
+        local('python manage.py migrate')
+
+
+def requirements():
+    with virtualenv():
+        local('pip install -r requirements.txt')
 
 
 def deploy():
-    # create needed folders if not exists
-    cs()
     pull()
+    cs()
+    requirements()
     migrate()
-    # sudo("pip install -r requirements/production.txt")
     # restart nginx
 
 
-def makemigrations():
-    local('python manage.py makemigrations')
-
-
-def backup():
-    pass
+# def backup():
+#     with virtualenv():
+#         pass
 
 
 def restart():
-    # user=movie, db_name=movie, supervisor=movie -- this will make it easier because I can get user's name I am logged as
+    # user=movie, db_name=movie, supervisor=movie --
+    # this will make it easier because I can get user's name I am logged as
     pass
     # gunicorn
     # nginx
