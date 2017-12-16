@@ -4,6 +4,7 @@ from contextlib import contextmanager
 
 from fabric.api import local
 from fabric.context_managers import prefix
+from fabric.operations import sudo
 from fabric.state import env
 
 
@@ -13,7 +14,8 @@ from fabric.state import env
 #     abort("Aborting at user request.")
 # run("python manage.py makemigrations --settings=project.settings.development")
 
-
+# env.hosts =['127.0.0.1']
+env.hosts = ['localhost']
 env.src_folder = os.path.dirname(os.path.realpath(__file__))
 env.project_folder = os.path.dirname(env.src_folder)
 env.is_linux = 'linux' in platform
@@ -30,6 +32,7 @@ def init():
         if not os.path.exists(env.venv_folder):
             python_interpreter = ' -p python3' if env.is_linux else ''
             local('virtualenv ../venv' + python_interpreter)
+            # local('virtualenv ../venv' + python_interpreter, shell='/bin/bash -l -c')
             with virtualenv():
                 local('pip install gunicorn')
             requirements()
@@ -60,7 +63,7 @@ def virtualenv():
 def cs():
     with virtualenv():
         # needs to be confirmed
-        local('python manage.py collectstatic')
+        local('python manage.py collectstatic --noinput')
 
 
 def pull():
@@ -79,7 +82,33 @@ def migrate():
 
 def requirements():
     with virtualenv():
-        local('pip install -r requirements.txt')
+        local('sudo pip install -r requirements.txt')
+
+
+def shell():
+    with virtualenv():
+        local('python manage.py shell')
+
+
+def freeze():
+    with virtualenv():
+        local('pip freeze')
+
+
+def venv(command):
+    """fab venv:"pip freeze" -- to execute any command in enviroment"""
+    with virtualenv():
+        local(command)
+
+
+def manage(command):
+    with virtualenv():
+        local('python manage.py ' + command)
+
+
+def runserver():
+    with virtualenv():
+        local('python manage.py runserver')
 
 
 def deploy():

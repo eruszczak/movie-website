@@ -1,8 +1,14 @@
 from celery import shared_task
 
-from tmdb.api import PopularMoviesTmdbTask
+from tmdb.api import PopularMoviesTmdbTask, run_tmdb_tasks
 
 
 @shared_task
-def get_todays_popular_movies():
-    PopularMoviesTmdbTask().get()
+def run_daily_tmdb_tasks():
+    run_tmdb_tasks()
+    # PopularMoviesTmdbTask().get()
+
+
+@shared_task
+def test():
+    print('x')
