@@ -420,3 +420,11 @@ class PopularPeopleTmdbTask(PersonMixin, DailyTmdbTask):
 
     def get_instance(self, result):
         return self.get_person(result)
+
+
+def run_tmdb_tasks():
+    PopularMoviesTmdbTask().get()
+    NowPlayingMoviesTmdbTask().get()
+    UpcomingMoviesTmdbTask().get()
+    PopularTVTmdbTask().get()
+    PopularPeopleTmdbTask().get()
