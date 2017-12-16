@@ -433,23 +433,25 @@ class TmdbTaskRunner:
 
     def run_popular_tasks(self):
         popular = self.get_model_instance(Popular)
-        PopularMoviesTmdbTask(popular).get()
-        PopularTVTmdbTask(popular).get()
-        PopularPeopleTmdbTask(popular).get()
-        popular.save()
+        if popular:
+            PopularMoviesTmdbTask(popular).get()
+            PopularTVTmdbTask(popular).get()
+            PopularPeopleTmdbTask(popular).get()
+            popular.save()
 
     def run_tasks(self):
         now_playing = self.get_model_instance(NowPlaying)
-        NowPlayingMoviesTmdbTask(self.today).get()
-        now_playing.save()
+        if now_playing:
+            NowPlayingMoviesTmdbTask(now_playing).get()
+            now_playing.save()
 
         upcoming = self.get_model_instance(Upcoming)
-        UpcomingMoviesTmdbTask(self.today).get()
-        upcoming.save()
+        if upcoming:
+            UpcomingMoviesTmdbTask(upcoming).get()
+            upcoming.save()
 
     def get_model_instance(self, model):
-        """gets today's active instances (they are added so they are active) or creates new one - not saved yet"""
-        try:
-            return model.objects.get(update_date=self.today)
-        except Popular.DoesNotExist:
+        """only active instances can exist, return new (not saved yet) instance or None - do not update it"""
+        if not model.objects.filter(update_date=self.today).exists():
             return model(update_date=self.today, active=True)
+        return None
