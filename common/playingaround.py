@@ -1,7 +1,8 @@
 import django
 import os
+
+from django.apps import apps
 from django.contrib.auth import get_user_model
-from django.db.models import Q
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
@@ -15,10 +16,17 @@ from mysite.settings import MEDIA_ROOT
 User = get_user_model()
 collection_id = 119
 
-from tmdb.api import TmdbWrapper, PopularMoviesTmdbTask, TitleUpdater, MovieTmdb, TmdbResponseMixin, PopularPeopleTmdbTask, \
+from titles.tmdb_api import TmdbWrapper, PopularMoviesTmdbTask, TitleUpdater, MovieTmdb, TmdbResponseMixin, PopularPeopleTmdbTask, \
     NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTVTmdbTask
-from titles.models import Title, Person, Collection, Upcoming, Popular, NowPlaying
+# from titles.models import Title, Person, Collection, Upcoming, Popular, NowPlaying
 
+Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection, NowPlaying, Upcoming = [
+    apps.get_model('titles.' + model_name) for model_name in
+    [
+        'Season', 'Person', 'CrewTitle', 'Popular', 'Title', 'Keyword', 'Genre', 'CastTitle', 'Collection', 'NowPlaying', 'Upcoming'
+    ]
+]
+print(Keyword.objects.all().count())
 # c = Collection.objects.get(id=119)
 # print(c)
 # print(c.titles.all())
@@ -60,7 +68,7 @@ def clean_models():
     Popular.objects.all().delete()
     NowPlaying.objects.all().delete()
 
-Title.objects.all().delete()
+# Title.objects.all().delete()
 # clean_models()
 
 def get_daily():
@@ -76,12 +84,12 @@ def get_daily():
     PopularTVTmdbTask().get()
 
 # print(TmdbResponseMixin().source_file_path)
-get_daily()
+# get_daily()
 # t = Title.objects.filter(imdb_id=tbbt).delete()
 # print(t)
 #
 # TmdbWrapper().get(tbbt)
-Title.objects.get(tmdb_id=7859).similar.all().count()
+# Title.objects.get(tmdb_id=7859).similar.all().count()
 
 
 def get_person(value):
@@ -89,6 +97,9 @@ def get_person(value):
         pk=value['id'], defaults={'name': value['name'], 'image_path': value['profile_path'] or ''}
     )
     return person
+
+
+
 
 # for t in Title.objects.all():
 #     print(t.overview)

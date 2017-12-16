@@ -21,13 +21,13 @@ class HomeTemplateView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        current_popular = Popular.objects.prefetch_related('movies', 'tv', 'persons').first()
+        current_popular = Popular.objects.filter(active=True).prefetch_related('movies', 'tv', 'persons').first()
         context.update({
             'popular_movies': current_popular.movies.all(),
             'popular_tv': current_popular.tv.all(),
             'popular_persons': current_popular.persons.all(),
-            'now_playing': NowPlaying.objects.prefetch_related('titles').first().titles.all().order_by('-release_date'),
-            'upcoming': Upcoming.objects.prefetch_related('titles').first().titles.upcoming().order_by('release_date'),
+            'now_playing': NowPlaying.objects.filter(active=True).prefetch_related('titles').first().titles.all().order_by('-release_date'),
+            'upcoming': Upcoming.objects.filter(active=True).prefetch_related('titles').first().titles.upcoming().order_by('release_date'),
         })
 
         if self.request.user.is_authenticated:

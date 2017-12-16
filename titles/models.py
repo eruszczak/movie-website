@@ -82,6 +82,7 @@ class Popular(models.Model):
     movies = models.ManyToManyField('Title', blank=True, related_name='popular_movies')
     tv = models.ManyToManyField('Title', blank=True, related_name='popular_tv')
     persons = models.ManyToManyField('Person', blank=True, related_name='popular')
+    active = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('-update_date',)
@@ -94,6 +95,7 @@ class Popular(models.Model):
 class NowPlaying(models.Model):
     update_date = models.DateField(unique=True)
     titles = models.ManyToManyField('Title', blank=True, related_name='nowplaying')
+    active = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('-update_date',)
@@ -105,6 +107,7 @@ class NowPlaying(models.Model):
 class Upcoming(models.Model):
     update_date = models.DateField(unique=True)
     titles = models.ManyToManyField('Title', blank=True, related_name='upcoming')
+    active = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('-update_date',)
@@ -152,9 +155,10 @@ class Title(models.Model):
         self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
-    # def update(self):
-    #     # TODO calls celery task
-    #     TitleUpdater(self)
+    def update(self):
+        # TODO calls celery task
+        from titles.tmdb_api import TitleUpdater
+        TitleUpdater(self)
 
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
