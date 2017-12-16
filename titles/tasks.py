@@ -1,12 +1,11 @@
 from celery import shared_task
 
-from tmdb.api import PopularMoviesTmdbTask, run_tmdb_tasks
+from titles.tmdb_api import TmdbTaskRunner
 
 
 @shared_task
 def run_daily_tmdb_tasks():
-    run_tmdb_tasks()
-    # PopularMoviesTmdbTask().get()
+    TmdbTaskRunner().run()
 
 
 @shared_task

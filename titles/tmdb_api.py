@@ -374,10 +374,6 @@ class DailyTmdbTask(TmdbResponseMixin):
         self.model_instance = model_instance
 
     def get(self):
-        attribute = getattr(self.model_instance, self.attribute_name)
-        if attribute.count():
-            return
-
         response = self.get_tmdb_response(*self.path_parameters)
         if response is not None:
             pks = []
@@ -385,7 +381,8 @@ class DailyTmdbTask(TmdbResponseMixin):
                 instance = self.get_instance(result)
                 if instance:
                     pks.append(instance.pk)
-            attribute.add(*pks)
+
+            getattr(self.model_instance, self.attribute_name).add(*pks)
 
         return None
 
