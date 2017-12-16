@@ -3,9 +3,8 @@ import os
 from time import sleep
 
 from decouple import config
+from django.apps import apps
 from django.conf import settings
-from django.db.models import Q
-from django.utils.text import slugify
 
 from django.utils.timezone import now
 
@@ -13,6 +12,14 @@ from shared.helpers import get_json_response, SlashDict
 from titles.constants import MOVIE, SERIES, CREATOR, TITLE_CREW_JOB
 from titles.models import Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection, NowPlaying, \
     Upcoming
+
+
+# Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection, NowPlaying, Upcoming = [
+#     apps.get_model('titles.' + model_name) for model_name in
+#     [
+#         'Season', 'Person', 'CrewTitle', 'Popular', 'Title', 'Keyword', 'Genre', 'CastTitle', 'Collection', 'NowPlaying', 'Upcoming'
+#     ]
+# ]
 
 
 class PersonMixin:
@@ -159,8 +166,8 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
 
         if self.call_updater:
             print('\t\t updater for', self.tmdb_id)
-            TitleUpdater(self.title)
-            # self.title.update()
+            # TitleUpdater(self.title)
+            self.title.update()
 
         return self.title
 
@@ -360,13 +367,14 @@ class MovieTmdbTaskMixin:
 
 class DailyTmdbTask(TmdbResponseMixin):
     path_parameters = ()
-    today = now().date()
-    model = None
     attribute_name = None
 
+    def __init__(self, model_instance):
+        super().__init__()
+        self.model_instance = model_instance
+
     def get(self):
-        obj, created = self.model.objects.get_or_create(update_date=self.today)
-        attribute = getattr(obj, self.attribute_name)
+        attribute = getattr(self.model_instance, self.attribute_name)
         if attribute.count():
             return
 
@@ -378,7 +386,6 @@ class DailyTmdbTask(TmdbResponseMixin):
                 if instance:
                     pks.append(instance.pk)
             attribute.add(*pks)
-            return obj
 
         return None
 
@@ -388,25 +395,21 @@ class DailyTmdbTask(TmdbResponseMixin):
 
 class PopularMoviesTmdbTask(MovieTmdbTaskMixin, DailyTmdbTask):
     path_parameters = ('movie', 'popular')
-    model = Popular
     attribute_name = 'movies'
 
 
 class NowPlayingMoviesTmdbTask(MovieTmdbTaskMixin, DailyTmdbTask):
     path_parameters = ('movie', 'now_playing')
-    model = NowPlaying
     attribute_name = 'titles'
 
 
 class UpcomingMoviesTmdbTask(MovieTmdbTaskMixin, DailyTmdbTask):
     path_parameters = ('movie', 'upcoming')
-    model = Upcoming
     attribute_name = 'titles'
 
 
 class PopularTVTmdbTask(DailyTmdbTask):
     path_parameters = ('tv', 'popular')
-    model = Popular
     attribute_name = 'tv'
 
     def get_instance(self, result):
@@ -415,16 +418,38 @@ class PopularTVTmdbTask(DailyTmdbTask):
 
 class PopularPeopleTmdbTask(PersonMixin, DailyTmdbTask):
     path_parameters = ('person', 'popular')
-    model = Popular
     attribute_name = 'persons'
 
     def get_instance(self, result):
         return self.get_person(result)
 
 
-def run_tmdb_tasks():
-    PopularMoviesTmdbTask().get()
-    NowPlayingMoviesTmdbTask().get()
-    UpcomingMoviesTmdbTask().get()
-    PopularTVTmdbTask().get()
-    PopularPeopleTmdbTask().get()
+class TmdbTaskRunner:
+    today = now().date()
+
+    def run(self):
+        self.run_popular_tasks()
+        self.run_tasks()
+
+    def run_popular_tasks(self):
+        popular = self.get_model_instance(Popular)
+        PopularMoviesTmdbTask(popular).get()
+        PopularTVTmdbTask(popular).get()
+        PopularPeopleTmdbTask(popular).get()
+        popular.save()
+
+    def run_tasks(self):
+        now_playing = self.get_model_instance(NowPlaying)
+        NowPlayingMoviesTmdbTask(self.today).get()
+        now_playing.save()
+
+        upcoming = self.get_model_instance(Upcoming)
+        UpcomingMoviesTmdbTask(self.today).get()
+        upcoming.save()
+
+    def get_model_instance(self, model):
+        """gets today's active instances (they are added so they are active) or creates new one - not saved yet"""
+        try:
+            return model.objects.get(update_date=self.today)
+        except Popular.DoesNotExist:
+            return model(update_date=self.today, active=True)
