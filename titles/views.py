@@ -154,7 +154,7 @@ class TitleDetailView(DetailView):
         except self.model.DoesNotExist:
             raise Http404
         else:
-            obj.update()
+            obj.call_update_task()
             return obj
 
     def get_context_data(self, **kwargs):
