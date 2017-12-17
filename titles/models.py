@@ -88,8 +88,7 @@ class Popular(models.Model):
         ordering = ('-update_date',)
 
     def __str__(self):
-        return f'Popular on {self.update_date} - {self.movies.count() + self.tv.count()} titles, ' \
-               f'{self.persons.count()} people'
+        return f'Popular on {self.update_date}'
 
 
 class NowPlaying(models.Model):
@@ -101,7 +100,7 @@ class NowPlaying(models.Model):
         ordering = ('-update_date',)
 
     def __str__(self):
-        return f'Now playing on {self.update_date} - {self.titles.count()} titles'
+        return f'Now playing on {self.update_date}'
 
 
 class Upcoming(models.Model):
@@ -113,13 +112,14 @@ class Upcoming(models.Model):
         ordering = ('-update_date',)
 
     def __str__(self):
-        return f'Upcoming on {self.update_date} - {self.titles.count()} titles'
+        return f'Upcoming on {self.update_date}'
 
 
 class Title(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     source = JSONField(blank=True)
+    being_updated = models.BooleanField(default=False)
 
     genres = models.ManyToManyField('Genre')
     keywords = models.ManyToManyField('Keyword', blank=True)
@@ -141,8 +141,6 @@ class Title(models.Model):
 
     image_path = models.CharField(max_length=300)
 
-    # rate_imdb = models.FloatField(blank=True, null=True)
-    # votes = models.IntegerField(blank=True, null=True)
     objects = TitleQuerySet.as_manager()
 
     class Meta:

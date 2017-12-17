@@ -22,13 +22,20 @@ class HomeTemplateView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         current_popular = Popular.objects.filter(active=True).prefetch_related('movies', 'tv', 'persons').first()
-        context.update({
-            'popular_movies': current_popular.movies.all(),
-            'popular_tv': current_popular.tv.all(),
-            'popular_persons': current_popular.persons.all(),
-            'now_playing': NowPlaying.objects.filter(active=True).prefetch_related('titles').first().titles.all().order_by('-release_date'),
-            'upcoming': Upcoming.objects.filter(active=True).prefetch_related('titles').first().titles.upcoming().order_by('release_date'),
-        })
+        if current_popular:
+            context.update({
+                'popular_movies': current_popular.movies.all(),
+                'popular_tv': current_popular.tv.all(),
+                'popular_persons': current_popular.persons.all(),
+            })
+
+        now_playing = NowPlaying.objects.filter(active=True).prefetch_related('titles').first()
+        if now_playing:
+            context['now_playing'] = now_playing.titles.all().order_by('-release_date')
+
+        upcoming = Upcoming.objects.filter(active=True).prefetch_related('titles').first()
+        if upcoming:
+            context['upcoming'] = upcoming.titles.upcoming().order_by('release_date')
 
         if self.request.user.is_authenticated:
             request_user_ratings = Rating.objects.filter(

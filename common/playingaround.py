@@ -16,8 +16,10 @@ from mysite.settings import MEDIA_ROOT
 User = get_user_model()
 collection_id = 119
 
-from titles.tmdb_api import TmdbWrapper, PopularMoviesTmdbTask, TitleUpdater, MovieTmdb, TmdbResponseMixin, PopularPeopleTmdbTask, \
-    NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTVTmdbTask
+from titles.tmdb_api import TmdbWrapper, PopularMoviesTmdbTask, TitleUpdater, MovieTmdb, TmdbResponseMixin, \
+    PopularPeopleTmdbTask, \
+    NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTVTmdbTask, TmdbTaskRunner
+
 # from titles.models import Title, Person, Collection, Upcoming, Popular, NowPlaying
 
 Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection, NowPlaying, Upcoming = [
@@ -71,22 +73,25 @@ def clean_models():
 # Title.objects.all().delete()
 # clean_models()
 
-def get_daily():
-    print('1')
-    PopularPeopleTmdbTask().get()
-    print('2')
-    PopularMoviesTmdbTask().get()
-    print('3')
-    NowPlayingMoviesTmdbTask().get()
-    print('4')
-    UpcomingMoviesTmdbTask().get()
-    print('5')
-    PopularTVTmdbTask().get()
+# def get_daily():
+    # print('1')
+    # PopularPeopleTmdbTask().get()
+    # print('2')
+    # PopularMoviesTmdbTask().get()
+    # print('3')
+    # NowPlayingMoviesTmdbTask().get()
+    # print('4')
+    # UpcomingMoviesTmdbTask().get()
+    # print('5')
+    # PopularTVTmdbTask().get()
 
 # print(TmdbResponseMixin().source_file_path)
 # get_daily()
 # t = Title.objects.filter(imdb_id=tbbt).delete()
 # print(t)
+
+TmdbTaskRunner().run()
+
 #
 # TmdbWrapper().get(tbbt)
 # Title.objects.get(tmdb_id=7859).similar.all().count()

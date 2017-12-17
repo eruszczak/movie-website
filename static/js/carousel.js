@@ -58,8 +58,8 @@ $(document).ready(function() {
         }).on('beforeChange', function(event, slick, currentSlide, nextSlide) {
             $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
         }).on('lazyLoaded', function(event, slick, image, imageSource){
-            console.log($(image));
-            $('[type="tooltip"]').popup();
+            // console.log($(image));
+            // $('[type="tooltip"]').popup();
         });
     }
 });
