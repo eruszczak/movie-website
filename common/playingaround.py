@@ -101,8 +101,8 @@ def clean_models():
 # Title.objects.get(tmdb_id=7859).similar.all().count()
 
 from titles.tasks import task_update_title
-t = Title.objects.get(imdb_id='tt5657846')
-# task_update_title.delay(t.pk)
+t = Title.objects.get(imdb_id='tt4587656')
+task_update_title.delay(t.pk)
 
 # print(t.similar.all())
 print('updated', t.updated, 'being_updated', t.being_updated)

@@ -114,10 +114,9 @@
                 {% endif %}
             </div>
         </div>
-
     </div>
     <div class="ui tab segment active" data-tab="third">
-        <div class="ui grid centered statistics">
+        <div class="ui grid centered statistics" style="margin-bottom: 50px">
           {% if title.runtime %}
               <div class="statistic">
                 <div class="value">
@@ -165,7 +164,7 @@
             </div>
           </div>
         </div>
-
+        {{ title.updated }}; {{ title.being_updated }}
 {#        {% with title.rate as data %}#}
 {#            {% if data.count %}#}
 {#                <div class="item">Avg ratings: {{ data.avg|floatformat:2 }}#}
@@ -183,48 +182,58 @@
             <div class="ui hidden divider"></div>
         {% endif %}
 
-        {% if title.collection %}
-            <div class="ui segment">
-              <span class="ui blue ribbon label">{{ title.collection.name }}</span>
-                <div class="ui list">
-                    <div class="slick-carousel-similar">
-                        {% for title in collection_titles %}
-                            <div>
-                                {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
-                            </div>
-                        {% endfor %}
+        {% if title.updated %}
+            {% if title.is_movie and title.collection %}
+                <div class="ui segment">
+                  <span class="ui blue ribbon label">{{ title.collection.name }}</span>
+                    <div class="ui list">
+                        <div class="slick-carousel-similar">
+                            {% for title in collection_titles %}
+                                <div>
+                                    {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
 
-        {% if similar %}
-            <div class="ui segment">
-              <span class="ui blue ribbon label">Similar</span>
-                <div class="ui list">
-                    <div class="slick-carousel-similar">
-                        {% for title in similar %}
-                            <div>
-                                {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
-                            </div>
-                        {% endfor %}
+            {% if similar %}
+                <div class="ui segment">
+                  <span class="ui blue ribbon label">Similar</span>
+                    <div class="ui list">
+                        <div class="slick-carousel-similar">
+                            {% for title in similar %}
+                                <div>
+                                    {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
 
-        {% if recommendations %}
-            <div class="ui segment">
-              <span class="ui blue ribbon label">Recommendations</span>
-                <div class="ui list">
-                    <div class="slick-carousel-similar">
-                        {% for title in recommendations %}
-                            <div>
-                                {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
-                            </div>
-                        {% endfor %}
+            {% if recommendations %}
+                <div class="ui segment">
+                  <span class="ui blue ribbon label">Recommendations</span>
+                    <div class="ui list">
+                        <div class="slick-carousel-similar">
+                            {% for title in recommendations %}
+                                <div>
+                                    {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
+            {% endif %}
+        {% elif title.being_updated %}
+            <div class="ui hidden divider"></div>
+            <div class="ui segment loader-box">
+              <div class="ui active dimmer">
+                <div class="ui text loader">Title is being updated</div>
+              </div>
+              <p></p>
             </div>
         {% endif %}
 

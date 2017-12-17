@@ -163,7 +163,8 @@ class Title(models.Model):
         Can pass `force=True` so title will be updated even if it was updated before
         """
         from titles.tasks import task_update_title
-        if not self.updated or force:
+        if (not self.updated and not self.being_updated) or force:
+            print('call task')  # todo: this should be called only once
             task_update_title.delay(self.pk)
 
     def before_update(self):
