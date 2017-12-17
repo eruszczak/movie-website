@@ -94,18 +94,18 @@ def clean_models():
 # t = Title.objects.filter(imdb_id=tbbt).delete()
 # print(t)
 
-# TmdbTaskRunner().run()
+TmdbTaskRunner().run()
 
 #
 # TmdbWrapper().get(tbbt)
 # Title.objects.get(tmdb_id=7859).similar.all().count()
 
-from titles.tasks import task_update_title
-t = Title.objects.get(imdb_id='tt4587656')
-task_update_title.delay(t.pk)
-
-# print(t.similar.all())
-print('updated', t.updated, 'being_updated', t.being_updated)
+# from titles.tasks import task_update_title
+# t = Title.objects.get(imdb_id='tt4587656')
+# task_update_title.delay(t.pk)
+#
+# # print(t.similar.all())
+# print('updated', t.updated, 'being_updated', t.being_updated)
 
 
 def get_person(value):
