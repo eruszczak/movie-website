@@ -80,6 +80,16 @@ def migrate():
         local('python manage.py migrate')
 
 
+def db():
+    makemigrations()
+    migrate()
+
+
+def celery():
+    with virtualenv():
+        local('celery -A mysite worker -l info')
+
+
 def requirements():
     with virtualenv():
         local('sudo pip install -r requirements.txt')

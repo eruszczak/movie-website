@@ -157,14 +157,7 @@ class TitleDetailView(DetailView):
         except self.model.DoesNotExist:
             raise Http404
         else:
-            # klass = get_tmdb_concrete_class(obj.type)
-            # updater = {
-            #     'similar': obj.similar.count() > 0,
-            #     'recommendations': obj.recommendations.count() > 0
-            # }
-            # klass(title=obj).update(**updater)
-            # TODO: celery
-            # TODO: avoid this queries by using attributes - or check counts() later in celery
+            # obj.update()
             return obj
 
     def get_context_data(self, **kwargs):

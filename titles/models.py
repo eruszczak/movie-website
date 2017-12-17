@@ -119,6 +119,7 @@ class Title(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     source = JSONField(blank=True)
+    updated = models.BooleanField(default=False)
     being_updated = models.BooleanField(default=False)
 
     genres = models.ManyToManyField('Genre')
@@ -153,20 +154,26 @@ class Title(models.Model):
         self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
-    def update(self):
-        # TODO calls celery task
-        from titles.tmdb_api import TitleUpdater
-        TitleUpdater(self)
-
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
 
-    # def get_tmdb_instance(self):
-    #     if self.type == MOVIE:
-    #         return MovieTmdb
-    #     elif title_type == SERIES:
-    #         return SeriesTmdb
-    #     return None
+    def update(self, force=False):
+        """
+        Calls celery task if title haven't been updated yet. Triggered after title was visited by someone.
+        Can pass `force=True` so title will be updated even if it was updated before
+        """
+        from titles.tasks import task_update_title
+        if not self.updated or force:
+            task_update_title.delay(self.pk)
+
+    def before_update(self):
+        self.being_updated = True
+        self.save()
+
+    def after_update(self):
+        self.being_updated = False
+        self.updated = True
+        self.save()
 
     @property
     @tmdb_image
