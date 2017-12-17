@@ -157,15 +157,19 @@ class Title(models.Model):
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
 
-    def update(self, force=False):
+    def call_update_task(self, force=False):
         """
         Calls celery task if title haven't been updated yet. Triggered after title was visited by someone.
         Can pass `force=True` so title will be updated even if it was updated before
         """
         from titles.tasks import task_update_title
         if (not self.updated and not self.being_updated) or force:
-            print('call task')  # todo: this should be called only once
+            print('call tmdb updater task for tmdb_id', self.tmdb_id)
             task_update_title.delay(self.pk)
+
+    def update(self):
+        from titles.tmdb_api import TitleUpdater
+        TitleUpdater(self)
 
     def before_update(self):
         self.being_updated = True
