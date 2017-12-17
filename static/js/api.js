@@ -41,12 +41,16 @@ $('.ui.search').search({
                     image: item.img
                 });
             });
-            return {
-                results: results,
-                action: {
-                    text: 'See more',
+            var action = null;
+            if (serverResponse.titles.length) {
+                var action = {
+                    text: 'See more titles',
                     url: serverResponse.action.url
                 }
+            }
+            return {
+                results: results,
+                action: action
             };
         }
     }
