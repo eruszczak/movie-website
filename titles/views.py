@@ -42,27 +42,23 @@ class HomeTemplateView(TemplateView):
                 user=self.request.user, title=OuterRef('pk')
             ).order_by('-rate_date').values('rate')
 
-            context['popular_movies'] = context['popular_movies'].annotate(
-                has_in_watchlist=Count(
-                    Case(
-                        When(watchlist__user=self.request.user, watchlist__deleted=False, then=1),
-                        output_field=IntegerField()
-                    )
-                ),
-                has_in_favourites=Count(
-                    Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
-                ),
-                request_user_rate=Subquery(request_user_ratings[:1])
-            )
-            context['popular_tv'] = context['popular_tv'].annotate(
-                request_user_rate=Subquery(request_user_ratings[:1])
-            )
-            context['now_playing'] = context['now_playing'].annotate(
-                request_user_rate=Subquery(request_user_ratings[:1])
-            )
-            context['upcoming'] = context['upcoming'].annotate(
-                request_user_rate=Subquery(request_user_ratings[:1])
-            )
+            if context.get('popular_movies'):
+                context['popular_movies'] = context['popular_movies'].annotate(
+                    has_in_watchlist=Count(
+                        Case(
+                            When(watchlist__user=self.request.user, watchlist__deleted=False, then=1),
+                            output_field=IntegerField()
+                        )
+                    ),
+                    has_in_favourites=Count(
+                        Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
+                    ),
+                    request_user_rate=Subquery(request_user_ratings[:1])
+                )
+
+            for key in ['popular_tv', 'now_playing', 'upcoming']:
+                if context.get(key):
+                    context[key] = context[key].annotate(request_user_rate=Subquery(request_user_ratings[:1]))
 
         return context
 
