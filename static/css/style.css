@@ -57,8 +57,7 @@ body {
 /*}*/
 
 .poster-background {
-    margin-top: -47vh;
-    /*width:100%;*/
+    margin-top: -51vh;
     position: absolute;
 }
 
@@ -182,7 +181,8 @@ body {
     color: #ffffff8f;
 }
 .card-01.height-fix {
-     height: 390px;
+    height: 50vh;
+     /*height: 390px;*/
     overflow: hidden;
     width: 260px;
 }
