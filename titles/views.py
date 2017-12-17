@@ -168,6 +168,8 @@ class TitleDetailView(DetailView):
             collection_titles = self.object.collection.titles.all()
             similar_titles = similar_titles.exclude(pk__in=collection_titles.values_list('pk', flat=True))
 
+        recommendations = self.object.recommendations.all()
+
         if self.request.user.is_authenticated:
             context.update({
                 # 'rating': Rating.objects.filter(user=self.request.user, title=self.object).latest('rate_date'),
@@ -201,9 +203,11 @@ class TitleDetailView(DetailView):
 
             collection_titles = collection_titles.annotate(request_user_rate=Subquery(request_user_newest_ratings))
             similar_titles = similar_titles.annotate(request_user_rate=Subquery(request_user_newest_ratings))
+            recommendations = recommendations.annotate(request_user_rate=Subquery(request_user_newest_ratings))
 
         context.update({
             'similar': similar_titles,
+            'recommendations': recommendations,
             'collection_titles': collection_titles,
             'cast_list': CastTitle.objects.filter(title=self.object).select_related('person'),
             'crew_list': CrewTitle.objects.filter(title=self.object).select_related('person'),

@@ -183,6 +183,21 @@
             <div class="ui hidden divider"></div>
         {% endif %}
 
+        {% if title.collection %}
+            <div class="ui segment">
+              <span class="ui blue ribbon label">{{ title.collection.name }}</span>
+                <div class="ui list">
+                    <div class="slick-carousel-similar">
+                        {% for title in collection_titles %}
+                            <div>
+                                {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
         {% if similar %}
             <div class="ui segment">
               <span class="ui blue ribbon label">Similar</span>
@@ -198,12 +213,12 @@
             </div>
         {% endif %}
 
-        {% if title.collection %}
+        {% if recommendations %}
             <div class="ui segment">
-              <span class="ui blue ribbon label">{{ title.collection.name }}</span>
+              <span class="ui blue ribbon label">Recommendations</span>
                 <div class="ui list">
                     <div class="slick-carousel-similar">
-                        {% for title in collection_titles %}
+                        {% for title in recommendations %}
                             <div>
                                 {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
                             </div>
