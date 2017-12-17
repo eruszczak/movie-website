@@ -24,6 +24,7 @@ class HomeTemplateView(TemplateView):
         current_popular = Popular.objects.filter(active=True).prefetch_related('movies', 'tv', 'persons').first()
         if current_popular:
             context.update({
+                'update_date': current_popular.update_date,
                 'popular_movies': current_popular.movies.all(),
                 'popular_tv': current_popular.tv.all(),
                 'popular_persons': current_popular.persons.all(),

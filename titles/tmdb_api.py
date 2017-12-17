@@ -429,6 +429,7 @@ class TmdbTaskRunner:
     today = now().date()
 
     def run(self):
+        print('run tasks', self.today)
         self.run_popular_tasks()
         self.run_tasks()
 
