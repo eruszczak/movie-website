@@ -311,6 +311,9 @@ class TitleUpdater(TmdbResponseMixin):
     def __init__(self, title):
         super().__init__()
         self.title = title
+
+        self.title.before_update()
+
         self.api_response = SlashDict(title.source)
         self.tmdb_instance = get_tmdb_concrete_class(title.type)
 
@@ -328,7 +331,8 @@ class TitleUpdater(TmdbResponseMixin):
             print('\t\t\t', handler.__name__, 'for tmdb_pk', self.title.tmdb_id)
             if value:
                 handler(value)
-        print('\t\t\t end updater')
+
+        self.title.after_update()
 
     def save_similar(self, value):
         self.save_titles_to_attribute(value, self.title.similar)

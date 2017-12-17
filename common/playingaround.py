@@ -4,9 +4,11 @@ import os
 from django.apps import apps
 from django.contrib.auth import get_user_model
 
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 import pytz
+
 from accounts.models import *
 import sys
 user = User.objects.all().first()
@@ -20,15 +22,15 @@ from titles.tmdb_api import TmdbWrapper, PopularMoviesTmdbTask, TitleUpdater, Mo
     PopularPeopleTmdbTask, \
     NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTVTmdbTask, TmdbTaskRunner
 
-# from titles.models import Title, Person, Collection, Upcoming, Popular, NowPlaying
+from titles.models import Title, Person, Collection, Upcoming, Popular, NowPlaying
 
-Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection, NowPlaying, Upcoming = [
-    apps.get_model('titles.' + model_name) for model_name in
-    [
-        'Season', 'Person', 'CrewTitle', 'Popular', 'Title', 'Keyword', 'Genre', 'CastTitle', 'Collection', 'NowPlaying', 'Upcoming'
-    ]
-]
-print(Keyword.objects.all().count())
+# Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection, NowPlaying, Upcoming = [
+#     apps.get_model('titles.' + model_name) for model_name in
+#     [
+#         'Season', 'Person', 'CrewTitle', 'Popular', 'Title', 'Keyword', 'Genre', 'CastTitle', 'Collection', 'NowPlaying', 'Upcoming'
+#     ]
+# ]
+# print(Keyword.objects.all().count())
 # c = Collection.objects.get(id=119)
 # print(c)
 # print(c.titles.all())
@@ -63,12 +65,14 @@ def database_is_clean():
 #     if not p.slug:
 #         print(p.name)
 #         print(p.slug)
-print(Title.objects.all().count())
+# print(Title.objects.all().count())
 
 def clean_models():
     Upcoming.objects.all().delete()
     Popular.objects.all().delete()
     NowPlaying.objects.all().delete()
+
+
 
 # Title.objects.all().delete()
 # clean_models()
@@ -90,11 +94,18 @@ def clean_models():
 # t = Title.objects.filter(imdb_id=tbbt).delete()
 # print(t)
 
-TmdbTaskRunner().run()
+# TmdbTaskRunner().run()
 
 #
 # TmdbWrapper().get(tbbt)
 # Title.objects.get(tmdb_id=7859).similar.all().count()
+
+from titles.tasks import task_update_title
+t = Title.objects.get(imdb_id='tt5657846')
+# task_update_title.delay(t.pk)
+
+# print(t.similar.all())
+print('updated', t.updated, 'being_updated', t.being_updated)
 
 
 def get_person(value):
@@ -102,7 +113,6 @@ def get_person(value):
         pk=value['id'], defaults={'name': value['name'], 'image_path': value['profile_path'] or ''}
     )
     return person
-
 
 
 
