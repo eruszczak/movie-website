@@ -41,9 +41,6 @@ class UserUpdateForm(forms.ModelForm):
         }
 
     def clean_picture(self):
-        MAX_KB = 150
-        MAX_WIDTH = 200
-        MIN_WIDTH = 100
         picture = self.cleaned_data.get('picture')
         if isinstance(picture, InMemoryUploadedFile):
             w, h = get_image_dimensions(picture)
@@ -51,16 +48,14 @@ class UserUpdateForm(forms.ModelForm):
             if ext not in ('.png', '.jpg'):
                 raise forms.ValidationError('Allowed file extensions: jpg, png.')
 
-            if picture.size > 1024 * MAX_KB:
-                raise forms.ValidationError(
-                    f'Maximum file size is {MAX_KB} kB. Uploaded file\'s size is {int(picture.size / 1024)} kB'
-                )
+            self.validate_size(picture.size, 150)
 
-            valid_dimensions_conditions = [MIN_WIDTH <= h <= MAX_WIDTH, MIN_WIDTH <= w <= MAX_WIDTH, w == h]
+            min_width, max_width = 100, 200
+            valid_dimensions_conditions = [min_width <= h <= max_width, min_width <= w <= max_width, w == h]
             if not all(valid_dimensions_conditions):
                 raise forms.ValidationError(
                     f'The image is {w}x{h}px. '
-                    f'It must be a square with width between {MIN_WIDTH}px and {MAX_WIDTH}px.'
+                    f'It must be a square with width between {min_width}px and {max_width}px.'
                 )
 
         return picture
@@ -68,8 +63,7 @@ class UserUpdateForm(forms.ModelForm):
     def clean_csv_ratings(self):
         csv_ratings = self.cleaned_data.get('csv_ratings')
         if isinstance(csv_ratings, InMemoryUploadedFile):
-            if csv_ratings.size > 1024 * 1024 * 2:
-                raise forms.ValidationError('File too large ( > 2MB )')
+            self.validate_size(csv_ratings.size, 1024 * 2)
         return csv_ratings
 
     def clean_imdb_id(self):
@@ -81,3 +75,10 @@ class UserUpdateForm(forms.ModelForm):
                 raise forms.ValidationError('IMDb ID must start with "ur" and have at least 6 characters')
             return valid_id
         return imdb_id
+
+    @staticmethod
+    def validate_size(file_size, max_size):
+        if file_size > 1024 * max_size:
+            raise forms.ValidationError(
+                f'Maximum file size is {max_size} kB. Uploaded file\'s size is {int(file_size / 1024)} kB'
+            )
