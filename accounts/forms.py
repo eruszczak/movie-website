@@ -50,17 +50,18 @@ class UserUpdateForm(forms.ModelForm):
             name, ext = os.path.splitext(str(picture))
             if ext not in ('.png', '.jpg'):
                 raise forms.ValidationError('Allowed file extensions: jpg, png.')
-            elif picture.size > 1024 * MAX_KB:
+
+            if picture.size > 1024 * MAX_KB:
                 raise forms.ValidationError(
-                    f'Maxiumum file size is {MAX_KB} kB. Uploaded file\'s size is f{picture.size / 1024} kB'
+                    f'Maximum file size is {MAX_KB} kB. Uploaded file\'s size is {int(picture.size / 1024)} kB'
                 )
-            else:
-                valid_dimensions_conditions = [MIN_WIDTH <= h <= MAX_WIDTH, MIN_WIDTH <= w <= MAX_WIDTH, w == h]
-                if all(valid_dimensions_conditions):
-                    raise forms.ValidationError(
-                        f'The picture is {w}x{h}px. '
-                        f'It must be a square with width between {MIN_WIDTH}px and {MAX_WIDTH}px.'
-                    )
+
+            valid_dimensions_conditions = [MIN_WIDTH <= h <= MAX_WIDTH, MIN_WIDTH <= w <= MAX_WIDTH, w == h]
+            if not all(valid_dimensions_conditions):
+                raise forms.ValidationError(
+                    f'The image is {w}x{h}px. '
+                    f'It must be a square with width between {MIN_WIDTH}px and {MAX_WIDTH}px.'
+                )
 
         return picture
 
