@@ -1,15 +1,22 @@
 {% load static %}
 
-<div class="still-background2">
-    <img class="backdrop" src="{{ user.poster_of_latest_rating }}">
-    <div class="ui grid centered">
-        <div class="user-background">
-            <div class="card-user card-user-01 height-fix">
-                <a href="{{ user.get_absolute_url }}">
-                    <img class="card-img-top" src="http://image.tmdb.org/t/p/w342/rNQH6Q8RPXD59aqGckST3CKQbCf.jpg" alt="Card image cap">
-                </a>
+<div class="still-background2 still-background2-gradient">
+    {% with title=user.latest_rated_title %}
+        {% if not title %}
+            <!-- Background pattern from Subtle Patterns -->
+            <div class="backdrop" style="background-image: url({% static 'img/intersection.png' %});background-repeat: repeat-x;"></div>
+        {% else %}
+            <img class="backdrop" src="{{ title.poster_backdrop_user }}">
+        {% endif %}
+        <div class="ui grid centered">
+            <div class="user-background">
+                <div class="card-user card-user-01 height-fix">
+                    <a href="{{ user.get_absolute_url }}">
+                        <img class="card-img-top" src="{{ user.avatar_url }}" alt="Card image cap">
+                    </a>
+                </div>
+                <p class="card-username">{{ user.username }}</p>
             </div>
-            <p class="card-username">{{ user.username }}</p>
         </div>
-    </div>
+    {% endwith %}
 </div>

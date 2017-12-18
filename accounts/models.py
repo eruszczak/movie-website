@@ -44,8 +44,17 @@ class User(FolderPathMixin, AbstractUser):
         return reverse('title-list') + '?user={}'.format(self.pk)
 
     @property
-    def poster_of_latest_rating(self):
-        return Rating.objects.filter(user=self).latest('rate_date').title.poster_backdrop_user
+    def avatar_url(self):
+        if self.picture:
+            return self.picture.url
+        return f'http://api.adorable.io/avatar/200/{self.username}'
+
+    @property
+    def latest_rated_title(self):
+        latest_rating = Rating.objects.filter(user=self).latest('rate_date')
+        if latest_rating:
+            return latest_rating.title
+        return None
 
     @property
     def count_titles(self):
