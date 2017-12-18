@@ -4,10 +4,8 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
-from common.sql_queries import avg_of_user_current_ratings
 from shared.helpers import get_random_file_path, validate_file_ext
 from shared.models import FolderPathMixin
-from titles.constants import MOVIE, SERIES
 from titles.models import Title, Rating
 
 
@@ -23,14 +21,6 @@ class User(FolderPathMixin, AbstractUser):
     last_updated_profile = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     MODEL_FOLDER_NAME = 'accounts'
-
-    # __original_picture = None
-    # __original_csv = None
-    #
-    # def save(self, *args, **kwargs):
-    #     super().save(*args, **kwargs)
-    #     self.__original_picture = self.picture
-    #     self.__original_csv = self.csv_ratings
 
     def __str__(self):
         return self.username
@@ -53,45 +43,14 @@ class User(FolderPathMixin, AbstractUser):
     def ratings_url(self):
         return reverse('title-list') + '?user={}'.format(self.pk)
 
-    def all_ratings_url(self):
-        return reverse('title-list') + '?u={}'.format(self.username) + '&all_ratings=on'
-
-    def ratings_exclude(self):
-        return reverse('title-list') + '?u={}&exclude_mine=on'.format(self.username)
-
     @property
     def poster_of_latest_rating(self):
         return Rating.objects.filter(user=self).latest('rate_date').title.poster_backdrop_user
 
     @property
-    def picture_filename(self):
-        return str(self.picture).split('/')[-1] if self.picture else ''
-
-    @property
     def count_titles(self):
         """counts rated distinct titles"""
         return Title.objects.filter(rating__user=self).distinct().count()
-
-    @property
-    def count_ratings(self):
-        """counts all the ratings"""
-        return Title.objects.filter(rating__user=self).count()
-
-    @property
-    def count_movies(self):
-        """counts rated distinct movies"""
-        return Title.objects.filter(rating__user=self, type=MOVIE).distinct().count()
-
-    @property
-    def count_series(self):
-        """counts rated distinct series"""
-        return Title.objects.filter(rating__user=self, type=SERIES).distinct().count()
-
-    # TODO
-    @property
-    def avg_of_current_ratings(self):
-        """returns for a user average of his current ratings eg. {avg: 6.40, count: 1942}"""
-        return avg_of_user_current_ratings(self.pk)
 
     @property
     def can_update_csv_ratings(self):
@@ -107,11 +66,9 @@ class User(FolderPathMixin, AbstractUser):
 
     @staticmethod
     def have_minutes_passed(time):
-        three_minutes = 3 * 60
-        if not time:
-            # time is empty if user never did update
-            return True
-        return (timezone.now() - time).seconds > three_minutes
+        if time:
+            return (timezone.now() - time).seconds > 180
+        return False
 
     @staticmethod
     def get_extension_condition(file, what_to_delete):
