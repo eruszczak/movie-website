@@ -1,7 +1,7 @@
 {% load static %}
 <div class="ui small image" type="tooltip" data-content="{{ person.name }}{% if character %} as {{ character }}{% endif %}" data-variation="small">
     <a href="{{ person.get_absolute_url }}">
-        <img {% if slick %}data-lazy{% else %}src{% endif %}="{{ person.picture }}">
+        <img {% if slick %}src="{% static 'img/intersection_w185.png' %}" data-lazy{% else %}src{% endif %}="{{ person.picture }}">
     </a>
     <small>{{ person.name }}{% if character %} as {{ character }}{% endif %}</small>
 {#    <small class="ui container mobile only grid">{{ person.name }}{% if character %} as {{ character }}{% endif %}</small>#}
