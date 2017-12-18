@@ -61,12 +61,13 @@ body {
      color: white!important;
 }
 
+.still-background2-gradient {
+    background-image: -webkit-linear-gradient(89deg,rgba(21,43,55,.87),transparent 67%,rgba(21,43,55,.87));
+    background-image: linear-gradient(1deg,rgba(21,43,55,.87),transparent 67%,rgba(21,43,55,.87));
+}
 .still-background2 {
     height: 255px;
     overflow: hidden;
-    background-image: -webkit-linear-gradient(89deg,rgba(21,43,55,.87),transparent 67%,rgba(21,43,55,.87));
-    background-image: linear-gradient(1deg,rgba(21,43,55,.87),transparent 67%,rgba(21,43,55,.87));
-
 }
 .user-background {
     margin-top: -235px;
