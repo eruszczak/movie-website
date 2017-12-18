@@ -31,11 +31,5 @@ IMAGE_SIZES = {
     'backdrop_title': 'w1280',
     'small': 'w185_and_h278_bestv2',
     'card': 'w500_and_h281_bestv2',
-
-    'small_person': 'w185_and_h278_bestv2_person',
+    'small_person': 'w185_and_h278_bestv2'
 }
-
-# "backdrop_path": "/56v2KjBlU4XaOv9rVYEQypROD7P.jpg", vs poster_path
-# created_by - CREW
-# seasons
-# episodes
