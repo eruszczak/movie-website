@@ -43,13 +43,10 @@ class UserUpdateForm(forms.ModelForm):
     def clean_picture(self):
         picture = self.cleaned_data.get('picture')
         if isinstance(picture, UploadedFile):
-            w, h = get_image_dimensions(picture)
-            name, ext = os.path.splitext(str(picture))
-            if ext not in ('.png', '.jpg'):
-                raise forms.ValidationError('Allowed file extensions: jpg, png.')
-
+            self.validate_extension(picture.name, ['.png', '.jpg'])
             self.validate_size(picture.size, 1024 * 150)
 
+            w, h = get_image_dimensions(picture)
             min_width, max_width = 100, 200
             valid_dimensions_conditions = [min_width <= h <= max_width, min_width <= w <= max_width, w == h]
             if not all(valid_dimensions_conditions):
@@ -58,15 +55,14 @@ class UserUpdateForm(forms.ModelForm):
                     f'It must be a square with width between {min_width}px and {max_width}px.'
                 )
 
-            return picture
-        return None
+        return picture
 
     def clean_csv_ratings(self):
         csv_ratings = self.cleaned_data.get('csv_ratings')
         if isinstance(csv_ratings, UploadedFile):
+            self.validate_extension(csv_ratings.name, ['.csv'])
             self.validate_size(csv_ratings.size, 1024 * 1024 * 2)
-            return csv_ratings
-        return None
+        return csv_ratings
 
     def clean_imdb_id(self):
         imdb_id = self.cleaned_data.get('imdb_id')
@@ -76,7 +72,7 @@ class UserUpdateForm(forms.ModelForm):
             if not valid_id.startswith('ur') or len(valid_id) < 6:
                 raise forms.ValidationError('IMDb ID must start with "ur" and have at least 6 characters')
             return valid_id
-        return None
+        return imdb_id
 
     @staticmethod
     def validate_size(file_size, max_size):
@@ -85,3 +81,9 @@ class UserUpdateForm(forms.ModelForm):
             raise forms.ValidationError(
                 f'Maximum file size is {int(max_size / 1024)} kB. Uploaded file\'s size is {int(file_size / 1024)} kB'
             )
+
+    @staticmethod
+    def validate_extension(file_name, allowed_extensions):
+        ext = os.path.splitext(file_name)[1]
+        if ext not in allowed_extensions:
+            raise forms.ValidationError(f'Allowed file extensions: {", ".join(allowed_extensions)}.')
