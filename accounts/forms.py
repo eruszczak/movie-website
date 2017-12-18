@@ -27,28 +27,41 @@ class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('picture', 'tagline', 'imdb_id', 'csv_ratings')
+        labels = {
+            'picture': 'Avatar',
+            'csv_ratings': 'Imdb ratings (csv)'
+        }
         help_texts = {
             'imdb_id': 'If you will provide your IMDb Id and your lists are public, '
-                       'you will be able to update your ratings/watchlist using buttons on your profile page.',
-            'csv_ratings': 'Do you want to import your existing IMDb ratings? '
-                           'If so, go to your IMDb Ratings List and at the bottom of the page you can export '
-                           'your ratings, then upload it here and you will be able to update your ratings using a '
-                           'button on your profile page.'
+                       'you will be able to update your ratings/watchlist on your profile page.',
+            'csv_ratings': 'If you want to import your existing IMDb ratings, '
+                           'go to your IMDb Ratings List and at the bottom of the page you can export it, '
+                           'then upload it here and you will be able to update your ratings '
+                           'on your profile page.'
         }
 
     def clean_picture(self):
+        MAX_KB = 150
+        MAX_WIDTH = 200
+        MIN_WIDTH = 100
         picture = self.cleaned_data.get('picture')
         if isinstance(picture, InMemoryUploadedFile):
             w, h = get_image_dimensions(picture)
             name, ext = os.path.splitext(str(picture))
             if ext not in ('.png', '.jpg'):
-                raise forms.ValidationError('Avatar must be either .jpg or .png')
-            if (w > 200 or h > 200) or (w < 100 or h < 100):
-                raise forms.ValidationError('The picture is {}x{}. Size allowed 100x100px - 200x200px'.format(w, h))
-            elif picture.size > 1024 * 150:
-                raise forms.ValidationError('Image file too large (>150kB)')
-            elif w != h:
-                raise forms.ValidationError('Width and height must be the same')
+                raise forms.ValidationError('Allowed file extensions: jpg, png.')
+            elif picture.size > 1024 * MAX_KB:
+                raise forms.ValidationError(
+                    f'Maxiumum file size is {MAX_KB} kB. Uploaded file\'s size is f{picture.size / 1024} kB'
+                )
+            else:
+                valid_dimensions_conditions = [MIN_WIDTH <= h <= MAX_WIDTH, MIN_WIDTH <= w <= MAX_WIDTH, w == h]
+                if all(valid_dimensions_conditions):
+                    raise forms.ValidationError(
+                        f'The picture is {w}x{h}px. '
+                        f'It must be a square with width between {MIN_WIDTH}px and {MAX_WIDTH}px.'
+                    )
+
         return picture
 
     def clean_csv_ratings(self):
@@ -60,11 +73,10 @@ class UserUpdateForm(forms.ModelForm):
 
     def clean_imdb_id(self):
         imdb_id = self.cleaned_data.get('imdb_id')
-        if not imdb_id:
-            raise forms.ValidationError('IMDb ID is missing')
-
-        valid_id = re.match('ur\d+', imdb_id)
-        valid_id = valid_id.group() if valid_id else ''
-        if not valid_id.startswith('ur') or len(valid_id) < 6:
-            raise forms.ValidationError('IMDb ID must start with "ur" and have at least 6 characters')
-        return valid_id
+        if imdb_id:
+            valid_id = re.match('ur\d+', imdb_id)
+            valid_id = valid_id.group() if valid_id else ''
+            if not valid_id.startswith('ur') or len(valid_id) < 6:
+                raise forms.ValidationError('IMDb ID must start with "ur" and have at least 6 characters')
+            return valid_id
+        return imdb_id

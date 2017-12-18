@@ -3,6 +3,7 @@ import csv
 from datetime import datetime
 
 from django.http import HttpResponse
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Case, When, IntegerField, OuterRef, Subquery, F, Avg
@@ -84,8 +85,11 @@ class UserUpdateView(UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
+    def get_success_url(self):
+        return self.object.edit_url()
+
     def form_valid(self, form):
-        messages.success(self.request, 'Profile updated')
+        messages.success(self.request, 'Settings updated.')
         return super().form_valid(form)
 
 
