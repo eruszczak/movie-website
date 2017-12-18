@@ -24,7 +24,7 @@ body {
 }
 
 .still-background {
-    height: 55vh;
+    height: 400px;
     overflow: hidden;
     background-image: -webkit-linear-gradient(89deg,rgba(21,43,55,.87),transparent 67%,rgba(21,43,55,.87));
     background-image: linear-gradient(1deg,rgba(21,43,55,.87),transparent 67%,rgba(21,43,55,.87));
@@ -41,35 +41,16 @@ body {
 }
 
 .title-poster {
-    /*margin-top: -43vh;*/
-    /*width: 185px;*/
-    /*height: 277px;*/
-    /*position: absolute;*/
     box-shadow: 0 2px 14px 0 rgba(0,0,0,.5);
 }
 
-/*.title-box {*/
-    /*margin-top: -45vh;*/
-    /*width:100%;*/
-    /*position: absolute;*/
-    /*!*box-shadow: 0 2px 14px 0 rgba(0,0,0,.5);*!*/
-    /*background-image: linear-gradient(1deg,rgba(66, 66, 66, 0.80),rgba(66, 66, 66, 0.60),rgba(66, 66, 66, 0.40));*/
-/*}*/
-
 .poster-background {
-    margin-top: -51vh;
+    margin-top: -362px;
     position: absolute;
 }
 
 .title-name {
-    /*position: absolute;*/
-    /*bottom: 20vh;*/
-    /*margin-left: 200px;*/
-    /*z-index: 2;*/
-    /*font-size: 4em;*/
     color: white!important;
-    /*text-shadow: 0 4px 10px rgba(0,0,0,.62);*/
-    /*overflow:hidden;*/
 }
 
 .title-content {
@@ -80,19 +61,15 @@ body {
      color: white!important;
 }
 
-
-
-
 .still-background2 {
-    height: 30vh;
+    height: 255px;
     overflow: hidden;
     background-image: -webkit-linear-gradient(89deg,rgba(21,43,55,.87),transparent 67%,rgba(21,43,55,.87));
     background-image: linear-gradient(1deg,rgba(21,43,55,.87),transparent 67%,rgba(21,43,55,.87));
 
 }
 .user-background {
-    margin-top: -25vh;
-    /*width:100%;*/
+    margin-top: -235px;
     position: absolute;
 }
 .card-user {
@@ -124,10 +101,6 @@ body {
     overflow: hidden;
     width: 200px;
 }
-
-
-
-
 
 .title-genres {
     position: absolute;
@@ -181,8 +154,7 @@ body {
     color: #ffffff8f;
 }
 .card-01.height-fix {
-    height: 50vh;
-     /*height: 390px;*/
+     height: 350px;
     overflow: hidden;
     width: 260px;
 }
