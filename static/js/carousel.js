@@ -28,6 +28,7 @@ $(document).ready(function() {
             infinite: false,
             lazyLoad: 'ondemand',
             slidesToShow: 7,
+            dots: true,
             responsive: [
                 {
                     breakpoint: 1024,
