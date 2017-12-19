@@ -2,6 +2,18 @@
 {% load widget_tweaks get_query_string %}
 {#{% block title %}{{ page_title }}{% endblock %}#}
 
+{% block scripts %}
+<script>
+    $('.ui.form')
+      .form({
+        fields: {
+          year: ['exactLength[4]', 'empty', 'integer[1..100]']
+        }
+      })
+    ;
+</script>
+{% endblock %}
+
 {% block image %}
     {% if searched_user %}
         {% include 'accounts/includes/user_background.html' with user=searched_user %}
@@ -21,7 +33,6 @@
 {% endblock %}
 
 {% block content %}
-
     <div class="ui styled fluid accordion">
         <div class="title{% if request.GET %} active{% endif %}"><i class="dropdown icon"></i> Search</div>
         <div class="content{% if request.GET %} active{% endif %}">
@@ -31,7 +42,7 @@
                     <input name="user" value="{{ request.GET.user }}" hidden>
                     <div class="four wide field">
                         {{ search_form.keyword.label_tag }}
-                        {% render_field search_form.keyword placeholder=search_form.keyword.label %}
+                        {{ search_form.keyword }}
                     </div>
                     <div class="five wide field">
                         {{ search_form.genre.label_tag }}
@@ -51,7 +62,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <button class="ui small submit button">Search</button>
+                    <button class="ui primary submit button">Search</button>
                 </div>
             </form>
         </div>
