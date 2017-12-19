@@ -112,3 +112,6 @@ $('.grid .backdrop-card img').visibility({
 });
 
 
+$('.ui.accordion')
+  .accordion()
+;
