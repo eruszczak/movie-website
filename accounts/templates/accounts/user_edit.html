@@ -20,14 +20,12 @@
         <div class="ui stacked segment">
             {% with form.picture as field %}
                 <div class="field{% if field.errors %} error{% endif %}{% if field.field.required %} required{% endif %}">
-                    {{ field.label_tag }}
+                    <h3 class="ui dividing header">{{ field.label_tag }}</h3>
                     {% render_field form.picture|attr:"accept:.jpg,.png" %}
                     <small>{{ field.help_text }}</small>
                 </div>
             {% endwith %}
-            <div class="ui divider"></div>
             {% include 'includes/field.html' with field=form.tagline %}
-            <div class="ui divider"></div>
             {% include 'includes/field.html' with field=form.imdb_id %}
             <div class="ui divider hidden"></div>
             <button type="submit" class="ui button primary">Update</button>

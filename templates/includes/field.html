@@ -1,5 +1,5 @@
 <div class="field{% if field.errors %} error{% endif %}{% if field.field.required %} required{% endif %}">
-    {{ field.label_tag }}
+    <h3 class="ui dividing header">{{ field.label_tag }}</h3>
     {{ field }}
     <small>{{ field.help_text }}</small>
 </div>
