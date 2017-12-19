@@ -136,6 +136,8 @@ class TitleDetailView(DetailView):
         if queryset is None:
             queryset = self.get_queryset()
 
+        queryset = queryset.filter(imdb_id=self.kwargs['imdb_id'])
+
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
                 has_in_favourites=Count(
@@ -150,11 +152,11 @@ class TitleDetailView(DetailView):
             )
 
         try:
-            obj = queryset.get(imdb_id=self.kwargs['imdb_id'])
+            obj = queryset.get()
         except self.model.DoesNotExist:
             raise Http404
         else:
-            obj.call_update_task()
+            # obj.call_update_task()
             return obj
 
     def get_context_data(self, **kwargs):
