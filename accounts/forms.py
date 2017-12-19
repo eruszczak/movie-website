@@ -20,8 +20,9 @@ class RegisterForm(UserCreationForm):
 
 class UserUpdateForm(forms.ModelForm):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, original_instance, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.original_instance = original_instance
         self.fields['imdb_id'].widget.attrs.update({'placeholder': 'eg. ur12346789'})
 
     class Meta:
@@ -73,6 +74,19 @@ class UserUpdateForm(forms.ModelForm):
                 raise forms.ValidationError('IMDb ID must start with "ur" and have at least 6 characters')
             return valid_id
         return imdb_id
+
+    def save(self, commit=True):
+        self.remove_not_used_files()
+        super().save(commit)
+
+    def remove_not_used_files(self):
+        """if any file field has changed and it had file before update, remove that file"""
+        file_fields_to_clean = ['picture', 'csv_ratings']
+        for field in file_fields_to_clean:
+            if field in self.changed_data:
+                original_field = getattr(self.original_instance, field)
+                if original_field:
+                    os.remove(original_field.path)
 
     @staticmethod
     def validate_size(file_size, max_size):

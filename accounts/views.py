@@ -1,10 +1,3 @@
-import io
-import csv
-from datetime import datetime
-
-from django.http import HttpResponse
-from django.urls import reverse
-from django.views.decorators.http import require_POST
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Case, When, IntegerField, OuterRef, Subquery, F, Avg
 from django.contrib import messages
@@ -17,8 +10,7 @@ from titles.constants import SERIES, MOVIE
 from titles.models import Title, Rating
 from accounts.models import UserFollow
 from accounts.forms import UserUpdateForm
-from accounts.functions import validate_imported_ratings, create_csv_with_user_ratings
-from common.prepareDB_utils import convert_to_datetime
+
 
 User = get_user_model()
 
@@ -83,14 +75,16 @@ class UserUpdateView(UpdateView):
     template_name = 'accounts/user_edit.html'
 
     def get_object(self, queryset=None):
-        return self.request.user
+        return super().get_queryset().get(pk=self.request.user.pk)
 
     def get_success_url(self):
-        return self.object.edit_url()
-
-    def form_valid(self, form):
         messages.success(self.request, 'Settings updated.')
-        return super().form_valid(form)
+        return self.get_object().edit_url()
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['original_instance'] = self.request.user
+        return kwargs
 
 
 class UserListView(ListView):
