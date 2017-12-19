@@ -21,8 +21,8 @@
             {% with form.picture as field %}
                 <div class="field{% if field.errors %} error{% endif %}{% if field.field.required %} required{% endif %}">
                     {{ field.label_tag }}
-                    {% render_field field|attr:"accept:.jpg,.png" %}
-                    <p class="description">{{ field.help_text }}</p>
+                    {% render_field form.picture|attr:"accept:.jpg,.png" %}
+                    <small>{{ field.help_text }}</small>
                 </div>
             {% endwith %}
             <div class="ui divider"></div>
