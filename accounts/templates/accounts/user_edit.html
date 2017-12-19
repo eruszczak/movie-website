@@ -31,6 +31,7 @@
         <div class="ui stacked segment">
             {% for field in form %}
                 {% include 'includes/field.html' %}
+                {% if not forloop.last %}<div class="ui divider"></div>{% endif %}
             {% endfor %}
             <div class="ui divider hidden"></div>
             <button type="submit" class="ui button primary">Update</button>
