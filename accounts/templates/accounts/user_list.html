@@ -43,7 +43,7 @@
             {% url 'user-detail' user.username as user_detail_url %}
           <div class="item">
                 <a href="{{ user_detail_url }}" class="ui tiny image">
-                  <img src="{% static 'img/stevie.jpg' %}">
+                  <img src="{{ user.avatar_url }}">
                 </a>
             <div class="middle aligned content">
             {% if user.pk != request.user.pk %}
@@ -52,7 +52,9 @@
               <a href="{{ user_detail_url }}" class="header">{{ user.username }}</a>
                 {% if title %}{{ user.user_rate }} <i class="star icon green"></i>{% endif %}
                 <div class="floated right">
-        {#            <p>todo watchlist favourites see_all_lists</p>#}
+                    <a class="ui label">Watchlist</a>
+                    <a class="ui label">Favourites</a>
+                    <a class="ui label">Ratings</a>
                 </div>
               <div class="description">
                 {% if user.tagline %}<p>{{ user.tagline }}</p>{% endif %}
