@@ -119,7 +119,7 @@
             <div class="ui list">
                 {% for rating in feed %}
                   <div class="item">
-                    <img class="ui avatar image" src="{% static 'img/stevie.jpg' %}">
+                    <img class="ui avatar image" src="{{ rating.user.avatar_url }}">
                     <div class="content">
                       <span>{{ rating.rate_date }}</span>
                         <div class="description"><a href="{{ rating.user.get_absolute_url }}">{{ rating.user.username }}</a> rated <a href="{{ rating.title.get_absolute_url }}"><b>{{ rating.title.name }}</b></a> {{ rating.rate }}<i class="icon star green"></i></div>
