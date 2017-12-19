@@ -1,15 +1,6 @@
 {% extends 'base.html' %}
-
+{% load widget_tweaks %}
 {#{% block title %}{{ page_title }}{% endblock %}#}
-{% block scripts %}
-  <script>
-      $('.ui.form').form({
-          fields: {
-{#              imdb_id: ['exactLength[9]']#}
-          }
-      });
-  </script>
-{% endblock %}
 
 {% block breadcrumb %}
     <div class="ui breadcrumb">
@@ -21,18 +12,23 @@
         <i class="right angle icon divider"></i>
         <a class="section active" href="{% url 'user-edit' user.username %}">Settings</a>
     </div>
-{#    <div class="ui divider"></div>#}
 {% endblock %}
 
 {% block content %}
     {% include 'includes/form_errors.html' %}
-
     <form action="{% url 'user-edit' user.username %}" class="ui large form" method="post" enctype="multipart/form-data">{% csrf_token %}
         <div class="ui stacked segment">
-            {% for field in form %}
-                {% include 'includes/field.html' %}
-                {% if not forloop.last %}<div class="ui divider"></div>{% endif %}
-            {% endfor %}
+            {% with form.picture as field %}
+                <div class="field{% if field.errors %} error{% endif %}{% if field.field.required %} required{% endif %}">
+                    {{ field.label_tag }}
+                    {% render_field field|attr:"accept:.jpg,.png" %}
+                    <p class="description">{{ field.help_text }}</p>
+                </div>
+            {% endwith %}
+            <div class="ui divider"></div>
+            {% include 'includes/field.html' with field=form.tagline %}
+            <div class="ui divider"></div>
+            {% include 'includes/field.html' with field=form.imdb_id %}
             <div class="ui divider hidden"></div>
             <button type="submit" class="ui button primary">Update</button>
         </div>
