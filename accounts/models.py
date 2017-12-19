@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
-from shared.helpers import get_random_file_path, validate_file_ext
+from shared.helpers import get_random_file_path
 from shared.models import FolderPathMixin
 from titles.models import Title, Rating
 
@@ -13,7 +13,7 @@ class User(FolderPathMixin, AbstractUser):
     picture = models.ImageField(upload_to=get_random_file_path, blank=True, null=True)
     imdb_id = models.CharField(blank=True, max_length=15)
     tagline = models.CharField(blank=True, max_length=100)
-    csv_ratings = models.FileField(upload_to=get_random_file_path, validators=[validate_file_ext], blank=True, null=True)
+    # csv_ratings = models.FileField(upload_to=get_random_file_path, validators=[validate_file_ext], blank=True)
 
     last_updated_csv_ratings = models.DateTimeField(null=True, blank=True)
     last_updated_rss_ratings = models.DateTimeField(null=True, blank=True)

@@ -27,18 +27,18 @@ class UserUpdateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('picture', 'tagline', 'imdb_id', 'csv_ratings')
+        fields = ('picture', 'tagline', 'imdb_id')
         labels = {
             'picture': 'Avatar',
-            'csv_ratings': 'Imdb ratings (csv)'
+            # 'csv_ratings': 'Imdb ratings (csv)'
         }
         help_texts = {
             'imdb_id': 'If you will provide your IMDb Id and your lists are public, '
                        'you will be able to update your ratings/watchlist on your profile page.',
-            'csv_ratings': 'If you want to import your existing IMDb ratings, '
-                           'go to your IMDb Ratings List and at the bottom of the page you can export it, '
-                           'then upload it here and you will be able to update your ratings '
-                           'on your profile page.'
+            # 'csv_ratings': 'If you want to import your existing IMDb ratings, '
+            #                'go to your IMDb Ratings List and at the bottom of the page you can export it, '
+            #                'then upload it here and you will be able to update your ratings '
+            #                'on your profile page.'
         }
 
     def clean_picture(self):
@@ -58,12 +58,12 @@ class UserUpdateForm(forms.ModelForm):
 
         return picture
 
-    def clean_csv_ratings(self):
-        csv_ratings = self.cleaned_data.get('csv_ratings')
-        if isinstance(csv_ratings, UploadedFile):
-            self.validate_extension(csv_ratings.name, ['.csv'])
-            self.validate_size(csv_ratings.size, 1024 * 1024 * 2)
-        return csv_ratings
+    # def clean_csv_ratings(self):
+    #     csv_ratings = self.cleaned_data.get('csv_ratings')
+    #     if isinstance(csv_ratings, UploadedFile):
+    #         self.validate_extension(csv_ratings.name, ['.csv'])
+    #         self.validate_size(csv_ratings.size, 1024 * 1024 * 2)
+    #     return csv_ratings
 
     def clean_imdb_id(self):
         imdb_id = self.cleaned_data.get('imdb_id')
