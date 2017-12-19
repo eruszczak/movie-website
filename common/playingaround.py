@@ -93,8 +93,8 @@ def clean_models():
 # get_daily()
 # t = Title.objects.filter(imdb_id=tbbt).delete()
 # print(t)
-
-TmdbTaskRunner().run()
+# print(Title.objects.filter(release_date).values('release_date__year').order_by('-release_date__year'))
+# TmdbTaskRunner().run()
 
 #
 # TmdbWrapper().get(tbbt)

@@ -115,15 +115,8 @@ class TitleListView(SearchViewMixin, ListView):
         context = super().get_context_data(**kwargs)
         context.update({
             'searched_user': self.searched_user,
-            'type_choices': self.get_title_type_choices()
         })
         return context
-
-    @staticmethod
-    def get_title_type_choices():
-        type_choices = [('', 'Both')]
-        type_choices.extend([(str(value), display) for value, display in TITLE_TYPE_CHOICES])
-        return type_choices
 
 
 class TitleDetailView(DetailView):

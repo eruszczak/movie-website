@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static widget_tweaks get_query_string %}
+{% load widget_tweaks get_query_string %}
 {#{% block title %}{{ page_title }}{% endblock %}#}
 
 {% block image %}
@@ -16,72 +16,53 @@
         {% if request.GET %}
             <i class="right angle icon divider"></i>
             <div class="active section">Search</div>
-{#            <div class="active section">Search for: <a href="">{% for key, value in request.GET.items %}{{ key }}={{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}</a></div>#}
         {% endif %}
     </div>
 {% endblock %}
 
 {% block content %}
-    <div class="ui grid">
-        <div class="row">
-            <div class="column">
-{#                * change card type to list (1 item per row)#}
-                {% get_query_string request.GET 'type' as query_string %}
-                <div class="ui text menu">
-                  <div class="header item">Showing</div>
-                    {% for value, display in type_choices %}
-                      <a class="item{% if request.GET.type == value or not request.GET.type and forloop.counter0 == 0 %} active{% endif %}" href="?{{ query_string }}{% if query_string %}&{% endif %}type={{ value }}">
-                        {{ display }}
-                      </a>
-                    {% endfor %}
+
+    <div class="ui styled fluid accordion">
+        <div class="title{% if request.GET %} active{% endif %}"><i class="dropdown icon"></i> Search</div>
+        <div class="content{% if request.GET %} active{% endif %}">
+            {% include 'includes/form_errors.html' with form=search_form %}
+            <form class="ui form">
+                <div class="fields">
+                    <input name="user" value="{{ request.GET.user }}" hidden>
+                    <div class="four wide field">
+                        {{ search_form.keyword.label_tag }}
+                        {% render_field search_form.keyword placeholder=search_form.keyword.label %}
+                    </div>
+                    <div class="five wide field">
+                        {{ search_form.genre.label_tag }}
+                        {% render_field search_form.genre|add_class:'ui dropdown search' %}
+                    </div>
+                    <div class="six wide field">
+                        <div class="two fields">
+                            <div class="field">
+                                {{ search_form.year.label_tag }}
+                                {{ search_form.year }}
+                            </div>
+                            <div class="field">
+                                {{ search_form.type.label_tag }}
+                                {{ search_form.type }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-{#            <div class="column">#}
-{#                <div class="right floated ui text menu">#}
-{#                  <div class="header item">Sort By</div>#}
-{#                  <a class="item">#}
-{#                    Closest#}
-{#                  </a>#}
-{#                  <a class="item">#}
-{#                    Recent#}
-{#                  </a>#}
-{#                  <a class="item active">#}
-{#                    Most Popular#}
-{#                  </a>#}
-{#                </div>#}
-{#            </div>#}
+                <div class="row">
+                    <button class="ui small submit button">Search</button>
+                </div>
+            </form>
         </div>
     </div>
 
     {% if searched_user %}
         <div class="ui centered grid">
-            <h3 class="ui header">
-{#                histogram#}
-                {{ searched_user.username }}'s {{ paginator.count }} ratings
-            </h3>
+            <h3 class="ui header">{{ searched_user.username }}'s {{ paginator.count }} ratings</h3>
         </div>
         <div class="ui hidden divider"></div>
     {% endif %}
-
-    {% include 'includes/form_errors.html' with form=search_form %}
-    <form action="{% url 'title-list' %}">
-        <div class="ui form">
-            <div class="inline fields">
-                <div class="four wide field">
-                    {{ search_form.year.label_tag }}
-                    {{ search_form.year }}
-                </div>
-                <div class="four wide field">
-                    {{ search_form.genre.label_tag }}
-                    {% render_field search_form.genre|add_class:'ui dropdown search' %}
-                </div>
-                <div class="eight wide field">
-                    {% render_field search_form.keyword placeholder=search_form.keyword.label %}
-                </div>
-            </div>
-            <button class="ui submit button">Submit</button>
-        </div>
-    </form>
     <div class="ui divider"></div>
     <div class="ui two column stackable grid">
         {% for title in title_list %}
@@ -94,8 +75,6 @@
                         </a>
                       {% endif %}
                         <img src="{{ title.poster_card }}">
-{#                        <img src="{% static 'img/w500_and_h521_bestv2.jpg' %}">#}
-    {#                <img src="{% static 'img/w500_and_h521_bestv2.jpg' %}" data-src="{% if title.img %}{{ title.img.url }}{% endif %}">#}
                   </a>
                   <div class="content">
                       <p class="header center aligned"><a href="{{ title.get_absolute_url }}">{{ title.name }}</a></p>
@@ -117,22 +96,13 @@
                   <div class="extra content">
                       <div class="ui star rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ title.request_user_rate }}"></div>
                       <div class="right floated">
-                          <i data-pk="{{ title.pk }}" class="{% if not title.has_in_favourites %}empty {% else %}active {% endif %}red heart icon large title-fav"></i>
-                          <i data-pk="{{ title.pk }}" class="{% if not title.has_in_watchlist %}remove {% else %}active {% endif %}red bookmark icon large title-watch"></i>
-    {#                      <button class="circular ui orange icon button"><i class="empty heart icon"></i></button>#}
-    {#                    <a class="ui blue image label">#}
-    {#                      <i class="add to calendar icon"></i>#}
-    {#                      Fav#}
-    {#                    </a>#}
-    {#                    <span class="price"><i class="list small icon red" data-content="Watchlist" data-variation="mini"></i></span>#}
-    {#                      <div class="ui heart rating red" type="tooltip" data-url="{% url 'title-fav' title.pk %}" data-rating="{{ title.has_in_favourites|yesno:"1,0" }}" data-max-rating="1" data-content="Favourite" data-variation="mini"></div>#}
-    {#                    <a><i class="user icon"></i>22 Friends</a>#}
+                          <i type="tooltip" data-content="Favourite{% if not request.user.is_authenticated %}. You must be logged in.{% endif %}" data-variation="mini"  data-pk="{{ title.pk }}" class="{% if not title.has_in_favourites %}empty {% else %}active {% endif %}red heart icon large title-fav"></i>
+                          <i type="tooltip" data-content="Watchlist{% if not request.user.is_authenticated %}. You must be logged in.{% endif %}" data-variation="mini" data-pk="{{ title.pk }}" class="{% if not title.has_in_watchlist %}remove {% else %}active {% endif %}red bookmark icon large title-watch"></i>
                       </div>
                   </div>
                 </div>
             </div>
         {% endfor %}
     </div>
-
     {% include 'includes/pagination.html' %}
 {% endblock %}

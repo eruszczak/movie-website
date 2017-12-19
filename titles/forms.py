@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q, Count
 
 from shared.widgets import MySelectMultipleWidget
+from titles.constants import TITLE_TYPE_CHOICES
 from titles.models import Title, Genre, Rating
 from shared.forms import SearchFormMixin
 
@@ -13,13 +14,11 @@ User = get_user_model()
 
 
 class TitleSearchForm(SearchFormMixin, forms.Form):
-    # year = forms.ChoiceField(choices=((d['year'], f'{d["year"]}') for d in Title.objects.values('year').order_by('-year')))
+    year = forms.IntegerField(required=False, max_value=2050, min_value=1900)
     user = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
     keyword = forms.CharField(max_length=100, required=False, label='Search by keywords')
     genre = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False)
-    # genre2 = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False, widget=MySelectMultipleWidget)
-    type = forms.CharField(required=False)
-    # type = forms.NullBooleanField()
+    type = forms.ChoiceField(choices=TITLE_TYPE_CHOICES, required=False)
 
     @staticmethod
     def search_keyword(value):
@@ -29,21 +28,11 @@ class TitleSearchForm(SearchFormMixin, forms.Form):
 
     @staticmethod
     def search_genre(value):
-        # all of them, not any.
         return Q(genres__in=value)
 
-    # @staticmethod
-    # def search_year(value):
-    #     find_years = re.match(r'(\d{4})-*(\d{4})*', value)
-    #     if find_years is not None:
-    #         first_year, second_year = find_years.group(1), find_years.group(2)
-    #         if first_year and second_year:
-    #             if second_year < first_year:
-    #                 first_year, second_year = second_year, first_year
-    #             return Q(year__lte=second_year, year__gte=first_year)
-    #         elif first_year:
-    #             return Q(year=first_year)
-    #     return Q()
+    @staticmethod
+    def search_year(value):
+        return Q(release_date__year=value)
 
     @staticmethod
     def search_type(value):
