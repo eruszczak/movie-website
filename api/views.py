@@ -45,7 +45,7 @@ class TitleDetailView(RetrieveAPIView):
     lookup_field = 'slug'
 
 
-class TitleAddRatingView(IsAuthenticatedMixin, APIView):
+class AddRatingAPIView(IsAuthenticatedMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         new_rating = request.POST.get('rating')
@@ -64,15 +64,24 @@ class TitleDeleteRatingView(APIView):
     pass
 
 
-class ToggleFavourite(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIView):
+class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIView):
+    title = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print(self.__class__.mro())
+        print('my kwargs', kwargs)
+        print(self.kwargs)
 
     def post(self, request, *args, **kwargs):
-        super().post(request, *args, **kwargs)
+
+        # super().post(request, *args, **kwargs)
         message = toggle_title_in_favourites(request.user, self.title, self.add)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class ToggleWatchlist(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIView):
+class ToggleWatchlistAPIView(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIView):
+    title = None
 
     def post(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)
@@ -87,7 +96,8 @@ class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, ToggleAPiView, GetUserMixi
         # todo: problem because I cant call super in GetUserMixin, and GetTitleMixin won't be called
 
 
-class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPiView, GetUserMixin, APIView):
+class ToggleFollowUserAPIView(IsAuthenticatedMixin, ToggleAPiView, GetUserMixin, APIView):
+    user = None
 
     def post(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)
@@ -114,7 +124,8 @@ class ReorderFavourite(IsAuthenticatedMixin, GetUserMixin, APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class RecommendTitle(IsAuthenticatedMixin, GetTitleMixin, APIView):
+class RecommendTitleAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
+    title = None
 
     def post(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)

@@ -1,19 +1,19 @@
 import django
 import os
 
-from django.apps import apps
-from django.contrib.auth import get_user_model
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 import pytz
+from django.contrib.auth import get_user_model
 
 from accounts.models import *
 import sys
 user = User.objects.all().first()
 
 from mysite.settings import MEDIA_ROOT
+from api.mixins import GetTitleMixin, GetUserMixin
 
 User = get_user_model()
 collection_id = 119
@@ -71,6 +71,18 @@ def clean_models():
     Upcoming.objects.all().delete()
     Popular.objects.all().delete()
     NowPlaying.objects.all().delete()
+
+
+t = GetTitleMixin()
+u = GetUserMixin()
+t.url_kwarg = 'user_pk'
+print(t.model)
+print(t.model_name)
+print(t.model_instance_name)
+print(t.instance)
+print(t.title)
+
+# print(Title.objects.all().first().pk)
 
 
 
