@@ -10,16 +10,15 @@ var TOKEN = getCookie('csrftoken');
 
 function showToast(message, options) {
     options = options || {};
-    if (message) {
-        $.iaoAlert({
-            msg: message,
-            type: options.type || 'notification', // success error warning notification
-            alertTime: '1500',
-            position: 'top-right',
-            mode: 'dark',
-            fadeOnHover: true
-        })
-    }
+    message = message || 'No message';
+    $.iaoAlert({
+        msg: message,
+        type: options.type || 'notification', // success error warning notification
+        alertTime: '1500',
+        position: 'top-right',
+        mode: 'dark',
+        fadeOnHover: true
+    })
 }
 
 function getCookie(name) {
