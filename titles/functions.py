@@ -5,7 +5,7 @@ from django.db.models import F, Q
 
 from accounts.models import UserFollow
 from recommend.models import Recommendation
-from titles.models import Rating
+from titles.models import Rating, CurrentlyWatchingTV
 from lists.models import Watchlist, Favourite
 
 User = get_user_model()
@@ -91,8 +91,17 @@ def create_or_update_rating(title, user, rate, insert_as_new=False):
 
 def follow_user(follower, followed, add):
     if add:
-        UserFollow.objects.create(follower=follower, followed=followed)
+        UserFollow.objects.get_or_create(follower=follower, followed=followed)
         return f'Followed {followed.username}'
     else:
         UserFollow.objects.filter(follower=follower, followed=followed).delete()
         return f'Unfollowed {followed.username}'
+
+
+def toggle_currently_watched_title(title, user, add):
+    if add:
+        CurrentlyWatchingTV.objects.get_or_create(title=title, user=user)
+        return f'Watching {title.name}'
+    else:
+        CurrentlyWatchingTV.objects.filter(title=title, user=user).delete()
+        return f'Not watching {title.name}'

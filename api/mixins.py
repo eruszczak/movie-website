@@ -67,10 +67,11 @@ class ToggleAPIView:
 class GetObjectMixin:
     model = None
 
-    def set_instance(self, **kwargs):
+    def set_instance(self, url_kwarg='pk', kwarg_field='pk', **kwargs):
         self.init_data()
         try:
-            setattr(self, self.model.__name__.lower(), self.model.objects.get(pk=kwargs['pk']))
+            lookup = {kwarg_field: kwargs[url_kwarg]}
+            setattr(self, self.model.__name__.lower(), self.model.objects.get(**lookup))
             return None
         except self.model.DoesNotExist:
             return Response({'message': f'{self.model.__name__} does not exist'}, status=status.HTTP_404_NOT_FOUND)

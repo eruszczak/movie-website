@@ -10,8 +10,7 @@ from lists.models import Watchlist, Favourite
 from shared.views import SearchViewMixin
 from titles.constants import TITLE_TYPE_CHOICES
 from titles.forms import TitleSearchForm, RateUpdateForm
-from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPlaying, Upcoming
-
+from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPlaying, Upcoming, CurrentlyWatchingTV
 
 User = get_user_model()
 
@@ -145,7 +144,17 @@ class TitleDetailView(DetailView):
                         output_field=IntegerField()
                     )
                 ),
+                currently_watching=Subquery(
+                    CurrentlyWatchingTV.objects.filter(user=self.request.user, title=OuterRef('pk')).values('pk')
+                )
             )
+
+            # if not self.object.is_movie:
+            #     queryset = queryset.annotate(
+            #         currently_watching=Subquery(
+            #             CurrentlyWatchingTV.objects.filter(user=self.request.user, title=OuterRef('pk')).values('pk')
+            #         )
+            #     )
 
         try:
             obj = queryset.get()

@@ -22,7 +22,7 @@ from titles.tmdb_api import TmdbWrapper, PopularMoviesTmdbTask, TitleUpdater, Mo
     PopularPeopleTmdbTask, \
     NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTVTmdbTask, TmdbTaskRunner
 
-from titles.models import Title, Person, Collection, Upcoming, Popular, NowPlaying
+from titles.models import Title, Person, Collection, Upcoming, Popular, NowPlaying, CurrentlyWatchingTV
 
 # Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection, NowPlaying, Upcoming = [
 #     apps.get_model('titles.' + model_name) for model_name in
@@ -73,15 +73,17 @@ def clean_models():
     NowPlaying.objects.all().delete()
 
 
-t = GetTitleMixin()
-u = GetUserMixin()
-t.url_kwarg = 'user_pk'
-print(t.model)
-print(t.model_name)
-print(t.model_instance_name)
-print(t.instance)
-print(t.title)
+# t = GetTitleMixin()
+# u = GetUserMixin()
+# t.url_kwarg = 'user_pk'
+# print(t.model)
+# print(t.model_name)
+# print(t.model_instance_name)
+# print(t.instance)
+# print(t.title)
 
+c = CurrentlyWatchingTV.objects.all()
+print(c)
 # print(Title.objects.all().first().pk)
 
 

@@ -4,7 +4,7 @@ $.fn.api.settings.api = {
     'favourite title': '/api/title/{pk}/favourites',
     'watchlist title': '/api/title/{pk}/watchlist',
     'recommend title': '/api/title/{pk}/recommend',
-    'currently watching': '/api/{pk_user}/{pk_title}/watch'
+    'currently watching': '/api/tv/{pk}/watching'
 };
 
 $('.rating').rating({

@@ -29,8 +29,7 @@
     {#<a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
     <div class="ui tab segment active" data-tab="first">
     {% if not title.is_movie %}
-          <div
-                  {% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui small currently-watching toggle button right floated{% if user.currently_watching != None %} active{% endif %}" data-pk_user="{{ request.user.pk }}" data-pk_title="{{ title.pk }}">Currently watching</div>
+      <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui small currently-watching toggle button right floated{% if user.currently_watching != None %} active{% endif %}" data-pk="{{ title.pk }}">Currently watching</div>
     {% endif %}
         <div class="ui grid centered statistics">
           {% if title.runtime %}
