@@ -14,7 +14,7 @@ User = get_user_model()
 
 
 class TitleSearchForm(SearchFormMixin, forms.Form):
-    year = forms.IntegerField(required=False, max_value=2050, min_value=1900)
+    year = forms.IntegerField(required=False)
     user = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
     keyword = forms.CharField(max_length=100, required=False, label='Keywords')
     genre = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False)

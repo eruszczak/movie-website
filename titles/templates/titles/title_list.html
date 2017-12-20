@@ -41,22 +41,21 @@
                 <div class="fields">
                     <input name="user" value="{{ request.GET.user }}" hidden>
                     <div class="four wide field">
-                        {{ search_form.keyword.label_tag }}
-                        {{ search_form.keyword }}
+{#                        {{ search_form.keyword.label|cut:'*' }}#}
+{#                        {{ search_form.keyword }}#}
+                        {% include 'includes/fied2.html' with field=search_form.keyword %}
                     </div>
                     <div class="five wide field">
-                        {{ search_form.genre.label_tag }}
+                        <label>{{ search_form.genre.label|cut:'*' }}</label>
                         {% render_field search_form.genre|add_class:'ui dropdown search' %}
                     </div>
                     <div class="six wide field">
                         <div class="two fields">
                             <div class="field">
-                                {{ search_form.year.label_tag }}
-                                {{ search_form.year }}
+                                {% include 'includes/fied2.html' with field=search_form.year %}
                             </div>
                             <div class="field">
-                                {{ search_form.type.label_tag }}
-                                {{ search_form.type }}
+                                {% include 'includes/fied2.html' with field=search_form.type %}
                             </div>
                         </div>
                     </div>
