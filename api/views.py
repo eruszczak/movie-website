@@ -45,7 +45,7 @@ class TitleDetailView(RetrieveAPIView):
     lookup_field = 'slug'
 
 
-class TitleAddRatingView(IsAuthenticatedMixin, APIView):
+class AddRatingAPIView(IsAuthenticatedMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         new_rating = request.POST.get('rating')
@@ -64,7 +64,7 @@ class TitleDeleteRatingView(APIView):
     pass
 
 
-class ToggleFavourite(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIView):
+class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)
@@ -72,7 +72,7 @@ class ToggleFavourite(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIVie
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class ToggleWatchlist(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIView):
+class ToggleWatchlistAPIView(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)
@@ -114,7 +114,7 @@ class ReorderFavourite(IsAuthenticatedMixin, GetUserMixin, APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class RecommendTitle(IsAuthenticatedMixin, GetTitleMixin, APIView):
+class RecommendTitleAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)
