@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Case, When, IntegerField, OuterRef, Subquery, F, Avg
+from django.db.models import Count, Case, When, IntegerField, OuterRef, Subquery, F, Avg, Exists
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
@@ -107,9 +107,7 @@ class UserListView(ListView):
 
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
-                already_follows=Subquery(
-                    UserFollow.objects.filter(follower=self.request.user, followed=OuterRef('pk')).values('pk')
-                )
+                already_follows=Exists(UserFollow.objects.filter(follower=self.request.user, followed=OuterRef('pk')))
             )
         return queryset.annotate(
             # followers_count=Subquery(
@@ -154,9 +152,7 @@ class UserDetailView(DetailView):
         )
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
-                already_follows=Subquery(
-                    UserFollow.objects.filter(follower=self.request.user, followed=OuterRef('pk')).values('pk')
-                )
+                already_follows=Exists(UserFollow.objects.filter(follower=self.request.user, followed=OuterRef('pk')))
             )
 
         return queryset.get()
@@ -184,6 +180,7 @@ class UserDetailView(DetailView):
             'rating_list': ratings,
             'total_followers': UserFollow.objects.filter(followed=self.object).count(),
             'total_followed': len(followed),
+            'currently_watching': Title.objects.filter(currentlywatchingtv__user=self.object),
             'feed': Rating.objects.filter(user__in=followed).select_related('title', 'user').order_by('-rate_date')[:10]
         })
         return context
