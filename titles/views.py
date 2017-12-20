@@ -113,8 +113,11 @@ class TitleListView(SearchViewMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        len_of_get = len(self.request.GET)
+        only_user_ratings = self.searched_user and len_of_get == 1
         context.update({
             'searched_user': self.searched_user,
+            'show_search_box': len_of_get > 1 or (len_of_get > 0 and not only_user_ratings)
         })
         return context
 

@@ -25,7 +25,7 @@
 
 {% block image %}
     {% if searched_user %}
-        {% include 'accounts/includes/user_background.html' with user=searched_user %}
+        {% include 'accounts/includes/user_background.html' with user=searched_user header_text="'s ratings" %}
     {% endif %}
 {% endblock %}
 
@@ -43,8 +43,8 @@
 
 {% block content %}
     <div class="ui styled fluid accordion">
-        <div class="title{% if request.GET %} active{% endif %}"><i class="dropdown icon"></i> Search</div>
-        <div class="content{% if request.GET %} active{% endif %}">
+        <div class="title{% if show_search_box %} active{% endif %}"><i class="dropdown icon"></i> Search</div>
+        <div class="content{% if show_search_box %} active{% endif %}">
             {% include 'includes/form_errors.html' with form=search_form %}
             <form class="ui form">
                 <div class="ui error message"></div>
@@ -74,14 +74,7 @@
             </form>
         </div>
     </div>
-
-    {% if searched_user %}
-        <div class="ui centered grid">
-            <h3 class="ui header">{{ searched_user.username }}'s {{ paginator.count }} ratings</h3>
-        </div>
-        <div class="ui hidden divider"></div>
-    {% endif %}
-    <div class="ui divider"></div>
+    <h1 class="ui center aligned dividing header">{{ paginator.count }} {% if searched_user %}ratings{% else %}titles{% endif %}</h1>
     <div class="ui two column stackable grid">
         {% for title in title_list %}
             <div class="column">

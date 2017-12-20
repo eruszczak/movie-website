@@ -9,42 +9,36 @@
         <a class="section{% if not title %} active{% endif %}" href="{% url 'user-list' %}">Users</a>
         {% if title %}
             <i class="right angle icon divider"></i>
-            <div class="active section">Search for: <a href="{{ title.get_absolute_url }}">{{ title.name }}</a></div>
+            <div class="active section">Search for: <a href="{{ title.get_absolute_url }}">{{ title }}</a></div>
         {% endif %}
     </div>
-    <div class="ui divider"></div>
+{% endblock %}
+
+{% block image %}
+    {% if title %}
+        <div class="still-background2 still-background2-gradient">
+            <img class="backdrop" src="{{ title.poster_backdrop_user }}">
+            <div class="ui grid centered">
+                <div class="searched-title-background">
+                    <div class="ui message"><h2 class="ui header">Users who have seen <a href="{{ title.get_absolute_url }}">{{ title }}</a></h2></div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
-    {% if title %}
-        <div class="ui info message">{{ user_list|length }} users who have seen <a href="{{ title.get_absolute_url }}">{{ title.name }}</a></div>
-{#        {% include 'titles/title_card.html' with title=title score=title.user_rate in_fav=title.has_in_favourites %}#}
-{#  <div class="ui item">#}
-{#    <div class="ui tiny image">#}
-{#      <img src="{% static 'img/w185_h278_bestv2.jpg' %}">#}
-{#    </div>#}
-{#    <div class="content">#}
-{#      <div class="header">{{ title.name }}</div>#}
-{#      <div class="meta">#}
-{#        <span class="price">$1200</span>#}
-{#        <span class="stay">1 Month</span>#}
-{#      </div>#}
-{#      <div class="description">#}
-{#        <p></p>#}
-{#      </div>#}
-{#    </div>#}
-{#  </div>#}
-    {% endif %}
     <div class="ui right floated text menu">
       <div class="header item">Sorted by Most Ratings</div>
     </div>
+    <h1 class="ui center aligned dividing header">{{ paginator.count }} users</h1>
     <div class="ui items">
         {% for user in user_list %}
             {% url 'user-detail' user.username as user_detail_url %}
           <div class="item">
-                <a href="{{ user_detail_url }}" class="ui tiny image">
-                  <img src="{{ user.avatar_url }}">
-                </a>
+            <a href="{{ user_detail_url }}" class="ui tiny image">
+              <img src="{{ user.avatar_url }}">
+            </a>
             <div class="middle aligned content">
             {% if user.pk != request.user.pk %}
               <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui small follow toggle button right floated{% if user.already_follows != None %} active{% endif %}" data-pk="{{ user.pk }}">{% if user.already_follows != None %}Followed{% else %}Follow{% endif %}</div>
@@ -52,7 +46,7 @@
               <a href="{{ user_detail_url }}" class="header">{{ user.username }}</a>
                 {% if title %}{{ user.user_rate }} <i class="star icon green"></i>{% endif %}
                 <div class="floated right">
-                    <a class="ui label">Watchlist</a>
+                    <a class="ui small label">Watchlist</a>
                     <a class="ui label">Favourites</a>
                     <a class="ui label">Ratings</a>
                     {% if user.imdb_url %}
