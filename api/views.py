@@ -1,32 +1,26 @@
-import json
-from urllib.parse import parse_qs, urlencode
+from re import findall
+from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
-from django.db.models import Count
-from django.db.models.functions import ExtractMonth, ExtractYear
-from re import findall
-
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.parsers import JSONParser
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_404
-from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
-from six import BytesIO
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 
-from recommend.forms import RecommendTitleForm
-from titles.forms import TitleSearchForm
-from titles.models import Rating, Title, Person
-from lists.models import Favourite
 from accounts.models import UserFollow
-from .serializers import RatingListSerializer, TitleSerializer, UserSerializer, PersonSerializer
-from common.sql_queries import rating_distribution
+from api.mixins import IsAuthenticatedMixin, GetTitleMixin, ToggleAPiView, GetUserMixin
+from lists.models import Favourite
+from titles.forms import TitleSearchForm
 from titles.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist, \
     recommend_title
+from titles.models import Rating, Title, Person
+from .serializers import RatingListSerializer, TitleSerializer, PersonSerializer
+
 
 User = get_user_model()
 
@@ -70,94 +64,70 @@ class TitleAddRatingView(APIView):
 
 
 class TitleDeleteRatingView(APIView):
-
     pass
 
 
-class TitleToggleFavourite(APIView):
-    permission_classes = (IsAuthenticated,)
+class TitleToggleFavourite(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        add = request.POST.get('rating') == '1'
-        remove = not add
-        try:
-            title = Title.objects.get(pk=kwargs['pk'])
-        except Title.DoesNotExist:
-            return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            toggle_title_in_favourites(request.user, title, add, remove)
-            message = 'Added to favourites' if add else 'Removed from favourites'
-            return Response({'message': message}, status=status.HTTP_200_OK)
+        super().post(request, *args, **kwargs)
+        message = toggle_title_in_favourites(request.user, self.title, self.add)
+        return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class TitleToggleWatchlist(APIView):
-    permission_classes = (IsAuthenticated,)
+class TitleToggleWatchlist(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        add = request.POST.get('rating') == '1'
-        remove = not add
-        try:
-            title = Title.objects.get(pk=kwargs['pk'])
-        except Title.DoesNotExist:
-            return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            toggle_title_in_watchlist(request.user, title, add, remove)
-            message = 'Added to watchlist' if add else 'Removed from watchlist'
-            return Response({'message': message}, status=status.HTTP_200_OK)
+        super().post(request, *args, **kwargs)
+        message = toggle_title_in_watchlist(request.user, self.title, self.add)
+        return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class ToggleCurrentlyWatchingTV(APIView):
-    permission_classes = (IsAuthenticated,)
+class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        add = request.POST.get('rating') == '1'
-        remove = not add
-        try:
-            title = Title.objects.get(pk=kwargs['pk'])
-        except Title.DoesNotExist:
-            return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            toggle_title_in_watchlist(request.user, title, add, remove)
-            message = 'Added to watchlist' if add else 'Removed from watchlist'
-            return Response({'message': message}, status=status.HTTP_200_OK)
+        pass
+        # add = request.POST.get('rating') == '1'
+        # remove = not add
+        # try:
+        #     title = Title.objects.get(pk=kwargs['pk'])
+        # except Title.DoesNotExist:
+        #     return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        # else:
+        #     toggle_title_in_watchlist(request.user, title, add, remove)
+        #     message = 'Added to watchlist' if add else 'Removed from watchlist'
+        #     return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class FollowUser(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request, *args, **kwargs):
-        add = request.POST.get('rating') == '1'
-        remove = not add
-        try:
-            user = User.objects.get(pk=kwargs['pk'])
-        except User.DoesNotExist:
-            return Response({'message': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            if add:
-                UserFollow.objects.create(follower=self.request.user, followed=user)
-            elif remove:
-                UserFollow.objects.filter(follower=self.request.user, followed=user).delete()
-            message = 'You {} {}'.format('followed' if add else 'unfollowed', user.username)
-            return Response({'message': message}, status=status.HTTP_200_OK)
-
-
-class ReorderFavourite(APIView):
-    permission_classes = (IsAuthenticated,)
+class FollowUser(IsAuthenticatedMixin, GetUserMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=kwargs['pk'])
-        except User.DoesNotExist:
-            return Response({'message': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        super().post(request, *args, **kwargs)
+        if self.add:
+            UserFollow.objects.create(follower=self.request.user, followed=self.user)
+            message = f'Followed {self.user.username}'
         else:
-            user_favourites = Favourite.objects.filter(user=user)
-            new_title_order = request.POST.get('item_order')
-            if new_title_order:
-                new_title_order = findall('\d+', new_title_order)
-                for new_position, title_pk in enumerate(new_title_order, 1):
-                    user_favourites.filter(title__pk=title_pk).update(order=new_position)
-                return Response({'message': 'Changed order'}, status=status.HTTP_200_OK)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            UserFollow.objects.filter(follower=self.request.user, followed=self.user).delete()
+            message = f'Unfollowed {self.user.username}'
+        return Response({'message': message}, status=status.HTTP_200_OK)
+
+
+class ReorderFavourite(IsAuthenticatedMixin, APIView):
+
+    def post(self, request, *args, **kwargs):
+        # try:
+        #     user = User.objects.get(pk=kwargs['pk'])
+        # except User.DoesNotExist:
+        #     return Response({'message': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        # else:
+        #     user_favourites = Favourite.objects.filter(user=user)
+        #     new_title_order = request.POST.get('item_order')
+        #     if new_title_order:
+        #         new_title_order = findall('\d+', new_title_order)
+        #         for new_position, title_pk in enumerate(new_title_order, 1):
+        #             user_favourites.filter(title__pk=title_pk).update(order=new_position)
+        #         return Response({'message': 'Changed order'}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RecommendTitle(APIView):
