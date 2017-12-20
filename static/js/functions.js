@@ -2,7 +2,8 @@ function showErrorToastOrRedirectToLoginWithNext(xhr) {
     if (xhr.status === 403 && xhr.responseText.indexOf('credentials were not provided') > -1) {
         window.location = '/accounts/login?next=/' + (location.pathname+location.search).substr(1);
     } else {
-        showToast('There was an error', {type: 'error'})
+        var errorMessage = xhr.responseJSON.message || 'There was an error';
+        showToast(errorMessage, {type: 'error'})
     }
 }
 
