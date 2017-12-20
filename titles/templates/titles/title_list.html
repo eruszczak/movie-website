@@ -7,7 +7,16 @@
     $('.ui.form')
       .form({
         fields: {
-          year: ['exactLength[4]', 'empty', 'integer[1..100]']
+            year: {
+                identifier: 'year',
+                optional: true,
+                rules: [
+                  {
+                    type   : 'integer[1890..2030]',
+                    prompt : 'Insert value between 1890 and 2030'
+                  }
+                ]
+            }
         }
       })
     ;
@@ -38,11 +47,10 @@
         <div class="content{% if request.GET %} active{% endif %}">
             {% include 'includes/form_errors.html' with form=search_form %}
             <form class="ui form">
+                <div class="ui error message"></div>
                 <div class="fields">
                     <input name="user" value="{{ request.GET.user }}" hidden>
                     <div class="four wide field">
-{#                        {{ search_form.keyword.label|cut:'*' }}#}
-{#                        {{ search_form.keyword }}#}
                         {% include 'includes/fied2.html' with field=search_form.keyword %}
                     </div>
                     <div class="five wide field">
