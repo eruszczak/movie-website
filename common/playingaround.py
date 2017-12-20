@@ -83,7 +83,7 @@ def clean_models():
 # print(t.title)
 
 c = CurrentlyWatchingTV.objects.all()
-print(c)
+print(c.delete())
 # print(Title.objects.all().first().pk)
 
 
