@@ -45,19 +45,17 @@ class TitleDetailView(RetrieveAPIView):
     lookup_field = 'slug'
 
 
-class AddRatingAPIView(IsAuthenticatedMixin, APIView):
+class AddRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
+        message = self.set_instance(**kwargs)
+        if message:
+            return message
+
         new_rating = request.POST.get('rating')
-        # insert_as_new = request.POST.get('insert_as_new', False)
-        insert_as_new = False
-        try:
-            title = Title.objects.get(pk=kwargs['pk'])
-        except Title.DoesNotExist:
-            return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            message = create_or_update_rating(title, request.user, new_rating, insert_as_new)
-            return Response({'message': message}, status=status.HTTP_200_OK)
+        insert_as_new = False  # request.POST.get('insert_as_new', False)
+        message = create_or_update_rating(self.title, request.user, new_rating, insert_as_new)
+        return Response({'message': message}, status=status.HTTP_200_OK)
 
 
 class TitleDeleteRatingView(APIView):
