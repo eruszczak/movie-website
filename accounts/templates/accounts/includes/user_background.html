@@ -15,7 +15,7 @@
                         <img class="card-img-top" src="{{ user.avatar_url }}" alt="Card image cap">
                     </a>
                 </div>
-                <p class="card-username">{{ user.username }}</p>
+                <div class="ui tiny user-title message"><div class="header">{{ user.username }}{{ header_text}}</div></div>
             </div>
         </div>
     {% endwith %}

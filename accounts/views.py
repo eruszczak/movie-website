@@ -95,8 +95,8 @@ class UserListView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        if self.request.GET.get('const'):
-            self.searched_title = get_object_or_404(Title, const=self.request.GET['const'])
+        if self.request.GET.get('imdb_id'):
+            self.searched_title = get_object_or_404(Title, imdb_id=self.request.GET['imdb_id'])
             queryset = queryset.filter(rating__title=self.searched_title).annotate(
                 user_rate=Subquery(
                     Rating.objects.filter(
