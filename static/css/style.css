@@ -239,7 +239,7 @@ body {
     height: 120px;
 }
 
-.ui.tab.segment {
+.ui.tab.segment, .ui.segment.hide-border {
     box-shadow: none;
     border-radius: 0;
     border: none;
