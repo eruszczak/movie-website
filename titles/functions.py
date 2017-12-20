@@ -11,35 +11,42 @@ from lists.models import Watchlist, Favourite
 User = get_user_model()
 
 
-def toggle_title_in_watchlist(user=None, title=None, watch=None, unwatch=None, instance=None):
+def toggle_title_in_watchlist(user=None, title=None, watch=None):
     """
     adds or deletes title from user's watchlist. if title comes from IMDb's watchlist, it is only marked as 'deleted',
     because it would be added again with another watchlist update anyway
     """
-    watchlist_instance = Watchlist.objects.filter(user=user, title=title).first() if instance is None else instance
+    unwatch = not watch
+    watchlist_instance = Watchlist.objects.filter(user=user, title=title).first()
 
     if watchlist_instance and watchlist_instance.imdb:
         watchlist_instance.deleted = False if watch else True
         watchlist_instance.save(update_fields=['deleted'])
+        return 'Removed from watchlist'
     else:
         if watch:
             Watchlist.objects.create(user=user, title=title)
+            return 'Added to watchlist'
         elif unwatch and watchlist_instance:
             watchlist_instance.delete()
+            return 'Removed from watchlist'
 
 
-def toggle_title_in_favourites(user, title, fav=None, unfav=None):
+def toggle_title_in_favourites(user, title, fav):
     """
     deletes or adds title to user's favourites while maintaining the proper order
     fav titles are ordered and when some title is being deleted, order of another titles must be updated
     """
+    unfav = not fav
     user_favourites = Favourite.objects.filter(user=user)
     if fav:
         Favourite.objects.create(user=user, title=title, order=user_favourites.count() + 1)
+        return 'Added to favourites'
     elif unfav:
         favourite_instance = user_favourites.filter(title=title).first()
         user_favourites.filter(order__gt=favourite_instance.order).update(order=F('order') - 1)
         favourite_instance.delete()
+        return 'Removed from favourites'
 
 
 def recommend_title(title, sender, user_ids):
