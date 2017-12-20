@@ -17,9 +17,5 @@ urlpatterns = [
     url(r'^user/(?P<pk>\d+)/favourites/reorder', views.ReorderFavourite.as_view(), name='user-fav-reorder'),
 
     url(r'^', include(router.urls), name='ratings'),
-    # url(r'^g/$', views.Genres.as_view(), name='genres'),
-    # url(r'^y/$', views.Years.as_view(), name='years'),
-    # url(r'^r/$', views.Rates.as_view(), name='rates'),
-    # url(r'^m/$', views.MonthlyRatings.as_view(), name='monthly'),
     url(r'^title/(?P<slug>[\w-]+)/$', views.TitleDetailView.as_view(), name='title_detail'),
 ]
