@@ -124,6 +124,7 @@ var currentlyWatchingSettings = $.extend(true, {
     },
     onSuccess: function(response) {
         showToast(response.message);
+        $(this).toggleClass('active');
     }
 }, API_SETTINGS_BASE);
 
