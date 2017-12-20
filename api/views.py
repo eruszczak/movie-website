@@ -80,20 +80,11 @@ class ToggleWatchlist(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIVie
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, APIView):
+class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, ToggleAPiView, GetUserMixin, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        pass
-        # add = request.POST.get('rating') == '1'
-        # remove = not add
-        # try:
-        #     title = Title.objects.get(pk=kwargs['pk'])
-        # except Title.DoesNotExist:
-        #     return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        # else:
-        #     toggle_title_in_watchlist(request.user, title, add, remove)
-        #     message = 'Added to watchlist' if add else 'Removed from watchlist'
-        #     return Response({'message': message}, status=status.HTTP_200_OK)
+        super().post(request, *args, **kwargs)
+        # todo: problem because I cant call super in GetUserMixin, and GetTitleMixin won't be called
 
 
 class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPiView, GetUserMixin, APIView):
@@ -109,27 +100,24 @@ class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPiView, GetUserMixin, APIVie
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class ReorderFavourite(IsAuthenticatedMixin, APIView):
+class ReorderFavourite(IsAuthenticatedMixin, GetUserMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        # try:
-        #     user = User.objects.get(pk=kwargs['pk'])
-        # except User.DoesNotExist:
-        #     return Response({'message': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        # else:
-        #     user_favourites = Favourite.objects.filter(user=user)
-        #     new_title_order = request.POST.get('item_order')
-        #     if new_title_order:
-        #         new_title_order = findall('\d+', new_title_order)
-        #         for new_position, title_pk in enumerate(new_title_order, 1):
-        #             user_favourites.filter(title__pk=title_pk).update(order=new_position)
-        #         return Response({'message': 'Changed order'}, status=status.HTTP_200_OK)
+        super().post(request, *args, **kwargs)
+        # user_favourites = Favourite.objects.filter(user=user)
+        # new_title_order = request.POST.get('item_order')
+        # if new_title_order:
+        #     new_title_order = findall('\d+', new_title_order)
+        #     for new_position, title_pk in enumerate(new_title_order, 1):
+        #         user_favourites.filter(title__pk=title_pk).update(order=new_position)
+        #     return Response({'message': 'Changed order'}, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RecommendTitle(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
+        super().post(request, *args, **kwargs)
         user_ids = request.POST.getlist('recommended_user_ids[]')
         message = ''
         if user_ids:
