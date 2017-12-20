@@ -115,6 +115,13 @@ def get_person(value):
     return person
 
 
+# UserFollow.objects.all().delete()
+
+# u = UserFollow.objects.all().first()
+# u2 = UserFollow(follower=u.follower, followed=u.followed, pk=0)
+# UserFollow.objects.all().delete()
+# u2.save()
+# print(UserFollow.objects.all().values_list('pk'))
 
 # for t in Title.objects.all():
 #     print(t.overview)
