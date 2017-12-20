@@ -17,15 +17,21 @@
 {% endblock %}
 
 {% block content %}
-    <div class="ui divider hidden"></div>
-            <a class="ui label">Watchlist</a>
-            <a class="ui label">Favourites</a>
-            <a class="ui label">Recommendations</a>
-            {% if user.imdb_url %}
-                <a href="{{ user.imdb_url }}" target="_blank">
-                    <img class="image" src="{% static 'img/imdb.png' %}" alt="..." style="height: 50px">
-                </a>
-            {% endif %}
+    <div class="ui centered grid">
+        {% with user.imdb_url as imdb_url %}
+            <div class="{% if imdb_url %}four{% else %}three{% endif %} columns">
+                <a class="ui label">Watchlist</a>
+                <a class="ui label">Favourites</a>
+                <a class="ui label">Recommendations? get rid of it?</a>
+                {% if imdb_url %}
+                    <a href="{{ imdb_url }}" target="_blank">
+                        <i class="imdb big yellow icon"></i>
+                    </a>
+                {% endif %}
+            </div>
+        {% endwith %}
+    </div>
+
 {#    <div class="ui centered grid">#}
 {#        <div class="ui card">#}
 {#          <div class="image">#}
@@ -113,8 +119,8 @@
                 {% if not rating_list %}
                     <p>No ratings found</p>
                 {% else %}
-                    <div class="ui divider"></div>
-                    <p><a href="{{ user.ratings_url }}">See all</a></p>
+                    <div class="ui hidden divider"></div>
+                    <p><a href="{{ user.ratings_url }}" class="ui label">See all</a></p>
                 {% endif %}
             </div>
         </div>
