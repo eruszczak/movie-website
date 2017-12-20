@@ -23,7 +23,7 @@ class UserUpdateForm(forms.ModelForm):
     def __init__(self, original_instance, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.original_instance = original_instance
-        self.fields['imdb_id'].widget.attrs.update({'placeholder': 'eg. ur12346789'})
+        self.fields['imdb_id'].widget.attrs.update({'placeholder': 'ur12346789'})
 
     class Meta:
         model = User
