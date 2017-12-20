@@ -123,6 +123,9 @@ class CurrentlyWatchingTV(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.ForeignKey('Title', on_delete=models.CASCADE, limit_choices_to={'type': SERIES})
 
+    def __str__(self):
+        return f'{self.user} watching {self.title}'
+
 
 class Title(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)

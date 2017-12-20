@@ -15,7 +15,7 @@ from api.mixins import IsAuthenticatedMixin, GetTitleMixin, ToggleAPIView, GetUs
 from lists.models import Favourite
 from titles.forms import TitleSearchForm
 from titles.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist, \
-    recommend_title, follow_user
+    recommend_title, follow_user, toggle_currently_watched_title
 from titles.models import Rating, Title, Person
 from .serializers import RatingListSerializer, TitleSerializer, PersonSerializer
 
@@ -84,14 +84,15 @@ class ToggleWatchlistAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin,
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, ToggleAPIView, GetUserMixin, GetTitleMixin, APIView):
-    title_url_kwarg = 'pk_title'
-    user_url_kwarg = 'pk_user'
+class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        print(self.__class__.mro())
-        return super().post(request, *args, **kwargs)
-        # todo: problem because I cant call super in GetUserMixin, and GetTitleMixin won't be called
+        message = self.set_instance(**kwargs)
+        if message:
+            return message
+
+        message = toggle_currently_watched_title(self.title, self.request.user, self.toggle_active)
+        return Response({'message': message}, status=status.HTTP_200_OK)
 
 
 class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPIView, GetUserMixin, APIView):
