@@ -105,10 +105,6 @@ class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPIView, GetUserMixin, APIVie
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class Test(CreateAPIView):
-    pass
-
-
 class ReorderFavourite(IsAuthenticatedMixin, GetUserMixin, APIView):
 
     def post(self, request, *args, **kwargs):
@@ -126,7 +122,10 @@ class ReorderFavourite(IsAuthenticatedMixin, GetUserMixin, APIView):
 class RecommendTitleAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        super().post(request, *args, **kwargs)
+        message = self.set_instance(**kwargs)
+        if message:
+            return message
+
         user_ids = request.POST.getlist('recommended_user_ids[]')
         message = ''
         if user_ids:
