@@ -26,7 +26,16 @@
                 </div>
             {% endwith %}
             {% include 'includes/field.html' with field=form.tagline %}
-            {% include 'includes/field.html' with field=form.imdb_id %}
+            {% with form.imdb_id as field %}
+                <div class="field{% if field.errors %} error{% endif %}{% if field.field.required %} required{% endif %}">
+                    <h3 class="ui dividing header">{{ field.label|cut:':' }}</h3>
+                    <div class="ui labeled input">
+                        <div class="ui label">http://www.imdb.com/user/</div>
+                        {{ field }}
+                    </div>
+                    <small>{{ field.help_text }}</small>
+                </div>
+            {% endwith %}
             <div class="ui divider hidden"></div>
             <button type="submit" class="ui button primary">Update</button>
         </div>
