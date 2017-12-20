@@ -254,3 +254,7 @@ body {
 .ui.label > a.see-more {
     color: black;
 }
+
+.ui.menu .active.item, .ui.menu .active.item:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
