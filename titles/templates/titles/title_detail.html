@@ -30,6 +30,8 @@
     <div class="ui tab segment active" data-tab="first">
     {% if not title.is_movie %}
       <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui small currently-watching toggle button right floated{% if title.currently_watching %} active{% endif %}" data-pk="{{ title.pk }}">Currently watching</div>
+      <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui small currently-watching toggle button right floated{% if user.already_follows != None %} active{% endif %}" data-pk="{{ user.pk }}">{% if user.already_follows != None %}Followed{% else %}Follow{% endif %}</div>
+
     {% endif %}
         <div class="ui grid centered statistics">
           {% if title.runtime %}
