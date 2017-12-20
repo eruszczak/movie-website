@@ -1,4 +1,3 @@
-from re import findall
 from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
@@ -7,7 +6,6 @@ from rest_framework import status
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
@@ -47,8 +45,7 @@ class TitleDetailView(RetrieveAPIView):
     lookup_field = 'slug'
 
 
-class TitleAddRatingView(APIView):
-    permission_classes = (IsAuthenticated,)
+class TitleAddRatingView(IsAuthenticatedMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         new_rating = request.POST.get('rating')
@@ -67,7 +64,7 @@ class TitleDeleteRatingView(APIView):
     pass
 
 
-class TitleToggleFavourite(IsAuthenticatedMixin, GetTitleMixin, APIView):
+class ToggleFavourite(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)
@@ -75,7 +72,7 @@ class TitleToggleFavourite(IsAuthenticatedMixin, GetTitleMixin, APIView):
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class TitleToggleWatchlist(IsAuthenticatedMixin, GetTitleMixin, APIView):
+class ToggleWatchlist(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)
@@ -99,7 +96,7 @@ class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, APIView):
         #     return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class FollowUser(IsAuthenticatedMixin, GetUserMixin, APIView):
+class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPiView, GetUserMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)
@@ -130,20 +127,14 @@ class ReorderFavourite(IsAuthenticatedMixin, APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class RecommendTitle(APIView):
-    permission_classes = (IsAuthenticated,)
+class RecommendTitle(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         user_ids = request.POST.getlist('recommended_user_ids[]')
-        try:
-            title = Title.objects.get(pk=kwargs['pk'])
-        except Title.DoesNotExist:
-            return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            message = ''
-            if user_ids:
-                message = recommend_title(title, request.user, user_ids)
-            return Response({'message': message}, status=status.HTTP_200_OK)
+        message = ''
+        if user_ids:
+            message = recommend_title(self.title, request.user, user_ids)
+        return Response({'message': message}, status=status.HTTP_200_OK)
 
 
 class SearchAPIView(APIView):
