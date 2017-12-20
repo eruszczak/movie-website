@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, CreateAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -11,11 +11,11 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from accounts.models import UserFollow
-from api.mixins import IsAuthenticatedMixin, GetTitleMixin, ToggleAPiView, GetUserMixin
+from api.mixins import IsAuthenticatedMixin, GetTitleMixin, ToggleAPIView, GetUserMixin
 from lists.models import Favourite
 from titles.forms import TitleSearchForm
 from titles.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist, \
-    recommend_title
+    recommend_title, follow_user
 from titles.models import Rating, Title, Person
 from .serializers import RatingListSerializer, TitleSerializer, PersonSerializer
 
@@ -64,40 +64,51 @@ class TitleDeleteRatingView(APIView):
     pass
 
 
-class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIView):
+class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        super().post(request, *args, **kwargs)
-        message = toggle_title_in_favourites(request.user, self.title, self.add)
+        message = self.set_instance(**kwargs)
+        if message:
+            return message
+
+        message = toggle_title_in_favourites(request.user, self.title, self.toggle_active)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class ToggleWatchlistAPIView(IsAuthenticatedMixin, ToggleAPiView, GetTitleMixin, APIView):
+class ToggleWatchlistAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        super().post(request, *args, **kwargs)
-        message = toggle_title_in_watchlist(request.user, self.title, self.add)
+        message = self.set_instance(**kwargs)
+        if message:
+            return message
+
+        message = toggle_title_in_watchlist(request.user, self.title, self.toggle_active)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, ToggleAPiView, GetUserMixin, GetTitleMixin, APIView):
+class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, ToggleAPIView, GetUserMixin, GetTitleMixin, APIView):
+    title_url_kwarg = 'pk_title'
+    user_url_kwarg = 'pk_user'
 
     def post(self, request, *args, **kwargs):
-        super().post(request, *args, **kwargs)
+        print(self.__class__.mro())
+        return super().post(request, *args, **kwargs)
         # todo: problem because I cant call super in GetUserMixin, and GetTitleMixin won't be called
 
 
-class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPiView, GetUserMixin, APIView):
+class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPIView, GetUserMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        super().post(request, *args, **kwargs)
-        if self.add:
-            UserFollow.objects.create(follower=self.request.user, followed=self.user)
-            message = f'Followed {self.user.username}'
-        else:
-            UserFollow.objects.filter(follower=self.request.user, followed=self.user).delete()
-            message = f'Unfollowed {self.user.username}'
+        message = self.set_instance(**kwargs)
+        if message:
+            return message
+
+        message = follow_user(self.request.user, self.user, self.toggle_active)
         return Response({'message': message}, status=status.HTTP_200_OK)
+
+
+class Test(CreateAPIView):
+    pass
 
 
 class ReorderFavourite(IsAuthenticatedMixin, GetUserMixin, APIView):

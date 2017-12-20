@@ -39,11 +39,11 @@ def toggle_title_in_favourites(user, title, fav):
     """
     unfav = not fav
     user_favourites = Favourite.objects.filter(user=user)
+    favourite_instance = user_favourites.filter(title=title).first()
     if fav:
         Favourite.objects.create(user=user, title=title, order=user_favourites.count() + 1)
         return 'Added to favourites'
-    elif unfav:
-        favourite_instance = user_favourites.filter(title=title).first()
+    elif unfav and favourite_instance:
         user_favourites.filter(order__gt=favourite_instance.order).update(order=F('order') - 1)
         favourite_instance.delete()
         return 'Removed from favourites'
@@ -87,3 +87,12 @@ def create_or_update_rating(title, user, rate, insert_as_new=False):
     elif current_rating:
         current_rating.delete()
         return 'Deleted rating'
+
+
+def follow_user(follower, followed, add):
+    if add:
+        UserFollow.objects.create(follower=follower, followed=followed)
+        return f'Followed {followed.username}'
+    else:
+        UserFollow.objects.filter(follower=follower, followed=followed).delete()
+        return f'Unfollowed {followed.username}'
