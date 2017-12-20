@@ -22,10 +22,9 @@
     {#    {% endif %}#}
     {#{% endwith %}#}
 {#    <div class="ui divider"></div>#}
-    <div class="ui fluid three item menu title-menu">
+    <div class="ui fluid two item menu title-menu">
       <a class="item active" data-tab="third">Title Details</a>
       <a class="item" data-tab="first">Your Overview</a>
-      <a class="item" data-tab="fourth"><i class="video play icon"></i> Media</a>
     </div>
     {#<a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
 
@@ -291,20 +290,10 @@
                 <a href="{{ title.imdb_url }}" target="_blank">
                     <img class="image" src="{% static 'img/imdb.png' %}" alt="..." style="height: 50px">
                 </a>
-        {#        <a href="{{ title.url_tomato }}" target="_blank">#}
-        {#            <img class="image" src="{% static 'img/rt.png' %}" alt="..." style="width: 70px">#}
-        {#        </a>#}
                 <a href="{{ title.tmdb_url }}" target="_blank">
                     <img class="image" src="{% static 'img/tmdb.png' %}" alt="..." style="height: 50px">
                 </a>
-        {#        <p>Last updated: {{ title.last_updated }}</p>#}
             </div>
         </div>
-
-
-    </div>
-    <div class="ui tab segment" data-tab="fourth">
-        <h3 class="ui header">Trailer</h3>
-        <div class="ui embed" data-source="youtube" data-id="O6Xo21L0ybE"></div>
     </div>
 {% endblock %}
