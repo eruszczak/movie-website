@@ -42,6 +42,12 @@ class User(FolderPathMixin, AbstractUser):
         return reverse('title-list') + '?user={}'.format(self.pk)
 
     @property
+    def imdb_url(self):
+        if self.imdb_id:
+            return f'http://www.imdb.com/user/{self.imdb_id}/'
+        return ''
+
+    @property
     def avatar_url(self):
         if self.picture:
             return self.picture.url

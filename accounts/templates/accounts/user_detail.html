@@ -21,6 +21,11 @@
             <a class="ui label">Watchlist</a>
             <a class="ui label">Favourites</a>
             <a class="ui label">Recommendations</a>
+            {% if user.imdb_url %}
+                <a href="{{ user.imdb_url }}" target="_blank">
+                    <img class="image" src="{% static 'img/imdb.png' %}" alt="..." style="height: 50px">
+                </a>
+            {% endif %}
 {#    <div class="ui centered grid">#}
 {#        <div class="ui card">#}
 {#          <div class="image">#}
