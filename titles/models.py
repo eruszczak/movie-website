@@ -118,6 +118,12 @@ class Upcoming(models.Model):
         return f'Upcoming on {self.update_date}'
 
 
+class CurrentlyWatchingTV(models.Model):
+    update_date = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.ForeignKey('Title', on_delete=models.CASCADE, limit_choices_to={'type': SERIES})
+
+
 class Title(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
@@ -244,7 +250,7 @@ class Title(models.Model):
 
 class Rating(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    title = models.ForeignKey('Title', on_delete=models.CASCADE)
     rate = models.IntegerField()
     rate_date = models.DateField()
     inserted_date = models.DateTimeField(default=timezone.now)
