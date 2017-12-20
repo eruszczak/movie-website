@@ -18,24 +18,23 @@ class ToggleAPiView:
 
     def post(self, request, *args, **kwargs):
         self.add = request.POST.get('rating') == '1'
+        super().post(request, *args, **kwargs)
 
 
-class GetTitleMixin(ToggleAPiView):
+class GetTitleMixin:
     title = None
 
     def post(self, request, *args, **kwargs):
-        super().post(request, *args, **kwargs)
         try:
             self.title = Title.objects.get(pk=kwargs['pk'])
         except Title.DoesNotExist:
             return Response({'message': 'Title does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 
-class GetUserMixin(ToggleAPiView):
+class GetUserMixin:
     user = None
 
     def post(self, request, *args, **kwargs):
-        super().post(request, *args, **kwargs)
         try:
             self.user = User.objects.get(pk=kwargs['pk'])
         except Title.DoesNotExist:
