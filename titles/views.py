@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count, When, Case, IntegerField, Subquery, Q, Avg
+from django.db.models import Count, When, Case, IntegerField, Subquery, Q, Avg, Exists
 from django.db.models import OuterRef
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -146,15 +146,8 @@ class TitleDetailView(DetailView):
                 ),
                 currently_watching=Subquery(
                     CurrentlyWatchingTV.objects.filter(user=self.request.user, title=OuterRef('pk')).values('pk')
-                )
+                ),
             )
-
-            # if not self.object.is_movie:
-            #     queryset = queryset.annotate(
-            #         currently_watching=Subquery(
-            #             CurrentlyWatchingTV.objects.filter(user=self.request.user, title=OuterRef('pk')).values('pk')
-            #         )
-            #     )
 
         try:
             obj = queryset.get()
