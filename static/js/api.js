@@ -3,7 +3,8 @@ $.fn.api.settings.api = {
     'follow user': '/api/user/{pk}/follow',
     'favourite title': '/api/title/{pk}/favourites',
     'watchlist title': '/api/title/{pk}/watchlist',
-    'recommend title': '/api/title/{pk}/recommend'
+    'recommend title': '/api/title/{pk}/recommend',
+    'currently watching': '/api/{pk_user}/{pk_title}/watch'
 };
 
 $('.rating').rating({
@@ -115,6 +116,17 @@ var followSettings = $.extend(true, {
     }
 }, API_SETTINGS_BASE);
 
+var currentlyWatchingSettings = $.extend(true, {
+    action: 'currently watching',
+    beforeSend: function(settings) {
+      settings.data.rating = $(this).hasClass('active') ? 0: 1;
+      return settings;
+    },
+    onSuccess: function(response) {
+        showToast(response.message);
+    }
+}, API_SETTINGS_BASE);
+
 $('.title-fav').api(titleFavSettings);
 $('.title-watch').api(titleWatchSetttings);
 $('.recommend.button').api(recommendSettings);
@@ -124,3 +136,4 @@ $('.follow.button').api(followSettings).state({
       active: 'Followed'
     }
 });
+$('.currently-watching.button').api(currentlyWatchingSettings);
