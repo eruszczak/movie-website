@@ -30,14 +30,5 @@ $('.grid .backdrop-card img').visibility({
 
 $('.ui.accordion').accordion();
 
-$('.export.tiny.modal').modal({
-    onApprove : function() {
-      console.log('export - Approved!');
-    }
-}).modal('attach events', '.export-ratings.button', 'show');
-
-$('.import.tiny.modal').modal({
-    onApprove : function() {
-      console.log('import - Approved!');
-    }
-}).modal('attach events', '.import-ratings.button', 'show');
+$('.export.tiny.modal').modal('attach events', '.export-ratings.button', 'show');
+$('.import.tiny.modal').modal('attach events', '.import-ratings.button', 'show');

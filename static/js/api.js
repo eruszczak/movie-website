@@ -130,6 +130,20 @@ var currentlyWatchingSettings = $.extend(true, {
     }
 }, API_SETTINGS_BASE);
 
+var exportRatingsSettings = $.extend(true, {
+    action: 'export ratings',
+    onSuccess: function(response) {
+        showToast(response.message);
+    }
+}, API_SETTINGS_BASE);
+
+var importRatingsSettings = $.extend(true, {
+    action: 'import ratings',
+    onSuccess: function(response) {
+        showToast(response.message);
+    }
+}, API_SETTINGS_BASE);
+
 $('.title-fav').api(titleFavSettings);
 $('.title-watch').api(titleWatchSetttings);
 $('.recommend.button').api(recommendSettings);
@@ -140,3 +154,5 @@ $('.follow.button').api(followSettings).state({
     }
 });
 $('.currently-watching.button').api(currentlyWatchingSettings);
+$('.export.modal .actions .positive').api(exportRatingsSettings);
+$('.import.modal .actions .positive').api(importRatingsSettings);
