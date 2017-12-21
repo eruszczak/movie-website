@@ -22,7 +22,8 @@ from titles.tmdb_api import TmdbWrapper, PopularMoviesTmdbTask, TitleUpdater, Mo
     PopularPeopleTmdbTask, \
     NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTVTmdbTask, TmdbTaskRunner
 
-from titles.models import Title, Person, Collection, Upcoming, Popular, NowPlaying, CurrentlyWatchingTV, CastTitle
+from titles.models import Title, Person, Collection, Upcoming, Popular, NowPlaying, CurrentlyWatchingTV, CastTitle, \
+    CrewTitle
 
 # Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection, NowPlaying, Upcoming = [
 #     apps.get_model('titles.' + model_name) for model_name in
@@ -96,21 +97,28 @@ def create_rating_duplicat():
 # print(c.delete())
 # print(Title.objects.all().first().pk)
 
-p = Person.objects.all().first()
-user = User.objects.get(username__icontains='test2')
-print(user)
-c = CastTitle.objects.filter(person=p)
-newest_user = Rating.objects.filter(user=user, title=OuterRef('title')).order_by('-rate_date')
+# p = Person.objects.all().first()
+# user = User.objects.get(username__icontains='test2')
+# print(user)
+# c = CastTitle.objects.filter(person=p)
+# newest_user = Rating.objects.filter(user=user, title=OuterRef('title')).order_by('-rate_date')
 
 # qs = qs.annotate(request_user_rate=Subquery(newest_user.values('rate')[:1]))
 
-print(c)
-c = c.annotate(
-    request_user_rate=Subquery(newest_user.values('rate')[:1])
-)
+# print(c)
+# c = c.annotate(
+#     request_user_rate=Subquery(newest_user.values('rate')[:1])
+# )
+#
+# for x in c:
+#     print(x.request_user_rate, x)
 
-for x in c:
-    print(x.request_user_rate, x)
+def add_crew_to_person():
+    p = Person.objects.get(pk=17051)
+    print(p)
+    CrewTitle.objects.create(title=Title.objects.all().first(), person=p)
+
+add_crew_to_person()
 # query = Title.objects.filter(
 #     Q(casttitle__person=p) | Q(crewtitle__person=p)
 # ).order_by('-release_date')

@@ -39,7 +39,7 @@
             <div class="label">his credits you saw</div>
         </div>
         <div class="statistic">
-            <div class="value">%</div>
+            <div class="value">{{ avg }}</div>
             <div class="label">your avg credits score</div>
         </div>
     </div>
@@ -49,9 +49,9 @@
         <div class="ui list">
             {% for cast in casttitle_list %}
                   <div class="item">
-                    <img class="ui mini image" src="{{ cast.title.poster_small }}">
+                    <a class="ui mini title image" href="{{ cast.title.get_absolute_url }}"><img src="{{ cast.title.poster_small }}"></a>
                     <div class="content">
-                      <p class="header">{{ cast.character }}</p>
+                      <p class="header">{{ cast.character|default:'-' }}</p>
                         <div class="description"><a href="{{ cast.title.get_absolute_url }}">{{ cast.title.name }} ({{ cast.title.year }})</a>{% if cast.request_user_rate %} {{ cast.request_user_rate }}<i class="icon star yellow"></i>{% endif %}</div>
                     </div>
                   </div>
@@ -64,9 +64,9 @@
         <div class="ui list">
             {% for crew in crewtitle_list %}
                   <div class="item">
-                    <img class="ui mini image" src="{{ crew.title.poster_small }}">
+                    <a class="ui mini title image" href="{{ crew.title.get_absolute_url }}"><img src="{{ crew.title.poster_small }}"></a>
                     <div class="content">
-                      <p class="header">{{ crew.get_job_display }}</p>
+                      <p class="header">{{ crew.get_job_display|default:'-' }}</p>
                         <div class="description"><a href="{{ crew.title.get_absolute_url }}">{{ crew.title.name }} ({{ crew.title.year }})</a>{% if crew.request_user_rate %} {{ crew.request_user_rate }}<i class="icon star yellow"></i>{% endif %}</div>
                     </div>
                   </div>

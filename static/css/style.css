@@ -266,3 +266,7 @@ body {
 .ui.menu .active.item, .ui.menu .active.item:hover {
     background: rgba(0, 0, 0, 0.2);
 }
+
+.mini.title.image {
+     padding-right: 0!important;
+}
