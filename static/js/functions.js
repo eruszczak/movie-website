@@ -2,9 +2,13 @@ function showErrorToastOrRedirectToLoginWithNext(xhr) {
     if (xhr.status === 403 && xhr.responseText.indexOf('credentials were not provided') > -1) {
         window.location = '/accounts/login?next=/' + (location.pathname+location.search).substr(1);
     } else {
-        var errorMessage = xhr.responseJSON.message || 'There was an error';
-        showToast(errorMessage, {type: 'error'})
+        showXHRErrorToast(xhr);
     }
+}
+
+function showXHRErrorToast(xhr) {
+    var errorMessage = 'There was an error';
+    showToast(xhr.responseJSON ? xhr.responseJSON.message || errorMessage: errorMessage, {type: 'error'})
 }
 
 function setModalContentAndShow($modal, response) {
