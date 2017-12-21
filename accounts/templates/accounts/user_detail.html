@@ -23,46 +23,23 @@
 {#            <button id="clear_ratings" type="submit" class="btn btn-xs btn-success" data-toggle="tooltip" title="You cannot revert this operation. You will lose all of you ratings if you haven't exported them first.">clear my ratings</button>#}
 {#        </form>#}
 
+
+{#    {% if user.imdb_id %}#}
+        <button class="btn btn-xs btn-primary" type="submit" name="update_rss" value="update_rss">update ratings</button>
+
+        <button class="btn btn-xs btn-primary" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>
+{#    {% endif %}#}
+{#    {% if user.csv_ratings %}#}
+        <button class="btn btn-xs btn-primary" type="submit" name="update_csv" value="update_csv">update csv</button>
+{#    {% endif %}#}
+
+
     <br>
     <button class="ui primary export-ratings basic button">Export</button>
     {% if is_owner %}
         <button class="ui primary import-ratings basic button">Import</button>
     {% endif %}
     <br>
-
-    <div class="ui export tiny modal">
-      <i class="close icon"></i>
-      <div class="header">
-        Export {{ user.username }}'s ratings
-      </div>
-      <div class="content">
-        <div class="description">
-          You can export all of your ratings to csv file. If you will lose some of your ratings, you will be able to import them back.
-        </div>
-      </div>
-      <div class="actions">
-        <div class="ui actions negative close button">Cancel</div>
-        <div class="ui actions positive button">Export</div>
-      </div>
-    </div>
-
-    <div class="ui import tiny modal">
-      <i class="close icon"></i>
-      <div class="header">
-        Import ratings
-      </div>
-      <div class="content">
-        <div class="description">
-          You can add ratings from exported file.
-        </div>
-      </div>
-      <div class="actions">
-        <div class="ui actions negative close button">Cancel</div>
-        <div class="ui actions positive button">Import</div>
-      </div>
-    </div>
-
-
 
     <div class="ui centered grid">
         {% with user.imdb_url as imdb_url %}
@@ -301,4 +278,37 @@
             {% endif %}
         </div>
     {% endif %}
+
+{#    MODALS#}
+    <div class="ui export tiny modal">
+      <i class="close icon"></i>
+      <div class="header">
+        Export {{ user.username }}'s ratings
+      </div>
+      <div class="content">
+        <div class="description">
+          You can export {{ user.username }}'s ratings to csv file. If you will lose some of your ratings, you will be able to import them back.
+        </div>
+      </div>
+      <div class="actions">
+        <div class="ui actions cancel button">Cancel</div>
+        <div class="ui actions positive button" data-pk="{{ user.pk }}">Export</div>
+      </div>
+    </div>
+
+    <div class="ui import tiny modal">
+      <i class="close icon"></i>
+      <div class="header">
+        Import ratings
+      </div>
+      <div class="content">
+        <div class="description">
+          You can add ratings from exported file.
+        </div>
+      </div>
+      <div class="actions">
+        <div class="ui actions cancel button">Cancel</div>
+        <div class="ui actions positive button" data-pk="{{ user.pk }}">Import</div>
+      </div>
+    </div>
 {% endblock %}
