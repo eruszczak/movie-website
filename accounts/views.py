@@ -179,26 +179,6 @@ class UserDetailView(DetailView):
         })
         return context
 
-    @method_decorator(login_required)
-    def post(self, request, *args, **kwargs):
-        # if self.request.POST.get('confirm-nick'):
-        #     if self.request.POST['confirm-nick'] == self.request.user.username:
-        #         deleted_count = Rating.objects.filter(user=self.request.user).delete()[0]
-        #         message = 'You have deleted your {} ratings'.format(deleted_count)
-        #     else:
-        #         message = 'Confirmation failed. Wrong username. No ratings deleted.'
-        #     messages.info(self.request, message, extra_tags='safe')
-        # elif self.is_owner:
-        #     message = ''
-        #     if self.request.POST.get('update_csv'):
-        #         message = update_ratings_using_csv(self.object)
-        #     elif self.request.POST.get('update_rss') and self.object.imdb_id:
-        #         message = update_ratings(self.object)
-        #     elif self.request.POST.get('update_watchlist') and self.object.imdb_id:
-        #         message = update_watchlist(self.object)
-        #     messages.info(self.request, message, extra_tags='safe')
-        return redirect(self.object)
-
     def get_ratings_comparision(self):
         """
         gets additional context for a user who visits somebody else's profile
