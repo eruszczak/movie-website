@@ -39,7 +39,7 @@ $('.ui.search').search({
             $.each(serverResponse.persons, function(index, item) {
                 results.push({
                     title: item.name,
-                    description: 'Actor',
+                    description: 'Person',
                     url: item.url,
                     image: item.img
                 });
