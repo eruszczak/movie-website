@@ -34,49 +34,29 @@
         <div class="ui grid centered statistics">
           {% if title.runtime %}
               <div class="statistic">
-                <div class="value">
-                  {{ title.runtime }}
-                </div>
-                <div class="label">
-                  Runtime (min)
-                </div>
+                <div class="value">{{ title.runtime }}</div>
+                <div class="label">Runtime (min)</div>
               </div>
           {% endif %}
           {% if not title.is_movie %}
               <div class="statistic">
-                <div class="value">
-                  {{ title.seasons.all|length }}
-                </div>
-                <div class="label">
-                  Seasons
-                </div>
+                <div class="value">{{ title.seasons.all|length }}</div>
+                <div class="label">Seasons</div>
               </div>
           {% endif %}
             {% if summary.avg %}
               <div class="statistic">
-                <div class="value">
-                  {{ summary.avg }}
-                </div>
-                <div class="label">
-                  Avg
-                </div>
+                <div class="value">{{ summary.avg }}</div>
+                <div class="label">Avg</div>
               </div>
             {% endif %}
           <div class="statistic">
-            <div class="value">
-              {{ summary.votes|intcomma }}
-            </div>
-            <div class="label">
-              Votes
-            </div>
+            <div class="value">{{ summary.votes|intcomma }}</div>
+            <div class="label">Votes</div>
           </div>
           <div class="statistic">
-            <div class="value">
-              {{ title.release_date|date:'d.m.Y' }}
-            </div>
-            <div class="label">
-              Release date
-            </div>
+            <div class="value">{{ title.release_date|date:'d.m.Y' }}</div>
+            <div class="label">Release date</div>
           </div>
         </div>
         <div class="ui center aligned header">
