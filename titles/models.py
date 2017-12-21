@@ -252,15 +252,17 @@ class Title(models.Model):
 
 
 class Rating(models.Model):
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.ForeignKey('Title', on_delete=models.CASCADE)
     rate = models.IntegerField()
     rate_date = models.DateField()
-    inserted_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
         unique_together = ('user', 'title', 'rate_date')
-        ordering = ('-rate_date', '-inserted_date')
+        ordering = ('-rate_date', '-create_date')
 
     def __str__(self):
         return '{} {}'.format(self.title.name, self.rate_date)
