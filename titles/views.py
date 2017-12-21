@@ -194,13 +194,17 @@ class TitleDetailView(DetailView):
                 'summary': Rating.objects.filter(title=self.object).aggregate(avg=Avg('rate'), votes=Count('pk'))
             })
 
-            request_user_newest_ratings = Rating.objects.filter(
-                user=self.request.user, title=OuterRef('pk')
-            ).order_by('-rate_date').values('rate')[:1]
+            annotate_rate = {
+                'request_user_rate': Subquery(
+                    Rating.objects.filter(
+                        user=self.request.user, title=OuterRef('pk')
+                    ).order_by('-rate_date').values('rate')[:1]
+                )
+            }
 
-            collection_titles = collection_titles.annotate(request_user_rate=Subquery(request_user_newest_ratings))
-            similar_titles = similar_titles.annotate(request_user_rate=Subquery(request_user_newest_ratings))
-            recommendations = recommendations.annotate(request_user_rate=Subquery(request_user_newest_ratings))
+            collection_titles = collection_titles.annotate(**annotate_rate)
+            similar_titles = similar_titles.annotate(**annotate_rate)
+            recommendations = recommendations.annotate(**annotate_rate)
 
         context.update({
             'similar': similar_titles,
