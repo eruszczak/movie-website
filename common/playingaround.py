@@ -2,7 +2,6 @@ import django
 import os
 
 
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 import pytz
@@ -11,6 +10,7 @@ from django.contrib.auth import get_user_model
 from accounts.models import *
 import sys
 user = User.objects.all().first()
+from django.utils.timezone import now
 
 from mysite.settings import MEDIA_ROOT
 from api.mixins import GetTitleMixin, GetUserMixin
@@ -73,6 +73,16 @@ def clean_models():
     NowPlaying.objects.all().delete()
 
 
+def create_rating_duplicat():
+    r = Rating.objects.filter(user__username='test', title__name__icontains='jedi').last()
+    print(r)
+    r.rate = 2
+    # r.pk = None
+    # r.rate_date = now().today()
+    r.save()
+    # print(Rating.objects.filter(user__username='test', title__name__icontains='jedi'))
+
+# create_rating_duplicat()
 # t = GetTitleMixin()
 # u = GetUserMixin()
 # t.url_kwarg = 'user_pk'
@@ -82,8 +92,8 @@ def clean_models():
 # print(t.instance)
 # print(t.title)
 
-c = CurrentlyWatchingTV.objects.all()
-print(c.delete())
+# c = CurrentlyWatchingTV.objects.all()
+# print(c.delete())
 # print(Title.objects.all().first().pk)
 
 

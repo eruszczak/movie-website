@@ -77,7 +77,7 @@
           </div>
           <div class="statistic">
             <div class="value">
-              {{ total_followers }}
+              {{ user.total_followers }}
             </div>
             <div class="label">
               Followers
@@ -155,10 +155,18 @@
                   </div>
                   <div class="statistic">
                     <div class="value">
+                      {{ comparision.percentage }}%
+                    </div>
+                    <div class="label">
+                      Of his titles you saw
+                    </div>
+                  </div>
+                  <div class="statistic">
+                    <div class="value">
                       {{ comparision.averages.user }}
                     </div>
                     <div class="label">
-                      Average score
+                      He Rated them
                     </div>
                   </div>
                   <div class="statistic">
@@ -166,15 +174,7 @@
                       {{ comparision.averages.request_user }}
                     </div>
                     <div class="label">
-                      Your average score
-                    </div>
-                  </div>
-                  <div class="statistic">
-                    <div class="value">
-                      {{ comparision.percentage }}%
-                    </div>
-                    <div class="label">
-                      Of his titles you saw
+                      You rated them
                     </div>
                   </div>
                 </div>

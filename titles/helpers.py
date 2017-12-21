@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.db.models import Subquery, IntegerField
 
 
 def tmdb_image(func):
@@ -29,3 +30,9 @@ def instance_required(func):
         return func(self, request, *args, **kwargs)
 
     return func_wrapper
+
+
+class SubqueryCount(Subquery):
+    """https://stackoverflow.com/a/47371514"""
+    template = "(SELECT count(*) FROM (%(subquery)s) _count)"
+    output_field = IntegerField()

@@ -1,12 +1,11 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Case, When, IntegerField, OuterRef, Subquery, F, Avg, Exists
+from django.db.models import Count, OuterRef, Subquery, F, Avg, Exists
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, UpdateView, DetailView
 
 from titles.constants import SERIES, MOVIE
+from titles.helpers import SubqueryCount
 from titles.models import Title, Rating
 from accounts.models import UserFollow
 from accounts.forms import UserUpdateForm
@@ -128,21 +127,30 @@ class UserListView(ListView):
 class UserDetailView(DetailView):
     model = User
     template_name = 'accounts/user_detail.html'
+    limit = 15
 
-    def get_object(self, queryset=None):
-        queryset = self.model.objects.filter(username=self.kwargs['username']).annotate(
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(username=self.kwargs['username']).annotate(
+            total_movies=SubqueryCount(
+                Rating.objects.filter(title__type=MOVIE, user=OuterRef('pk')).order_by().distinct('title')
+            ),
+            total_series=SubqueryCount(
+                Rating.objects.filter(title__type=SERIES, user=OuterRef('pk')).order_by().distinct('title')
+            ),
+            total_followers=SubqueryCount(
+                UserFollow.objects.filter(followed=OuterRef('pk'))
+            ),
             total_ratings=Count('rating'),
-            total_movies=Count(Case(When(rating__title__type=MOVIE, then=1), output_field=IntegerField())),  # distinct
-            total_series=Count(Case(When(rating__title__type=SERIES, then=1), output_field=IntegerField())),  # distinct
-            # total_followers=Count(Case(When(userfollow__followed__pk=F('pk'), then=1), output_field=IntegerField())),
-
         )
+
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
                 already_follows=Exists(UserFollow.objects.filter(follower=self.request.user, followed=OuterRef('pk')))
             )
+        return queryset
 
-        return queryset.get()
+    def get_object(self, queryset=None):
+        return self.get_queryset().get()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -178,15 +186,14 @@ class UserDetailView(DetailView):
                 'comparision': self.get_ratings_comparision()
             })
 
-        followed = UserFollow.objects.filter(follower=self.object).values_list('followed', flat=True)
         context.update({
             'is_other_user': is_other_user,
             'is_owner': is_owner,
-            'rating_list': ratings,
-            'total_followers': UserFollow.objects.filter(followed=self.object).count(),
-            'total_followed': len(followed),
-            'currently_watching': currently_watching,
-            'feed': Rating.objects.filter(user__in=followed).select_related('title', 'user').order_by('-rate_date')[:10]
+            'rating_list': ratings[:self.limit],
+            'currently_watching': currently_watching[:self.limit],
+            'feed': Rating.objects.filter(
+                user__in=UserFollow.objects.filter(follower=self.object).values_list('followed', flat=True)
+            ).select_related('title', 'user').order_by('-rate_date')[:self.limit]
         })
         return context
 
@@ -207,6 +214,7 @@ class UserDetailView(DetailView):
                 ).order_by('-rate_date').values('rate')[:1]
             )
         )
+
         common_titles_length = common_titles.count()
         if common_titles_length:
             titles_user_rate_higher = common_titles.filter(user_rate__gt=F('request_user_rate'))
@@ -221,16 +229,16 @@ class UserDetailView(DetailView):
                 )
             )
 
-            averages = common_titles.aggregate(user=Avg('user_rate'), request_user=Avg('request_user_rate'))
-
+            distinct_titles_count = self.object.total_movies + self.object.total_series
             return {
                 'common_titles_length': common_titles_length,
-                'titles_user_rate_higher': titles_user_rate_higher,
-                'titles_user_rate_lower': titles_user_rate_lower,
-                'titles_rated_the_same': titles_rated_the_same,
-                'averages': averages,
-                'percentage': round((common_titles_length / self.object.count_titles) * 100, 2),
-                'titles_user_liked': titles_user_liked
+                'averages': common_titles.aggregate(user=Avg('user_rate'), request_user=Avg('request_user_rate')),
+                'percentage': round((common_titles_length / distinct_titles_count) * 100, 2),
+
+                'titles_user_rate_higher': titles_user_rate_higher[:self.limit],
+                'titles_user_rate_lower': titles_user_rate_lower[:self.limit],
+                'titles_rated_the_same': titles_rated_the_same[:self.limit],
+                'titles_user_liked': titles_user_liked[:self.limit]
             }
 
 
