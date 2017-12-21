@@ -7,13 +7,8 @@ $(document).ready(function() {
         });
 
         $slickCarousel.slick({
-          // 'centerMode': true,
           'dots': true,
           lazyLoad: 'ondemand',
-          // 'dotsClass': '',
-          // 'mobileFirst': true,
-          // 'respondTo': 'slider'  // window, slider min,
-          // 'responsive': ''
         }).on('beforeChange', function(event, slick, currentSlide, nextSlide) {
             $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
             // $('.slick-slide.slick-current.slick-active').find('.still-background').first().css('visibility', 'visible');
@@ -51,10 +46,6 @@ $(document).ready(function() {
                         // dots: true
                     }
                 },
-                // {
-                //     breakpoint: 300,
-                //     settings: "unslick" // destroys slick
-                // }
             ]
         }).on('beforeChange', function(event, slick, currentSlide, nextSlide) {
             $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
