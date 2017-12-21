@@ -1,9 +1,9 @@
 import django
 import os
-
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
+from django.db.models import Q, Subquery, OuterRef
+
 import pytz
 from django.contrib.auth import get_user_model
 
@@ -96,7 +96,22 @@ def create_rating_duplicat():
 # print(c.delete())
 # print(Title.objects.all().first().pk)
 
+# p = Person.objects.all().first()
+# query = Title.objects.filter(
+#     Q(casttitle__person=p) | Q(crewtitle__person=p)
+# ).order_by('-release_date')
+# print(p)
+# print(query)
 
+query = Title.objects.filter(
+    Q(casttitle__person=OuterRef('pk')) | Q(crewtitle__person=OuterRef('pk'))
+).order_by('-release_date')
+qs = Person.objects.all().annotate(
+    test=Subquery(query.values('pk')[:1])
+)
+print(qs)
+for q in qs:
+    print(q)
 
 # Title.objects.all().delete()
 # clean_models()

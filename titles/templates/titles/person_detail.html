@@ -4,19 +4,27 @@
 
 {% block image %}
 {#    {% include 'titles/includes/title_background.html' with title=title %}#}
+    <div class="still-background2 still-background2-gradient">
+        {% with title=latest_title %}
+            {% if not title %}
+                <!-- Background pattern from Subtle Patterns -->
+                <div class="backdrop" style="background-image: url({% static 'img/intersection.png' %});background-repeat: repeat-x;"></div>
+            {% else %}
+                <img class="backdrop" src="{{ title.poster_backdrop_user }}">
+            {% endif %}
+            <div class="ui grid centered">
+                <div class="user-background">
+                    <div class="card-user card-user-01 height-fix">
+                        <img class="card-img-top" src="{{ person.picture }}" alt="Card image cap">
+                    </div>
+                    <div class="ui tiny user-title message">{{ person.name }}</div>
+                </div>
+            </div>
+        {% endwith %}
+    </div>
 {% endblock %}
 
 {% block content %}
-    <div class="ui centered grid">
-        <div class="ui segment hide-border">
-            <h1 class="ui dividing header">{{ person.name }}</h1>
-            <div class="row">
-                <img class="ui centered bordered image" src="{{ person.picture }}">
-            </div>
-        </div>
-    </div>
-
-    <div class="ui hidden divider"></div>
     <div class="ui segment">
         <span class="ui blue ribbon label">Cast</span>
         <div class="ui list">
