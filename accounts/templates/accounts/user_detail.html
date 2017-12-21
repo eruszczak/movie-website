@@ -291,8 +291,8 @@
         </div>
       </div>
       <div class="actions">
-        <div class="ui actions cancel button">Cancel</div>
-        <div class="ui actions positive button" data-pk="{{ user.pk }}">Export</div>
+        <div class="ui cancel button">Cancel</div>
+        <div class="ui positive button" data-pk="{{ user.pk }}">Export</div>
       </div>
     </div>
 
@@ -307,8 +307,23 @@
         </div>
       </div>
       <div class="actions">
-        <div class="ui actions cancel button">Cancel</div>
-        <div class="ui actions positive button" data-pk="{{ user.pk }}">Import</div>
+        <div class="ui cancel button">Cancel</div>
+        <div class="ui positive button" data-pk="{{ user.pk }}">Import</div>
+      </div>
+    </div>
+
+    <div class="ui second tiny modal">
+      <i class="close icon"></i>
+      <div class="header">
+        Result
+      </div>
+      <div class="content">
+        <div class="description">
+          result
+        </div>
+      </div>
+      <div class="actions">
+        <div class="ui approve button" data-pk="{{ user.pk }}"><i class="checkmark icon"></i> All done</div>
       </div>
     </div>
 {% endblock %}

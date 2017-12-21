@@ -130,19 +130,23 @@ var currentlyWatchingSettings = $.extend(true, {
     }
 }, API_SETTINGS_BASE);
 
-var exportRatingsSettings = $.extend(true, {
-    action: 'export ratings',
+
+var EXPORT_IMPORT_BASE_SETTINGS = $.extend(true, {
     onSuccess: function(response) {
-        showToast(response.message);
+        setModalContentAndShow($('.second.modal'), response);
+    },
+    onError: function(errorMessage, element, xhr) {
+        showToast(xhr.responseJSON.message || 'There was an error', {type: 'error'})
     }
 }, API_SETTINGS_BASE);
 
+var exportRatingsSettings = $.extend(true, {
+    action: 'export ratings'
+}, EXPORT_IMPORT_BASE_SETTINGS);
+
 var importRatingsSettings = $.extend(true, {
-    action: 'import ratings',
-    onSuccess: function(response) {
-        showToast(response.message);
-    }
-}, API_SETTINGS_BASE);
+    action: 'import ratings'
+}, EXPORT_IMPORT_BASE_SETTINGS);
 
 $('.title-fav').api(titleFavSettings);
 $('.title-watch').api(titleWatchSetttings);
