@@ -134,36 +134,20 @@
         <div class="ui segment">
           <span class="ui blue ribbon label">Currently watching</span>
             <div class="ui list">
-                <div class="slick-carousel-small">
-                    {% for title in currently_watching %}
-                        <div>
-                            {% include 'titles/includes/title_small_slick.html' with slick=True rate=title.user_rate rate2=title.request_user_rate is_owner=is_owner %}
-                        </div>
-                    {% empty %}
-                        <p>Nothing found</p>
-                    {% endfor %}
-                </div>
+                {% include 'titles/includes/slick_titles_from_title.html' with queryset=currently_watching %}
             </div>
         </div>
         <div class="ui segment">
           <span class="ui blue ribbon label">Activity</span>
             <span>{{ user.username }}'s latest ratings</span>
             <div class="ui list">
-                <div class="slick-carousel-small">
-                    {% for rating in rating_list %}
-                        <div>
-                            {% include 'titles/includes/title_small_slick.html' with slick=True title=rating.title rate_date=rating.rate_date rate=rating.rate rate2=rating.request_user_rate is_owner=is_owner %}
-                        </div>
-                    {% empty %}
-                        <p>Nothing found</p>
-                    {% endfor %}
-                </div>
-                {% if not rating_list %}
-                    <p>Nothing found</p>
-                {% else %}
-                    <div class="ui hidden divider"></div>
-                    <p><a href="{{ user.ratings_url }}" class="ui label">See all</a></p>
-                {% endif %}
+                {% include 'titles/includes/slick_titles_from_rating.html' with queryset=rating_list %}
+{#                {% if not rating_list %}#}
+{#                    <p>Nothing found</p>#}
+{#                {% else %}#}
+{#                    <div class="ui hidden divider"></div>#}
+{#                    <p><a href="{{ user.ratings_url }}" class="ui label">See all</a></p>#}
+{#                {% endif %}#}
             </div>
         </div>
         <div class="ui segment">
@@ -229,52 +213,32 @@
                   <span class="ui teal ribbon label">Lower</span>
                     <span>{{ user.username }} rated lower</span>
                     <div class="ui list">
-                        {% for title in comparision.titles_user_rate_lower %}
-                            {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
-                        {% endfor %}
-                        {% if not comparision.titles_user_rate_lower %}
-                            <p>Nothing found</p>
-                        {% endif %}
+                        {% include 'titles/includes/slick_titles_from_title.html' with queryset=comparision.titles_user_rate_lower %}
                     </div>
                 </div>
                 <div class="ui segment">
                   <span class="ui teal ribbon label">Higher</span>
                     <span>{{ user.username }} rated higher</span>
                     <div class="ui list">
-                        {% for title in comparision.titles_user_rate_higher %}
-                            {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
-                        {% endfor %}
-                        {% if not comparision.titles_user_rate_higher %}
-                            <p>Nothing found</p>
-                        {% endif %}
+                        {% include 'titles/includes/slick_titles_from_title.html' with queryset=comparision.titles_user_rate_higher %}
                     </div>
                 </div>
                 <div class="ui segment">
                   <span class="ui teal ribbon label">The same</span>
                     <span>{{ user.username }} rated the same</span>
                     <div class="ui list">
-                        {% for title in comparision.titles_rated_the_same %}
-                            {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate %}
-                        {% endfor %}
-                        {% if not comparision.titles_rated_the_same %}
-                            <p>Nothing found</p>
-                        {% endif %}
+                        {% include 'titles/includes/slick_titles_from_title.html' with queryset=comparision.titles_rated_the_same %}
                     </div>
                 </div>
                 <div class="ui segment">
                   <span class="ui teal ribbon label">You need to see</span>
                     <span>{{ user.username }} liked that you haven't seen</span>
                     <div class="ui list">
-                        {% for title in comparision.titles_user_liked %}
-                            {% include 'titles/title_small.html' with title=title rate=title.user_rate %}
-                        {% endfor %}
-                        {% if not comparision.titles_user_liked %}
-                            <p>Nothing found</p>
-                        {% endif %}
+                        {% include 'titles/includes/slick_titles_from_title.html' with queryset=comparision.titles_user_liked %}
                     </div>
                 </div>
             {% else %}
-                <p>{{ user.username }} has no ratings</p>
+                <p>You and {{ user.username }} have no common rated titles</p>
             {% endif %}
         </div>
     {% endif %}

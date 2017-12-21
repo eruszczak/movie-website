@@ -11,7 +11,7 @@
         </a>
     {% endif %}
     <a href="{{ title.get_absolute_url }}">
-        <img {% if slick %}src="{% static 'img/intersection_w185.png' %}" data-lazy{% else %}src{% endif %}="{{ title.poster_small }}">
+        <img {% if lazy %}src="{% static 'img/intersection_w185.png' %}" data-lazy{% else %}src{% endif %}="{{ title.poster_small }}">
     </a>
     <small>{{ title.name }}</small>
 </div>

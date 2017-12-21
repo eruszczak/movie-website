@@ -1,0 +1,9 @@
+<div class="slick-carousel-small">
+    {% for rating in queryset %}
+        <div>
+            {% include 'titles/includes/title_small_slick.html' with lazy=True title=rating.title rate_date=rating.rate_date rate=rating.rate rate2=rating.request_user_rate is_owner=is_owner %}
+        </div>
+    {% empty %}
+        <p>Nothing found</p>
+    {% endfor %}
+</div>
