@@ -16,6 +16,7 @@ from lists.models import Favourite
 from titles.forms import TitleSearchForm
 from titles.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist, \
     recommend_title, follow_user, toggle_currently_watched_title
+from titles.helpers import instance_required
 from titles.models import Rating, Title, Person
 from .serializers import RatingListSerializer, TitleSerializer, PersonSerializer
 
@@ -47,11 +48,8 @@ class TitleDetailView(RetrieveAPIView):
 
 class AddRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
+    @instance_required
     def post(self, request, *args, **kwargs):
-        message = self.set_instance(**kwargs)
-        if message:
-            return message
-
         new_rating = request.POST.get('rating')
         insert_as_new = False  # request.POST.get('insert_as_new', False)
         message = create_or_update_rating(self.title, request.user, new_rating, insert_as_new)
@@ -64,44 +62,32 @@ class TitleDeleteRatingView(APIView):
 
 class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
 
+    @instance_required
     def post(self, request, *args, **kwargs):
-        message = self.set_instance(**kwargs)
-        if message:
-            return message
-
         message = toggle_title_in_favourites(request.user, self.title, self.toggle_active)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
 class ToggleWatchlistAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
 
+    @instance_required
     def post(self, request, *args, **kwargs):
-        message = self.set_instance(**kwargs)
-        if message:
-            return message
-
         message = toggle_title_in_watchlist(request.user, self.title, self.toggle_active)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
 class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
 
+    @instance_required
     def post(self, request, *args, **kwargs):
-        message = self.set_instance(**kwargs)
-        if message:
-            return message
-
         message = toggle_currently_watched_title(self.title, self.request.user, self.toggle_active)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
 class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPIView, GetUserMixin, APIView):
 
+    @instance_required
     def post(self, request, *args, **kwargs):
-        message = self.set_instance(**kwargs)
-        if message:
-            return message
-
         message = follow_user(self.request.user, self.user, self.toggle_active)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
@@ -122,11 +108,8 @@ class ReorderFavourite(IsAuthenticatedMixin, GetUserMixin, APIView):
 
 class RecommendTitleAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
+    @instance_required
     def post(self, request, *args, **kwargs):
-        message = self.set_instance(**kwargs)
-        if message:
-            return message
-
         user_ids = request.POST.getlist('recommended_user_ids[]')
         message = ''
         if user_ids:
