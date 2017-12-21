@@ -169,7 +169,6 @@ class TitleDetailView(DetailView):
 
         if self.request.user.is_authenticated:
             context.update({
-                # 'rating': Rating.objects.filter(user=self.request.user, title=self.object).latest('rate_date'),
                 'user_ratings_of_title': Rating.objects.filter(user=self.request.user, title=self.object),
                 'is_favourite_for_user': Favourite.objects.filter(user=self.request.user, title=self.object).exists(),
                 'is_in_user_watchlist': Watchlist.objects.filter(
@@ -177,7 +176,6 @@ class TitleDetailView(DetailView):
                 'followed_title_not_recommended': UserFollow.objects.filter(follower=self.request.user).exclude(
                     Q(followed__rating__title=self.object) | Q(followed__recommendation__title=self.object)
                 ).select_related('followed'),
-                # 'recommend_form': self.recommend_form_class(self.request.user, self.object),
                 'followed_saw_title': UserFollow.objects.filter(
                     follower=self.request.user, followed__rating__title=self.object).annotate(
                     user_rate=Subquery(
@@ -214,28 +212,6 @@ class TitleDetailView(DetailView):
             'crew_list': CrewTitle.objects.filter(title=self.object).select_related('person'),
         })
         return context
-
-    # @method_decorator(login_required)
-    # def post(self, request, *args, **kwargs):
-    #     self.object = self.get_object()
-    #     # self.delete_rating()
-    #     return redirect(self.object)
-
-    # def delete_rating(self):
-    #     delete_rating = self.request.POST.get('delete_rating')
-    #     rating_pk = self.request.POST.get('rating_pk')
-    #     if delete_rating and rating_pk:
-    #         to_delete = Rating.objects.filter(pk=rating_pk, user=self.request.user).first()
-    #         query = {
-    #                 'user': self.request.user,
-    #                 'title': self.object,
-    #                 'added_date__date__lte': to_delete.rate_date,
-    #                 'deleted': True
-    #         }
-    #         in_watchlist = Watchlist.objects.filter(**query).first()
-    #         if in_watchlist:
-    #             toggle_title_in_watchlist(watch=True, instance=in_watchlist)
-    #         to_delete.delete()
 
 
 class RatingUpdateView(UpdateView):
