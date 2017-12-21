@@ -30,10 +30,14 @@ $('.grid .backdrop-card img').visibility({
 
 $('.ui.accordion').accordion();
 
-$('.export-ratings').click(function() {
-    $('.export.tiny.modal').modal('show');
-});
+$('.export.tiny.modal').modal({
+    onApprove : function() {
+      console.log('export - Approved!');
+    }
+}).modal('attach events', '.export-ratings.button', 'show');
 
-$('.import-ratings').click(function() {
-    $('.import.tiny.modal').modal('show');
-});
+$('.import.tiny.modal').modal({
+    onApprove : function() {
+      console.log('import - Approved!');
+    }
+}).modal('attach events', '.import-ratings.button', 'show');
