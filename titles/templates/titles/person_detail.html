@@ -28,12 +28,12 @@
     <div class="ui segment">
         <span class="ui blue ribbon label">Cast</span>
         <div class="ui list">
-            {% for cast in person.casttitle_set.all %}
+            {% for cast in casttitle_list %}
                   <div class="item">
                     <img class="ui mini image" src="{{ cast.title.poster_small }}">
                     <div class="content">
                       <p class="header">{{ cast.character }}</p>
-                        <div class="description"><a href="{{ cast.title.get_absolute_url }}">{{ cast.title.name }} ({{ cast.title.year }})</a></div>
+                        <div class="description"><a href="{{ cast.title.get_absolute_url }}">{{ cast.title.name }} ({{ cast.title.year }})</a>{% if cast.request_user_rate %} {{ cast.request_user_rate }}<i class="icon star yellow"></i>{% endif %}</div>
                     </div>
                   </div>
             {% endfor %}
@@ -43,12 +43,12 @@
     <div class="ui segment">
       <span class="ui blue ribbon label">Crew</span>
         <div class="ui list">
-            {% for crew in person.crewtitle_set.all %}
+            {% for crew in crewtitle_list %}
                   <div class="item">
                     <img class="ui mini image" src="{{ crew.title.poster_small }}">
                     <div class="content">
                       <p class="header">{{ crew.get_job_display }}</p>
-                        <div class="description"><a href="{{ crew.title.get_absolute_url }}">{{ crew.title.name }} ({{ crew.title.year }})</a></div>
+                        <div class="description"><a href="{{ crew.title.get_absolute_url }}">{{ crew.title.name }} ({{ crew.title.year }})</a>{% if crew.request_user_rate %} {{ crew.request_user_rate }}<i class="icon star yellow"></i>{% endif %}</div>
                     </div>
                   </div>
             {% endfor %}
