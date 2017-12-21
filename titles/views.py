@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count, When, Case, IntegerField, Subquery, Q, Avg, Exists
+from django.db.models import Count, When, Case, IntegerField, Subquery, Q, Avg
 from django.db.models import OuterRef
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -8,7 +8,6 @@ from django.views.generic import DetailView, TemplateView, RedirectView, ListVie
 from accounts.models import UserFollow
 from lists.models import Watchlist, Favourite
 from shared.views import SearchViewMixin
-from titles.constants import TITLE_TYPE_CHOICES
 from titles.forms import TitleSearchForm, RateUpdateForm
 from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPlaying, Upcoming, CurrentlyWatchingTV
 
@@ -234,9 +233,10 @@ class PersonDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['latest_title'] = Title.objects.filter(
+        person_titles = Title.objects.filter(
             Q(casttitle__person=self.object) | Q(crewtitle__person=self.object)
-        ).latest('release_date')
+        )
+        context['latest_title'] = person_titles.latest('release_date')
 
         casttitle_list = CastTitle.objects.filter(person=self.object).select_related('title')
         crewtitle_list = CrewTitle.objects.filter(person=self.object).select_related('title')
@@ -251,7 +251,13 @@ class PersonDetailView(DetailView):
             casttitle_list = casttitle_list.annotate(**latest_rate)
             crewtitle_list = crewtitle_list.annotate(**latest_rate)
 
+            aggregation_cast = casttitle_list.aggregate(avg=Avg('request_user_rate'), count=Count('pk'))
+            aggregation_crew = crewtitle_list.aggregate(avg=Avg('request_user_rate'), count=Count('pk'))
+            avg_sum = (aggregation_cast['avg'] or 0) + (aggregation_crew['avg'] or 0)
+            context['avg'] = avg_sum / 2
+
         context.update({
+            'person_titles_count': person_titles.count(),
             'casttitle_list': casttitle_list,
             'crewtitle_list': crewtitle_list
         })
