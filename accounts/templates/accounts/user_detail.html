@@ -124,7 +124,7 @@
             <span>{{ user.username }}'s latest ratings</span>
             <div class="ui list">
                 {% for rating in rating_list %}
-                    {% include 'titles/title_small.html' with title=rating.title rate_date=rating.rate_date rate=rating.rate %}
+                    {% include 'titles/title_small.html' with title=rating.title rate_date=rating.rate_date rate=rating.rate rate2=rating.request_user_rate is_owner=is_owner %}
                 {% endfor %}
                 {% if not rating_list %}
                     <p>No ratings found</p>
