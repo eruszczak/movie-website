@@ -7,6 +7,12 @@ function showErrorToastOrRedirectToLoginWithNext(xhr) {
     }
 }
 
+function setModalContentAndShow($modal, response) {
+    $modal.find('.header').text(response.title);
+    $modal.find('.description').text(response.message);
+    $modal.modal('show');
+}
+
 var TOKEN = getCookie('csrftoken');
 
 function showToast(message, options) {

@@ -151,7 +151,7 @@ class ExportRatingsAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
         message = 'export'
-        return Response({'message': message}, status=status.HTTP_200_OK)
+        return Response({'message': message, 'title': 'Export'}, status=status.HTTP_200_OK)
         # todo: this must create file in celery. then user be notified when he can download the file
 
         # """
@@ -175,7 +175,7 @@ class ImportRatingsAPIView(IsAuthenticatedMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         message = 'import'
-        return Response({'message': message}, status=status.HTTP_200_OK)
+        return Response({'message': message, 'title': 'Import'}, status=status.HTTP_200_OK)
         # """
         # from exported csv file import missing ratings. it doesn't add new titles, only new ratings
         # file consists of lines in format: tt1234567,2017-05-23,7
