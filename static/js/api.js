@@ -134,22 +134,16 @@ var currentlyWatchingSettings = $.extend({
 var EXPORT_IMPORT_BASE_SETTINGS = $.extend({
     onSuccess: function(response) {
         setModalContentAndShow($('.second.modal'), response);
-    },
-    onError: function(errorMessage, element, xhr) {
-        showXHRErrorToast(xhr);
     }
-//    TODO: problem - API_SETTINGS_BASE's onError must be overriden by this onError
 }, API_SETTINGS_BASE);
 
-
-var exportRatingsSettings = $.extend(true, {
+var exportRatingsSettings = $.extend({
     action: 'export ratings'
 }, EXPORT_IMPORT_BASE_SETTINGS);
 
-var importRatingsSettings = $.extend(true, {
+var importRatingsSettings = $.extend({
     action: 'import ratings'
 }, EXPORT_IMPORT_BASE_SETTINGS);
-
 
 
 $('.title-fav').api(titleFavSettings);
