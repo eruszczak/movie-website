@@ -43,6 +43,7 @@ class RatingsViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
 class TitleDetailView(RetrieveAPIView):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
+    # todo: slug is wrong
     lookup_field = 'slug'
 
 

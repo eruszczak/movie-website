@@ -251,6 +251,14 @@ body {
     max-width: 200px;
 }
 
+.ui.message.user-title.owner {
+    background: #efb2029c;
+}
+
+.ui.message.user-title.other-user {
+    background: #f8f8f9a8;
+}
+
 .ui.label > a.see-more {
     color: black;
 }
