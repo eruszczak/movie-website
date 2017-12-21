@@ -128,19 +128,6 @@ class UserListView(ListView):
 class UserDetailView(DetailView):
     model = User
     template_name = 'accounts/user_detail.html'
-    # titles_in_a_row = 6
-    is_owner = False
-    common = None
-    is_other_user = False
-    user = None
-    object = None
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.is_owner = self.object.pk == self.request.user.pk
-        self.is_other_user = self.request.user.is_authenticated and not self.is_owner
-        context = self.get_context_data(object=self.object)
-        return self.render_to_response(context)
 
     def get_object(self, queryset=None):
         queryset = self.model.objects.filter(username=self.kwargs['username']).annotate(
@@ -159,6 +146,9 @@ class UserDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        is_owner = self.object.pk == self.request.user.pk
+        is_other_user = self.request.user.is_authenticated and not is_owner
+
         ratings = Rating.objects.filter(user=self.object).select_related('title')
         # todo: this select still works?, see if all ratings are showed (not unique titles)
 
@@ -171,8 +161,7 @@ class UserDetailView(DetailView):
                 )
             )
 
-        if self.is_other_user:
-
+        if is_other_user:
             context.update({
                 'already_follows': UserFollow.objects.filter(follower=self.request.user, followed=self.object).exists(),
                 'comparision': self.get_ratings_comparision()
@@ -180,8 +169,8 @@ class UserDetailView(DetailView):
 
         followed = UserFollow.objects.filter(follower=self.object).values_list('followed', flat=True)
         context.update({
-            'is_other_user': self.is_other_user,
-            'is_owner': self.is_owner,
+            'is_other_user': is_other_user,
+            'is_owner': is_owner,
             'rating_list': ratings,
             'total_followers': UserFollow.objects.filter(followed=self.object).count(),
             'total_followed': len(followed),
