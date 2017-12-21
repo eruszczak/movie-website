@@ -69,7 +69,7 @@ var API_SETTINGS_BASE = {
     }
 };
 
-var titleFavSettings = $.extend(true, {
+var titleFavSettings = $.extend({
     action: 'favourite title',
     beforeSend: function(settings) {
       settings.data.rating = $(this).hasClass('active') ? 0: 1;
@@ -81,7 +81,7 @@ var titleFavSettings = $.extend(true, {
     }
 }, API_SETTINGS_BASE);
 
-var titleWatchSetttings = $.extend(true, {
+var titleWatchSetttings = $.extend({
     action: 'watchlist title',
     beforeSend: function(settings) {
       settings.data.rating = $(this).hasClass('active') ? 0: 1;
@@ -93,7 +93,7 @@ var titleWatchSetttings = $.extend(true, {
     }
 }, API_SETTINGS_BASE);
 
-var recommendSettings = $.extend(true, {
+var recommendSettings = $.extend({
     action: 'recommend title',
     beforeSend: function(settings) {
       settings.data.recommended_user_ids = $('[name="recommended_user_ids"]').val().split(',');
@@ -107,7 +107,7 @@ var recommendSettings = $.extend(true, {
     }
 }, API_SETTINGS_BASE);
 
-var followSettings = $.extend(true, {
+var followSettings = $.extend({
     action: 'follow user',
     beforeSend: function(settings) {
       settings.data.rating = $(this).hasClass('active') ? 0: 1;
@@ -118,7 +118,7 @@ var followSettings = $.extend(true, {
     }
 }, API_SETTINGS_BASE);
 
-var currentlyWatchingSettings = $.extend(true, {
+var currentlyWatchingSettings = $.extend({
     action: 'currently watching',
     beforeSend: function(settings) {
       settings.data.rating = $(this).hasClass('active') ? 0: 1;
@@ -131,14 +131,16 @@ var currentlyWatchingSettings = $.extend(true, {
 }, API_SETTINGS_BASE);
 
 
-var EXPORT_IMPORT_BASE_SETTINGS = $.extend(true, {
+var EXPORT_IMPORT_BASE_SETTINGS = $.extend({
     onSuccess: function(response) {
         setModalContentAndShow($('.second.modal'), response);
     },
     onError: function(errorMessage, element, xhr) {
-        showToast(xhr.responseJSON.message || 'There was an error', {type: 'error'})
+        showXHRErrorToast(xhr);
     }
+//    TODO: problem - API_SETTINGS_BASE's onError must be overriden by this onError
 }, API_SETTINGS_BASE);
+
 
 var exportRatingsSettings = $.extend(true, {
     action: 'export ratings'
@@ -147,6 +149,8 @@ var exportRatingsSettings = $.extend(true, {
 var importRatingsSettings = $.extend(true, {
     action: 'import ratings'
 }, EXPORT_IMPORT_BASE_SETTINGS);
+
+
 
 $('.title-fav').api(titleFavSettings);
 $('.title-watch').api(titleWatchSetttings);
