@@ -22,11 +22,13 @@
 {#            <input id="confirm-nick" name="confirm-nick" hidden>#}
 {#            <button id="clear_ratings" type="submit" class="btn btn-xs btn-success" data-toggle="tooltip" title="You cannot revert this operation. You will lose all of you ratings if you haven't exported them first.">clear my ratings</button>#}
 {#        </form>#}
-{#        <a id="import_ratings" href="{% url 'import-ratings' user.username %}" style="margin-right:10px" data-toggle="tooltip" title="You can add ratings from exported file."><button class="btn btn-xs btn-success">import</button></a>#}
 
     <br>
     <button class="ui primary export-ratings basic button">Export</button>
-    <button class="ui primary import-ratings basic button">Import</button>
+    {% if is_owner %}
+        <button class="ui primary import-ratings basic button">Import</button>
+    {% endif %}
+    <br>
 
     <div class="ui export tiny modal">
       <i class="close icon"></i>
@@ -39,8 +41,8 @@
         </div>
       </div>
       <div class="actions">
-        <div class="ui button">Cancel</div>
-        <div class="ui green button">Export</div>
+        <div class="ui actions negative close button">Cancel</div>
+        <div class="ui actions positive button">Export</div>
       </div>
     </div>
 
@@ -55,8 +57,8 @@
         </div>
       </div>
       <div class="actions">
-        <div class="ui button">Cancel</div>
-        <div class="ui green button">Import</div>
+        <div class="ui actions negative close button">Cancel</div>
+        <div class="ui actions positive button">Import</div>
       </div>
     </div>
 
