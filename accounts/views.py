@@ -159,15 +159,20 @@ class UserDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if not self.is_other_user:
-            ratings = Rating.objects.filter(user=self.object).select_related('title')
-        else:
-            ratings = Rating.objects.filter(user=self.object).annotate(
-                user_rate=Subquery(
+        ratings = Rating.objects.filter(user=self.object).select_related('title')
+        # todo: this select still works?, see if all ratings are showed (not unique titles)
+
+        if self.request.user.is_authenticated:
+            ratings = ratings.annotate(
+                request_user_rate=Subquery(
                     Rating.objects.filter(
                         user=self.request.user, title=OuterRef('title')
-                    ).order_by('-rate_date').values('rate')[:1])
-            ).select_related('title')
+                    ).order_by('-rate_date').values('rate')[:1]
+                )
+            )
+
+        if self.is_other_user:
+
             context.update({
                 'already_follows': UserFollow.objects.filter(follower=self.request.user, followed=self.object).exists(),
                 'comparision': self.get_ratings_comparision()

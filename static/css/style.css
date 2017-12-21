@@ -252,11 +252,11 @@ body {
 }
 
 .ui.message.user-title.owner {
-    background: #efb2029c;
+    background: #fbbd08;
 }
 
 .ui.message.user-title.other-user {
-    background: #f8f8f9a8;
+    background: #21ba45;
 }
 
 .ui.label > a.see-more {
