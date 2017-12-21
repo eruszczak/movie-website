@@ -150,7 +150,11 @@ class UserDetailView(DetailView):
         is_other_user = self.request.user.is_authenticated and not is_owner
 
         ratings = Rating.objects.filter(user=self.object).select_related('title')
-        # todo: this select still works?, see if all ratings are showed (not unique titles)
+        currently_watching = Title.objects.filter(currentlywatchingtv__user=self.object).annotate(
+            user_rate=Subquery(
+                Rating.objects.filter(user=self.object, title=OuterRef('pk')).order_by('-rate_date').values('rate')[:1]
+            )
+        )
 
         if self.request.user.is_authenticated:
             ratings = ratings.annotate(
@@ -160,6 +164,14 @@ class UserDetailView(DetailView):
                     ).order_by('-rate_date').values('rate')[:1]
                 )
             )
+            currently_watching = currently_watching.annotate(
+                request_user_rate=Subquery(
+                    Rating.objects.filter(
+                        user=self.request.user, title=OuterRef('pk')
+                    ).order_by('-rate_date').values('rate')[:1]
+                )
+            )
+
 
         if is_other_user:
             context.update({
@@ -174,7 +186,7 @@ class UserDetailView(DetailView):
             'rating_list': ratings,
             'total_followers': UserFollow.objects.filter(followed=self.object).count(),
             'total_followed': len(followed),
-            'currently_watching': Title.objects.filter(currentlywatchingtv__user=self.object),
+            'currently_watching': currently_watching,
             'feed': Rating.objects.filter(user__in=followed).select_related('title', 'user').order_by('-rate_date')[:10]
         })
         return context

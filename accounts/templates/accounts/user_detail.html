@@ -88,7 +88,7 @@
           <span class="ui blue ribbon label">Currently watching</span>
             <div class="ui list">
                 {% for title in currently_watching %}
-                    {% include 'titles/title_small.html' with title=title %}
+                    {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate is_owner=is_owner %}
                 {% empty %}
                     <p>Nothing found</p>
                 {% endfor %}
