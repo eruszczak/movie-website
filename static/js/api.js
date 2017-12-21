@@ -1,10 +1,12 @@
 $.fn.api.settings.api = {
     'search': '/api/search?keyword={query}',
     'follow user': '/api/user/{pk}/follow',
+    'import ratings': '/api/user/{pk}/import',
+    'export ratings': '/api/user/{pk}/export',
     'favourite title': '/api/title/{pk}/favourites',
     'watchlist title': '/api/title/{pk}/watchlist',
     'recommend title': '/api/title/{pk}/recommend',
-    'currently watching': '/api/tv/{pk}/watching'
+    'currently watching': '/api/tv/{pk}/watching',
 };
 
 $('.rating').rating({
