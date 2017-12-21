@@ -20,7 +20,7 @@
     <div class="ui centered grid">
         {% with user.imdb_url as imdb_url %}
             <div class="{% if imdb_url %}four{% else %}three{% endif %} columns">
-                <a class="ui label">Watchlist</a>
+                <a class="ui big label">Watchlist</a>
                 <a class="ui label">Favourites</a>
                 <a class="ui label">Recommendations? get rid of it?</a>
                 {% if imdb_url %}
@@ -35,6 +35,25 @@
     {% if user.pk != request.user.pk %}
       <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui small follow toggle button right floated{% if user.already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if user.already_follows %}Followed{% else %}Follow{% endif %}</div>
     {% endif %}
+
+<button class="circular ui icon button">
+  <i class="icon settings"></i>
+</button>
+
+<p><a href="{{ user.ratings_url }}" class="ui label">See all</a></p>
+
+<div class="four ui buttons">
+  <button class="ui button">Favourites</button>
+  <button class="ui button">Watchlist</button>
+  <button class="ui button">Recommendations</button>
+  <button class="ui button">Ratings</button>
+</div>
+
+<div class="three ui grey buttons">
+  <button class="ui button">Settings</button>
+  <button class="ui button">Update ratings</button>
+  <button class="ui button">Update watchlist</button>
+</div>
 
     <div class="ui divider hidden"></div>
     {% if is_other_user %}
