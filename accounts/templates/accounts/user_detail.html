@@ -87,22 +87,32 @@
         <div class="ui segment">
           <span class="ui blue ribbon label">Currently watching</span>
             <div class="ui list">
-                {% for title in currently_watching %}
-                    {% include 'titles/title_small.html' with title=title rate=title.user_rate rate2=title.request_user_rate is_owner=is_owner %}
-                {% empty %}
-                    <p>Nothing found</p>
-                {% endfor %}
+                <div class="slick-carousel-small">
+                    {% for title in currently_watching %}
+                        <div>
+                            {% include 'titles/includes/title_small_slick.html' with slick=True rate=title.user_rate rate2=title.request_user_rate is_owner=is_owner %}
+                        </div>
+                    {% empty %}
+                        <p>Nothing found</p>
+                    {% endfor %}
+                </div>
             </div>
         </div>
         <div class="ui segment">
           <span class="ui blue ribbon label">Activity</span>
             <span>{{ user.username }}'s latest ratings</span>
             <div class="ui list">
-                {% for rating in rating_list %}
-                    {% include 'titles/title_small.html' with title=rating.title rate_date=rating.rate_date rate=rating.rate rate2=rating.request_user_rate is_owner=is_owner %}
-                {% endfor %}
+                <div class="slick-carousel-small">
+                    {% for rating in rating_list %}
+                        <div>
+                            {% include 'titles/includes/title_small_slick.html' with slick=True title=rating.title rate_date=rating.rate_date rate=rating.rate rate2=rating.request_user_rate is_owner=is_owner %}
+                        </div>
+                    {% empty %}
+                        <p>Nothing found</p>
+                    {% endfor %}
+                </div>
                 {% if not rating_list %}
-                    <p>No ratings found</p>
+                    <p>Nothing found</p>
                 {% else %}
                     <div class="ui hidden divider"></div>
                     <p><a href="{{ user.ratings_url }}" class="ui label">See all</a></p>
@@ -123,7 +133,7 @@
                   </div>
                 {% endfor %}
                 {% if not feed %}
-                    <p>No activity found</p>
+                    <p>Nothing found</p>
                 {% endif %}
             </div>
         </div>

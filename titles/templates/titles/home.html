@@ -18,7 +18,7 @@
     <div class="ui segment">
       <span class="ui blue ribbon label">Upcoming</span>
         <div class="ui list">
-            <div class="slick-carousel-similar">
+            <div class="slick-carousel-small">
                 {% for title in upcoming %}
                     <div>
                         {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
@@ -31,7 +31,7 @@
     <div class="ui segment">
       <span class="ui blue ribbon label">Now playing</span>
         <div class="ui list">
-            <div class="slick-carousel-similar">
+            <div class="slick-carousel-small">
                 {% for title in now_playing %}
                     <div>
                         {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
@@ -44,7 +44,7 @@
     <div class="ui segment">
       <span class="ui blue ribbon label">Popular TV Shows</span>
         <div class="ui list">
-            <div class="slick-carousel-similar">
+            <div class="slick-carousel-small">
                 {% for title in popular_tv %}
                     <div>
                         {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
@@ -57,7 +57,7 @@
     <div class="ui segment">
       <span class="ui blue ribbon label">Popular people</span>
         <div class="ui list">
-            <div class="slick-carousel-similar">
+            <div class="slick-carousel-small">
                 {% for person in popular_persons %}
                     <div>
                         {% include 'titles/includes/person_small_slick.html' with slick=True person=person %}

@@ -1,6 +1,6 @@
 {% load static %}
 <div class="ui small image" type="tooltip" data-content="{{ title.name }} ({{ title.year }}){% if rate_date %} on {{ rate_date }}{% endif %}" data-variation="small">
-    {% if rate %}
+    {% if rate and not is_owner %}
         <a class="ui left corner label red green">
             <span class="icon">{{ rate }}</span>
         </a>
@@ -13,5 +13,5 @@
     <a href="{{ title.get_absolute_url }}">
         <img {% if slick %}src="{% static 'img/intersection_w185.png' %}" data-lazy{% else %}src{% endif %}="{{ title.poster_small }}">
     </a>
-    <small>{{ title.name }} ({{ title.year }})</small>
+    <small>{{ title.name }}</small>
 </div>
