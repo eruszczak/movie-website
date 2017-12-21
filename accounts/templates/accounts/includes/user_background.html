@@ -15,7 +15,7 @@
                         <img class="card-img-top" src="{{ user.avatar_url }}" alt="Card image cap">
                     </a>
                 </div>
-                <div class="ui tiny user-title message"><div class="header">{{ user.username }}{{ header_text}}</div></div>
+                <div class="ui tiny user-title message {% if request.user.pk == user.pk %}owner{% else %}other-user{% endif %}"><div class="header">{{ user.username }}{{ header_text}}</div></div>
             </div>
         </div>
     {% endwith %}
