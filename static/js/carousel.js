@@ -22,9 +22,9 @@ $(document).ready(function() {
         });
     }
 
-    var $slickCarouselSimilar = $('.slick-carousel-similar');
-    if ($slickCarouselSimilar) {
-        $slickCarouselSimilar.slick({
+    var $slickCarouselSmall = $('.slick-carousel-small');
+    if ($slickCarouselSmall) {
+        $slickCarouselSmall.slick({
             infinite: false,
             lazyLoad: 'ondemand',
             slidesToShow: 7,

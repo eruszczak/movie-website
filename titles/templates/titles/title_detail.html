@@ -108,7 +108,7 @@
                 <div class="ui segment">
                   <span class="ui blue ribbon label">{{ title.collection.name }}</span>
                     <div class="ui list">
-                        <div class="slick-carousel-similar">
+                        <div class="slick-carousel-small">
                             {% for title in collection_titles %}
                                 <div>
                                     {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
@@ -123,7 +123,7 @@
                 <div class="ui segment">
                   <span class="ui blue ribbon label">Similar</span>
                     <div class="ui list">
-                        <div class="slick-carousel-similar">
+                        <div class="slick-carousel-small">
                             {% for title in similar %}
                                 <div>
                                     {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
@@ -138,7 +138,7 @@
                 <div class="ui segment">
                   <span class="ui blue ribbon label">Recommendations</span>
                     <div class="ui list">
-                        <div class="slick-carousel-similar">
+                        <div class="slick-carousel-small">
                             {% for title in recommendations %}
                                 <div>
                                     {% include 'titles/includes/title_small_slick.html' with slick=True title=title rate2=title.request_user_rate %}
@@ -170,7 +170,7 @@
         <div class="ui segment">
           <span class="ui blue ribbon label">Cast</span>
             <div class="ui list">
-                <div class="slick-carousel-similar">
+                <div class="slick-carousel-small">
                     {% for cast in cast_list %}
                         <div>
                             {% include 'titles/includes/person_small_slick.html' with slick=True person=cast.person character=cast.character %}
@@ -183,7 +183,7 @@
         <div class="ui segment">
           <span class="ui blue ribbon label">Crew</span>
             <div class="ui list">
-                <div class="slick-carousel-similar">
+                <div class="slick-carousel-small">
                     {% for crew in crew_list %}
                         <div>
                             {% include 'titles/includes/person_small_slick.html' with slick=True person=crew.person character=crew.get_job_display %}

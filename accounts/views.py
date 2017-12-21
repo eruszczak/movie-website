@@ -172,7 +172,6 @@ class UserDetailView(DetailView):
                 )
             )
 
-
         if is_other_user:
             context.update({
                 'already_follows': UserFollow.objects.filter(follower=self.request.user, followed=self.object).exists(),
