@@ -252,12 +252,27 @@ class PersonDetailView(DetailView):
     model = Person
     template_name = 'titles/person_detail.html'
 
-    def get_queryset(self):
-        return super().get_queryset().prefetch_related('casttitle_set__title', 'crewtitle_set__title')
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['latest_title'] = Title.objects.filter(
             Q(casttitle__person=self.object) | Q(crewtitle__person=self.object)
         ).latest('release_date')
+
+        casttitle_list = CastTitle.objects.filter(person=self.object).select_related('title')
+        crewtitle_list = CrewTitle.objects.filter(person=self.object).select_related('title')
+        if self.request.user.is_authenticated:
+            latest_rate = {
+                'request_user_rate': Subquery(
+                    Rating.objects.filter(
+                        user=self.request.user, title=OuterRef('title')
+                    ).order_by('-rate_date').values('rate')[:1]
+                )
+            }
+            casttitle_list = casttitle_list.annotate(**latest_rate)
+            crewtitle_list = crewtitle_list.annotate(**latest_rate)
+
+        context.update({
+            'casttitle_list': casttitle_list,
+            'crewtitle_list': crewtitle_list
+        })
         return context
