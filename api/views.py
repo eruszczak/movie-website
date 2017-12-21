@@ -144,3 +144,65 @@ class SearchAPIView(APIView):
                 'url': f'{reverse("title-list")}?{urlencode(request.GET)}'
             }
         }, status=status.HTTP_200_OK)
+
+
+class ExportRatingsAPIView(APIView):
+    # these files can be cached for a few days
+
+    def post(self, request, *args, **kwargs):
+        message = 'export'
+        return Response({'message': message}, status=status.HTTP_200_OK)
+        # todo: this must create file in celery. then user be notified when he can download the file
+
+        # """
+        # exports to a csv file all of user's ratings, so they can be imported later (using view defined below)
+        # file consists of lines in format: tt1234567,2017-05-23,7
+        # """
+        # response = HttpResponse(content_type='text/csv')
+        # headers = ['const', 'rate_date', 'rate']
+        # user_ratings = Rating.objects.filter(user__username=username).select_related('title')
+        #
+        # writer = csv.DictWriter(response, fieldnames=headers, lineterminator='\n')
+        # writer.writeheader()
+        # count_ratings, count_titles = create_csv_with_user_ratings(writer, user_ratings)
+        #
+        # filename = '{}_ratings_for_{}_titles_{}'.format(count_ratings, count_titles, datetime.now().strftime('%Y-%m-%d'))
+        # response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
+        # return response
+
+
+class ImportRatingsAPIView(IsAuthenticatedMixin, APIView):
+
+    def post(self, request, *args, **kwargs):
+        message = 'import'
+        return Response({'message': message}, status=status.HTTP_200_OK)
+        # """
+        # from exported csv file import missing ratings. it doesn't add new titles, only new ratings
+        # file consists of lines in format: tt1234567,2017-05-23,7
+        # """
+        # user = User.objects.get(user=request.user)
+        # uploaded_file = request.FILES['csv_ratings']
+        # file = uploaded_file.read().decode('utf-8')
+        # io_string = io.StringIO(file)
+        # is_valid, message = validate_imported_ratings(uploaded_file, io_string)
+        # if not is_valid:
+        #     messages.info(request, message)
+        #     return redirect(user)
+        #
+        # # TODO make a class that handles serialization and deserialization
+        # reader = csv.DictReader(io_string)
+        # total_rows = 0
+        # created_count = 0
+        # for row in reader:
+        #     total_rows += 1
+        #     const, rate_date, rate = row['const'], row['rate_date'], row['rate']
+        #     title = Title.objects.filter(const=const).first()
+        #     rate_date = convert_to_datetime(row['rate_date'], 'exported_from_db')
+        #
+        #     if title and rate_date:
+        #         obj, created = Rating.objects.get_or_create(
+        #             user=request.user, title=title, rate_date=rate_date, defaults={'rate': rate}
+        #         )
+        #         if created:
+        #             created_count += 1
+        # messages.info(request, 'imported {} out of {} ratings'.format(created_count, total_rows))

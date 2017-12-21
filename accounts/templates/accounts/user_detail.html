@@ -17,6 +17,51 @@
 {% endblock %}
 
 {% block content %}
+{#    {% if is_owner %}#}
+{#        <form id="clear_ratings_form" method="post" action="{{ request.user.get_absolute_url }}" style="display:inline;margin-right:10px">{% csrf_token %}#}
+{#            <input id="confirm-nick" name="confirm-nick" hidden>#}
+{#            <button id="clear_ratings" type="submit" class="btn btn-xs btn-success" data-toggle="tooltip" title="You cannot revert this operation. You will lose all of you ratings if you haven't exported them first.">clear my ratings</button>#}
+{#        </form>#}
+{#        <a id="import_ratings" href="{% url 'import-ratings' user.username %}" style="margin-right:10px" data-toggle="tooltip" title="You can add ratings from exported file."><button class="btn btn-xs btn-success">import</button></a>#}
+
+    <br>
+    <button class="ui primary export-ratings basic button">Export</button>
+    <button class="ui primary import-ratings basic button">Import</button>
+
+    <div class="ui export tiny modal">
+      <i class="close icon"></i>
+      <div class="header">
+        Export {{ user.username }}'s ratings
+      </div>
+      <div class="content">
+        <div class="description">
+          You can export all of your ratings to csv file. If you will lose some of your ratings, you will be able to import them back.
+        </div>
+      </div>
+      <div class="actions">
+        <div class="ui button">Cancel</div>
+        <div class="ui green button">Export</div>
+      </div>
+    </div>
+
+    <div class="ui import tiny modal">
+      <i class="close icon"></i>
+      <div class="header">
+        Import ratings
+      </div>
+      <div class="content">
+        <div class="description">
+          You can add ratings from exported file.
+        </div>
+      </div>
+      <div class="actions">
+        <div class="ui button">Cancel</div>
+        <div class="ui green button">Import</div>
+      </div>
+    </div>
+
+
+
     <div class="ui centered grid">
         {% with user.imdb_url as imdb_url %}
             <div class="{% if imdb_url %}four{% else %}three{% endif %} columns">
@@ -54,6 +99,10 @@
   <button class="ui button">Update ratings</button>
   <button class="ui button">Update watchlist</button>
 </div>
+
+
+
+
 
     <div class="ui divider hidden"></div>
     {% if is_other_user %}

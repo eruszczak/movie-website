@@ -12,6 +12,4 @@ urlpatterns = [
     url(r'^(?P<username>[-\w]+)/edit/$', views.UserUpdateView.as_view(), name='user-edit'),
 
     # url(r'^(?P<username>[-\w]+)/recommend/$', recommend_views.recommend, name='recommend'),
-    # url(r'^(?P<username>[-\w]+)/import/$', views.import_ratings, name='import-ratings'),
-    # url(r'^(?P<username>[-\w]+)/export$', views.export_ratings, name='export-ratings'),
 ]

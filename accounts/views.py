@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Count, OuterRef, Subquery, F, Avg, Exists
 from django.contrib import messages
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, UpdateView, DetailView
 
 from titles.constants import SERIES, MOVIE
@@ -12,60 +12,6 @@ from accounts.forms import UserUpdateForm
 
 
 User = get_user_model()
-
-
-# def export_ratings(request, username):
-#     """
-#     exports to a csv file all of user's ratings, so they can be imported later (using view defined below)
-#     file consists of lines in format: tt1234567,2017-05-23,7
-#     """
-#     response = HttpResponse(content_type='text/csv')
-#     headers = ['const', 'rate_date', 'rate']
-#     user_ratings = Rating.objects.filter(user__username=username).select_related('title')
-#
-#     writer = csv.DictWriter(response, fieldnames=headers, lineterminator='\n')
-#     writer.writeheader()
-#     count_ratings, count_titles = create_csv_with_user_ratings(writer, user_ratings)
-#
-#     filename = '{}_ratings_for_{}_titles_{}'.format(count_ratings, count_titles, datetime.now().strftime('%Y-%m-%d'))
-#     response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
-#     return response
-#
-#
-# @login_required
-# @require_POST
-# def import_ratings(request):
-#     """
-#     from exported csv file import missing ratings. it doesn't add new titles, only new ratings
-#     file consists of lines in format: tt1234567,2017-05-23,7
-#     """
-#     user = User.objects.get(user=request.user)
-#     uploaded_file = request.FILES['csv_ratings']
-#     file = uploaded_file.read().decode('utf-8')
-#     io_string = io.StringIO(file)
-#     is_valid, message = validate_imported_ratings(uploaded_file, io_string)
-#     if not is_valid:
-#         messages.info(request, message)
-#         return redirect(user)
-#
-#     # TODO make a class that handles serialization and deserialization
-#     reader = csv.DictReader(io_string)
-#     total_rows = 0
-#     created_count = 0
-#     for row in reader:
-#         total_rows += 1
-#         const, rate_date, rate = row['const'], row['rate_date'], row['rate']
-#         title = Title.objects.filter(const=const).first()
-#         rate_date = convert_to_datetime(row['rate_date'], 'exported_from_db')
-#
-#         if title and rate_date:
-#             obj, created = Rating.objects.get_or_create(
-#                 user=request.user, title=title, rate_date=rate_date, defaults={'rate': rate}
-#             )
-#             if created:
-#                 created_count += 1
-#     messages.info(request, 'imported {} out of {} ratings'.format(created_count, total_rows))
-#     return redirect(user)
 
 
 class UserUpdateView(UpdateView):
@@ -109,9 +55,7 @@ class UserListView(ListView):
                 already_follows=Exists(UserFollow.objects.filter(follower=self.request.user, followed=OuterRef('pk')))
             )
         return queryset.annotate(
-            # followers_count=Subquery(
-            #     UserFollow.objects.filter(follower=OuterRef('pk')).count()
-            # ),
+            # todo
             titles_count=Count('rating')
         ).order_by('-titles_count')
 
@@ -240,5 +184,3 @@ class UserDetailView(DetailView):
                 'titles_rated_the_same': titles_rated_the_same[:self.limit],
                 'titles_user_liked': titles_user_liked[:self.limit]
             }
-
-

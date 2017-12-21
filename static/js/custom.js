@@ -7,7 +7,6 @@ $('.ui.dropdown, .dropdown.item').dropdown();
 
 $('.title-menu .item').tab();
 $('.ui.embed').embed();
-$('.tiny.modal').modal('show');
 
 
 $('.recommend.dropdown').dropdown({
@@ -30,3 +29,11 @@ $('.grid .backdrop-card img').visibility({
 
 
 $('.ui.accordion').accordion();
+
+$('.export-ratings').click(function() {
+    $('.export.tiny.modal').modal('show');
+});
+
+$('.import-ratings').click(function() {
+    $('.import.tiny.modal').modal('show');
+});
