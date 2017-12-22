@@ -19,7 +19,12 @@ class RegisterForm(UserCreationForm):
 
 
 class ImportRatingsForm(forms.Form):
-    csv_file = forms.FileField(label='')
+    csv_file = forms.FileField(label='', required=True)
+
+    def clean_csv_file(self):
+        name = self.cleaned_data['csv_file'].name
+        if not name.endswith('.csv'):
+            raise forms.ValidationError('It must be a .csv file')
 
 
 class UserUpdateForm(forms.ModelForm):
