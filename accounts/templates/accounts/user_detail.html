@@ -17,30 +17,21 @@
 {% endblock %}
 
 {% block content %}
-    {#    {% if is_owner %}#}
-    {#        <form id="clear_ratings_form" method="post" action="{{ request.user.get_absolute_url }}" style="display:inline;margin-right:10px">{% csrf_token %}#}
-    {#            <input id="confirm-nick" name="confirm-nick" hidden>#}
-    {#            <button id="clear_ratings" type="submit" class="btn btn-xs btn-success" data-toggle="tooltip" title="You cannot revert this operation. You will lose all of you ratings if you haven't exported them first.">clear my ratings</button>#}
-    {#        </form>#}
-
-
-    {#    {% if user.imdb_id %}#}
-    <button class="btn btn-xs btn-primary" type="submit" name="update_rss" value="update_rss">update ratings</button>
-
-    <button class="btn btn-xs btn-primary" type="submit" name="update_watchlist" value="update_watchlist">update
-        watchlist
-    </button>
-    {#    {% endif %}#}
-    {#    {% if user.csv_ratings %}#}
-    <button class="btn btn-xs btn-primary" type="submit" name="update_csv" value="update_csv">update csv</button>
-    {#    {% endif %}#}
-
-
     <br>
-    <button class="ui primary export-ratings basic button">Export</button>
+    * carousel by default not active,<br>
+    * updater buttons maybe replace with select with confirmation modal<br>
     {% if is_owner %}
-        <button class="ui primary import-ratings basic button">Import</button>
+        <button class="ui basic orange button" type="submit" name="update_rss" value="update_rss">update ratings</button>
+        <button class="ui basic orange button" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>
+        <button class="ui basic orange button" type="submit" name="update_csv" value="update_csv">update csv</button>
     {% endif %}
+
+
+    <button class="ui basic primary button export-ratings">Export ratings</button>
+    {% if is_owner %}
+        <button class="ui basic primary button import-ratings">Import ratings</button>
+    {% endif %}
+    <br>
     <br>
 
     <div class="ui centered grid">
@@ -70,7 +61,7 @@
         <i class="icon settings"></i>
     </button>
 
-    <p><a href="{{ user.ratings_url }}" class="ui label">See all</a></p>
+    <p><a href="{{ user.ratings_url }}" class="ui label">See all ratings</a></p>
 
     <div class="four ui buttons">
         <button class="ui button">Favourites</button>
