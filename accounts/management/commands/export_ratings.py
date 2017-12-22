@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from titles.models import Rating
 import csv
-from accounts.functions import create_csv_with_user_ratings
+from titles.helpers import fill_dictwriter_with_rating_qs
 
 User = get_user_model()
 
@@ -27,5 +27,5 @@ class Command(BaseCommand):
                 headers = ['const', 'rate_date', 'rate']
                 writer = csv.DictWriter(f, fieldnames=headers, lineterminator='\n')
                 writer.writeheader()
-                create_csv_with_user_ratings(writer, user_ratings)
+                fill_dictwriter_with_rating_qs(writer, user_ratings)
             self.stdout.write(self.style.SUCCESS('Created csv in ' + filename))

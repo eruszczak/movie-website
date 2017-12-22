@@ -22,11 +22,13 @@ class ToggleAPIView:
 
 class GetObjectMixin:
     model = None
+    url_kwarg = 'pk'
+    kwarg_field = 'pk'
 
-    def set_instance(self, url_kwarg='pk', kwarg_field='pk', **kwargs):
+    def set_instance(self, **kwargs):
         self.init_data()
         try:
-            lookup = {kwarg_field: kwargs[url_kwarg]}
+            lookup = {self.kwarg_field: kwargs[self.url_kwarg]}
             setattr(self, self.model.__name__.lower(), self.model.objects.get(**lookup))
             return None
         except self.model.DoesNotExist:

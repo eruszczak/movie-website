@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
+from accounts.helpers import export_ratings
 from accounts.models import UserFollow
 from api.mixins import IsAuthenticatedMixin, GetTitleMixin, ToggleAPIView, GetUserMixin
 from lists.models import Favourite
@@ -146,26 +147,14 @@ class SearchAPIView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-class ExportRatingsAPIView(APIView):
-    # these files can be cached for a few days
+class ExportRatingsAPIView(GetUserMixin, APIView):
 
+    @instance_required
     def post(self, request, *args, **kwargs):
         message = 'export'
+        # todo: these files can be cached for a few days
+        # todo: test if error is displayed if no user
+
+        message = export_ratings(self.user)
         return Response({'message': message, 'title': 'Export'}, status=status.HTTP_200_OK)
         # todo: this must create file in celery. then user be notified when he can download the file
-
-        # """
-        # exports to a csv file all of user's ratings, so they can be imported later (using view defined below)
-        # file consists of lines in format: tt1234567,2017-05-23,7
-        # """
-        # response = HttpResponse(content_type='text/csv')
-        # headers = ['const', 'rate_date', 'rate']
-        # user_ratings = Rating.objects.filter(user__username=username).select_related('title')
-        #
-        # writer = csv.DictWriter(response, fieldnames=headers, lineterminator='\n')
-        # writer.writeheader()
-        # count_ratings, count_titles = create_csv_with_user_ratings(writer, user_ratings)
-        #
-        # filename = '{}_ratings_for_{}_titles_{}'.format(count_ratings, count_titles, datetime.now().strftime('%Y-%m-%d'))
-        # response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
-        # return response
