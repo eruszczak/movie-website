@@ -257,19 +257,14 @@ class PersonDetailView(DetailView):
             rates_clean = [r for r in rates if r]
 
             try:
-                avg = sum(rates_clean) / len(rates_clean)
+                context['avg'] = sum(rates_clean) / len(rates_clean)
             except ZeroDivisionError:
-                avg = '-'
+                pass
 
             try:
-                percentage = round((common_titles_count / len(results)) * 100, 2)
+                context['percentage'] = f'{round((common_titles_count / len(results)) * 100, 2)}%'
             except ZeroDivisionError:
-                percentage = '-'
-
-            context.update({
-                'avg': avg,
-                'percentage': percentage
-            })
+                pass
 
         context.update({
             'casttitle_list': casttitle_list,
