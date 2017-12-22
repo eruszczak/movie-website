@@ -1,9 +1,13 @@
+from os.path import join
+
 from django.contrib.auth import get_user_model
 from django.db.models import Count, OuterRef, Subquery, F, Avg, Exists
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, UpdateView, DetailView, FormView
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 from accounts.helpers import import_ratings_from_csv
 from shared.mixins import LoginRequiredMixin
@@ -12,6 +16,7 @@ from titles.helpers import SubqueryCount
 from titles.models import Title, Rating
 from accounts.models import UserFollow
 from accounts.forms import UserUpdateForm, ImportRatingsForm
+
 
 User = get_user_model()
 
@@ -207,10 +212,6 @@ class ImportRatingsAPIView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         tmp_folder = self.request.user.get_temp_folder_path()
         file = form.cleaned_data['csv_file']
-        # print(file, type(file))
-        from django.core.files.storage import default_storage
-        from django.core.files.base import ContentFile
-        from os.path import join
         path = default_storage.save(join(tmp_folder, file.name), ContentFile(file.read()))
         print(path)
         # call task
