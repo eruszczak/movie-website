@@ -160,7 +160,7 @@
         <div class="content">
             <div class="description">
                 You can export {{ user.username }}'s ratings to csv file. If you will lose some of your ratings, you
-                will be able to import them back.
+                will be able to import them back. It may take some time, you will be notified once it's done.
             </div>
         </div>
         <div class="actions">
@@ -178,7 +178,7 @@
             <div class="content">
                 <div class="description">
                     You can add ratings from exported file from this site or IMDb. Your ratings won't be deleted, only
-                    the ones missing will be added.
+                    the ones missing will be added. It may take some time, you will be notified once it's done.
                     <form id="import-form" method="post" action="{% url 'user-import-ratings' user.username %}"
                           enctype="multipart/form-data">{% csrf_token %}
                         {% with form.csv_file as field %}

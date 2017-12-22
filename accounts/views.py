@@ -210,11 +210,12 @@ class ImportRatingsAPIView(LoginRequiredMixin, FormView):
         return HttpResponseRedirect(self.get_success_url())
 
     def form_valid(self, form):
-        user_tmp_folder = self.request.user.get_temp_folder_path(create=True)
+        user_tmp_folder = self.request.user.get_temp_folder_path(absolute=True, create=True)
         file = form.cleaned_data['csv_file']
-        path = default_storage.save(join(user_tmp_folder, file.name), ContentFile(file.read()))
-        # pass path to that file and open it regularly
-        # import_ratings_from_csv(self.request.user, file)
-        messages.success(self.request, path)
-        # messages.success(self.request, 'You will be notified, when import is done.')
+        file_path = join(user_tmp_folder, file.name)
+        if default_storage.exists(file_path):
+            default_storage.delete(file_path)
+        path = default_storage.save(file_path, ContentFile(file.read()))
+        import_ratings_from_csv(self.request.user, path)
+        messages.success(self.request, 'You will be notified, when import is done.')
         return super().form_valid(form)

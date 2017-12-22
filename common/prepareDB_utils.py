@@ -35,10 +35,9 @@ def convert_to_datetime(date_string, source):
     exported_from_db is my format, used when ratings are exported or imported (user profile)
     """
     date_formats = {
-        'xml': '%a, %d %b %Y %H:%M:%S GMT',
-        'csv': '%a %b %d 00:00:00 %Y',
-        'json': '%d %b %Y',
-        'exported_from_db': '%Y-%m-%d'
+        'imdb_xml': '%a, %d %b %Y %H:%M:%S GMT',
+        'imdb_csv': '%a %b %d 00:00:00 %Y',
+        'my_csv': '%Y-%m-%d'
     }
     if date_string and date_formats.get(source):
         try:
@@ -48,33 +47,31 @@ def convert_to_datetime(date_string, source):
     return None
 
 
-def get_csv_headers(file_or_iostring):
+def get_csv_headers(file):
     """
     get first line from opened csv file or iostring and return list of its csv headers
     must call seek method to restore current position to beginning of the file
     """
-    csv_reader = csv.reader(file_or_iostring)
+    csv_reader = csv.reader(file)
     csv_headings = next(csv_reader)
-    file_or_iostring.seek(0)
+    file.seek(0)
     return csv_headings
 
 
-def valid_csv_headers(file):
-    """
-    when user uploads his ratings.csv exported from IMDb, csv headers must be correct
-    """
-    expected_headers = ["position", "const", "created", "modified", "description", "Title", "Title type",
-                        "Directors", "You rated", "IMDb Rating", "Runtime (mins)", "Year", "Genres", "Num. Votes",
-                        "Release Date (month/day/year)", "URL"]
-    return get_csv_headers(file) == expected_headers
+# def valid_csv_headers(file):
+#     """
+#     when user uploads his ratings.csv exported from IMDb, csv headers must be correct
+#     """
+#     expected_headers = ["position", "const", "created", "modified", "description", "Title", "Title type",
+#                         "Directors", "You rated", "IMDb Rating", "Runtime (mins)", "Year", "Genres", "Num. Votes",
+#                         "Release Date (month/day/year)", "URL"]
+#     return get_csv_headers(file) == expected_headers
 
 
-def valid_imported_csv_headers(iostring):
-    """
-    when user imports ratings, csv headers must be the same as exported file's
-    """
-    expected_headers = ["const", "rate_date", "rate"]
-    return get_csv_headers(iostring) == expected_headers
+def valid_csv_header(file, expected_headers):
+    """return True if all of expected headers are present in csv file's headers"""
+    headers = get_csv_headers(file)
+    return all(h in headers for h in expected_headers)
 
 
 def get_rss(imdb_id='ur44264813', source='ratings'):

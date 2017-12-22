@@ -34,3 +34,19 @@ IMAGE_SIZES = {
     'card': 'w500_and_h281_bestv2',
     'small_person': 'w185_and_h278_bestv2'
 }
+
+MY_HEADERS = ['imdb_id', 'rate_date', 'rate']
+IMDB_HEADERS = ['const', 'You rated', 'created']
+MY_CSV_MAPPER = {
+    'imdb_id': 'imdb_id',
+    'rate': 'rate',
+    'rate_date': 'rate_date',
+    'date_format': 'my_csv'
+}
+IMDB_CSV_MAPPER = {
+    'imdb_id': 'const',
+    'rate': 'You rated',
+    'rate_date': 'created',
+    'date_format': 'imdb_csv'
+}
+
