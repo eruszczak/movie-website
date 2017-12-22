@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static widget_tweaks %}
 {#{% block title %}{{ page_title }}{% endblock %}#}
 
 {% block breadcrumb %}
@@ -190,7 +190,12 @@
                     the ones missing will be added.
                     <form id="import-form" method="post" action="{% url 'user-import-ratings' user.username %}"
                           enctype="multipart/form-data">{% csrf_token %}
-                        {% include 'includes/field.html' with field=form.csv_file %}
+                        {% with form.csv_file as field %}
+                            <div class="mt20 field{% if field.errors %} error{% endif %}{% if field.field.required %} required{% endif %}">
+                                {% render_field field|attr:"accept:.csv" %}
+                                <small>{{ field.help_text }}</small>
+                            </div>
+                        {% endwith %}
                     </form>
                 </div>
             </div>

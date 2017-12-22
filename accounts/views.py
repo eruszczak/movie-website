@@ -212,10 +212,9 @@ class ImportRatingsAPIView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         user_tmp_folder = self.request.user.get_temp_folder_path(create=True)
         file = form.cleaned_data['csv_file']
-        # todo: file name must be unique because what if user uploads file 2 times --- I do not think so.
-        # path = default_storage.save(join(user_tmp_folder, file.name), ContentFile(file.read()))
-        # print(path)
+        path = default_storage.save(join(user_tmp_folder, file.name), ContentFile(file.read()))
         # pass path to that file and open it regularly
         # import_ratings_from_csv(self.request.user, file)
-        messages.success(self.request, 'You will be notified, when import is done.')
+        messages.success(self.request, path)
+        # messages.success(self.request, 'You will be notified, when import is done.')
         return super().form_valid(form)
