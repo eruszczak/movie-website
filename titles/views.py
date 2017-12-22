@@ -253,7 +253,8 @@ class PersonDetailView(DetailView):
             rates = [result['request_user_rate'] for result in results]
             titles = [result['title'] for result in results]
 
-            common_titles_count = Title.objects.filter(rating__user=self.request.user, pk__in=titles).count()
+            common_titles_count = Title.objects.filter(
+                rating__user=self.request.user).distinct().filter(pk__in=titles).count()
             rates_clean = [r for r in rates if r]
 
             try:
