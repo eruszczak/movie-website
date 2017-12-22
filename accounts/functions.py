@@ -1,7 +1,6 @@
 from django.utils import timezone
 
 from common.prepareDB import update_user_ratings_csv, update_user_ratings, update_user_watchlist
-from common.prepareDB_utils import valid_imported_csv_headers
 from common.utils import build_html_string_for_titles
 
 
@@ -88,21 +87,3 @@ def update_watchlist(user):
     else:
         message = msgs['timeout']
     return message
-
-
-def validate_imported_ratings(file, io_string):
-    """
-    checks file size (it's done also on the client side using js and there's limit on the server too)
-    also naive format file check and most importantly - see if headers are correct
-    """
-    message = False
-    if file.size > 2 * 1024 * 1024:
-        message = 'File is too big. Max 2MB.'
-    elif not file.name.endswith('.csv'):
-        message = 'Not csv file'
-    elif not valid_imported_csv_headers(io_string):
-        message = 'Not valid format. Headers do not match.'
-
-    if message:
-        return False, message
-    return True, 'valid'

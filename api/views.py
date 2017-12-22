@@ -135,7 +135,7 @@ class SearchAPIView(APIView):
         if len_qs_person < len_persons:
             len_titles = self.MAX_RESULTS - len_qs_person
 
-        serializer_title = TitleSerializer(queryset_title[:len_titles], many=True)  # context={'request': request}
+        serializer_title = TitleSerializer(queryset_title[:len_titles], many=True)
         serializer_person = PersonSerializer(queryset_person[:len_persons], many=True)
 
         return Response({
