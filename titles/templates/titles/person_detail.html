@@ -32,11 +32,11 @@
         </div>
         {% if request.user.is_authenticated %}
             <div class="statistic">
-                <div class="value">{{ percentage }}%</div>
+                <div class="value">{{ percentage|default:'-' }}</div>
                 <div class="label">of credits you saw</div>
             </div>
             <div class="statistic">
-                <div class="value">{{ avg }}</div>
+                <div class="value">{{ avg|default:'-' }}</div>
                 <div class="label">your avg credits score</div>
             </div>
         {% endif %}
