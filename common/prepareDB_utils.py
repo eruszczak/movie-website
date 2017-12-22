@@ -36,8 +36,7 @@ def convert_to_datetime(date_string, source):
     """
     date_formats = {
         'imdb_xml': '%a, %d %b %Y %H:%M:%S GMT',
-        'imdb_csv': '%a %b %d 00:00:00 %Y',
-        'my_csv': '%Y-%m-%d'
+        'csv': '%Y-%m-%d'
     }
     if date_formats.get(source):
         try:
@@ -55,9 +54,11 @@ def get_csv_headers(file):
     csv_reader = csv.reader(file)
     csv_headings = next(csv_reader)
     file.seek(0)
-    if len(csv_headings) == 1:
-        # imdb csv file uses only 1 column so all headers are in 1 column
-        csv_headings = csv_headings[0].replace('"', '').split(',')
+    # if len(csv_headings) == 1:
+    #     # imdb csv file uses only 1 column so all headers are in 1 column
+    #     print('before', csv_headings)
+    #     csv_headings = csv_headings[0].replace('"', '').split(',')
+    #     print('after', csv_headings)
     return csv_headings
 
 

@@ -1,11 +1,14 @@
 import django
 import os
+
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 from django.db.models import Q, Subquery, OuterRef
 
 import pytz
 from django.contrib.auth import get_user_model
+from common.prepareDB import update_user_ratings_csv
 
 from accounts.models import *
 import sys
@@ -125,8 +128,14 @@ def test_queryset():
     print(r)
     print(Title.objects.filter(rating__user__username='test').distinct().filter(pk__in=[4773]))
 
-test_queryset()
 
+def test_csv():
+    user = User.objects.get(username='test')
+
+    update_user_ratings_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/imdb.csv')
+
+# test_queryset()
+test_csv()
 # add_crew_to_person()
 
 
