@@ -17,7 +17,6 @@ urlpatterns = [
     url(r'^user/(?P<pk>\d+)/follow', views.ToggleFollowUser.as_view(), name='user-follow'),
     url(r'^user/(?P<pk>\d+)/favourites/reorder', views.ReorderFavourite.as_view(), name='user-fav-reorder'),
     url(r'^user/(?P<pk>\d+)/export', views.ExportRatingsAPIView.as_view(), name='user-export-ratings'),
-    url(r'^user/(?P<pk>\d+)/import', views.ImportRatingsAPIView.as_view(), name='user-import-ratings'),
 
     url(r'^', include(router.urls), name='ratings'),
     url(r'^title/(?P<slug>[\w-]+)/$', views.TitleDetailView.as_view(), name='title_detail'),

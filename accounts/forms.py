@@ -18,6 +18,10 @@ class RegisterForm(UserCreationForm):
         fields = ('username', 'password1', 'password2', 'login_after')
 
 
+class ImportRatingsForm(forms.Form):
+    csv_file = forms.FileField(label='')
+
+
 class UserUpdateForm(forms.ModelForm):
 
     def __init__(self, original_instance, *args, **kwargs):

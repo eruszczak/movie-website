@@ -10,6 +10,7 @@ urlpatterns = [
     # url(r'^password-change/$', views_auth.PasswordChangeView.as_view(), name='password-change'),
     url(r'^(?P<username>[-\w]+)/$', views.UserDetailView.as_view(), name='user-detail'),
     url(r'^(?P<username>[-\w]+)/edit/$', views.UserUpdateView.as_view(), name='user-edit'),
+    url(r'^(?P<username>[-\w]+)/import', views.ImportRatingsAPIView.as_view(), name='user-import-ratings'),
 
     # url(r'^(?P<username>[-\w]+)/recommend/$', recommend_views.recommend, name='recommend'),
 ]
