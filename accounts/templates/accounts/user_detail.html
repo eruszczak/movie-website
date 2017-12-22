@@ -134,14 +134,14 @@
         <div class="ui segment">
           <span class="ui blue ribbon label">Currently watching</span>
             <div class="ui list">
-                {% include 'titles/includes/slick_titles_from_title.html' with queryset=currently_watching %}
+                {% include 'titles/includes/slick_titles.html' with queryset=currently_watching %}
             </div>
         </div>
         <div class="ui segment">
           <span class="ui blue ribbon label">Activity</span>
             <span>{{ user.username }}'s latest ratings</span>
             <div class="ui list">
-                {% include 'titles/includes/slick_titles_from_rating.html' with queryset=rating_list %}
+                {% include 'titles/includes/slick_titles.html' with queryset=rating_list rating_qs=True %}
 {#                {% if not rating_list %}#}
 {#                    <p>Nothing found</p>#}
 {#                {% else %}#}
@@ -197,28 +197,28 @@
                   <span class="ui teal ribbon label">Lower</span>
                     <span>{{ user.username }} rated lower</span>
                     <div class="ui list">
-                        {% include 'titles/includes/slick_titles_from_title.html' with queryset=comparision.titles_user_rate_lower %}
+                        {% include 'titles/includes/slick_titles.html' with queryset=comparision.titles_user_rate_lower %}
                     </div>
                 </div>
                 <div class="ui segment">
                   <span class="ui teal ribbon label">Higher</span>
                     <span>{{ user.username }} rated higher</span>
                     <div class="ui list">
-                        {% include 'titles/includes/slick_titles_from_title.html' with queryset=comparision.titles_user_rate_higher %}
+                        {% include 'titles/includes/slick_titles.html' with queryset=comparision.titles_user_rate_higher %}
                     </div>
                 </div>
                 <div class="ui segment">
                   <span class="ui teal ribbon label">The same</span>
                     <span>{{ user.username }} rated the same</span>
                     <div class="ui list">
-                        {% include 'titles/includes/slick_titles_from_title.html' with queryset=comparision.titles_rated_the_same %}
+                        {% include 'titles/includes/slick_titles.html' with queryset=comparision.titles_rated_the_same %}
                     </div>
                 </div>
                 <div class="ui segment">
                   <span class="ui teal ribbon label">You need to see</span>
                     <span>{{ user.username }} liked that you haven't seen</span>
                     <div class="ui list">
-                        {% include 'titles/includes/slick_titles_from_title.html' with queryset=comparision.titles_user_liked %}
+                        {% include 'titles/includes/slick_titles.html' with queryset=comparision.titles_user_liked %}
                     </div>
                 </div>
             {% else %}
