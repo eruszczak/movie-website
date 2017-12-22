@@ -60,9 +60,7 @@
           </div>
         </div>
         <div class="ui center aligned header">
-            <div class="ui label">
-              <i class="user small icon"></i> <a class="see-more" href="{% url 'user-list' %}?imdb_id={{ title.imdb_id }}">See users who saw this title</a>
-            </div>
+            <a href="{% url 'user-list' %}?imdb_id={{ title.imdb_id }}" class="ui basic primary button"><i class="user small icon"></i> See users who saw this title</a>
         </div>
 
         {{ title.updated }}; {{ title.being_updated }}
