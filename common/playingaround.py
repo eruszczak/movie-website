@@ -118,7 +118,19 @@ def add_crew_to_person():
     print(p)
     CrewTitle.objects.create(title=Title.objects.all().first(), person=p)
 
-add_crew_to_person()
+
+def test_queryset():
+    r = Rating.objects.filter(user__username='test')
+    r = Rating.objects.filter(user__username='test').values('title')
+    print(r)
+    print(Title.objects.filter(rating__user__username='test').distinct().filter(pk__in=[4773]))
+
+test_queryset()
+
+# add_crew_to_person()
+
+
+
 # query = Title.objects.filter(
 #     Q(casttitle__person=p) | Q(crewtitle__person=p)
 # ).order_by('-release_date')
