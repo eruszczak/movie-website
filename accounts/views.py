@@ -216,6 +216,7 @@ class ImportRatingsAPIView(LoginRequiredMixin, FormView):
         if default_storage.exists(file_path):
             default_storage.delete(file_path)
         path = default_storage.save(file_path, ContentFile(file.read()))
+        print('importing', path)
         import_ratings_from_csv(self.request.user, path)
         messages.success(self.request, 'You will be notified, when import is done.')
         return super().form_valid(form)

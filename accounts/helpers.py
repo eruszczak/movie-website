@@ -5,16 +5,16 @@ from django.utils.timezone import now
 
 from titles.constants import MY_HEADERS, IMDB_HEADERS, IMDB_CSV_MAPPER, MY_CSV_MAPPER
 from titles.helpers import fill_dictwriter_with_rating_qs
-from common.prepareDB_utils import convert_to_datetime, valid_csv_header
+from common.prepareDB_utils import convert_to_datetime, valid_csv_header, get_csv_headers
 from titles.models import Title, Rating
 from titles.tmdb_api import TmdbWrapper
 
 
 def recognize_file_source(f):
-    # TODO: if this is the only place I need header validation, pass file's headers, not file
-    if valid_csv_header(f, MY_HEADERS):
+    headers = get_csv_headers(f)
+    if valid_csv_header(headers, MY_HEADERS):
         return MY_CSV_MAPPER
-    elif valid_csv_header(f, IMDB_HEADERS):
+    elif valid_csv_header(headers, IMDB_HEADERS):
         return IMDB_CSV_MAPPER
     return None
 
@@ -22,31 +22,30 @@ def recognize_file_source(f):
 def import_ratings_from_csv(user, file_path):
     """import missing ratings from csv file (exported from here or imdb)"""
     # file = file.read().decode('utf-8')  TODO
+    # TODO what about error in FOR LOOP? headers doesnt mean its valid
+    # what if rate is incorrect (because if title or date is wrong is ok)
     with open(file_path, 'r') as f:
         mapper = recognize_file_source(f)
         print(mapper)
-        if not mapper:
-            return 'Not valid format. Headers do not match.'
-        return
-        reader = DictReader(f)
-        total_rows = 0
-        created_count = 0
-        # TODO what about error in FOR LOOP? headers doesnt mean its valid
-        for row in reader:
-            total_rows += 1
-            imdb_id, rate_date, rate = row[mapper['imdb_id']], row[mapper['rate_date']], row[mapper['rate']]
-            title = TmdbWrapper.get(imdb_id=imdb_id)
-            rate_date = convert_to_datetime(row['rate_date'], mapper['date_format'])
+        if mapper:
+            reader = DictReader(f)
+            row_count, created_count = 0, 0
+            for row in reader:
+                print(row.keys())
+                row_count += 1
+                imdb_id, rate_date, rate = row[mapper['imdb_id']], row[mapper['rate_date']], row[mapper['rate']]
+                rate_date = convert_to_datetime(row[mapper['rate_date']], mapper['date_format'])
+                print(imdb_id, rate_date, rate)
+                # title = TmdbWrapper().get(imdb_id=imdb_id)
+                # if title and rate_date:
+                #     _, created = Rating.objects.get_or_create(
+                #         user=user, title=title, rate_date=rate_date, defaults={'rate': rate}
+                #     )
+                #     if created:
+                #         created_count += 1
+            print(f'imported {created_count} out of {row_count} ratings - {round((created_count / row_count) * 100, 2)}%')
 
-            # todo: always try to get a title. use TmdbWrapper
-            if title and rate_date:
-                obj, created = Rating.objects.get_or_create(
-                    user=user, title=title, rate_date=rate_date, defaults={'rate': rate}
-                )
-                if created:
-                    created_count += 1
-        f'imported {created_count} out of {total_rows} ratings'
-    'file could not be opened'
+    # delete file
 
 
 def export_ratings(user):
