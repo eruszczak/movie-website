@@ -1,8 +1,8 @@
 import os
 import csv
 
-from django.conf import settings
-from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, add_new_title, valid_csv_headers
+# from django.conf import settings
+from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, add_new_title
 from titles.models import Title, Rating
 from lists.models import Watchlist
 
@@ -57,31 +57,30 @@ def update_user_watchlist(user):
     return None
 
 
-def update_user_ratings_csv(user):
+def update_user_ratings_csv(user, path):
     """
     updates user's ratings using ratings.csv exported from IMDb's list
     """
-    path = os.path.join(settings.MEDIA_ROOT, str(user.csv_ratings))
     if os.path.isfile(path):
         updated_titles = []
         count = 0
         print('update_user_ratings_csv:', user)
         with open(path, 'r') as f:
-            if not valid_csv_headers(f):
-                return None
+            # if not valid_csv_headers(f):
+            #     return None
 
             reader = csv.DictReader(f)
             for row in reader:
                 title = get_title_or_create(row['const'])
                 rate = row['You rated']
                 rate_date = convert_to_datetime(row['created'], 'csv')
-                if title and rate and rate_date:
-                    obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
-                                                                defaults={'rate': rate})
-                    if created:
-                        count += 1
-                        if len(updated_titles) < 10:
-                            updated_titles.append(title)
+                # if title and rate and rate_date:
+                #     obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
+                #                                                 defaults={'rate': rate})
+                #     if created:
+                #         count += 1
+                #         if len(updated_titles) < 10:
+                #             updated_titles.append(title)
         return updated_titles, count
     return None
 

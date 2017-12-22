@@ -12,6 +12,7 @@ from titles.tmdb_api import TmdbWrapper
 
 def recognize_file_source(f):
     headers = get_csv_headers(f)
+    print(headers)
     if valid_csv_header(headers, MY_HEADERS):
         return MY_CSV_MAPPER
     elif valid_csv_header(headers, IMDB_HEADERS):
@@ -31,11 +32,12 @@ def import_ratings_from_csv(user, file_path):
             reader = DictReader(f)
             row_count, created_count = 0, 0
             for row in reader:
-                print(row.keys())
+                print(row)
                 row_count += 1
                 imdb_id, rate_date, rate = row[mapper['imdb_id']], row[mapper['rate_date']], row[mapper['rate']]
-                rate_date = convert_to_datetime(row[mapper['rate_date']], mapper['date_format'])
-                print(imdb_id, rate_date, rate)
+                print(row[mapper['rate_date']])
+                # rate_date = convert_to_datetime(row[mapper['rate_date']], 'csv')
+                # print(imdb_id, rate_date, rate)
                 # title = TmdbWrapper().get(imdb_id=imdb_id)
                 # if title and rate_date:
                 #     _, created = Rating.objects.get_or_create(

@@ -36,17 +36,15 @@ IMAGE_SIZES = {
 }
 
 MY_HEADERS = ['imdb_id', 'rate_date', 'rate']
-IMDB_HEADERS = ['const', 'You rated', 'created']
+IMDB_HEADERS = ['Const', 'Your Rating', 'Date Added']
 MY_CSV_MAPPER = {
     'imdb_id': 'imdb_id',
     'rate': 'rate',
     'rate_date': 'rate_date',
-    'date_format': 'my_csv'
 }
 IMDB_CSV_MAPPER = {
-    'imdb_id': 'const',
-    'rate': 'You rated',
-    'rate_date': 'created',
-    'date_format': 'imdb_csv'
+    'imdb_id': 'Const',
+    'rate': 'Your Rating',
+    'rate_date': 'Date Added',
 }
 
