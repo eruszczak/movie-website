@@ -17,21 +17,23 @@
 {% endblock %}
 
 {% block content %}
-{#    {% if is_owner %}#}
-{#        <form id="clear_ratings_form" method="post" action="{{ request.user.get_absolute_url }}" style="display:inline;margin-right:10px">{% csrf_token %}#}
-{#            <input id="confirm-nick" name="confirm-nick" hidden>#}
-{#            <button id="clear_ratings" type="submit" class="btn btn-xs btn-success" data-toggle="tooltip" title="You cannot revert this operation. You will lose all of you ratings if you haven't exported them first.">clear my ratings</button>#}
-{#        </form>#}
+    {#    {% if is_owner %}#}
+    {#        <form id="clear_ratings_form" method="post" action="{{ request.user.get_absolute_url }}" style="display:inline;margin-right:10px">{% csrf_token %}#}
+    {#            <input id="confirm-nick" name="confirm-nick" hidden>#}
+    {#            <button id="clear_ratings" type="submit" class="btn btn-xs btn-success" data-toggle="tooltip" title="You cannot revert this operation. You will lose all of you ratings if you haven't exported them first.">clear my ratings</button>#}
+    {#        </form>#}
 
 
-{#    {% if user.imdb_id %}#}
-        <button class="btn btn-xs btn-primary" type="submit" name="update_rss" value="update_rss">update ratings</button>
+    {#    {% if user.imdb_id %}#}
+    <button class="btn btn-xs btn-primary" type="submit" name="update_rss" value="update_rss">update ratings</button>
 
-        <button class="btn btn-xs btn-primary" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>
-{#    {% endif %}#}
-{#    {% if user.csv_ratings %}#}
-        <button class="btn btn-xs btn-primary" type="submit" name="update_csv" value="update_csv">update csv</button>
-{#    {% endif %}#}
+    <button class="btn btn-xs btn-primary" type="submit" name="update_watchlist" value="update_watchlist">update
+        watchlist
+    </button>
+    {#    {% endif %}#}
+    {#    {% if user.csv_ratings %}#}
+    <button class="btn btn-xs btn-primary" type="submit" name="update_csv" value="update_csv">update csv</button>
+    {#    {% endif %}#}
 
 
     <br>
@@ -57,28 +59,31 @@
     </div>
 
     {% if user.pk != request.user.pk %}
-      <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui small follow toggle button right floated{% if user.already_follows %} active{% endif %}" data-pk="{{ user.pk }}">{% if user.already_follows %}Followed{% else %}Follow{% endif %}</div>
+        <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in."
+                                                       data-variation="mini"{% endif %}
+                                                       class="ui small follow toggle button right floated{% if user.already_follows %} active{% endif %}"
+                                                       data-pk="{{ user.pk }}">{% if user.already_follows %}
+            Followed{% else %}Follow{% endif %}</div>
     {% endif %}
 
-<button class="circular ui icon button">
-  <i class="icon settings"></i>
-</button>
+    <button class="circular ui icon button">
+        <i class="icon settings"></i>
+    </button>
 
-<p><a href="{{ user.ratings_url }}" class="ui label">See all</a></p>
+    <p><a href="{{ user.ratings_url }}" class="ui label">See all</a></p>
 
-<div class="four ui buttons">
-  <button class="ui button">Favourites</button>
-  <button class="ui button">Watchlist</button>
-  <button class="ui button">Recommendations</button>
-  <button class="ui button">Ratings</button>
-</div>
+    <div class="four ui buttons">
+        <button class="ui button">Favourites</button>
+        <button class="ui button">Watchlist</button>
+        <button class="ui button">Recommendations</button>
+        <button class="ui button">Ratings</button>
+    </div>
 
-<div class="three ui grey buttons">
-  <button class="ui button">Settings</button>
-  <button class="ui button">Update ratings</button>
-  <button class="ui button">Update watchlist</button>
-</div>
-
+    <div class="three ui grey buttons">
+        <button class="ui button">Settings</button>
+        <button class="ui button">Update ratings</button>
+        <button class="ui button">Update watchlist</button>
+    </div>
 
 
 
@@ -87,135 +92,63 @@
     {% if is_other_user %}
         <div class="ui fluid {% if is_other_user %}two{% endif %} item menu title-menu">
             <a class="item active" data-tab="first">Overview</a>
-    {#        <a class="item" data-tab="second">Lists</a>#}
-    {#        <a class="item" data-tab="third">Charts</a>#}
+            {#        <a class="item" data-tab="second">Lists</a>#}
+            {#        <a class="item" data-tab="third">Charts</a>#}
             {% if is_other_user %}
-                <a class="item" data-tab="fourth">Compared with you</a>
+                <a class="item" data-tab="second">Compared with you</a>
             {% endif %}
         </div>
-    {% endif %}
-    {% if is_other_user %}
         <div class="ui tab segment active" data-tab="first">
-    {% endif %}
-        <div class="ui grid centered statistics">
-          <div class="statistic">
-            <div class="value">
-              {{ user.total_ratings }}
-            </div>
-            <div class="label">
-              Ratings
-            </div>
-          </div>
-          <div class="statistic">
-            <div class="value">
-              {{ user.total_movies }}
-            </div>
-            <div class="label">
-              Movies seen
-            </div>
-          </div>
-          <div class="statistic">
-            <div class="value">
-              {{ user.total_series }}
-            </div>
-            <div class="label">
-              Tv-shows seen
-            </div>
-          </div>
-          <div class="statistic">
-            <div class="value">
-              {{ user.total_followers }}
-            </div>
-            <div class="label">
-              Followers
-            </div>
-          </div>
+            {% include 'accounts/includes/user_detail_first_segment.html' %}
         </div>
-        <div class="ui segment">
-          <span class="ui blue ribbon label">Currently watching</span>
-            <div class="ui list">
-                {% include 'titles/includes/slick_titles.html' with queryset=currently_watching %}
-            </div>
-        </div>
-        <div class="ui segment">
-          <span class="ui blue ribbon label">Activity</span>
-            <span>{{ user.username }}'s latest ratings</span>
-            <div class="ui list">
-                {% include 'titles/includes/slick_titles.html' with queryset=rating_list rating_qs=True %}
-{#                {% if not rating_list %}#}
-{#                    <p>Nothing found</p>#}
-{#                {% else %}#}
-{#                    <div class="ui hidden divider"></div>#}
-{#                    <p><a href="{{ user.ratings_url }}" class="ui label">See all</a></p>#}
-{#                {% endif %}#}
-            </div>
-        </div>
-        <div class="ui segment">
-          <span class="ui blue ribbon label">Feed</span>
-            <span>Latest activity of users followed by {{ user.username }}</span>
-            <div class="ui list">
-                {% for rating in feed %}
-                  <div class="item">
-                    <img class="ui avatar image" src="{{ rating.user.avatar_url }}">
-                    <div class="content">
-                      <span>{{ rating.rate_date }}</span>
-                        <div class="description"><a href="{{ rating.user.get_absolute_url }}">{{ rating.user.username }}</a> rated <a href="{{ rating.title.get_absolute_url }}"><b>{{ rating.title.name }}</b></a> {{ rating.rate }}<i class="icon star green"></i></div>
-                    </div>
-                  </div>
-                {% endfor %}
-                {% if not feed %}
-                    <p>Nothing found</p>
-                {% endif %}
-            </div>
-        </div>
-    {% if is_other_user %}
-        </div>
+    {% else %}
+        {% include 'accounts/includes/user_detail_first_segment.html' %}
     {% endif %}
 
     {% if is_other_user %}
-        <div class="ui tab segment" data-tab="fourth">
+        <div class="ui tab segment" data-tab="second">
             {% if comparision %}
                 <div class="ui grid centered statistics">
-                  <div class="statistic">
-                    <div class="value">{{ comparision.common_titles_length }}</div>
-                    <div class="label">the same titles</div>
-                  </div>
-                  <div class="statistic">
-                    <div class="value">{{ comparision.percentage }}%</div>
-                    <div class="label">Of his titles you saw</div>
-                  </div>
-                  <div class="statistic">
-                    <div class="value">{{ comparision.averages.user }}</div>
-                    <div class="label">He Rated them</div>
-                  </div>
-                  <div class="statistic">
-                    <div class="value">{{ comparision.averages.request_user }}</div>
-                    <div class="label">You rated them</div>
-                  </div>
+                    <div class="statistic">
+                        <div class="value">{{ comparision.common_titles_length }}</div>
+                        <div class="label">the same titles</div>
+                    </div>
+                    <div class="statistic">
+                        <div class="value">{{ comparision.percentage }}%</div>
+                        <div class="label">Of his titles you saw</div>
+                    </div>
+                    <div class="statistic">
+                        <div class="value">{{ comparision.averages.user }}</div>
+                        <div class="label">He Rated them</div>
+                    </div>
+                    <div class="statistic">
+                        <div class="value">{{ comparision.averages.request_user }}</div>
+                        <div class="label">You rated them</div>
+                    </div>
                 </div>
                 <div class="ui segment">
-                  <span class="ui teal ribbon label">Lower</span>
+                    <span class="ui teal ribbon label">Lower</span>
                     <span>{{ user.username }} rated lower</span>
                     <div class="ui list">
                         {% include 'titles/includes/slick_titles.html' with queryset=comparision.titles_user_rate_lower %}
                     </div>
                 </div>
                 <div class="ui segment">
-                  <span class="ui teal ribbon label">Higher</span>
+                    <span class="ui teal ribbon label">Higher</span>
                     <span>{{ user.username }} rated higher</span>
                     <div class="ui list">
                         {% include 'titles/includes/slick_titles.html' with queryset=comparision.titles_user_rate_higher %}
                     </div>
                 </div>
                 <div class="ui segment">
-                  <span class="ui teal ribbon label">The same</span>
+                    <span class="ui teal ribbon label">The same</span>
                     <span>{{ user.username }} rated the same</span>
                     <div class="ui list">
                         {% include 'titles/includes/slick_titles.html' with queryset=comparision.titles_rated_the_same %}
                     </div>
                 </div>
                 <div class="ui segment">
-                  <span class="ui teal ribbon label">You need to see</span>
+                    <span class="ui teal ribbon label">You need to see</span>
                     <span>{{ user.username }} liked that you haven't seen</span>
                     <div class="ui list">
                         {% include 'titles/includes/slick_titles.html' with queryset=comparision.titles_user_liked %}
@@ -227,56 +160,59 @@
         </div>
     {% endif %}
 
-{#    MODALS#}
+    {#    MODALS#}
     <div class="ui export tiny modal">
-      <i class="close icon"></i>
-      <div class="header">
-        Export {{ user.username }}'s ratings
-      </div>
-      <div class="content">
-        <div class="description">
-          You can export {{ user.username }}'s ratings to csv file. If you will lose some of your ratings, you will be able to import them back.
+        <i class="close icon"></i>
+        <div class="header">
+            Export {{ user.username }}'s ratings
         </div>
-      </div>
-      <div class="actions">
-        <div class="ui cancel button">Cancel</div>
-        <div class="ui positive button" data-pk="{{ user.pk }}">Export</div>
-      </div>
+        <div class="content">
+            <div class="description">
+                You can export {{ user.username }}'s ratings to csv file. If you will lose some of your ratings, you
+                will be able to import them back.
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui cancel button">Cancel</div>
+            <div class="ui positive button" data-pk="{{ user.pk }}">Export</div>
+        </div>
     </div>
 
     {% if is_owner %}
         <div class="ui import tiny modal">
-          <i class="close icon"></i>
-          <div class="header">
-            Import ratings
-          </div>
-              <div class="content">
+            <i class="close icon"></i>
+            <div class="header">
+                Import ratings
+            </div>
+            <div class="content">
                 <div class="description">
-                  You can add ratings from exported file from this site or IMDb. Your ratings won't be deleted, only the ones missing will be added.
-                    <form id="import-form" method="post" action="{% url 'user-import-ratings' user.username %}" enctype="multipart/form-data">{% csrf_token %}
+                    You can add ratings from exported file from this site or IMDb. Your ratings won't be deleted, only
+                    the ones missing will be added.
+                    <form id="import-form" method="post" action="{% url 'user-import-ratings' user.username %}"
+                          enctype="multipart/form-data">{% csrf_token %}
                         {% include 'includes/field.html' with field=form.csv_file %}
                     </form>
                 </div>
-              </div>
-              <div class="actions">
+            </div>
+            <div class="actions">
                 <div class="ui cancel button">Cancel</div>
                 <div class="ui positive button">Import</div>
-              </div>
+            </div>
         </div>
     {% endif %}
 
     <div class="ui second tiny modal">
-      <i class="close icon"></i>
-      <div class="header">
-        Result
-      </div>
-      <div class="content">
-        <div class="description">
-          result
+        <i class="close icon"></i>
+        <div class="header">
+            Result
         </div>
-      </div>
-      <div class="actions">
-        <div class="ui approve button" data-pk="{{ user.pk }}"><i class="checkmark icon"></i> All done</div>
-      </div>
+        <div class="content">
+            <div class="description">
+                result
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui approve button"><i class="checkmark icon"></i> All done</div>
+        </div>
     </div>
 {% endblock %}

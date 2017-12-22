@@ -1,0 +1,74 @@
+<div class="ui grid centered statistics">
+    <div class="statistic">
+        <div class="value">
+            {{ user.total_ratings }}
+        </div>
+        <div class="label">
+            Ratings
+        </div>
+    </div>
+    <div class="statistic">
+        <div class="value">
+            {{ user.total_movies }}
+        </div>
+        <div class="label">
+            Movies seen
+        </div>
+    </div>
+    <div class="statistic">
+        <div class="value">
+            {{ user.total_series }}
+        </div>
+        <div class="label">
+            Tv-shows seen
+        </div>
+    </div>
+    <div class="statistic">
+        <div class="value">
+            {{ user.total_followers }}
+        </div>
+        <div class="label">
+            Followers
+        </div>
+    </div>
+</div>
+<div class="ui segment">
+    <span class="ui blue ribbon label">Currently watching</span>
+    <div class="ui list">
+        {% include 'titles/includes/slick_titles.html' with queryset=currently_watching %}
+    </div>
+</div>
+<div class="ui segment">
+    <span class="ui blue ribbon label">Activity</span>
+    <span>{{ user.username }}'s latest ratings</span>
+    <div class="ui list">
+        {% include 'titles/includes/slick_titles.html' with queryset=rating_list rating_qs=True %}
+        {#                {% if not rating_list %}#}
+        {#                    <p>Nothing found</p>#}
+        {#                {% else %}#}
+        {#                    <div class="ui hidden divider"></div>#}
+        {#                    <p><a href="{{ user.ratings_url }}" class="ui label">See all</a></p>#}
+        {#                {% endif %}#}
+    </div>
+</div>
+<div class="ui segment">
+    <span class="ui blue ribbon label">Feed</span>
+    <span>Latest activity of users followed by {{ user.username }}</span>
+    <div class="ui list">
+        {% for rating in feed %}
+            <div class="item">
+                <img class="ui avatar image" src="{{ rating.user.avatar_url }}">
+                <div class="content">
+                    <span>{{ rating.rate_date }}</span>
+                    <div class="description"><a href="{{ rating.user.get_absolute_url }}">{{ rating.user.username }}</a>
+                        rated <a
+                                href="{{ rating.title.get_absolute_url }}"><b>{{ rating.title.name }}</b></a> {{ rating.rate }}<i
+                                class="icon star green"></i></div>
+                </div>
+            </div>
+        {% endfor %}
+        {% if not feed %}
+            <p>Nothing found</p>
+        {% endif %}
+    </div>
+</div>
