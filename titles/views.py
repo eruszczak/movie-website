@@ -233,13 +233,10 @@ class PersonDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        person_titles = Title.objects.filter(
-            Q(casttitle__person=self.object) | Q(crewtitle__person=self.object)
-        )
-        context['latest_title'] = person_titles.latest('release_date')
 
         casttitle_list = CastTitle.objects.filter(person=self.object).select_related('title')
         crewtitle_list = CrewTitle.objects.filter(person=self.object).select_related('title')
+
         if self.request.user.is_authenticated:
             latest_rate = {
                 'request_user_rate': Subquery(
@@ -251,14 +248,34 @@ class PersonDetailView(DetailView):
             casttitle_list = casttitle_list.annotate(**latest_rate)
             crewtitle_list = crewtitle_list.annotate(**latest_rate)
 
-            aggregation_cast = casttitle_list.aggregate(avg=Avg('request_user_rate'), count=Count('pk'))
-            aggregation_crew = crewtitle_list.aggregate(avg=Avg('request_user_rate'), count=Count('pk'))
-            avg_sum = (aggregation_cast['avg'] or 0) + (aggregation_crew['avg'] or 0)
-            context['avg'] = avg_sum / 2
+            results = list(casttitle_list.values('request_user_rate', 'title'))
+            results.extend(list(crewtitle_list.values('request_user_rate', 'title')))
+            rates = [result['request_user_rate'] for result in results]
+            titles = [result['title'] for result in results]
+
+            common_titles_count = Title.objects.filter(rating__user=self.request.user, pk__in=titles).count()
+            rates_clean = [r for r in rates if r]
+
+            try:
+                avg = sum(rates_clean) / len(rates_clean)
+            except ZeroDivisionError:
+                avg = '-'
+
+            try:
+                percentage = round((common_titles_count / len(results)) * 100, 2)
+            except ZeroDivisionError:
+                percentage = '-'
+
+            context.update({
+                'avg': avg,
+                'percentage': percentage
+            })
 
         context.update({
-            'person_titles_count': person_titles.count(),
             'casttitle_list': casttitle_list,
-            'crewtitle_list': crewtitle_list
+            'crewtitle_list': crewtitle_list,
+            'titles_count': len(crewtitle_list) + len(casttitle_list),
+            'latest_title': Title.objects.filter(
+                Q(casttitle__person=self.object) | Q(crewtitle__person=self.object)).latest('release_date')
         })
         return context

@@ -3,12 +3,12 @@
 {#{% block title %}{% endblock %}#}
 
 {% block image %}
-{#    {% include 'titles/includes/title_background.html' with title=title %}#}
     <div class="still-background2 still-background2-gradient">
         {% with title=latest_title %}
             {% if not title %}
                 <!-- Background pattern from Subtle Patterns -->
-                <div class="backdrop" style="background-image: url({% static 'img/intersection.png' %});background-repeat: repeat-x;"></div>
+                <div class="backdrop"
+                     style="background-image: url({% static 'img/intersection.png' %});background-repeat: repeat-x;"></div>
             {% else %}
                 <img class="backdrop" src="{{ title.poster_backdrop_user }}">
             {% endif %}
@@ -27,49 +27,51 @@
 {% block content %}
     <div class="ui grid centered statistics">
         <div class="statistic">
-            <div class="value"></div>
-            <div class="label">cast</div>
+            <div class="value">{{ titles_count }}</div>
+            <div class="label">credits</div>
         </div>
-        <div class="statistic">
-            <div class="value"></div>
-            <div class="label">crew</div>
-        </div>
-        <div class="statistic">
-            <div class="value">%</div>
-            <div class="label">his credits you saw</div>
-        </div>
-        <div class="statistic">
-            <div class="value">{{ avg }}</div>
-            <div class="label">your avg credits score</div>
-        </div>
+        {% if request.user.is_authenticated %}
+            <div class="statistic">
+                <div class="value">{{ percentage }}%</div>
+                <div class="label">of credits you saw</div>
+            </div>
+            <div class="statistic">
+                <div class="value">{{ avg }}</div>
+                <div class="label">your avg credits score</div>
+            </div>
+        {% endif %}
     </div>
-
     <div class="ui segment">
         <span class="ui blue ribbon label">Cast</span>
         <div class="ui list">
             {% for cast in casttitle_list %}
-                  <div class="item">
-                    <a class="ui mini title image" href="{{ cast.title.get_absolute_url }}"><img src="{{ cast.title.poster_small }}"></a>
+                <div class="item">
+                    <a class="ui mini title image" href="{{ cast.title.get_absolute_url }}"><img
+                            src="{{ cast.title.poster_small }}"></a>
                     <div class="content">
-                      <p class="header">{{ cast.character|default:'-' }}</p>
-                        <div class="description"><a href="{{ cast.title.get_absolute_url }}">{{ cast.title.name }} ({{ cast.title.year }})</a>{% if cast.request_user_rate %} {{ cast.request_user_rate }}<i class="icon star yellow"></i>{% endif %}</div>
+                        <p class="header">{{ cast.character|default:'-' }}</p>
+                        <div class="description"><a href="{{ cast.title.get_absolute_url }}">{{ cast.title.name }}
+                            ({{ cast.title.year }})</a>{% if cast.request_user_rate %} {{ cast.request_user_rate }}
+                            <i class="icon star yellow"></i>{% endif %}</div>
                     </div>
-                  </div>
+                </div>
             {% endfor %}
         </div>
     </div>
-
     <div class="ui segment">
-      <span class="ui blue ribbon label">Crew</span>
+        <span class="ui blue ribbon label">Crew</span>
         <div class="ui list">
             {% for crew in crewtitle_list %}
-                  <div class="item">
-                    <a class="ui mini title image" href="{{ crew.title.get_absolute_url }}"><img src="{{ crew.title.poster_small }}"></a>
+                <div class="item">
+                    <a class="ui mini title image" href="{{ crew.title.get_absolute_url }}"><img
+                            src="{{ crew.title.poster_small }}"></a>
                     <div class="content">
-                      <p class="header">{{ crew.get_job_display|default:'-' }}</p>
-                        <div class="description"><a href="{{ crew.title.get_absolute_url }}">{{ crew.title.name }} ({{ crew.title.year }})</a>{% if crew.request_user_rate %} {{ crew.request_user_rate }}<i class="icon star yellow"></i>{% endif %}</div>
+                        <p class="header">{{ crew.get_job_display|default:'-' }}</p>
+                        <div class="description"><a href="{{ crew.title.get_absolute_url }}">{{ crew.title.name }}
+                            ({{ crew.title.year }})</a>{% if crew.request_user_rate %} {{ crew.request_user_rate }}
+                            <i class="icon star yellow"></i>{% endif %}</div>
                     </div>
-                  </div>
+                </div>
             {% endfor %}
         </div>
     </div>
