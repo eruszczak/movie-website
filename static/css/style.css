@@ -270,3 +270,11 @@ body {
 .mini.title.image {
      padding-right: 0!important;
 }
+
+/*.ui.tab {*/
+    /*visibility: hidden;*/
+/*}*/
+
+/*.ui.tab.active {*/
+    /*visibility: visible;*/
+/*}*/

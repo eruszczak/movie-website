@@ -6,14 +6,13 @@ import requests
 
 
 def get_random_file_path(instance, file_name):
-    folder_path = instance.get_folder_path()
+    folder_path = instance.get_folder_path(create=True)
     extension = file_name.split('.')[1]
     random_file_name = f'{str(uuid4().hex)}.{extension}'
     return join(folder_path, random_file_name)
 
 
-def create_instance_folder(instance):
-    directory = instance.get_temp_folder_path(absolute=True)
+def create_folder_if_not_exists(directory):
     if not exists(directory):
         makedirs(directory)
 
