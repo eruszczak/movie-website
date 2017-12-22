@@ -262,7 +262,7 @@ class PersonDetailView(DetailView):
                 pass
 
             try:
-                context['percentage'] = f'{round((common_titles_count / len(results)) * 100, 2)}%'
+                context['percentage'] = round((common_titles_count / len(results)) * 100, 2)
             except ZeroDivisionError:
                 pass
 
