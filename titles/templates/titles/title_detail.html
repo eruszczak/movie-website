@@ -88,7 +88,7 @@
                 <div class="ui segment">
                   <span class="ui blue ribbon label">{{ title.collection.name }}</span>
                     <div class="ui list">
-                        {% include 'titles/includes/slick_titles_from_title.html' with queryset=collection_titles %}
+                        {% include 'titles/includes/slick_titles.html' with queryset=collection_titles %}
                     </div>
                 </div>
             {% endif %}
@@ -97,7 +97,7 @@
                 <div class="ui segment">
                   <span class="ui blue ribbon label">Similar</span>
                     <div class="ui list">
-                        {% include 'titles/includes/slick_titles_from_title.html' with queryset=similar %}
+                        {% include 'titles/includes/slick_titles.html' with queryset=similar %}
                     </div>
                 </div>
             {% endif %}
@@ -106,7 +106,7 @@
                 <div class="ui segment">
                   <span class="ui blue ribbon label">Recommendations</span>
                     <div class="ui list">
-                        {% include 'titles/includes/slick_titles_from_title.html' with queryset=recommendations %}
+                        {% include 'titles/includes/slick_titles.html' with queryset=recommendations %}
                     </div>
                 </div>
             {% endif %}
@@ -128,29 +128,16 @@
               </div>
             </div>
         {% endif %}
-
         <div class="ui segment">
           <span class="ui blue ribbon label">Cast</span>
             <div class="ui list">
-                <div class="slick-carousel-small">
-                    {% for cast in cast_list %}
-                        <div>
-                            {% include 'titles/includes/person_small_slick.html' with slick=True person=cast.person role=cast.character %}
-                        </div>
-                    {% endfor %}
-                </div>
+                {% include 'titles/includes/slick_persons.html' with queryset=cast_list cast_qs=True %}
             </div>
         </div>
         <div class="ui segment">
           <span class="ui blue ribbon label">Crew</span>
             <div class="ui list">
-                <div class="slick-carousel-small">
-                    {% for crew in crew_list %}
-                        <div>
-                            {% include 'titles/includes/person_small_slick.html' with slick=True person=crew.person role=crew.get_job_display %}
-                        </div>
-                    {% endfor %}
-                </div>
+                {% include 'titles/includes/slick_persons.html' with queryset=crew_list crew_qs=True %}
             </div>
         </div>
 
