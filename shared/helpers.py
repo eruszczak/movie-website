@@ -3,15 +3,6 @@ from os.path import join, exists
 from uuid import uuid4
 
 import requests
-from django.core.exceptions import ValidationError
-
-
-# def send_email(subject, message):
-#     mail_admins(
-#         subject,
-#         message,
-#         # html_message=message,
-#     )
 
 
 def get_random_file_path(instance, file_name):
@@ -21,13 +12,8 @@ def get_random_file_path(instance, file_name):
     return join(folder_path, random_file_name)
 
 
-# def validate_file_ext(value):
-#     if not value.name.endswith('.csv'):
-#         raise ValidationError('Only csv files are supported')
-
-
 def create_instance_folder(instance):
-    directory = instance.get_folder_path(absolute=True)
+    directory = instance.get_temp_folder_path(absolute=True)
     if not exists(directory):
         makedirs(directory)
 

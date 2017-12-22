@@ -36,5 +36,3 @@ def import_ratings_from_csv(user, file):
                 created_count += 1
 
     return f'imported {created_count} out of {total_rows} ratings'
-
-

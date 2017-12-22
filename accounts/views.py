@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Count, OuterRef, Subquery, F, Avg, Exists
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, UpdateView, DetailView, FormView
 
@@ -193,16 +194,26 @@ class ImportRatingsAPIView(LoginRequiredMixin, FormView):
     form_class = ImportRatingsForm
 
     def get_success_url(self):
-        messages.success(self.request, 'You will be notified, when import is done.')
         return self.request.user.get_absolute_url()
 
+    def form_invalid(self, form):
+        message = 'There was an error'
+        if form['csv_file'].errors:
+            message = f"Error with uploaded file for import: {form['csv_file'].errors.as_text().lstrip('* ')}"
+
+        messages.error(self.request, message)
+        return HttpResponseRedirect(self.get_success_url())
+
     def form_valid(self, form):
-        file = self.request.FILES['csv_file']
-        file2 = form.cleaned_data['csv_file']
-        print(file, type(file))
-        print(file2, type(file2))
-        # import_ratings_from_csv(self.request.user, self.request.FILES['csv_file'])
-        # import_ratings_from_csv(self.request.user, form.cleaned_data['csv_file'])
+        tmp_folder = self.request.user.get_temp_folder_path()
+        file = form.cleaned_data['csv_file']
+        # print(file, type(file))
+        from django.core.files.storage import default_storage
+        from django.core.files.base import ContentFile
+        from os.path import join
+        path = default_storage.save(join(tmp_folder, file.name), ContentFile(file.read()))
+        print(path)
+        # call task
+        # import_ratings_from_csv(self.request.user, file)
+        messages.success(self.request, 'You will be notified, when import is done.')
         return super().form_valid(form)
-
-
