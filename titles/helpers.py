@@ -36,3 +36,12 @@ class SubqueryCount(Subquery):
     """https://stackoverflow.com/a/47371514"""
     template = "(SELECT count(*) FROM (%(subquery)s) _count)"
     output_field = IntegerField()
+
+
+def fill_dictwriter_with_rating_qs(writer, ratings):
+    for r in ratings:
+        writer.writerow({
+            'imdb_id': r.title.imdb_id,
+            'rate_date': r.rate_date,
+            'rate': r.rate
+        })

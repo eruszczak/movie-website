@@ -1,7 +1,8 @@
+from django.utils import timezone
+
 from common.prepareDB import update_user_ratings_csv, update_user_ratings, update_user_watchlist
 from common.prepareDB_utils import valid_imported_csv_headers
 from common.utils import build_html_string_for_titles
-from django.utils import timezone
 
 
 msgs = {
@@ -105,19 +106,3 @@ def validate_imported_ratings(file, io_string):
     if message:
         return False, message
     return True, 'valid'
-
-
-def create_csv_with_user_ratings(writer, ratings):
-    """
-    fills csv.DictWriter with given Rating queryset
-    """
-    for rating in ratings:
-        writer.writerow({
-            'const': rating.title.const,
-            'rate_date': rating.rate_date,
-            'rate': rating.rate
-        })
-    count_ratings = ratings.count()
-    count_titles = ratings.values_list('title').distinct().count()
-    return count_ratings, count_titles
-
