@@ -1,7 +1,6 @@
 $.fn.api.settings.api = {
     'search': '/api/search?keyword={query}',
     'follow user': '/api/user/{pk}/follow',
-    'import ratings': '/api/user/{pk}/import',
     'export ratings': '/api/user/{pk}/export',
     'favourite title': '/api/title/{pk}/favourites',
     'watchlist title': '/api/title/{pk}/watchlist',
@@ -130,20 +129,12 @@ var currentlyWatchingSettings = $.extend({
     }
 }, API_SETTINGS_BASE);
 
-
-var EXPORT_IMPORT_BASE_SETTINGS = $.extend({
+var exportRatingsSettings = $.extend({
+    action: 'export ratings',
     onSuccess: function(response) {
         setModalContentAndShow($('.second.modal'), response);
     }
 }, API_SETTINGS_BASE);
-
-var exportRatingsSettings = $.extend({
-    action: 'export ratings'
-}, EXPORT_IMPORT_BASE_SETTINGS);
-
-var importRatingsSettings = $.extend({
-    action: 'import ratings'
-}, EXPORT_IMPORT_BASE_SETTINGS);
 
 
 $('.title-fav').api(titleFavSettings);
@@ -157,4 +148,3 @@ $('.follow.button').api(followSettings).state({
 });
 $('.currently-watching.button').api(currentlyWatchingSettings);
 $('.export.modal .actions .positive').api(exportRatingsSettings);
-$('.import.modal .actions .positive').api(importRatingsSettings);

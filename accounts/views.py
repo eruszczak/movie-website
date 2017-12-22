@@ -2,19 +2,20 @@ from django.contrib.auth import get_user_model
 from django.db.models import Count, OuterRef, Subquery, F, Avg, Exists
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, UpdateView, DetailView
+from django.views.generic import ListView, UpdateView, DetailView, FormView
 
+from accounts.helpers import import_ratings_from_csv
+from shared.mixins import LoginRequiredMixin
 from titles.constants import SERIES, MOVIE
 from titles.helpers import SubqueryCount
 from titles.models import Title, Rating
 from accounts.models import UserFollow
-from accounts.forms import UserUpdateForm
-
+from accounts.forms import UserUpdateForm, ImportRatingsForm
 
 User = get_user_model()
 
 
-class UserUpdateView(UpdateView):
+class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = UserUpdateForm
     template_name = 'accounts/user_edit.html'
@@ -129,6 +130,8 @@ class UserDetailView(DetailView):
                 'already_follows': UserFollow.objects.filter(follower=self.request.user, followed=self.object).exists(),
                 'comparision': self.get_ratings_comparision()
             })
+        elif is_owner:
+            context['form'] = ImportRatingsForm()
 
         context.update({
             'is_other_user': is_other_user,
@@ -184,3 +187,22 @@ class UserDetailView(DetailView):
                 'titles_rated_the_same': titles_rated_the_same[:self.limit],
                 'titles_user_liked': titles_user_liked[:self.limit]
             }
+
+
+class ImportRatingsAPIView(LoginRequiredMixin, FormView):
+    form_class = ImportRatingsForm
+
+    def get_success_url(self):
+        messages.success(self.request, 'You will be notified, when import is done.')
+        return self.request.user.get_absolute_url()
+
+    def form_valid(self, form):
+        file = self.request.FILES['csv_file']
+        file2 = form.cleaned_data['csv_file']
+        print(file, type(file))
+        print(file2, type(file2))
+        # import_ratings_from_csv(self.request.user, self.request.FILES['csv_file'])
+        # import_ratings_from_csv(self.request.user, form.cleaned_data['csv_file'])
+        return super().form_valid(form)
+
+

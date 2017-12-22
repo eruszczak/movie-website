@@ -244,21 +244,26 @@
       </div>
     </div>
 
-    <div class="ui import tiny modal">
-      <i class="close icon"></i>
-      <div class="header">
-        Import ratings
-      </div>
-      <div class="content">
-        <div class="description">
-          You can add ratings from exported file.
+    {% if is_owner %}
+        <div class="ui import tiny modal">
+          <i class="close icon"></i>
+          <div class="header">
+            Import ratings
+          </div>
+              <div class="content">
+                <div class="description">
+                  You can add ratings from exported file from this site or IMDb. Your ratings won't be deleted, only the ones missing will be added.
+                    <form id="import-form" method="post" action="{% url 'user-import-ratings' user.username %}" enctype="multipart/form-data">{% csrf_token %}
+                        {% include 'includes/field.html' with field=form.csv_file %}
+                    </form>
+                </div>
+              </div>
+              <div class="actions">
+                <div class="ui cancel button">Cancel</div>
+                <div class="ui positive button">Import</div>
+              </div>
         </div>
-      </div>
-      <div class="actions">
-        <div class="ui cancel button">Cancel</div>
-        <div class="ui positive button" data-pk="{{ user.pk }}">Import</div>
-      </div>
-    </div>
+    {% endif %}
 
     <div class="ui second tiny modal">
       <i class="close icon"></i>

@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from rest_framework import reverse
 from rest_framework import serializers
 
 from titles.models import Rating, Title, Person
@@ -61,13 +60,6 @@ class RatingListSerializer(serializers.HyperlinkedModelSerializer):
     @staticmethod
     def get_rate_date_formatted(obj):
         return obj.rate_date.strftime('%b %d, %A')
-
-
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ('username', )
 
 
 class PersonSerializer(serializers.ModelSerializer):

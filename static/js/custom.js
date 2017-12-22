@@ -31,4 +31,8 @@ $('.grid .backdrop-card img').visibility({
 $('.ui.accordion').accordion();
 
 $('.export.tiny.modal').modal('attach events', '.export-ratings.button', 'show');
-$('.import.tiny.modal').modal('attach events', '.import-ratings.button', 'show');
+$('.import.tiny.modal').modal({
+    onApprove: function (e) {
+        $('#import-form').submit();
+    }
+}).modal('attach events', '.import-ratings.button', 'show');
