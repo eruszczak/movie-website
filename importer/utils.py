@@ -51,13 +51,13 @@ def export_ratings(user):
     """
     exports to a csv file all of user's ratings, so they can be imported later
     file consists of lines in format: tt1234567,2017-05-23,7
+    The file can be used to import ratings back using ImportRatingsView
     """
     user_tmp_folder = user.get_temp_folder_path(absolute=True, create=True)
 
     ratings = Rating.objects.filter(user=user).select_related('title')
-    count_ratings = ratings.count()
-    count_titles = ratings.values_list('title').distinct().count()
-
+    # count_ratings = ratings.count()
+    # count_titles = ratings.values_list('title').distinct().count()
     # filename = '{}_ratings_for_{}_titles_{}'.format(count_ratings, count_titles, now().strftime('%Y-%m-%d'))
     filename = 'export'
     file_path = join(user_tmp_folder, f'{filename}.csv')

@@ -17,22 +17,21 @@
 {% endblock %}
 
 {% block content %}
-    <br>
-    * carousel by default not active,<br>
-    * updater buttons maybe replace with select with confirmation modal<br>
     {% if is_owner %}
-        <button class="ui basic orange button" type="submit" name="update_rss" value="update_rss">update ratings</button>
-        <button class="ui basic orange button" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>
-        <button class="ui basic orange button" type="submit" name="update_csv" value="update_csv">update csv</button>
-    {% endif %}
-
-
-    <button class="ui basic primary button export-ratings">Export ratings</button>
-    {% if is_owner %}
-        <button class="ui basic primary button import-ratings">Import ratings</button>
+        <div class="ui styled fluid accordion">
+            <div class="user title"><i class="dropdown icon"></i> Management</div>
+            <div class="content">
+                <button class="ui basic orange button" type="submit" name="update_rss" value="update_rss">update ratings</button>
+                <button class="ui basic orange button" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>
+                <button class="ui basic primary button import-ratings">Import ratings</button>
+                <button class="ui basic primary button export-ratings">Export ratings</button>
+            </div>
+        </div>
+    {% else %}
+{#        show export button somewhere else because its only thing that should be always visible#}
     {% endif %}
     <br>
-    <br>
+
 
     <div class="ui centered grid">
         {% with user.imdb_url as imdb_url %}

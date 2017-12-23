@@ -278,3 +278,7 @@ body {
 /*.ui.tab.active {*/
     /*visibility: visible;*/
 /*}*/
+
+.ui.styled.accordion .user.title {
+    color: black;
+}
