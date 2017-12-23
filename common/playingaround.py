@@ -132,7 +132,7 @@ def test_queryset():
 
 def test_csv():
     user = User.objects.get(username='test')
-    import_ratings_from_csv(None, 'G:/code/PycharmProjects/movie website/media/accounts/ratings december 2017.csv')
+    import_ratings_from_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/ratings december 2017 — kopia (2).csv')
     # update_user_ratings_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/imdb.csv')
 
 # test_queryset()
