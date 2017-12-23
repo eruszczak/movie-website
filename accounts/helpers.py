@@ -1,6 +1,7 @@
 from csv import DictReader, DictWriter
 from os.path import join
 
+from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 
 from titles.constants import MY_HEADERS, IMDB_HEADERS, IMDB_CSV_MAPPER, MY_CSV_MAPPER
@@ -22,7 +23,7 @@ def recognize_file_source(f):
 
 def import_ratings_from_csv(user, file_path):
     """import missing ratings from csv file (exported from here or imdb)"""
-    # file = file.read().decode('utf-8')  TODO
+    # file = file.read().decode('utf-8')  TODO -- i must take into account that I have 2 different files
     # TODO what about error in FOR LOOP? headers doesnt mean its valid
     # what if rate is incorrect (because if title or date is wrong is ok)
     with open(file_path, 'r') as f:
@@ -32,19 +33,25 @@ def import_ratings_from_csv(user, file_path):
             reader = DictReader(f)
             row_count, created_count = 0, 0
             for row in reader:
-                print(row)
                 row_count += 1
                 imdb_id, rate_date, rate = row[mapper['imdb_id']], row[mapper['rate_date']], row[mapper['rate']]
-                print(row[mapper['rate_date']])
-                # rate_date = convert_to_datetime(row[mapper['rate_date']], 'csv')
-                # print(imdb_id, rate_date, rate)
-                # title = TmdbWrapper().get(imdb_id=imdb_id)
-                # if title and rate_date:
-                #     _, created = Rating.objects.get_or_create(
-                #         user=user, title=title, rate_date=rate_date, defaults={'rate': rate}
-                #     )
-                #     if created:
-                #         created_count += 1
+                rate_date = convert_to_datetime(row[mapper['rate_date']], 'csv')
+                print(imdb_id, rate_date, rate)
+                title = TmdbWrapper().get(imdb_id=imdb_id)
+                if title and rate_date:
+                    try:
+                        r, created = Rating.objects.get_or_create(
+                            user=user, title=title, rate_date=rate_date, defaults={'rate': rate}
+                        )
+                    except ValidationError as e:
+                        error_message = getattr(e, 'message', '')
+                        print(error_message)
+                    else:
+                        if created:
+                            print('creating', r)
+                            created_count += 1
+                        else:
+                            print('existed', r)
             print(f'imported {created_count} out of {row_count} ratings - {round((created_count / row_count) * 100, 2)}%')
 
     # delete file

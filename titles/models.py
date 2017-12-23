@@ -267,16 +267,21 @@ class Rating(models.Model):
     def __str__(self):
         return '{} {}'.format(self.title.name, self.rate_date)
 
+    def save(self, *args, **kwargs):
+        # todo: from Rating Form can pass a parameter to omit cleaning process
+        self.clean_fields()
+        return super().save(*args, **kwargs)
+
     def clean_fields(self, exclude=None):
         super().clean_fields(exclude)
         if not self.validate_rate():
-            raise ValidationError('Rating must be integer value between 1-10')
+            raise ValidationError(f'{self.rate} is not a value between 1-10')
 
         if self.rate_date > datetime.today().date():
-            raise ValidationError('Date cannot be in the future')
+            raise ValidationError(f'{self.rate_date} is a future date')
 
         if Rating.objects.filter(user=self.user, title=self.title, rate_date=self.rate_date).exists():
-            raise ValidationError('Rating from this day already exists')
+            raise ValidationError(f'Title was already rated on {self.rate_date}')
 
     def validate_rate(self):
         """rating must be integer 1-10"""
@@ -285,21 +290,6 @@ class Rating(models.Model):
         except (ValueError, TypeError):
             return False
         return 0 < rate < 11
-
-    # def save(self, *args, **kwargs):
-    #     """
-    #     before creating new Rating, check if this title is in user's watchlist, if it is - delete it
-    #     """
-    #     # in_watchlist = Watchlist.objects.filter(user=self.user, title=self.title,
-    #     #                                         added_date__date__lte=self.rate_date, deleted=False).first()
-    #     # if in_watchlist:
-    #     #     toggle_title_in_watchlist(unwatch=True, instance=in_watchlist)
-    #
-    #     super(Rating, self).save(*args, **kwargs)
-
-    # @property
-    # def is_current_rating(self):
-    #     return self == Rating.objects.filter(user=self.user, title=self.title).first()
 
 
 class Season(models.Model):

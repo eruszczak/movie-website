@@ -65,24 +65,26 @@ def update_user_ratings_csv(user, path):
         updated_titles = []
         count = 0
         print('update_user_ratings_csv:', user)
-        with open(path, 'r') as f:
-            # if not valid_csv_headers(f):
-            #     return None
+        # with open(path, 'r') as f:
+        # if not valid_csv_headers(f):
+        #     return None
 
-            reader = csv.DictReader(f)
-            for row in reader:
-                title = get_title_or_create(row['const'])
-                rate = row['You rated']
-                rate_date = convert_to_datetime(row['created'], 'csv')
-                # if title and rate and rate_date:
-                #     obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
-                #                                                 defaults={'rate': rate})
-                #     if created:
-                #         count += 1
-                #         if len(updated_titles) < 10:
-                #             updated_titles.append(title)
-        return updated_titles, count
-    return None
+        # reader = csv.reader(f, delimiter=',')
+        reader = csv.DictReader(open(path, 'r'), delimiter=',')
+        for row in reader:
+            print(row[0])
+            # title = get_title_or_create(row['const'])
+            # rate = row['You rated']
+            # rate_date = convert_to_datetime(row['created'], 'csv')
+            # if title and rate and rate_date:
+            #     obj, created = Rating.objects.get_or_create(user=user, title=title, rate_date=rate_date,
+            #                                                 defaults={'rate': rate})
+            #     if created:
+            #         count += 1
+            #         if len(updated_titles) < 10:
+            #             updated_titles.append(title)
+    return updated_titles, count
+    # return None
 
 
 def update_user_ratings(user):
