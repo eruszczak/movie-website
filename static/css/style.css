@@ -147,8 +147,6 @@ body {
     display:none!important;
 }
 
-
-
 .card1 .ui.star.rating .icon {
     color: #ffffff8f;
 }
@@ -282,3 +280,9 @@ body {
 .ui.styled.accordion .user.title {
     color: black;
 }
+
+.hidden {
+    visibility: hidden;
+}
+
+

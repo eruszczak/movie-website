@@ -2,7 +2,6 @@ from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from re import findall
 from rest_framework import status
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
@@ -96,14 +95,11 @@ class ReorderFavourite(IsAuthenticatedMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         favourite_list = Favourite.objects.filter(user=self.request.user)
-        new_title_order = request.POST.get('item_order')
-        print(new_title_order)
+        new_title_order = request.POST.getlist('item_order[]')
         if new_title_order:
-            new_title_order = findall('\d+', new_title_order)
-            print(new_title_order)
-        #     for new_position, title_pk in enumerate(new_title_order, 0):
-        #         user_favourites.filter(title__pk=title_pk).update(order=new_position)
-        #     return Response({'message': 'Changed order'}, status=status.HTTP_200_OK)
+            for order, pk in enumerate(new_title_order, 1):
+                favourite_list.filter(title__pk=pk).update(order=order)
+            return Response({'message': 'Changed order'}, status=status.HTTP_200_OK)
         return Response({'message': 'Nothing has changed.'}, status=status.HTTP_200_OK)
 
 
