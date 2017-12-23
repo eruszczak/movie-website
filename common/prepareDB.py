@@ -2,7 +2,8 @@ import os
 import csv
 
 # from django.conf import settings
-from .prepareDB_utils import convert_to_datetime, get_rss, unpack_from_rss_item, add_new_title
+from .prepareDB_utils import get_rss, unpack_from_rss_item, add_new_title
+from importer.helpers import convert_to_datetime
 from titles.models import Title, Rating
 from lists.models import Watchlist
 

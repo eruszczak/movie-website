@@ -4,8 +4,7 @@ from os.path import join
 
 from django.core.exceptions import ValidationError
 
-from importer.helpers import recognize_file_source
-from common.prepareDB_utils import convert_to_datetime
+from importer.helpers import recognize_file_source, convert_to_datetime
 from titles.constants import MY_HEADERS
 from titles.helpers import fill_dictwriter_with_rating_qs
 from titles.models import Rating
