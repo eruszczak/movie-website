@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^', include('titles.urls')),
     url(r'^api/', include('api.urls')),
     url(r'^accounts/', include('accounts.urls')),
+    url(r'^importer/', include('importer.urls')),
     url(r'^', include('shared.urls')),
     url(r'^robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
 ]

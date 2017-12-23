@@ -19,7 +19,7 @@ from shared.mixins import LoginRequiredMixin
 from titles.helpers import instance_required
 
 
-class ImportRatingsAPIView(LoginRequiredMixin, FormView):
+class ImportRatingsFormView(LoginRequiredMixin, FormView):
     form_class = ImportRatingsForm
 
     def get_success_url(self):

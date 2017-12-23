@@ -1,7 +1,7 @@
 $.fn.api.settings.api = {
     'search': '/api/search?keyword={query}',
     'follow user': '/api/user/{pk}/follow',
-    'export ratings': '/api/user/{pk}/export',
+    'export ratings': '/importer/user/{pk}/export',
     'favourite title': '/api/title/{pk}/favourites',
     'watchlist title': '/api/title/{pk}/watchlist',
     'recommend title': '/api/title/{pk}/recommend',
