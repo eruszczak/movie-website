@@ -27,7 +27,7 @@ class User(FolderPathMixin, AbstractUser):
         return reverse('user-detail', args=[self.username])
 
     def edit_url(self):
-        return reverse('user-edit', args=[self.username])
+        return reverse('user-edit')
 
     def watchlist_url(self):
         return reverse('watchlist', args=[self.username])
