@@ -5,11 +5,6 @@ from titles.models import Title, Rating
 from titles.views import User
 
 
-class ListListView(ListView):
-    template_name = 'lists/list_list.html'
-    # model = List
-
-
 class WatchlistListView(ListView):
     template_name = 'lists/watchlist.html'
     model = Title

@@ -30,13 +30,10 @@ class User(FolderPathMixin, AbstractUser):
         return reverse('user-edit')
 
     def watchlist_url(self):
-        return reverse('watchlist', args=[self.username])
+        return reverse('watchlist-list', args=[self.username])
 
     def favourite_url(self):
-        return reverse('favourite', args=[self.username])
-
-    def recommend_url(self):
-        return reverse('recommend', args=[self.username])
+        return reverse('favourite-list', args=[self.username])
 
     def ratings_url(self):
         return reverse('title-list') + '?user={}'.format(self.pk)
@@ -61,17 +58,17 @@ class User(FolderPathMixin, AbstractUser):
             return f'{imdb_url}watchlist/'
         return ''
 
-    @property
-    def imdb_ratings_rss_url(self):
-        if self.imdb_id:
-            return f'http://www.rss.imdb.com/user/{self.imdb_id}/ratings'
-        return ''
-
-    @property
-    def imdb_watchlist_rss_url(self):
-        if self.imdb_id:
-            return f'http://www.rss.imdb.com/user/{self.imdb_id}/watchlist'
-        return ''
+    # @property
+    # def imdb_ratings_rss_url(self):
+    #     if self.imdb_id:
+    #         return f'http://www.rss.imdb.com/user/{self.imdb_id}/ratings'
+    #     return ''
+    #
+    # @property
+    # def imdb_watchlist_rss_url(self):
+    #     if self.imdb_id:
+    #         return f'http://www.rss.imdb.com/user/{self.imdb_id}/watchlist'
+    #     return ''
 
     @property
     def avatar_url(self):
