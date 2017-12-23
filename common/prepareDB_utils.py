@@ -1,8 +1,7 @@
-import csv
 import os
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta
+from datetime import timedelta
 from json import JSONDecodeError
 
 import PIL
@@ -10,8 +9,9 @@ import pytz
 import requests
 from PIL import Image
 
-from titles.models import Genre, Title
+from importer.helpers import convert_to_datetime
 from mysite.settings import MEDIA_ROOT
+from titles.models import Genre, Title
 
 
 def prepare_json(json):
@@ -25,57 +25,6 @@ def prepare_json(json):
         if v in ('N/A', 'NA') and k not in ['Genre', 'Director', 'Actors']:
             json[k] = None
     return json
-
-
-def convert_to_datetime(date_string, source):
-    """
-    xml is IMDb's RSS format (for getting current ratings and watchlist)
-    csv is for ratings.csv file exported from IMDb list
-    json is OMDb's API format
-    exported_from_db is my format, used when ratings are exported or imported (user profile)
-    """
-    date_formats = {
-        'imdb_xml': '%a, %d %b %Y %H:%M:%S GMT',
-        'csv': '%Y-%m-%d'
-    }
-    if date_formats.get(source):
-        try:
-            return datetime.strptime(date_string, date_formats[source])
-        except ValueError:
-            pass
-    return None
-
-
-def get_csv_headers(file):
-    """
-    get first line from opened csv file or iostring and return list of its csv headers
-    must call seek method to restore current position to beginning of the file
-    """
-    csv_reader = csv.reader(file)
-    csv_headings = next(csv_reader)
-    file.seek(0)
-    # if len(csv_headings) == 1:
-    #     # imdb csv file uses only 1 column so all headers are in 1 column
-    #     print('before', csv_headings)
-    #     csv_headings = csv_headings[0].replace('"', '').split(',')
-    #     print('after', csv_headings)
-    return csv_headings
-
-
-# def valid_csv_headers(file):
-#     """
-#     when user uploads his ratings.csv exported from IMDb, csv headers must be correct
-#     """
-#     expected_headers = ["position", "const", "created", "modified", "description", "Title", "Title type",
-#                         "Directors", "You rated", "IMDb Rating", "Runtime (mins)", "Year", "Genres", "Num. Votes",
-#                         "Release Date (month/day/year)", "URL"]
-#     return get_csv_headers(file) == expected_headers
-
-
-def valid_csv_header(headers, expected_headers):
-    """return True if all of expected headers are present in headers"""
-    print([h in headers for h in expected_headers])
-    return all(h in headers for h in expected_headers)
 
 
 def get_rss(imdb_id='ur44264813', source='ratings'):
