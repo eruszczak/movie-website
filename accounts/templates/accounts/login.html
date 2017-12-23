@@ -35,7 +35,7 @@
 {% block content %}
     {% if request.GET.next %}
         <div class="mt10 ui text ignored info message warning">
-            To continue, login or <a href="{% url 'register' %}?next={{ request.GET.next }}">register</a> new account
+            To continue, login or <a href="{% url 'register' %}?next={{ request.GET.next }}">sign up</a> for a new account
         </div>
     {% endif %}
     {% include 'includes/form_errors.html' %}

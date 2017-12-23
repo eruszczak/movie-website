@@ -21,6 +21,7 @@
         <div class="ui styled fluid accordion">
             <div class="user title"><i class="dropdown icon"></i> Management</div>
             <div class="content">
+                <a href="{{ user.edit_url }}"><i class="icon huge grey settings"></i></a>
                 <button class="ui basic orange button" type="submit" name="update_rss" value="update_rss">update ratings</button>
                 <button class="ui basic orange button" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>
                 <button class="ui basic primary button import-ratings">Import ratings</button>
@@ -28,39 +29,38 @@
             </div>
         </div>
     {% else %}
-{#        show export button somewhere else because its only thing that should be always visible#}
+        <button class="ui basic primary button export-ratings">Export ratings</button>
     {% endif %}
-    <br>
 
+    {% if user.tagline %}<p>{{ user.tagline }}</p>{% endif %}
+    <br>
 
     <div class="ui centered grid">
         {% with user.imdb_url as imdb_url %}
-            <div class="{% if imdb_url %}four{% else %}three{% endif %} columns">
-                <a class="ui big label">Watchlist</a>
+            <div class="{% if imdb_url %}five{% else %}four{% endif %} columns">
+                <a href="{{ user.ratings_url }}" class="ui label">See all ratings</a>
+                <a class="ui label">Watchlist</a>
                 <a class="ui label">Favourites</a>
                 <a class="ui label">Recommendations? get rid of it?</a>
                 {% if imdb_url %}
-                    <a href="{{ imdb_url }}" target="_blank">
-                        <i class="imdb big yellow icon"></i>
-                    </a>
+                    <a href="{{ imdb_url }}" target="_blank"><i class="imdb big yellow icon"></i></a>
                 {% endif %}
             </div>
         {% endwith %}
     </div>
 
     {% if user.pk != request.user.pk %}
-        <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in."
-                                                       data-variation="mini"{% endif %}
-                                                       class="ui small follow toggle button right floated{% if user.already_follows %} active{% endif %}"
-                                                       data-pk="{{ user.pk }}">{% if user.already_follows %}
-            Followed{% else %}Follow{% endif %}</div>
+        <div class="ui small follow toggle button right floated{% if user.already_follows %} active{% endif %}"
+           {% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini" {% endif %}
+            data-pk="{{ user.pk }}"
+        >
+            {% if user.already_follows %}Followed{% else %}Follow{% endif %}
+        </div>
     {% endif %}
 
-    <button class="circular ui icon button">
-        <i class="icon settings"></i>
-    </button>
 
-    <p><a href="{{ user.ratings_url }}" class="ui label">See all ratings</a></p>
+    <br>
+    <br>
 
     <div class="four ui buttons">
         <button class="ui button">Favourites</button>
@@ -68,14 +68,6 @@
         <button class="ui button">Recommendations</button>
         <button class="ui button">Ratings</button>
     </div>
-
-    <div class="three ui grey buttons">
-        <button class="ui button">Settings</button>
-        <button class="ui button">Update ratings</button>
-        <button class="ui button">Update watchlist</button>
-    </div>
-
-
 
 
     <div class="ui divider hidden"></div>

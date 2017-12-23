@@ -10,13 +10,20 @@
         <i class="right angle icon divider"></i>
         <a class="section" href="{% url 'user-detail' user.username %}">{{ user.username }}</a>
         <i class="right angle icon divider"></i>
-        <a class="section active" href="{% url 'user-edit' user.username %}">Settings</a>
+        <a class="section active" href="{{ user.edit_url }}">Settings</a>
     </div>
 {% endblock %}
 
 {% block content %}
+    <div class="ui dividing header">
+        <i class="settings icon"></i>
+        <div class="content">
+            Settings
+            <div class="sub header">Update your account settings</div>
+        </div>
+    </div>
     {% include 'includes/form_errors.html' %}
-    <form action="{% url 'user-edit' user.username %}" class="ui large form" method="post" enctype="multipart/form-data">{% csrf_token %}
+    <form action="{{ user.edit_url }}" class="ui large form" method="post" enctype="multipart/form-data">{% csrf_token %}
         <div class="ui stacked segment">
             {% with form.picture as field %}
                 <div class="field{% if field.errors %} error{% endif %}{% if field.field.required %} required{% endif %}">
