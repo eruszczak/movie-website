@@ -9,7 +9,7 @@ from django.db.models import Q, Subquery, OuterRef
 import pytz
 from django.contrib.auth import get_user_model
 from common.prepareDB import update_user_ratings_csv
-from accounts.helpers import import_ratings_from_csv
+from importer.utils import import_ratings_from_csv
 
 from accounts.models import *
 import sys

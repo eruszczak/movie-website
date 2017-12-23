@@ -27,7 +27,8 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'titles.apps.TitlesConfig',
     'recommend.apps.RecommendConfig',
-    'lists.apps.ListsConfig'
+    'lists.apps.ListsConfig',
+    'importer.apps.ImporterConfig'
 ]
 
 MIDDLEWARE = [

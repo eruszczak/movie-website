@@ -1,13 +1,14 @@
-import re
 import os
+import re
 
 from django import forms
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
 from django.core.files.images import get_image_dimensions
 from django.core.files.uploadedfile import UploadedFile
-from django.contrib.auth.forms import UserCreationForm
 
 from shared.forms import SizeExtValidatorMixin
+
 
 User = get_user_model()
 
@@ -18,16 +19,6 @@ class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'password1', 'password2', 'login_after')
-
-
-class ImportRatingsForm(SizeExtValidatorMixin, forms.Form):
-    csv_file = forms.FileField(label='', required=True)
-
-    def clean_csv_file(self):
-        file = self.cleaned_data['csv_file']
-        self.validate_extension(file.name, ['.csv'])
-        self.validate_size(file.size, 2000)
-        return file
 
 
 class UserUpdateForm(SizeExtValidatorMixin, forms.ModelForm):
