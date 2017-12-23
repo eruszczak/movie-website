@@ -7,6 +7,8 @@ from django.core.files.images import get_image_dimensions
 from django.core.files.uploadedfile import UploadedFile
 from django.contrib.auth.forms import UserCreationForm
 
+from shared.forms import SizeExtValidatorMixin
+
 User = get_user_model()
 
 
@@ -18,17 +20,17 @@ class RegisterForm(UserCreationForm):
         fields = ('username', 'password1', 'password2', 'login_after')
 
 
-class ImportRatingsForm(forms.Form):
+class ImportRatingsForm(SizeExtValidatorMixin, forms.Form):
     csv_file = forms.FileField(label='', required=True)
 
     def clean_csv_file(self):
         file = self.cleaned_data['csv_file']
-        if not file.name.endswith('.csv'):
-            raise forms.ValidationError('It must be a .csv file')
+        self.validate_extension(file.name, ['.csv'])
+        self.validate_size(file.size, 2000)
         return file
 
 
-class UserUpdateForm(forms.ModelForm):
+class UserUpdateForm(SizeExtValidatorMixin, forms.ModelForm):
 
     def __init__(self, original_instance, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -51,7 +53,7 @@ class UserUpdateForm(forms.ModelForm):
         picture = self.cleaned_data.get('picture')
         if isinstance(picture, UploadedFile):
             self.validate_extension(picture.name, ['.png', '.jpg'])
-            self.validate_size(picture.size, 1024 * 150)
+            self.validate_size(picture.size, 150)
 
             w, h = get_image_dimensions(picture)
             min_width, max_width = 100, 200
@@ -86,17 +88,3 @@ class UserUpdateForm(forms.ModelForm):
                 original_field = getattr(self.original_instance, field)
                 if original_field:
                     os.remove(original_field.path)
-
-    @staticmethod
-    def validate_size(file_size, max_size):
-        """raises ValidationError if file_size is bigger than max_size (in kB)"""
-        if file_size > max_size:
-            raise forms.ValidationError(
-                f'Maximum file size is {int(max_size / 1024)} kB. Uploaded file\'s size is {int(file_size / 1024)} kB'
-            )
-
-    @staticmethod
-    def validate_extension(file_name, allowed_extensions):
-        ext = os.path.splitext(file_name)[1]
-        if ext not in allowed_extensions:
-            raise forms.ValidationError(f'Allowed file extensions: {", ".join(allowed_extensions)}.')
