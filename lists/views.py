@@ -60,7 +60,7 @@ class WatchlistListView(ListView):
 class FavouriteListView(ListView):
     template_name = 'lists/favourite.html'
     model = Title
-    paginate_by = 25
+    paginate_by = 0
     user = None
     is_owner = False
 
@@ -82,8 +82,10 @@ class FavouriteListView(ListView):
                 )
             )
             if self.is_owner:
+                # todo
                 qs = qs.annotate(request_user_rate=Subquery(newest_user.values('rate')[:1]))
             else:
+                # todo
                 newest_request_user = Rating.objects.filter(
                     user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
                 qs = qs.annotate(
@@ -93,7 +95,7 @@ class FavouriteListView(ListView):
         else:
             qs = qs.annotate(user_rate=Subquery(newest_user.values('rate')[:1]))
 
-        return qs.prefetch_related('genre', 'director').order_by('favourite__order')
+        return qs.prefetch_related('genres').order_by('favourite__order')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
