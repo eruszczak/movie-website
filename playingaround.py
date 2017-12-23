@@ -8,7 +8,6 @@ from django.db.models import Q, Subquery, OuterRef
 
 import pytz
 from django.contrib.auth import get_user_model
-from common.prepareDB import update_user_ratings_csv
 from importer.utils import import_ratings_from_csv
 
 from accounts.models import *
@@ -136,7 +135,7 @@ def test_csv():
     # update_user_ratings_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/imdb.csv')
 
 # test_queryset()
-test_csv()
+# test_csv()
 # add_crew_to_person()
 
 

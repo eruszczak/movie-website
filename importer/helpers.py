@@ -1,12 +1,14 @@
 import csv
 from datetime import datetime
+from xml.etree import ElementTree
+
+import requests
 
 from titles.constants import MY_HEADERS, MY_CSV_MAPPER, IMDB_HEADERS, IMDB_CSV_MAPPER
 
 
 def recognize_file_source(f):
     headers = get_csv_headers(f)
-    print(headers)
     if valid_csv_header(headers, MY_HEADERS):
         return MY_CSV_MAPPER
     elif valid_csv_header(headers, IMDB_HEADERS):
@@ -41,11 +43,6 @@ def get_csv_headers(file):
     csv_reader = csv.reader(file)
     csv_headings = next(csv_reader)
     file.seek(0)
-    # if len(csv_headings) == 1:
-    #     # imdb csv file uses only 1 column so all headers are in 1 column
-    #     print('before', csv_headings)
-    #     csv_headings = csv_headings[0].replace('"', '').split(',')
-    #     print('after', csv_headings)
     return csv_headings
 
 
@@ -61,3 +58,29 @@ def fill_dictwriter_with_rating_qs(writer, ratings):
             'rate_date': r.rate_date,
             'rate': r.rate
         })
+
+
+def get_imdb_rss(url):
+    """gets XML from rss.imdb.com/user/<userid>/{ratings} or {watchlist}"""
+    response = requests.get(url)
+    if response.status_code == requests.codes.ok:
+        return ElementTree.fromstring(response.text).findall('channel/item')
+    return None
+
+
+def unpack_from_rss_item(obj, for_watchlist=False):
+    """
+    parses <item> from rss.imdb.com/user/<userid>/ratings or watchlist
+    * if rating item: get title's const, rating date and rating
+    * if watchlist item: get title's const and added date
+    """
+    const = obj.find('link').text[-10:-1]
+    date = convert_to_datetime(obj.find('pubDate').text, 'xml')
+    if for_watchlist:
+        # todo
+        # date += timedelta(hours=7)
+        # date = date.replace(tzinfo=pytz.timezone('UTC'))
+        return const, date
+
+    rate = obj.find('description').text.strip()[-3:-1].lstrip()
+    return const, date, rate

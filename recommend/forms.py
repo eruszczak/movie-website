@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 
 from accounts.models import UserFollow
-from common.prepareDB import get_title_or_create
 from recommend.models import Recommendation
 from titles.models import Rating
 from django.utils.safestring import mark_safe
