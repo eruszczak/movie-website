@@ -21,23 +21,29 @@
         <div class="ui styled fluid accordion">
             <div class="user title"><i class="dropdown icon"></i> Management</div>
             <div class="content">
-                <div class="ui icon header">
-                    <a href="{{ user.edit_url }}"><i class="settings black icon"></i></a>
-                    <div class="content">
-                        Settings
+                <div class="ui centered grid">
+                    <div class="row">
+                        <div class="ui icon header">
+                            <a href="{{ user.edit_url }}"><i class="settings black icon"></i></a>
+                            <div class="subheader">
+                                Settings
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <button class="ui basic orange button" type="submit" name="update_rss" value="update_rss">update ratings</button>
+                        <button class="ui basic orange button" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>
+                        <button class="ui basic primary button import-ratings">Import ratings</button>
+                        <button class="ui basic primary button export-ratings">Export your ratings</button>
                     </div>
                 </div>
-                <button class="ui basic orange button" type="submit" name="update_rss" value="update_rss">update ratings</button>
-                <button class="ui basic orange button" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>
-                <button class="ui basic primary button import-ratings">Import ratings</button>
-                <button class="ui basic primary button export-ratings">Export your ratings</button>
             </div>
         </div>
     {% else %}
-        <button class="ui basic primary button export-ratings">Export ratings</button>
     {% endif %}
 
-    {% if user.tagline %}<p>{{ user.tagline }}</p>{% endif %}
+    {% if user.tagline %}<div class="ui center aligned piled segment">{{ user.tagline }}</div>{% endif %}
+
     <br>
 
     <div class="ui centered grid">
@@ -54,16 +60,19 @@
         {% endwith %}
     </div>
 
-    {% if user.pk != request.user.pk %}
-        <div class="ui small follow toggle button right floated{% if user.already_follows %} active{% endif %}"
-           {% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini" {% endif %}
-            data-pk="{{ user.pk }}"
-        >
-            {% if user.already_follows %}Followed{% else %}Follow{% endif %}
-        </div>
-    {% endif %}
-
-
+    <div class="ui basic buttons right floated">
+        {% if user.pk != request.user.pk %}
+            <div class="ui follow toggle button{% if user.already_follows %} active{% endif %}"
+               {% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini" {% endif %}
+                data-pk="{{ user.pk }}"
+            >
+                {% if user.already_follows %}Followed{% else %}Follow{% endif %}
+            </div>
+        {% endif%}
+        {% if is_other_user %}
+            <div class="ui button export-ratings" {% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini" {% endif %}>Export</div>
+        {% endif %}
+    </div>
     <br>
     <br>
 
@@ -79,8 +88,6 @@
     {% if is_other_user %}
         <div class="ui fluid {% if is_other_user %}two{% endif %} item menu title-menu">
             <a class="item active" data-tab="first">Overview</a>
-            {#        <a class="item" data-tab="second">Lists</a>#}
-            {#        <a class="item" data-tab="third">Charts</a>#}
             {% if is_other_user %}
                 <a class="item" data-tab="second">Compared with you</a>
             {% endif %}
@@ -148,22 +155,24 @@
     {% endif %}
 
     {#    MODALS#}
-    <div class="ui export tiny modal">
-        <i class="close icon"></i>
-        <div class="header">
-            Export {{ user.username }}'s ratings
-        </div>
-        <div class="content">
-            <div class="description">
-                You can export {{ user.username }}'s ratings to csv file. For example, if you will lose some of your ratings, you
-                will be able to import them back.
+    {% if request.user.is_authenticated %}
+        <div class="ui export tiny modal">
+            <i class="close icon"></i>
+            <div class="header">
+                Export {{ user.username }}'s ratings
+            </div>
+            <div class="content">
+                <div class="description">
+                    You can export {{ user.username }}'s ratings to csv file. For example, if you will lose some of your ratings, you
+                    will be able to import them back.
+                </div>
+            </div>
+            <div class="actions">
+                <div class="ui cancel button">Cancel</div>
+                <div class="ui positive button" data-pk="{{ user.pk }}">Export</div>
             </div>
         </div>
-        <div class="actions">
-            <div class="ui cancel button">Cancel</div>
-            <div class="ui positive button" data-pk="{{ user.pk }}">Export</div>
-        </div>
-    </div>
+    {% endif %}
 
     {% if is_owner %}
         <div class="ui import tiny modal">
@@ -174,7 +183,7 @@
             <div class="content">
                 <div class="description">
                     You can add ratings from exported file from this site or IMDb. Your ratings won't be deleted, only
-                    the ones missing will be added. It may take some time, you will be notified once it's done.
+                    the ones missing will be added.
                     <form id="import-form" method="post" action="{% url 'user-import-ratings' %}"
                           enctype="multipart/form-data">{% csrf_token %}
                         {% with form.csv_file as field %}
