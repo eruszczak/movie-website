@@ -47,7 +47,7 @@ class ImportRatingsFormView(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class ExportRatingsAPIView(GetUserMixin, APIView):
+class ExportRatingsAPIView(LoginRequiredMixin, GetUserMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
