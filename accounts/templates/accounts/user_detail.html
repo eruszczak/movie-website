@@ -22,7 +22,7 @@
             <div class="user title"><i class="dropdown icon"></i> Management</div>
             <div class="content">
                 <div class="ui centered grid">
-                    <div class="row">
+                    <div class="row" style="margin-bottom: 0; padding: 0">
                         <div class="ui icon header">
                             <a href="{{ user.edit_url }}"><i class="settings black icon"></i></a>
                             <div class="subheader">
@@ -30,9 +30,17 @@
                             </div>
                         </div>
                     </div>
+                    {% if not user.imdb_id %}
+                        <div class="ui compact warning mini message"><p class="header">If you want to fetch ratings or watchlist from IMDb you must provide your IMDb id in settings.</p></div>
+                    {% endif %}
                     <div class="row">
-                        <button class="ui basic orange button" type="submit" name="update_rss" value="update_rss">update ratings</button>
-                        <button class="ui basic orange button" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>
+                        {% if not user.imdb_id %}
+                            <button class="ui basic orange mini button disabled" type="tooltip" name="update_rss" value="update_rss">update ratings</button>
+                            <button class="ui basic orange mini button disabled" type="tooltip" name="update_watchlist" value="update_watchlist">update watchlist</button>
+                        {% else %}
+                            <button class="ui basic orange button" name="update_rss" value="update_rss">update ratings</button>
+                            <button class="ui basic orange button" name="update_watchlist" value="update_watchlist">update watchlist</button>
+                        {% endif %}
                         <button class="ui basic primary button import-ratings">Import ratings</button>
                         <button class="ui basic primary button export-ratings">Export your ratings</button>
                     </div>
