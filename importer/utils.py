@@ -65,4 +65,3 @@ def export_ratings(user):
         writer = DictWriter(csvfile, fieldnames=MY_HEADERS, lineterminator='\n')
         writer.writeheader()
         fill_dictwriter_with_rating_qs(writer, ratings)
-    return file_path
