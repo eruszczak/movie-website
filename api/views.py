@@ -3,24 +3,20 @@ from urllib.parse import urlencode
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.generics import RetrieveAPIView, CreateAPIView
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from accounts.helpers import export_ratings
-from accounts.models import UserFollow
 from api.mixins import IsAuthenticatedMixin, GetTitleMixin, ToggleAPIView, GetUserMixin
-from lists.models import Favourite
 from titles.forms import TitleSearchForm
 from titles.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist, \
     recommend_title, follow_user, toggle_currently_watched_title
 from titles.helpers import instance_required
 from titles.models import Rating, Title, Person
 from .serializers import RatingListSerializer, TitleSerializer, PersonSerializer
-
 
 User = get_user_model()
 
@@ -145,16 +141,3 @@ class SearchAPIView(APIView):
                 'url': f'{reverse("title-list")}?{urlencode(request.GET)}'
             }
         }, status=status.HTTP_200_OK)
-
-
-class ExportRatingsAPIView(GetUserMixin, APIView):
-
-    @instance_required
-    def post(self, request, *args, **kwargs):
-        message = 'export'
-        # todo: these files can be cached for a few days
-        # todo: test if error is displayed if no user
-
-        message = export_ratings(self.user)
-        return Response({'message': message, 'title': 'Export'}, status=status.HTTP_200_OK)
-        # todo: this must create file in celery. then user be notified when he can download the file

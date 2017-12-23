@@ -1,21 +1,22 @@
-from os.path import join
-
-from django.contrib.auth import get_user_model
-from django.db.models import Count, OuterRef, Subquery, F, Avg, Exists
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.contrib.auth import get_user_model, login
+from django.db.models import Count, OuterRef, Subquery, F, Avg, Exists
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, UpdateView, DetailView, FormView
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
+from django.views.generic import ListView, UpdateView, DetailView
+from django.contrib.auth.views import (
+    LoginView as BaseLoginView,
+    LogoutView as BaseLogoutView,
+)
+from django.urls import reverse
+from django.views.generic import CreateView
 
-from accounts.helpers import import_ratings_from_csv
+from accounts.forms import UserUpdateForm, RegisterForm
+from accounts.models import UserFollow
+from importer.forms import ImportRatingsForm
 from shared.mixins import LoginRequiredMixin
 from titles.constants import SERIES, MOVIE
 from titles.helpers import SubqueryCount
 from titles.models import Title, Rating
-from accounts.models import UserFollow
-from accounts.forms import UserUpdateForm, ImportRatingsForm
 
 
 User = get_user_model()
@@ -195,28 +196,62 @@ class UserDetailView(DetailView):
             }
 
 
-class ImportRatingsAPIView(LoginRequiredMixin, FormView):
-    form_class = ImportRatingsForm
+class LoginView(BaseLoginView):
+    template_name = 'accounts/login.html'
+    # redirect_authenticated_user = False
 
     def get_success_url(self):
+        messages.warning(self.request, 'Welcome, {}.'.format(self.request.user.username))
+        if self.request.GET.get('next'):
+            return self.request.GET['next']
+
         return self.request.user.get_absolute_url()
 
-    def form_invalid(self, form):
-        message = 'There was an error with import'
-        if form['csv_file'].errors:
-            message = f"Error with uploaded file for import: {form['csv_file'].errors.as_text().lstrip('* ')}"
 
-        messages.error(self.request, message)
-        return HttpResponseRedirect(self.get_success_url())
+class LogoutView(BaseLogoutView):
+    next_page = 'home'
+
+    def get_next_page(self):
+        messages.warning(self.request, 'You have been logged out.')
+        next_page = self.request.GET.get('next')
+        if next_page:
+            return next_page
+        return super().get_next_page()
+
+
+class RegisterView(CreateView):
+    template_name = 'accounts/register.html'
+    form_class = RegisterForm
+    login_after = False
+
+    def get_success_url(self):
+        messages.warning(self.request, 'Account created.')
+        if self.request.GET.get('next'):
+            return self.request.GET['next']
+
+        if self.login_after:
+            return self.object.get_absolute_url()
+
+        return reverse('login')
 
     def form_valid(self, form):
-        user_tmp_folder = self.request.user.get_temp_folder_path(absolute=True, create=True)
-        file = form.cleaned_data['csv_file']
-        file_path = join(user_tmp_folder, file.name)
-        if default_storage.exists(file_path):
-            default_storage.delete(file_path)
-        path = default_storage.save(file_path, ContentFile(file.read()))
-        print('importing', path)
-        import_ratings_from_csv(self.request.user, path)
-        messages.success(self.request, 'You will be notified, when import is done.')
-        return super().form_valid(form)
+        self.login_after = form.cleaned_data.get('login_after')
+        form_valid = super().form_valid(form)
+        if self.login_after:
+            login(self.request, self.object)
+        return form_valid
+
+
+# class PasswordChangeView(BasePasswordChangeView):
+#     template_name = 'accounts/password_change.html'
+#     extra_context = {
+#         'page_title': 'Change your password'
+#     }
+#
+#     dialogs = {
+#         'success': 'Password changed.'
+#     }
+#
+#     def get_success_url(self):
+#         self.set_success_message(attach_username=False)
+#         return self.request.user.get_absolute_url()
