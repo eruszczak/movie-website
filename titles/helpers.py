@@ -4,6 +4,15 @@ from django.db.models import Subquery, IntegerField
 
 
 def tmdb_image(func):
+    """
+    Decorator around property. Usage:
+    @property
+    @tmdb_image
+    def poster_backdrop_user(self):
+        return IMAGE_SIZES['backdrop_user']
+    Property will only return what kind of image it is. This decorator will return full TMDB hotlink.
+    For development it returns static image.
+    """
 
     def func_wrapper(self):
         if settings.DEBUG:
@@ -21,6 +30,13 @@ def tmdb_image(func):
 
 
 def instance_required(func):
+    """
+    Decorator for APIView's post handler.
+    class AddRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
+        @instance_required
+        def post(self, request, *args, **kwargs):
+    APIView inherits GetTitleMixin so it will set self.title or return that `Ttle does not exist`
+    """
 
     def func_wrapper(self, request, *args, **kwargs):
         message = self.set_instance(**kwargs)
@@ -36,12 +52,3 @@ class SubqueryCount(Subquery):
     """https://stackoverflow.com/a/47371514"""
     template = "(SELECT count(*) FROM (%(subquery)s) _count)"
     output_field = IntegerField()
-
-
-def fill_dictwriter_with_rating_qs(writer, ratings):
-    for r in ratings:
-        writer.writerow({
-            'imdb_id': r.title.imdb_id,
-            'rate_date': r.rate_date,
-            'rate': r.rate
-        })

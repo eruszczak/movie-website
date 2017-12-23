@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from titles.models import Rating
 import csv
-from titles.helpers import fill_dictwriter_with_rating_qs
+from importer.helpers import fill_dictwriter_with_rating_qs
 
 User = get_user_model()
 

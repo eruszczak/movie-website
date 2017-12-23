@@ -21,6 +21,18 @@ class ToggleAPIView:
 
 
 class GetObjectMixin:
+    """
+    Class that is meant to be used with instance_required decorator, which is used around APIView's post handler.
+    APIView must inherit any subclass of this class (eg. GetTitleMixin).
+    Decorator makes sure to call set_instance method from this class.
+    Example:
+        class ExportRatingsAPIView(GetUserMixin, APIView):
+            @instance_required
+            def post(self, request, *args, **kwargs):
+                self.user == User.objects.get(pk=kwargs['pk'])
+        url(r'^(?P<pk>\d+)/export', views.ExportRatingsAPIView.as_view()),
+    In post method there will be accessible self.user or it will return `User does not exist`
+    """
     model = None
     url_kwarg = 'pk'
     kwarg_field = 'pk'
