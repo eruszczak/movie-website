@@ -3,6 +3,7 @@ from os.path import join
 
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
+from os import remove
 
 from titles.constants import MY_HEADERS, IMDB_HEADERS, IMDB_CSV_MAPPER, MY_CSV_MAPPER
 from titles.helpers import fill_dictwriter_with_rating_qs
@@ -44,7 +45,7 @@ def import_ratings_from_csv(user, file_path):
                             user=user, title=title, rate_date=rate_date, defaults={'rate': rate}
                         )
                     except ValidationError as e:
-                        print(''.join(e.messages))
+                        print('. '.join(e.messages))
                     else:
                         if created:
                             print('creating', r)
@@ -53,8 +54,7 @@ def import_ratings_from_csv(user, file_path):
                             print('existed', r)
                 print('\n----------')
             print(f'imported {created_count} out of {row_count} ratings - {round((created_count / row_count) * 100, 2)}%')
-
-    # delete file
+    remove(file_path)
 
 
 def export_ratings(user):
