@@ -2,6 +2,7 @@ from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from re import findall
 from rest_framework import status
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
@@ -11,6 +12,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from api.mixins import IsAuthenticatedMixin, GetTitleMixin, ToggleAPIView, GetUserMixin
+from lists.models import Favourite
 from titles.forms import TitleSearchForm
 from titles.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist, \
     recommend_title, follow_user, toggle_currently_watched_title
@@ -90,14 +92,15 @@ class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPIView, GetUserMixin, APIVie
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class ReorderFavourite(IsAuthenticatedMixin, GetUserMixin, APIView):
+class ReorderFavourite(IsAuthenticatedMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        super().post(request, *args, **kwargs)
-        # user_favourites = Favourite.objects.filter(user=user)
-        # new_title_order = request.POST.get('item_order')
-        # if new_title_order:
-        #     new_title_order = findall('\d+', new_title_order)
+        favourite_list = Favourite.objects.filter(user=self.request.user)
+        new_title_order = request.POST.get('item_order')
+        print(new_title_order, request.POST.items())
+        if new_title_order:
+            new_title_order = findall('\d+', new_title_order)
+            print(new_title_order)
         #     for new_position, title_pk in enumerate(new_title_order, 1):
         #         user_favourites.filter(title__pk=title_pk).update(order=new_position)
         #     return Response({'message': 'Changed order'}, status=status.HTTP_200_OK)

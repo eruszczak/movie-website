@@ -24,7 +24,7 @@
 
     {% if title_list %}
         <h1 class="ui center aligned dividing header">{{ title_list|length }} titles</h1>
-        <div id="sortable" class="ui items"{% if is_owner %} data-url="{% url 'user-fav-reorder' user.pk %}"{% endif %}>
+        <div class="ui items"{% if is_owner %} id="sortable" data-url="{% url 'user-fav-reorder' %}"{% endif %}>
             {% for title in title_list %}
                 <div class="item-{{ title.pk }}">
                     <div class="ui tiny image">
@@ -48,28 +48,24 @@
     <script type="application/javascript">
         $sortable = $('#sortable');
         if ($sortable.length) {
-            var url = $('#sortable').data('url');
-            if (url) {
-                sortable(url);
-            }
+            sortable($sortable.data('url'));
         }
 
         function sortable(url) {
             $sortable.sortable({
-                // $('tbody#sortable').sortable({
-                placeholder: 'ui-state-highlight',
+{#                placeholder: 'ui-state-highlight',    todo#}
                 axis: 'y',
                 update: function (event, ui) {
                     var item = ui.item.find('.item-order');
                     var itemId = item.parent().parent().attr('id');
                     var ordering = $(this).sortable('serialize');
                     var o = $(this).sortable('toArray');
-
+                    debugger;
                     $(this).find('tr').each(function (i) {
                         var order = $(this).find('.item-order');
                         var orderChange = order.next();
                         orderChange.hide();
-                        if (itemId == this.id) {
+                        if (itemId === this.id) {
                             var newOrder = o.indexOf(itemId) + 1;
                             var previousOrder = parseInt(item.text());
                             var orderDiff = previousOrder - newOrder;
@@ -86,14 +82,12 @@
                             order.text(i + 1);
                             orderChange.text('');
                             orderChange.attr('class', 'order-change');
-
                         }
                         orderChange.fadeIn('slow');
                     });
                     ajax_request({'item_order': ordering}, {url: url});
                 }
             });
-            $("#sortable").disableSelection();
         }
     </script>
 {% endblock %}

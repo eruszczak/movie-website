@@ -16,7 +16,7 @@ urlpatterns = [
     url(r'^title/(?P<pk>\d+)/recommend', views.RecommendTitleAPIView.as_view(), name='title-recommend'),
     url(r'^tv/(?P<pk>\d+)/watching', views.ToggleCurrentlyWatchingTV.as_view(), name='tv-watching'),
     url(r'^user/(?P<pk>\d+)/follow', views.ToggleFollowUser.as_view(), name='user-follow'),
-    url(r'^user/(?P<pk>\d+)/favourites/reorder', views.ReorderFavourite.as_view(), name='user-fav-reorder'),
+    url(r'^favourites/reorder', views.ReorderFavourite.as_view(), name='user-fav-reorder'),
 
     url(r'^', include(router.urls), name='ratings'),
     url(r'^title/(?P<slug>[\w-]+)/$', views.TitleDetailView.as_view(), name='title_detail'),
