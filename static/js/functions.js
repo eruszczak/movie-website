@@ -57,7 +57,7 @@ function ajax_request(data, options, cb) {
         url: url,
         success: function(response) {
             cb && cb();
-            showToast(response.message);
+            showToast(response ? response.message : '');
             if (options.refresh) {
                 window.location.reload(false);
             }
