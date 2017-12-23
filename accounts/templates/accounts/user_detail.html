@@ -21,11 +21,16 @@
         <div class="ui styled fluid accordion">
             <div class="user title"><i class="dropdown icon"></i> Management</div>
             <div class="content">
-                <a href="{{ user.edit_url }}"><i class="icon huge grey settings"></i></a>
+                <div class="ui icon header">
+                    <a href="{{ user.edit_url }}"><i class="settings black icon"></i></a>
+                    <div class="content">
+                        Settings
+                    </div>
+                </div>
                 <button class="ui basic orange button" type="submit" name="update_rss" value="update_rss">update ratings</button>
                 <button class="ui basic orange button" type="submit" name="update_watchlist" value="update_watchlist">update watchlist</button>
                 <button class="ui basic primary button import-ratings">Import ratings</button>
-                <button class="ui basic primary button export-ratings">Export ratings</button>
+                <button class="ui basic primary button export-ratings">Export your ratings</button>
             </div>
         </div>
     {% else %}
@@ -150,8 +155,8 @@
         </div>
         <div class="content">
             <div class="description">
-                You can export {{ user.username }}'s ratings to csv file. If you will lose some of your ratings, you
-                will be able to import them back. It may take some time, you will be notified once it's done.
+                You can export {{ user.username }}'s ratings to csv file. For example, if you will lose some of your ratings, you
+                will be able to import them back.
             </div>
         </div>
         <div class="actions">
@@ -199,7 +204,7 @@
             </div>
         </div>
         <div class="actions">
-            <div class="ui approve button"><i class="checkmark icon"></i> All done</div>
+            <div class="ui approve button"><i class="checkmark icon"></i> Ok</div>
         </div>
     </div>
 {% endblock %}

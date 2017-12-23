@@ -4,10 +4,8 @@ from django.contrib import messages
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
-
-# Create your views here.
 from django.views.generic import FormView
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,6 +15,9 @@ from importer.forms import ImportRatingsForm
 from importer.utils import import_ratings_from_csv, export_ratings
 from shared.mixins import LoginRequiredMixin
 from titles.helpers import instance_required
+
+
+WAIT_MESSAGE = 'You will be notified, when it is done.'
 
 
 class ImportRatingsFormView(LoginRequiredMixin, FormView):
@@ -40,9 +41,9 @@ class ImportRatingsFormView(LoginRequiredMixin, FormView):
         if default_storage.exists(file_path):
             default_storage.delete(file_path)
         path = default_storage.save(file_path, ContentFile(file.read()))
-        print('importing', path)
         import_ratings_from_csv(self.request.user, path)
-        messages.success(self.request, 'You will be notified, when import is done.')
+        # It may take some time. You will be notified once it's done.
+        messages.success(self.request, WAIT_MESSAGE)
         return super().form_valid(form)
 
 
@@ -50,10 +51,5 @@ class ExportRatingsAPIView(GetUserMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        message = 'export'
-        # todo: these files can be cached for a few days
-        # todo: test if error is displayed if no user
-
-        message = export_ratings(self.user)
-        return Response({'message': message, 'title': 'Export'}, status=status.HTTP_200_OK)
-        # todo: this must create file in celery. then user be notified when he can download the file
+        export_ratings(self.user)
+        return Response({'message': WAIT_MESSAGE, 'title': 'Export'}, status=status.HTTP_200_OK)
