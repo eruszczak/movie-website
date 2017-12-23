@@ -48,6 +48,20 @@ class User(FolderPathMixin, AbstractUser):
         return ''
 
     @property
+    def imdb_ratings_url(self):
+        imdb_url = self.imdb_url
+        if imdb_url:
+            return f'{imdb_url}ratings/'
+        return ''
+
+    @property
+    def imdb_watchlist_url(self):
+        imdb_url = self.imdb_url
+        if imdb_url:
+            return f'{imdb_url}watchlist/'
+        return ''
+
+    @property
     def avatar_url(self):
         if self.picture:
             return self.picture.url
