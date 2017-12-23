@@ -35,11 +35,11 @@
                     {% endif %}
                     <div class="row">
                         {% if not user.imdb_id %}
-                            <button class="ui basic orange mini button disabled" type="tooltip" name="update_rss" value="update_rss">update ratings</button>
-                            <button class="ui basic orange mini button disabled" type="tooltip" name="update_watchlist" value="update_watchlist">update watchlist</button>
+                            <button class="ui basic orange mini button disabled">update ratings</button>
+                            <button class="ui basic orange mini button disabled">update watchlist</button>
                         {% else %}
-                            <button class="ui basic orange button" name="update_rss" value="update_rss">update ratings</button>
-                            <button class="ui basic orange button" name="update_watchlist" value="update_watchlist">update watchlist</button>
+                            <button class="ui basic orange button update-ratings">update ratings</button>
+                            <button class="ui basic orange button update-watchlist">update watchlist</button>
                         {% endif %}
                         <button class="ui basic primary button import-ratings">Import ratings</button>
                         <button class="ui basic primary button export-ratings">Export your ratings</button>
@@ -208,20 +208,44 @@
                 <div class="ui positive button">Import</div>
             </div>
         </div>
+        {% if user.imdb_id %}
+            <div class="ui ratings tiny modal">
+                <i class="close icon"></i>
+                <div class="header">
+                    Sync ratings with your <a href="{{ user.imdb_url }}">IMDb account</a>
+                </div>
+                <div class="content">
+                    <div class="description">
+                        <a href="{{ user.imdb_ratings_url }}">link</a>
+                    </div>
+                </div>
+                <div class="actions">
+                    <div class="ui cancel button">Cancel</div>
+                    <div class="ui positive button">Sync ratings</div>
+                </div>
+            </div>
+            <div class="ui watchlist tiny modal">
+                <i class="close icon"></i>
+                <div class="header">
+                    Sync watchlist with your <a href="{{ user.imdb_url }}">IMDb account</a>
+                </div>
+                <div class="content">
+                    <div class="description">
+                        <a href="{{ user.imdb_watchlist_url }}">link</a>
+                    </div>
+                </div>
+                <div class="actions">
+                    <div class="ui cancel button">Cancel</div>
+                    <div class="ui positive button">Sync ratings</div>
+                </div>
+            </div>
+        {% endif %}
     {% endif %}
 
     <div class="ui second tiny modal">
         <i class="close icon"></i>
-        <div class="header">
-            Result
-        </div>
-        <div class="content">
-            <div class="description">
-                result
-            </div>
-        </div>
-        <div class="actions">
-            <div class="ui approve button"><i class="checkmark icon"></i> Ok</div>
-        </div>
+        <div class="header"></div>
+        <div class="content"><div class="description"></div></div>
+        <div class="actions"><div class="ui approve button"><i class="checkmark icon"></i> Ok</div></div>
     </div>
 {% endblock %}
