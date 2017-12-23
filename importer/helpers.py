@@ -51,5 +51,13 @@ def get_csv_headers(file):
 
 def valid_csv_header(headers, expected_headers):
     """return True if all of expected headers are present in headers"""
-    print([h in headers for h in expected_headers])
     return all(h in headers for h in expected_headers)
+
+
+def fill_dictwriter_with_rating_qs(writer, ratings):
+    for r in ratings:
+        writer.writerow({
+            'imdb_id': r.title.imdb_id,
+            'rate_date': r.rate_date,
+            'rate': r.rate
+        })
