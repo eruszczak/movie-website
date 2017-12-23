@@ -179,7 +179,7 @@
                 <div class="description">
                     You can add ratings from exported file from this site or IMDb. Your ratings won't be deleted, only
                     the ones missing will be added. It may take some time, you will be notified once it's done.
-                    <form id="import-form" method="post" action="{% url 'user-import-ratings' user.username %}"
+                    <form id="import-form" method="post" action="{% url 'user-import-ratings' %}"
                           enctype="multipart/form-data">{% csrf_token %}
                         {% with form.csv_file as field %}
                             <div class="mt20 field{% if field.errors %} error{% endif %}{% if field.field.required %} required{% endif %}">
