@@ -6,6 +6,7 @@ from django.views.generic import ListView, UpdateView, DetailView
 from django.contrib.auth.views import (
     LoginView as BaseLoginView,
     LogoutView as BaseLogoutView,
+    PasswordChangeView as BasePasswordChangeView
 )
 from django.urls import reverse
 from django.views.generic import CreateView
@@ -242,16 +243,8 @@ class RegisterView(CreateView):
         return form_valid
 
 
-# class PasswordChangeView(BasePasswordChangeView):
-#     template_name = 'accounts/password_change.html'
-#     extra_context = {
-#         'page_title': 'Change your password'
-#     }
-#
-#     dialogs = {
-#         'success': 'Password changed.'
-#     }
-#
-#     def get_success_url(self):
-#         self.set_success_message(attach_username=False)
-#         return self.request.user.get_absolute_url()
+class PasswordChangeView(BasePasswordChangeView):
+    template_name = 'accounts/password_change.html'
+
+    def get_success_url(self):
+        return self.request.user.edit_url()

@@ -22,6 +22,7 @@
             <div class="sub header">Update your account settings</div>
         </div>
     </div>
+    <h4 class="ui right floated"><a href="{% url 'password-change' %}">Change my password</a></h4>
     {% include 'includes/form_errors.html' %}
     <form action="{{ user.edit_url }}" class="ui large form" method="post" enctype="multipart/form-data">{% csrf_token %}
         <div class="ui stacked segment">
@@ -48,4 +49,3 @@
         </div>
     </form>
 {% endblock %}
-{#        <h4 class="text-left"><a href="{% url 'password-change' %}">Password change</a></h4>#}
