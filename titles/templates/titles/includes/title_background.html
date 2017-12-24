@@ -14,7 +14,7 @@
                 <h3 class="card-title">{{ title.name }}</h3>{#<p class="card-text"></p>#}
                 {% include 'titles/includes/rating.html' with rate=rate %}
                 <p class="card-text">
-                    {% if year %}<i class="calendar icon"></i> {{ title.year }}{% endif %}
+                    {% if title.year %}<i class="calendar icon"></i> {{ title.year }}{% endif %}
                     {% include 'titles/includes/toggles.html' %}
                 </p>
                 <p class="card-text">
