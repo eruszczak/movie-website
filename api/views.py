@@ -1,6 +1,7 @@
 from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
+from django.db.models import F, Q
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.generics import RetrieveAPIView
@@ -94,13 +95,34 @@ class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPIView, GetUserMixin, APIVie
 class ReorderFavourite(IsAuthenticatedMixin, APIView):
 
     def post(self, request, *args, **kwargs):
-        favourite_list = Favourite.objects.filter(user=self.request.user)
-        new_title_order = request.POST.getlist('item_order[]')
-        if new_title_order:
-            for order, pk in enumerate(new_title_order, 1):
-                favourite_list.filter(title__pk=pk).update(order=order)
-            return Response({'message': 'Changed order'}, status=status.HTTP_200_OK)
+        favourite_list = Favourite.objects.filter(user=request.user)
+        new_index, old_index = self.get_indexes()
+        change = old_index - new_index
+
+        if new_index and old_index and change != 0 and self.valid_indexes(new_index, old_index, favourite_list):
+            fav1 = favourite_list.get(order=old_index)
+            favourite_list = favourite_list.exclude(order=old_index)
+            if change > 0:
+                favourite_list.filter(Q(order__gte=new_index) & Q(order__lt=old_index)).update(order=F('order') + 1)
+            else:
+                favourite_list.filter(Q(order__lte=new_index) & Q(order__gt=old_index)).update(order=F('order') - 1)
+            fav1.order = new_index
+            fav1.save()
+
+            return Response({'message': 'Changed order.'}, status=status.HTTP_200_OK)
         return Response({'message': 'Nothing has changed.'}, status=status.HTTP_200_OK)
+
+    def get_indexes(self):
+        try:
+            return int(self.request.POST.get('newIndex')) + 1, int(self.request.POST.get('oldIndex')) + 1
+        except (ValueError, TypeError):
+            return None, None
+
+    @staticmethod
+    def valid_indexes(index1, index2, fav_qs):
+        """returns true if both indexes are not bigger than last favourite title's order"""
+        max_index = max(fav_qs.values_list('order', flat=True))
+        return index1 <= max_index and index2 <= max_index
 
 
 class RecommendTitleAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):

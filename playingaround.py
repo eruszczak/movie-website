@@ -17,6 +17,7 @@ from django.utils.timezone import now
 
 from mysite.settings import MEDIA_ROOT
 from api.mixins import GetTitleMixin, GetUserMixin
+from lists.models import Favourite
 
 User = get_user_model()
 collection_id = 119
@@ -85,6 +86,18 @@ def create_rating_duplicat():
     # r.rate_date = now().today()
     r.save()
     # print(Rating.objects.filter(user__username='test', title__name__icontains='jedi'))
+
+
+def restart_favs():
+    user = User.objects.get(username='test')
+    Favourite.objects.filter(user=user).delete()
+    t = ['It', 'Thor: Ragnarok', 'Justice League']
+    for i, x in enumerate(t, 1):
+        Favourite.objects.create(user=user, title=Title.objects.get(name=x), order=i)
+
+    print(Favourite.objects.filter(user=user))
+
+restart_favs()
 
 # create_rating_duplicat()
 # t = GetTitleMixin()
