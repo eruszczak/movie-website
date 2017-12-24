@@ -147,6 +147,7 @@ def test_csv():
     import_ratings_from_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/ratings december 2017 — kopia (2).csv')
     # update_user_ratings_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/imdb.csv')
 
+print(Title.objects.all().first().pk)
 # test_queryset()
 # test_csv()
 # add_crew_to_person()

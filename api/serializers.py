@@ -1,13 +1,20 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from titles.models import Rating, Title, Person
+from titles.models import Rating, Title, Person, Genre
 
 User = get_user_model()
 
 
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Genre
+        fields = ['name']
+
+
 class TitleSerializer(serializers.ModelSerializer):
-    # genres = serializers.SerializerMethodField()
+    genres = GenreSerializer(many=True, read_only=True)
     year = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
@@ -15,7 +22,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('year', 'name', 'url', 'type', 'img')
+        fields = ('year', 'name', 'url', 'type', 'img', 'overview', 'genres')
 
     @staticmethod
     def get_type(obj):
@@ -24,10 +31,6 @@ class TitleSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_url(obj):
         return obj.get_absolute_url()
-
-    # @staticmethod
-    # def get_genres(obj):
-    #     return [g.name for g in obj.genres.all()]
 
     @staticmethod
     def get_year(obj):
