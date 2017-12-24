@@ -57,36 +57,14 @@ class TitleListView(SearchViewMixin, ListView):
         if self.request.GET.get('user'):
             self.searched_user = self.search_form.cleaned_data.get('user')
 
-        if self.request.user.is_authenticated:
-            qs = qs.annotate(
-                has_in_watchlist=Count(
-                    Case(
-                        When(watchlist__user=self.request.user, watchlist__deleted=False, then=1),
-                        output_field=IntegerField()
-                    )
-                ),
-                has_in_favourites=Count(
-                    Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
-                ),
-                request_user_rate=Subquery(
-                    Rating.objects.filter(
-                        user=self.request.user, title=OuterRef('pk')
-                    ).order_by('-rate_date').values('rate')[:1]
-                )
-            )
+        qs = qs.annotate_fav_and_watch(self.request.user).annotate_rates(request_user=self.request.user)
 
         if self.searched_user:
             # TODO: problem - any annotation makes titles distinct which I don't want in this case
             # i think i should use Rating qs? because in this case I don't want latest rating
             # anyway, it will make searching a mess.
             # maybe use Rating.values(). but it won't make a searching problem disappear
-            qs = qs.annotate(
-                searched_user_rate=Subquery(
-                    Rating.objects.filter(
-                        user=self.searched_user, title=OuterRef('pk')
-                    ).order_by('-rate_date').values('rate')[:1]
-                )
-            ).order_by('-rating__rate_date')
+            qs = qs.annotate_rates(user=self.searched_user).order_by('-rating__rate_date')
         else:
             qs = qs.order_by('-release_date', '-name')
 
