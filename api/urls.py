@@ -2,7 +2,6 @@ from django.conf.urls import include, url
 
 from rest_framework.routers import SimpleRouter
 
-import importer.views
 from . import views
 
 router = SimpleRouter()
@@ -19,5 +18,5 @@ urlpatterns = [
     url(r'^favourites/reorder', views.ReorderFavourite.as_view(), name='user-fav-reorder'),
 
     url(r'^', include(router.urls), name='ratings'),
-    url(r'^title/(?P<slug>[\w-]+)/$', views.TitleDetailView.as_view(), name='title_detail'),
+    url(r'^title/(?P<pk>\d+)/$', views.TitleDetailView.as_view(), name='api-title-detail'),
 ]
