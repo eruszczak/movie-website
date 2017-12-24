@@ -8,7 +8,7 @@ from django.core.files.images import get_image_dimensions
 from django.core.files.uploadedfile import UploadedFile
 
 from shared.forms import SizeExtValidatorMixin
-
+from shared.widgets import MyClearableFileInput
 
 User = get_user_model()
 
@@ -38,6 +38,9 @@ class UserUpdateForm(SizeExtValidatorMixin, forms.ModelForm):
             'imdb_id': 'If you will provide your IMDb Id and your lists are public, '
                        'you will be able to update your ratings/watchlist on your profile page.',
             'picture': 'Only jpg and png files are allowed. Image must be a square with width between 100-200px'
+        }
+        widgets = {
+            'picture': MyClearableFileInput
         }
 
     def clean_picture(self):
