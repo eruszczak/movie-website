@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{% block title %}Login{% endblock %}
 {% block scripts %}
   <script>
   $(document)
@@ -53,7 +54,7 @@
                 <div class="ui error message"></div>
             </form>
             <div class="ui message">New to us? <a href="{% url 'register' %}?next={{ request.GET.next }}">Sign Up</a></div>
-            <div class="ui message">Forgot your password? <a href="">Reset it</a></div>
+{#            <div class="ui message">Forgot your password? <a href="">Reset it</a></div>#}
         </div>
     </div>
 {% endblock %}

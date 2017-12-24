@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static humanize get_rating_diff widget_tweaks %}
-{#{% block title %}{% endblock %}#}
+{% block title %}{{ person.name }}{% endblock %}
+
 
 {% block image %}
     <div class="still-background2 still-background2-gradient">

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static humanize get_rating_diff widget_tweaks %}
-{#{% block title %}{% endblock %}#}
+{% block title %}{{ title.name }} ({{ title.year }}){% endblock %}
 
 {% block image %}
     {% include 'titles/includes/title_background.html' with title=title rate=user_ratings_of_title.0.rate %}
