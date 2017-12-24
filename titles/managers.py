@@ -1,31 +1,16 @@
+from django.apps import apps
+from django.db.models import Exists, Subquery, OuterRef
 from django.db.models.query import QuerySet
 from django.utils.timezone import now
 
+from lists.models import Watchlist, Favourite
 from titles.constants import MOVIE, SERIES
 
 
-class TitleQuerySet(QuerySet):
+# Rating = apps.get_model('titles.Rating')
 
-    # def with_actor_and_title_excluded(self, actor, title):
-    #     """
-    #     :param actor: titles in which that Actor starred
-    #     :param title: title that should be excluded (title details shows the cast and their other movies,
-    #     and I want to exclude from that lists current title)
-    #     :return:
-    #     """
-    #     return self.filter(actor=actor).exclude(const=title.const).order_by('-votes')
-    #
-    # def with_actor_and_title_excluded_and_curr_rating(self, actor, title, user):
-    #     """
-    #     :param user: annotates to each title current rating of this user
-    #     :return:
-    #     """
-    #     return self.with_actor_and_title_excluded(actor, title).extra(select={
-    #             'user_rate': """SELECT rate FROM movie_rating as rating
-    #             WHERE rating.title_id = movie_title.id
-    #             AND rating.user_id = %s
-    #             ORDER BY rating.rate_date DESC LIMIT 1"""
-    #         }, select_params=[user.id]).order_by('-votes')
+
+class TitleQuerySet(QuerySet):
 
     def movies(self):
         return self.filter(type=MOVIE)
@@ -35,3 +20,34 @@ class TitleQuerySet(QuerySet):
 
     def upcoming(self):
         return self.filter(release_date__gte=now().date())
+
+    def annotate_fav_and_watch(self, request_user):
+        if request_user.is_authenticated:
+            return self.annotate(
+                has_in_watchlist=Exists(
+                    Watchlist.objects.filter(user=request_user, deleted=False, title=OuterRef('pk'))),
+                has_in_favourites=Exists(Favourite.objects.filter(user=request_user, title=OuterRef('pk'))),
+            )
+        return self
+
+    def annotate_rates(self, user=None, request_user=None):
+        """annotates for each title latest rating for passed users"""
+        from titles.models import Rating
+
+        annotation = {}
+        if user:
+            annotation['user_rate'] = Subquery(
+                Rating.objects.filter(
+                    user=user, title=OuterRef('pk')
+                ).order_by('-rate_date').values('rate')[:1]
+            )
+        if request_user and request_user.is_authenticated:
+            annotation['request_user_rate'] = Subquery(
+                Rating.objects.filter(
+                    user=request_user, title=OuterRef('pk')
+                ).order_by('-rate_date').values('rate')[:1]
+            )
+
+        if annotation:
+            return self.annotate(**annotation)
+        return self

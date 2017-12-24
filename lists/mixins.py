@@ -22,24 +22,9 @@ class WatchFavListViewMixin:
     paginate_by = 0
 
     def get_queryset(self):
-        self.user = User.objects.get(username=self.kwargs['username'])
-        self.is_owner = self.user.pk == self.request.user.pk
-        newest_ratings = Rating.objects.filter(user=self.user, title=OuterRef('pk')).order_by('-rate_date')
-
-        qs = super().get_queryset().annotate(
-            user_rate=Subquery(newest_ratings.values('rate')[:1]),
-        )
-
-        if self.request.user.is_authenticated:
-            newest_request_user = Rating.objects.filter(
-                user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
-
-            qs = qs.annotate(
-                has_in_watchlist=Exists(
-                    Watchlist.objects.filter(user=self.request.user, deleted=False, title=OuterRef('pk'))),
-                has_in_favourites=Exists(Favourite.objects.filter(user=self.request.user, title=OuterRef('pk'))),
-                request_user_rate=Subquery(newest_request_user.values('rate')[:1]),
-            )
+        qs = super().get_queryset()\
+            .annotate_rates(self.user, self.request.user)\
+            .annotate_fav_and_watch(self.request.user)
         return qs
 
     def get_context_data(self, **kwargs):
