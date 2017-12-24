@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block title %}{{ user.username }}'s watchlist{% endblock %}
 {% block breadcrumb %}
     <div class="ui breadcrumb">
         <a class="section" href="{% url 'home' %}">Home</a>

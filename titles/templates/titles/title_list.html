@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks get_query_string %}
-{#{% block title %}{{ page_title }}{% endblock %}#}
+{% block title %}{% if searched_user %}{{ searched_user.username }}'s ratings{% else %}Titles{% endif %}{% endblock %}
 
 {% block scripts %}
 <script>
