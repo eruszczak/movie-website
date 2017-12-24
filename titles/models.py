@@ -236,16 +236,6 @@ class Title(models.Model):
             return ''
 
     @property
-    def average_rate(self):
-        return 0.0
-        # """
-        # gets average of all current ratings for this title. if user1 rated this 5 and later 10 and user2 rated this 10
-        # then {count: 2, avg: 10} would be returned
-        # :return: eg. {count: 20, avg: 7.0}
-        # """
-        # return avg_of_title_current_ratings(self.id)
-
-    @property
     def can_be_updated(self):
         seconds_since_last_update = (timezone.now() - self.update_date).seconds
         return seconds_since_last_update > 60 * 10
