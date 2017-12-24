@@ -1,6 +1,7 @@
 from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db.models import F, Q
 from django.urls import reverse
 from rest_framework import status
@@ -62,7 +63,10 @@ class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin,
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        message = toggle_title_in_favourites(request.user, self.title, self.toggle_active)
+        try:
+            message = toggle_title_in_favourites(request.user, self.title, self.toggle_active)
+        except ValidationError as e:
+            return Response({'message': '. '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
@@ -70,7 +74,10 @@ class ToggleWatchlistAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin,
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        message = toggle_title_in_watchlist(request.user, self.title, self.toggle_active)
+        try:
+            message = toggle_title_in_watchlist(request.user, self.title, self.toggle_active)
+        except ValidationError as e:
+            return Response({'message': '. '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
@@ -98,6 +105,8 @@ class ReorderFavourite(IsAuthenticatedMixin, APIView):
         change = old_index - new_index
 
         if new_index and old_index and change != 0 and self.valid_indexes(new_index, old_index, favourite_list):
+            print(favourite_list)
+            print(favourite_list.values_list('order'))
             # get item that was moved and exclude its order before updating
             # Its order will be changed manually
             moved_item = favourite_list.get(order=old_index)

@@ -2,8 +2,10 @@ from django.conf import settings
 from django.db import models
 from django.urls import reverse
 
+from lists.mixins import LimitInstancesMixin
 
-class Watchlist(models.Model):
+
+class Watchlist(LimitInstancesMixin, models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -22,7 +24,7 @@ class Watchlist(models.Model):
         return reverse('watchlist', kwargs={'username': self.user.username})
 
 
-class Favourite(models.Model):
+class Favourite(LimitInstancesMixin, models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
