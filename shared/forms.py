@@ -38,7 +38,7 @@ class SizeExtValidatorMixin:
     @staticmethod
     def validate_size(file_size, max_size_in_kb):
         """raises ValidationError if file_size is bigger than max_size"""
-        if file_size > max_size_in_kb:
+        if file_size > max_size_in_kb * 1024:
             raise ValidationError(
                 f'Maximum file size is {max_size_in_kb} kB. '
                 f'Uploaded file\'s size is {round(float(file_size / 1024), 2)} kB'

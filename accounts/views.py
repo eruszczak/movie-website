@@ -199,7 +199,7 @@ class UserDetailView(DetailView):
 
 class LoginView(BaseLoginView):
     template_name = 'accounts/login.html'
-    # redirect_authenticated_user = False
+    redirect_authenticated_user = True
 
     def get_success_url(self):
         messages.warning(self.request, 'Welcome, {}.'.format(self.request.user.username))
@@ -247,4 +247,5 @@ class PasswordChangeView(BasePasswordChangeView):
     template_name = 'accounts/password_change.html'
 
     def get_success_url(self):
+        messages.success(self.request, 'You changed your password.')
         return self.request.user.edit_url()
