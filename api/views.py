@@ -104,11 +104,13 @@ class ReorderFavourite(IsAuthenticatedMixin, APIView):
             moved_item = favourite_list.get(order=old_index)
             favourite_list = favourite_list.exclude(order=old_index)
 
+            # if item has moved from #3 to #5 (or reversed), this will either decrease (or increase) order of #4
             if change > 0:
                 favourite_list.filter(Q(order__gte=new_index) & Q(order__lt=old_index)).update(order=F('order') + 1)
             else:
                 favourite_list.filter(Q(order__lte=new_index) & Q(order__gt=old_index)).update(order=F('order') - 1)
 
+            # moved_item hasn't been updated yet, so right now 2 items have order==old_index
             moved_item.order = new_index
             moved_item.save()
 

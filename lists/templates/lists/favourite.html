@@ -28,11 +28,11 @@
             {% for title in title_list %}
                 <div id="{{ title.pk }}" class="item">
                     <div class="ui tiny image">
-                        <img src="{{ title.poster_small }}">
+                         <a href="{{ title.get_absolute_url }}"><img src="{{ title.poster_small }}"></a>
                     </div>
                     <div class="middle aligned content">
-                        <span class="item-order">{{ forloop.counter }}</span>. <span class="ui circular label item-order-change hide"></span>
-                        <a class="header">{{ title.order }} {{ title }}</a>
+                        <span class="item-order">{{ title.order }}</span>. <span class="ui circular label item-order-change hide"></span>
+                        <a href="{{ title.get_absolute_url }}" class="header">{{ title }}</a>
                     </div>
                 </div>
             {% endfor %}
