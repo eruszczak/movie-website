@@ -126,12 +126,8 @@ class TitleDetailView(DetailView):
     model = Title
     object = None
 
-    def get_object(self, queryset=None):
-        if queryset is None:
-            queryset = self.get_queryset()
-
-        queryset = queryset.filter(imdb_id=self.kwargs['imdb_id'])
-
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(imdb_id=self.kwargs['imdb_id']).prefetch_related('seasons')
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
                 has_in_favourites=Count(
@@ -147,14 +143,10 @@ class TitleDetailView(DetailView):
                     CurrentlyWatchingTV.objects.filter(user=self.request.user, title=OuterRef('pk')).values('pk')
                 ),
             )
+        return queryset
 
-        try:
-            obj = queryset.get()
-        except self.model.DoesNotExist:
-            raise Http404
-        else:
-            # obj.call_update_task()
-            return obj
+    def get_object(self, queryset=None):
+        return self.get_queryset().get()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
