@@ -7,73 +7,62 @@
 {% endblock %}
 
 {% block content %}
-{#    <img class="title-poster" src="{% static 'img/w185_h278_bestv2.jpg' %}">#}
-{#    <div class="ui cards title-poster">#}
-{#        {% include 'titles/title_card.html' with title=title score=current_rating.rate in_fav=title.has_in_favourites %}#}
-{#    </div>#}
-{#    <p class="title-genres">#}
-{#        {% for genre in title.genre.all %}#}
-{#            <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>#}
-{#        {% endfor %}#}
-{#    </p>#}
-    {#{% with entry.rate as data %}#}
-    {#    {% if data.count and data.avg %}#}
-    {#        Avg rating: {{ data.avg|floatformat:2 }} <a href="{% url 'user-list' %}?s={{ entry.slug }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
-    {#    {% endif %}#}
-    {#{% endwith %}#}
-{#    <div class="ui divider"></div>#}
     <div class="ui fluid two item menu title-menu">
-      <a class="item active" data-tab="first">Title Details</a>
-      <a class="item" data-tab="second">Your Overview</a>
+        <a class="item active" data-tab="first">Title Details</a>
+        <a class="item" data-tab="second">Your Overview</a>
     </div>
-    {#<a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
     <div class="ui tab segment active" data-tab="first">
         <div class="ui grid centered statistics">
-          {% if title.runtime %}
-              <div class="statistic">
-                <div class="value">{{ title.runtime }}</div>
-                <div class="label">Runtime (min)</div>
-              </div>
-          {% endif %}
-          {% if not title.is_movie %}
-              <div class="statistic">
-                <div class="value">{{ title.seasons.all|length }}</div>
-                <div class="label">Seasons</div>
-              </div>
-          {% endif %}
-            {% if summary.avg %}
-              <div class="statistic">
-                <div class="value">{{ summary.avg }}</div>
-                <div class="label">average score</div>
-              </div>
+            {% if title.runtime %}
+                <div class="statistic">
+                    <div class="value">{{ title.runtime }}</div>
+                    <div class="label">Runtime (min)</div>
+                </div>
             {% endif %}
-          <div class="statistic">
-            <div class="value">{{ summary.votes|intcomma }}</div>
-            <div class="label">Votes</div>
-          </div>
-          <div class="statistic">
-            <div class="value">{{ title.release_date|date:'d.m.Y'|default:'-' }}</div>
-            <div class="label">Release date</div>
-          </div>
+            {% if not title.is_movie %}
+                <div class="statistic">
+                    <div class="value">{{ title.seasons.all|length }}</div>
+                    <div class="label">Seasons</div>
+                </div>
+            {% endif %}
+            {% if summary.avg %}
+                <div class="statistic">
+                    <div class="value">{{ summary.avg }}</div>
+                    <div class="label">average score</div>
+                </div>
+            {% endif %}
+            <div class="statistic">
+                <div class="value">{{ summary.votes|intcomma }}</div>
+                <div class="label">Votes</div>
+            </div>
+            <div class="statistic">
+                <div class="value">{{ title.release_date|date:'d.m.Y'|default:'-' }}</div>
+                <div class="label">Release date</div>
+            </div>
         </div>
         <div class="ui center aligned header">
-            <a href="{% url 'user-list' %}?imdb_id={{ title.imdb_id }}" class="ui basic button"><i class="user small icon"></i> Users who saw this title</a>
+            <a href="{% url 'user-list' %}?imdb_id={{ title.imdb_id }}" class="ui basic button"><i
+                    class="user small icon"></i> Users who saw this title</a>
             {% if not title.is_movie %}
-              <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui basic currently-watching toggle button{% if title.currently_watching %} active{% endif %}" data-pk="{{ title.pk }}">{% if title.currently_watching %}Currently watching{% else %}Not watching currently{% endif %}</div>
+                <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in."
+                                                               data-variation="mini"{% endif %}
+                                                               class="ui basic currently-watching toggle button{% if title.currently_watching %} active{% endif %}"
+                                                               data-pk="{{ title.pk }}">
+                    {% if title.currently_watching %}Currently watching{% else %}Not watching currently{% endif %}</div>
             {% endif %}
         </div>
 
         {{ title.updated }}; {{ title.being_updated }}
-{#        {% with title.rate as data %}#}
-{#            {% if data.count %}#}
-{#                <div class="item">Avg ratings: {{ data.avg|floatformat:2 }}#}
-{#                    <a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} user{{ data.count|pluralize }})</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#        {% endwith %}#}
-{#        {% for director in title.director.all %}#}
-{#            <a href="{{ director.get_absolute_url }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}<br></a>#}
-{#        {% endfor %}#}
+        {#        {% with title.rate as data %}#}
+        {#            {% if data.count %}#}
+        {#                <div class="item">Avg ratings: {{ data.avg|floatformat:2 }}#}
+        {#                    <a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} user{{ data.count|pluralize }})</a>#}
+        {#                </div>#}
+        {#            {% endif %}#}
+        {#        {% endwith %}#}
+        {#        {% for director in title.director.all %}#}
+        {#            <a href="{{ director.get_absolute_url }}">{% if director.name != 'N/A' %}{{ director.name }}{% else %}unknown{% endif %}<br></a>#}
+        {#        {% endfor %}#}
 
         {% if title.overview %}
             <div class="ui hidden divider"></div>
@@ -84,7 +73,7 @@
         {% if title.updated %}
             {% if title.is_movie and title.collection %}
                 <div class="ui segment">
-                  <span class="ui blue ribbon label">{{ title.collection.name }}</span>
+                    <span class="ui blue ribbon label">{{ title.collection.name }}</span>
                     <div class="ui list">
                         {% include 'titles/includes/slick_titles.html' with queryset=collection_titles %}
                     </div>
@@ -93,7 +82,7 @@
 
             {% if similar %}
                 <div class="ui segment">
-                  <span class="ui blue ribbon label">Similar</span>
+                    <span class="ui blue ribbon label">Similar</span>
                     <div class="ui list">
                         {% include 'titles/includes/slick_titles.html' with queryset=similar %}
                     </div>
@@ -102,7 +91,7 @@
 
             {% if recommendations %}
                 <div class="ui segment">
-                  <span class="ui blue ribbon label">Recommendations</span>
+                    <span class="ui blue ribbon label">Recommendations</span>
                     <div class="ui list">
                         {% include 'titles/includes/slick_titles.html' with queryset=recommendations %}
                     </div>
@@ -111,29 +100,29 @@
         {% elif title.being_updated %}
             <div class="ui hidden divider"></div>
             <div class="ui segment loader-box">
-              <div class="ui active dimmer">
-                <div class="ui text loader">Title is being updated</div>
-              </div>
-              <p></p>
+                <div class="ui active dimmer">
+                    <div class="ui text loader">Title is being updated</div>
+                </div>
+                <p></p>
             </div>
             <div class="ui icon message">
-              <i class="notched circle loading icon"></i>
-              <div class="content">
-                <div class="header">
-                  Just one second
+                <i class="notched circle loading icon"></i>
+                <div class="content">
+                    <div class="header">
+                        Just one second
+                    </div>
+                    <p>We're fetching that content for you.</p>
                 </div>
-                <p>We're fetching that content for you.</p>
-              </div>
             </div>
         {% endif %}
         <div class="ui segment">
-          <span class="ui blue ribbon label">Cast</span>
+            <span class="ui blue ribbon label">Cast</span>
             <div class="ui list">
                 {% include 'titles/includes/slick_persons.html' with queryset=cast_list cast_qs=True %}
             </div>
         </div>
         <div class="ui segment">
-          <span class="ui blue ribbon label">Crew</span>
+            <span class="ui blue ribbon label">Crew</span>
             <div class="ui list">
                 {% include 'titles/includes/slick_persons.html' with queryset=crew_list crew_qs=True %}
             </div>
@@ -141,7 +130,7 @@
 
         {% if not title.is_movie %}
             <div class="ui segment">
-              <span class="ui blue ribbon label">Seasons</span>
+                <span class="ui blue ribbon label">Seasons</span>
                 <div class="ui list">
                     <div class="ui hidden divider"></div>
                     <div class="ui centered grid">
@@ -158,7 +147,7 @@
         {% endif %}
 
         <div class="ui segment">
-          <span class="ui blue ribbon label">More</span>
+            <span class="ui blue ribbon label">More</span>
             <div class="ui list">
                 <a href="{{ title.imdb_url }}" target="_blank">
                     <img class="image" src="{% static 'img/imdb.png' %}" alt="..." style="height: 50px">
@@ -171,80 +160,87 @@
     </div>
     <div class="ui tab segment" data-tab="second">
         <div class="ui segment">
-          <span class="ui teal ribbon label">Rating history</span>
+            <span class="ui teal ribbon label">Rating history</span>
             <div class="ui list">
                 <table class="ui celled unstackable table">
-                  <thead>
+                    <thead>
                     <tr>
                         <th>Date</th>
                         <th>Score</th>
                         <th>Duration (days)</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                  {% for rating in user_ratings_of_title %}
-                      {% get_rating_diff user_ratings_of_title forloop.counter0 as diff %}
-                    <tr>
-        {#                <td class=""><a href="{% url 'title-list' %}?year={{ rating.rate_date|date:'Y' }}&month={{ rating.rate_date|date:'m' }}">{{ rating.rate_date|date:"Y-m-d" }}</a></td>#}
-        {#                <td class=""><a href="{% url 'title-list' %}?r={{ rating.rate }}">{{ rating.rate }}</a>#}
-                      <td>{{ rating.rate_date }}{% if forloop.first %} <div class="ui yellow small horizontal label">current</div>{% endif %}
-                      </td>
-                      <td class="{% if diff.rate < 0 %}error{% elif diff.rate > 0 %}positive{% endif %}">
-                          {{ rating.rate }}{% if diff.rate %} <small>({% if diff.rate > 0 %}+{% endif %}{{ diff.rate }})</small>{% endif %}
-                      </td>
-                      <td>
-                        {{ diff.date }}
-{#                        <form action="" method="post">{% csrf_token %}#}
-{#                            <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> delete</button>#}
-{#                            <input type="hidden" name="rating_pk" value="{{ rating.pk }}">#}
-{#                        </form>#}
-                      </td>
                     </tr>
-                  {% endfor %}
-                  </tbody>
+                    </thead>
+                    <tbody>
+                    {% for rating in user_ratings_of_title %}
+                        {% get_rating_diff user_ratings_of_title forloop.counter0 as diff %}
+                        <tr>
+                            {#                <td class=""><a href="{% url 'title-list' %}?year={{ rating.rate_date|date:'Y' }}&month={{ rating.rate_date|date:'m' }}">{{ rating.rate_date|date:"Y-m-d" }}</a></td>#}
+                            {#                <td class=""><a href="{% url 'title-list' %}?r={{ rating.rate }}">{{ rating.rate }}</a>#}
+                            <td>{{ rating.rate_date }}{% if forloop.first %}
+                                <div class="ui yellow small horizontal label">current</div>{% endif %}
+                            </td>
+                            <td class="{% if diff.rate < 0 %}error{% elif diff.rate > 0 %}positive{% endif %}">
+                                {{ rating.rate }}{% if diff.rate %}
+                                    <small>({% if diff.rate > 0 %}+{% endif %}{{ diff.rate }})</small>{% endif %}
+                            </td>
+                            <td>
+                                {{ diff.date }}
+                                {#                        <form action="" method="post">{% csrf_token %}#}
+                                {#                            <button class="btn btn-sm see-again-btn unwatch-btn" type="submit" name="delete_rating" value="delete_rating"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> delete</button>#}
+                                {#                            <input type="hidden" name="rating_pk" value="{{ rating.pk }}">#}
+                                {#                        </form>#}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
                 </table>
             </div>
         </div>
         {% with user_ratings_of_title.0 as current_rating %}
             <div class="ui checkbox">
-              <input type="checkbox" name="insert_as_new">
-              <label for="insert_as_new">insert as a new rating?</label>
+                <input type="checkbox" name="insert_as_new">
+                <label for="insert_as_new">insert as a new rating?</label>
             </div>
-{#            <br>#}
+            {#            <br>#}
         {% endwith %}
-{#        {% if user_ratings_of_title %}#}
-{#            <a href="{% url 'rating-update' user_ratings_of_title.0.pk %}" class="label label-default">#}
-{#                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> modify current rating#}
-{#            </a>#}
-{#        {% endif %}#}
+        {#        {% if user_ratings_of_title %}#}
+        {#            <a href="{% url 'rating-update' user_ratings_of_title.0.pk %}" class="label label-default">#}
+        {#                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> modify current rating#}
+        {#            </a>#}
+        {#        {% endif %}#}
 
         <div class="ui segment">
-          <span class="ui teal ribbon label">Recommend</span>
-            <span>Recommend it to people you follow</span> <a class="ui primary mini recommend hide button ml10" data-pk="{{ title.pk }}" data-field-name="{{ recommend_form.user.auto_id }}">Recommend</a>
+            <span class="ui teal ribbon label">Recommend</span>
+            <span>Recommend it to people you follow</span> <a class="ui primary mini recommend hide button ml10"
+                                                              data-pk="{{ title.pk }}"
+                                                              data-field-name="{{ recommend_form.user.auto_id }}">Recommend</a>
             <div class="ui list">
-{#                {{ recommend_form.user }}#}
-{#                {% render_field recommend_form.user|add_class:'ui dropdown search' %}#}
+                {#                {{ recommend_form.user }}#}
+                {#                {% render_field recommend_form.user|add_class:'ui dropdown search' %}#}
                 <div class="ui fluid multiple search selection recommend dropdown">
-                  <input type="hidden" name="recommended_user_ids">
-                  <i class="dropdown icon"></i>
-                  <div class="default text">People you follow</div>
-                  <div class="menu">
-                      {% for userfollow in followed_title_not_recommended %}
-                        <div class="item" data-value="{{ userfollow.followed.pk }}"><img class="ui mini avatar image" src="{{ userfollow.followed.avatar_url }}">{{ userfollow.followed.username }}</div>
-                      {% endfor %}
+                    <input type="hidden" name="recommended_user_ids">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">People you follow</div>
+                    <div class="menu">
+                        {% for userfollow in followed_title_not_recommended %}
+                            <div class="item" data-value="{{ userfollow.followed.pk }}"><img
+                                    class="ui mini avatar image"
+                                    src="{{ userfollow.followed.avatar_url }}">{{ userfollow.followed.username }}</div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
         <div class="ui segment">
-          <span class="ui teal ribbon label">Other ratings</span>
+            <span class="ui teal ribbon label">Other ratings</span>
             <span>Followed users who saw this title</span>
             <div class="ui list">
                 {% for userfollow in followed_saw_title %}
                     <a href="{% url 'user-detail' userfollow.followed.username %}" class="ui image label">
-                      <img src="{{ userfollow.followed.avatar_url }}">
-                      {{ userfollow.followed.username }}
-                      <div class="detail">{{ userfollow.user_rate }} <i class="star icon green"></i> {{ userfollow.user_rate_date }}</div>
+                        <img src="{{ userfollow.followed.avatar_url }}">
+                        {{ userfollow.followed.username }}
+                        <div class="detail">{{ userfollow.user_rate }} <i
+                                class="star icon green"></i> {{ userfollow.user_rate_date }}</div>
                     </a>
                 {% endfor %}
                 {% if not followed_saw_title %}

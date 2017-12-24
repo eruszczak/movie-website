@@ -9,16 +9,23 @@ from titles.views import User
 class WatchlistListView(ListView):
     template_name = 'lists/watchlist.html'
     model = Title
-    paginate_by = 25
+    paginate_by = 0
     user = None
     is_owner = False
 
     def get_queryset(self):
         self.user = User.objects.get(username=self.kwargs['username'])
         self.is_owner = self.user.pk == self.request.user.pk
-        qs = super().get_queryset().filter(watchlist__user=self.user)
-        newest_user = Rating.objects.filter(user=self.user, title=OuterRef('pk')).order_by('-rate_date')
+        newest_ratings = Rating.objects.filter(user=self.user, title=OuterRef('pk')).order_by('-rate_date')
+
+        qs = super().get_queryset().filter(watchlist__user=self.user).annotate(
+            user_rate=Subquery(newest_ratings.values('rate')[:1]),
+        )
+
         if self.request.user.is_authenticated:
+            newest_request_user = Rating.objects.filter(
+                user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
+
             qs = qs.annotate(
                 has_in_watchlist=Count(
                     Case(
@@ -28,21 +35,11 @@ class WatchlistListView(ListView):
                 ),
                 has_in_favourites=Count(
                     Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
-                )
+                ),
+                request_user_rate=Subquery(newest_request_user.values('rate')[:1]),
             )
-            if self.is_owner:
-                qs = qs.annotate(request_user_rate=Subquery(newest_user.values('rate')[:1]))
-            else:
-                newest_request_user = Rating.objects.filter(
-                    user=self.request.user, title=OuterRef('pk')).order_by('-rate_date')
-                qs = qs.annotate(
-                    user_rate=Subquery(newest_user.values('rate')[:1]),
-                    request_user_rate=Subquery(newest_request_user.values('rate')[:1]),
-                )
-        else:
-            qs = qs.annotate(user_rate=Subquery(newest_user.values('rate')[:1]))
 
-        return qs.prefetch_related('genre', 'director')
+        return qs.prefetch_related('genres')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
