@@ -1,13 +1,8 @@
-from django.apps import apps
 from django.db.models import Exists, Subquery, OuterRef
 from django.db.models.query import QuerySet
 from django.utils.timezone import now
 
-from lists.models import Watchlist, Favourite
 from titles.constants import MOVIE, SERIES
-
-
-# Rating = apps.get_model('titles.Rating')
 
 
 class TitleQuerySet(QuerySet):
@@ -22,6 +17,8 @@ class TitleQuerySet(QuerySet):
         return self.filter(release_date__gte=now().date())
 
     def annotate_fav_and_watch(self, request_user):
+        from lists.models import Watchlist, Favourite
+
         if request_user.is_authenticated:
             return self.annotate(
                 has_in_watchlist=Exists(

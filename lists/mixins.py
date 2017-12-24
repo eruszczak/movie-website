@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
-from django.db.models import OuterRef, Subquery, Exists
+from django.core.exceptions import ValidationError
 
-from lists.models import Watchlist, Favourite
-from titles.models import Rating, Title
+from lists.constants import LIST_LIMIT
+from titles.models import Title
 
 User = get_user_model()
 
@@ -34,3 +34,11 @@ class WatchFavListViewMixin:
             'user': self.user
         })
         return context
+
+
+class LimitInstancesMixin:
+
+    def save(self, *args, **kwargs):
+        if self.__class__.objects.all().count() >= LIST_LIMIT:
+            raise ValidationError(f'List is full ({LIST_LIMIT} titles).')
+        super().save(*args, **kwargs)
