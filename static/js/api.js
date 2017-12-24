@@ -125,7 +125,6 @@ var currentlyWatchingSettings = $.extend({
     },
     onSuccess: function(response) {
         showToast(response.message);
-        $(this).toggleClass('active');
     }
 }, API_SETTINGS_BASE);
 
@@ -146,5 +145,10 @@ $('.follow.button').api(followSettings).state({
       active: 'Followed'
     }
 });
-$('.currently-watching.button').api(currentlyWatchingSettings);
+$('.currently-watching.button').api(currentlyWatchingSettings).state({
+    text: {
+      inactive: 'Not watching currently',
+      active: 'Currently watching'
+    }
+});
 $('.export.modal .actions .positive').api(exportRatingsSettings);
