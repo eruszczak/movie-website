@@ -1,0 +1,7 @@
+{% load widget_tweaks %}
+<div class="field{% if field.errors %} error{% endif %}">
+    <div class="ui left icon input">
+        <i class="{{ icon }} icon"></i>
+        {% render_field field placeholder=field.label %}
+    </div>
+</div>

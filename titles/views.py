@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count, When, Case, IntegerField, Subquery, Q, Avg
+from django.db.models import Count, Subquery, Q, Avg
 from django.db.models import OuterRef
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, TemplateView, RedirectView, ListView, UpdateView

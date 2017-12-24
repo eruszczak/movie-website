@@ -45,29 +45,13 @@
     <div class="ui middle aligned center aligned grid">
         <div class="column twelve wide">
             <h2 class="ui teal image header">
-{#                <img src="assets/images/logo.png" class="image">#}
                 <div class="content">Sign up</div>
             </h2>
             <form class="ui large form" action="{% url 'register' %}?next={{ request.GET.next }}" method="post">{% csrf_token %}
                 <div class="ui stacked segment">
-                    <div class="field{% if form.username.errors %} error{% endif %}">
-                        <div class="ui left icon input">
-                            <i class="user icon"></i>
-                            {% render_field form.username placeholder=form.username.label %}
-                        </div>
-                    </div>
-                    <div class="field{% if form.password1.errors %} error{% endif %}">
-                        <div class="ui left icon input">
-                            <i class="lock icon"></i>
-                            {% render_field form.password1 placeholder=form.password1.label %}
-                        </div>
-                    </div>
-                    <div class="field{% if form.password2.errors %} error{% endif %}">
-                        <div class="ui left icon input">
-                            <i class="lock icon"></i>
-                            {% render_field form.password2 placeholder=form.password2.label %}
-                        </div>
-                    </div>
+                    {% include 'accounts/includes/field.html' with field=form.username icon='user' %}
+                    {% include 'accounts/includes/field.html' with field=form.password1 icon='lock' %}
+                    {% include 'accounts/includes/field.html' with field=form.password2 icon='lock' %}
                     <div class="field">
                       <div class="ui checkbox">
                         {{ form.login_after }}
