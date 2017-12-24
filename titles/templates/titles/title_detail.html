@@ -28,9 +28,6 @@
     </div>
     {#<a href="{% url 'user-list' %}?const={{ title.const }}">({{ data.count }} vote{{ data.count|pluralize }})</a>#}
     <div class="ui tab segment active" data-tab="first">
-    {% if not title.is_movie %}
-      <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui small currently-watching toggle button right floated{% if title.currently_watching %} active{% endif %}" data-pk="{{ title.pk }}">Currently watching</div>
-    {% endif %}
         <div class="ui grid centered statistics">
           {% if title.runtime %}
               <div class="statistic">
@@ -55,12 +52,15 @@
             <div class="label">Votes</div>
           </div>
           <div class="statistic">
-            <div class="value">{{ title.release_date|date:'d.m.Y' }}</div>
+            <div class="value">{{ title.release_date|date:'d.m.Y'|default:'-' }}</div>
             <div class="label">Release date</div>
           </div>
         </div>
         <div class="ui center aligned header">
-            <a href="{% url 'user-list' %}?imdb_id={{ title.imdb_id }}" class="ui basic primary button"><i class="user small icon"></i> See users who saw this title</a>
+            <a href="{% url 'user-list' %}?imdb_id={{ title.imdb_id }}" class="ui basic button"><i class="user small icon"></i> Users who saw this title</a>
+            {% if not title.is_movie %}
+              <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui basic currently-watching toggle button{% if title.currently_watching %} active{% endif %}" data-pk="{{ title.pk }}">{% if title.currently_watching %}Currently watching{% else %}Not watching currently{% endif %}</div>
+            {% endif %}
         </div>
 
         {{ title.updated }}; {{ title.being_updated }}
@@ -148,7 +148,7 @@
                         {% for season in title.seasons.all %}
                             <span class="ui label">
                                 {{ season.number }} ({{ season.episodes }} episodes)
-                                <div class="detail">({{ season.release_date.year }})</div>
+                                <div class="detail">({{ season.release_date.year|default:'-' }})</div>
                             </span>
                         {% endfor %}
                     </div>
