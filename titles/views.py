@@ -88,18 +88,10 @@ class TitleDetailView(DetailView):
     object = None
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(imdb_id=self.kwargs['imdb_id']).prefetch_related('seasons')
+        queryset = super().get_queryset().filter(imdb_id=self.kwargs['imdb_id']).prefetch_related('seasons')\
+            .annotate_fav_and_watch(self.request.user)
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
-                has_in_favourites=Count(
-                    Case(When(favourite__user=self.request.user, then=1), output_field=IntegerField())
-                ),
-                has_in_watchlist=Count(
-                    Case(
-                        When(watchlist__user=self.request.user, watchlist__deleted=False, then=1),
-                        output_field=IntegerField()
-                    )
-                ),
                 currently_watching=Subquery(
                     CurrentlyWatchingTV.objects.filter(user=self.request.user, title=OuterRef('pk')).values('pk')
                 ),
