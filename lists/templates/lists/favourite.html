@@ -69,6 +69,7 @@
                         var orderBefore = $(this).find('.item-order');
                         var orderChange = $(this).find('.item-order-change');
                         if (i === newIndex) {
+                            // move this outside of a  loop
                             orderChange.removeClass('hide');
                             orderChange.text((orderDiff > 0 ? '+' : '') + orderDiff);
                             orderBefore.text(newIndex + 1);
@@ -82,7 +83,8 @@
                             orderBefore.text(i + 1);
                         }
                     });
-                    ajax_request({'item_order': $(this).sortable('toArray')}, {url: url});
+                    ajax_request({'oldIndex': oldIndex, 'newIndex': newIndex}, {url: url});
+{#                    ajax_request({'item_order': $(this).sortable('toArray')}, {url: url});#}
                 }
             });
         }
