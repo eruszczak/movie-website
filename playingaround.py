@@ -97,7 +97,7 @@ def restart_favs():
 
     print(Favourite.objects.filter(user=user))
 
-restart_favs()
+# restart_favs()
 
 # create_rating_duplicat()
 # t = GetTitleMixin()

@@ -64,27 +64,29 @@
                     var orderDiff = oldIndex - newIndex;
                     $(this).removeAttr('data-previndex');
 
-                    // iterate over all items from the top to adjust orders
+                    // update item that was moved
+                    var orderChange = ui.item.find('.item-order-change');
+                    var orderBefore = ui.item.find('.item-order');
+                    orderChange.removeClass('hide');
+                    orderChange.text((orderDiff > 0 ? '+' : '') + orderDiff);
+                    orderBefore.text(newIndex + 1);
+                    if (orderDiff > 0) {
+                        orderChange.removeClass('red').addClass('green');
+                    } else {
+                        orderChange.removeClass('green').addClass('red');
+                    }
+
+                    // update rest of the items
                     $(this).find('.item').each(function(i) {
-                        var orderBefore = $(this).find('.item-order');
-                        var orderChange = $(this).find('.item-order-change');
                         if (i === newIndex) {
-                            // move this outside of a  loop
-                            orderChange.removeClass('hide');
-                            orderChange.text((orderDiff > 0 ? '+' : '') + orderDiff);
-                            orderBefore.text(newIndex + 1);
-                            if (orderDiff > 0) {
-                                orderChange.removeClass('red').addClass('green');
-                            } else {
-                                orderChange.removeClass('green').addClass('red');
-                            }
-                        } else {
-                            orderChange.addClass('hide');
-                            orderBefore.text(i + 1);
+                            return;
                         }
+                        orderBefore = $(this).find('.item-order');
+                        orderChange = $(this).find('.item-order-change');
+                        orderChange.addClass('hide');
+                        orderBefore.text(i + 1);
                     });
                     ajax_request({'oldIndex': oldIndex, 'newIndex': newIndex}, {url: url});
-{#                    ajax_request({'item_order': $(this).sortable('toArray')}, {url: url});#}
                 }
             });
         }
