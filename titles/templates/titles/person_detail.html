@@ -32,7 +32,7 @@
         </div>
         {% if request.user.is_authenticated %}
             <div class="statistic">
-                <div class="value">{% if percentage %}{{ percentage }}{% else %}-{% endif %}</div>
+                <div class="value">{% if percentage %}{{ percentage }}%{% else %}-{% endif %}</div>
                 <div class="label">of credits you saw</div>
             </div>
             <div class="statistic">
