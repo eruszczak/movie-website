@@ -280,7 +280,8 @@ class Rating(models.Model):
         if self.rate_date > datetime.today().date():
             raise ValidationError(f'{self.rate_date} is a future date')
 
-        if Rating.objects.filter(user=self.user, title=self.title, rate_date=self.rate_date).exists():
+        if self.pk is None and Rating.objects.filter(
+                user=self.user, title=self.title, rate_date=self.rate_date).exists():
             raise ValidationError(f'Title was already rated on {self.rate_date}')
 
     def validate_rate(self):

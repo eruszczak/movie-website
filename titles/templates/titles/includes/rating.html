@@ -1,0 +1,1 @@
+<p{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="card-text ui star large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ rate }}"></p>

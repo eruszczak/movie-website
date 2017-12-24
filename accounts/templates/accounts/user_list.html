@@ -32,7 +32,7 @@
       <div class="header item">Sorted by Most Ratings</div>
     </div>
     <h1 class="ui center aligned dividing header">{{ paginator.count }} users</h1>
-    <div class="ui items">
+    <div class="ui divided items">
         {% for user in user_list %}
             {% url 'user-detail' user.username as user_detail_url %}
           <div class="item">

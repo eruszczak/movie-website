@@ -11,17 +11,11 @@
                     <img class="card-img-top" {% if slick %}data-lazy{% else %}src{% endif %}="{{ title.poster_small }}" alt="{{ title.name }}">
                 {% endif %}
                 <div class="card-img-overlay">
-                <h4 class="card-title"><strong>{{ title.name }}</strong></h4>
+                <h3 class="card-title">{{ title.name }}</h3>{#<p class="card-text"></p>#}
+                {% include 'titles/includes/rating.html' with rate=rate %}
                 <p class="card-text">
-
-                </p>
-                {#            <p class="card-text">Captain Jack Sparrow searches for the trident of Poseidon.</p>#}
-                <p{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="card-text ui star large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ rate }}"></p>
-                <p class="card-text">
-                    <i class="calendar icon"></i> {{ title.year }}
-{#                    <i class="star icon"></i>{{ title.rate_imdb }}#}
-                    <i type="tooltip" data-content="Favourite{% if not request.user.is_authenticated %}. You must be logged in.{% endif %}" data-variation="mini" data-pk="{{ title.pk }}" class="{% if not title.has_in_favourites %}empty {% else %}active {% endif %}red heart icon large title-fav ml10"></i>
-                    <i type="tooltip" data-content="Watchlist{% if not request.user.is_authenticated %}. You must be logged in.{% endif %}" data-variation="mini" data-pk="{{ title.pk }}" class="{% if not title.has_in_watchlist %}remove {% else %}active {% endif %}red bookmark icon large title-watch"></i>
+                    {% if year %}<i class="calendar icon"></i> {{ title.year }}{% endif %}
+                    {% include 'titles/includes/toggles.html' %}
                 </p>
                 <p class="card-text">
                     {% for genre in title.genre.all %}
