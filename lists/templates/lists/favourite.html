@@ -16,7 +16,7 @@
     <div class="ui dividing header">
         <i class="list icon"></i>
         <div class="content">
-            Favourites
+            {{ user.username }}'s favourites
             <div class="sub header">{% if is_owner %}You can reorder the list by dragging element while holding
                 LMB.{% else %}See what {{ user.username }} likes{% endif %}</div>
         </div>
@@ -28,11 +28,22 @@
             {% for title in title_list %}
                 <div id="{{ title.pk }}" class="item">
                     <div class="ui tiny image">
-                         <a href="{{ title.get_absolute_url }}"><img src="{{ title.poster_small }}"></a>
+                        {% if title.user_rate and not is_owner %}
+                            <span class="ui left corner label red green">
+                                <span class="icon">{{ title.user_rate }}</span>
+                            </span>
+                        {% endif %}
+                        <a href="{{ title.get_absolute_url }}"><img src="{{ title.poster_small }}"></a>
                     </div>
                     <div class="middle aligned content">
-                        <span class="item-order">{{ title.order }}</span>. <span class="ui circular label item-order-change hide"></span>
-                        <a href="{{ title.get_absolute_url }}" class="header">{{ title }}</a>
+                        <div class="header">
+                            <span class="item-order">{{ title.order }}</span>. <span class="ui circular label item-order-change hide"></span>
+                            <a href="{{ title.get_absolute_url }}" class="header">{{ title }}</a>
+                            {% include 'titles/includes/toggles.html' %}
+                        </div>
+                        <div class="description">
+                            {% include 'titles/includes/rating.html' with rate=title.request_user_rate %}
+                        </div>
                     </div>
                 </div>
             {% endfor %}

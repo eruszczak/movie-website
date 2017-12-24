@@ -23,9 +23,9 @@
                 <i class="dropdown icon"></i>
                 <div class="menu">
                   <a class="item{% if url_name == 'user-detail' and user.username == request.user.username %} active{% endif %}" href="{% url 'user-detail' request.user.username %}"><i class="user icon"></i>My Account</a>
-                  <a class="item{% if url_name == 'favourite-list' and user.username == request.user.username %} active{% endif %}" href="{{ user.favourite_url }}"><i class="list icon"></i>Favourites</a>
-                  <a class="item{% if url_name == 'watchlist-list' and user.username == request.user.username %} active{% endif %}" href="{{ user.watchlist_url }}"><i class="bookmark icon"></i>Watchlist</a>
-                  <a href="{{ user.edit_url }}" class="item{% if url_name == 'user-edit' %} active{% endif %}"><i class="setting icon"></i>Settings</a>
+                  <a class="item{% if url_name == 'favourite-list' and user.username == request.user.username %} active{% endif %}" href="{{ request.user.favourite_url }}"><i class="list icon"></i>Favourites</a>
+                  <a class="item{% if url_name == 'watchlist-list' and user.username == request.user.username %} active{% endif %}" href="{{ request.user.watchlist_url }}"><i class="bookmark icon"></i>Watchlist</a>
+                  <a href="{{ request.user.edit_url }}" class="item{% if url_name == 'user-edit' %} active{% endif %}"><i class="setting icon"></i>Settings</a>
                 <div class="divider"></div>
                   <a href="{% url 'logout' %}?next={{ request.path }}" class="item"><i class="sign out icon"></i>Logout</a>
                 </div>

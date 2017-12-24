@@ -48,3 +48,4 @@ IMDB_CSV_MAPPER = {
     'rate_date': 'Date Added',
 }
 
+LIST_LIMIT = 100

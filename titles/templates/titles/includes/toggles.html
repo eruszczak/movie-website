@@ -1,0 +1,2 @@
+<i type="tooltip" data-content="Favourite{% if not request.user.is_authenticated %}. You must be logged in.{% endif %}" data-variation="mini" data-pk="{{ title.pk }}" class="{% if not title.has_in_favourites %}empty {% else %}active {% endif %}red heart icon large title-fav ml10"></i>
+<i type="tooltip" data-content="Watchlist{% if not request.user.is_authenticated %}. You must be logged in.{% endif %}" data-variation="mini" data-pk="{{ title.pk }}" class="{% if not title.has_in_watchlist %}remove {% else %}active {% endif %}red bookmark icon large title-watch"></i>
