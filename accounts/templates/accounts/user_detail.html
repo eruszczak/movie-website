@@ -49,11 +49,7 @@
         </div>
     {% else %}
     {% endif %}
-
-    {% if user.tagline %}<div class="ui center aligned piled segment">{{ user.tagline }}</div>{% endif %}
-
-    <br>
-
+    {% if user.tagline %}<div class="ui center aligned piled segment"><i class="quote left icon"></i> {{ user.tagline }} <i class="quote right icon"></i></div>{% endif %}
     <div class="ui centered grid">
         {% with user.imdb_url as imdb_url %}
             <div class="{% if imdb_url %}five{% else %}four{% endif %} columns">
@@ -69,14 +65,7 @@
     </div>
 
     <div class="ui basic buttons right floated">
-        {% if user.pk != request.user.pk %}
-            <div class="ui follow toggle button{% if user.already_follows %} active{% endif %}"
-               {% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini" {% endif %}
-                data-pk="{{ user.pk }}"
-            >
-                {% if user.already_follows %}Followed{% else %}Follow{% endif %}
-            </div>
-        {% endif%}
+        {% include 'accounts/includes/follow.html' %}
         {% if is_other_user %}
             <div class="ui button export-ratings" {% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini" {% endif %}>Export</div>
         {% endif %}

@@ -1,0 +1,31 @@
+{% if title_list %}
+    <h1 class="ui center aligned dividing header">{{ title_list|length }} titles</h1>
+    <div class="ui items"{% if is_owner and favourites %} id="sortable" data-url="{% url 'user-fav-reorder' %}"{% endif %}>
+        {% for title in title_list %}
+            <div id="{{ title.pk }}" class="item">
+                <div class="ui tiny image">
+                    {% if title.user_rate and not is_owner %}
+                        <span class="ui left corner label red green">
+                            <span class="icon">{{ title.user_rate }}</span>
+                        </span>
+                    {% endif %}
+                    <a href="{{ title.get_absolute_url }}"><img src="{{ title.poster_small }}"></a>
+                </div>
+                <div class="middle aligned content">
+                    <div class="header">
+                        <span class="item-order">{{ title.order|default:forloop.counter }}</span>. <span class="ui circular label item-order-change hide"></span>
+                        <a href="{{ title.get_absolute_url }}" class="header">{{ title }}</a>
+                        {% include 'titles/includes/toggles.html' %}
+                    </div>
+                    <div class="description">
+                        {% include 'titles/includes/rating.html' with rate=title.request_user_rate %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="ui message">
+        List is empty
+    </div>
+{% endif %}
