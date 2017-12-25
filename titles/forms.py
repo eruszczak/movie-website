@@ -7,7 +7,7 @@ from django.db.models import Q, Count
 from django.forms import inlineformset_factory, modelformset_factory, BaseModelFormSet
 from django.utils.timezone import now
 
-from shared.widgets import MySelectMultipleWidget, MyRatingWidget
+from shared.widgets import MySelectMultipleWidget, MyRatingWidget, MyDateWidget
 from titles.constants import TITLE_TYPE_CHOICES
 from titles.models import Title, Genre, Rating
 from shared.forms import SearchFormMixin
@@ -52,8 +52,8 @@ class RateForm(forms.ModelForm):
         model = Rating
         fields = ('rate_date', 'rate')
         widgets = {
-            'rate': MyRatingWidget
-            # 'rate': forms.HiddenInput
+            'rate': MyRatingWidget,
+            'rate_date': MyDateWidget
         }
 
     def __init__(self, user, title, *args, **kwargs):
@@ -102,7 +102,8 @@ class RateForm(forms.ModelForm):
 
 
 class BaseRatingFormSet(BaseModelFormSet):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
+        print(user, 'base formset')
         super().__init__(*args, **kwargs)
         # self.queryset = Rating.objects.filter(title=None, user=None)
 

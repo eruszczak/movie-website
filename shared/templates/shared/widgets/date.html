@@ -1,0 +1,7 @@
+<input type="hidden" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %} />
+<div class="ui calendar my-date">
+    <div class="ui input left icon">
+        <i class="calendar icon"></i>
+        <input type="text" placeholder="Date">
+    </div>
+</div>
