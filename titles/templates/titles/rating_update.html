@@ -43,13 +43,9 @@
                                     {{ hidden }}
                                 {% endfor %}
                                 <td>{{ form.rate_date }}</td>
-{#                                {% include 'includes/field.html' with field=form.rate_date %}#}
-{#                                {% include 'includes/field.html' with field=form.rate %}#}
                                 <td>{{ form.rate }}</td>
-{#                                <td>{{ form.rate }} <div class="ui star formset rating" data-rating="3"></div></td>#}
                                 <td>{{ form.DELETE }}</td>
                             </tr>
-            {#                {% include 'includes/place_image_form.html' with form=form %}#}
                         {% endfor %}
                         <tr id="add-row">
                             <td colspan="3">
@@ -77,19 +73,6 @@
 {% block scripts %}
     <script type="application/javascript">
         $(function() {
-{#            $( ".controlgroup" ).controlgroup();#}
-
-{#            $( "#datepicker" ).datepicker({#}
-{#                changeMonth: true,#}
-{#                changeYear: true,#}
-{#                maxDate: "+0D",#}
-{#                dateFormat: "yy-mm-dd",#}
-{#                defaultDate: "{{ rating.rate_date|date:"Y-m-d" }}",#}
-{#                onSelect: function(dateText) {#}
-{#                    $('[name="newDateValue"]').val(this.value);#}
-{#                }#}
-{#            });#}
-
             $('#add-form').click(function(e) {
                 e.preventDefault();
                 var totalForms = $('[name="{{ formset.prefix }}-TOTAL_FORMS"]');
@@ -109,6 +92,27 @@
             onRate: function (rating) {
                 $(this).prev().val(rating);
             }
+        });
+
+        var today = new Date();
+        $('.my-date').calendar({
+            type: 'date',
+            maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5),
+            formatter: {
+                date: function(date, settings) {
+                    if (!date) return '';
+                    var day = date.getDate();
+                    var month = date.toLocaleString('en-us', {month: 'short'});
+                    var year = date.getFullYear();
+                    console.log($(this))
+                    console.log($(this).parent())
+                    console.log($('.my-date'))
+                    return day + ' ' + month + ' ' + year;
+                }
+            },
+            onChange: function (date, text, mode) {
+                console.log(date,text,mode);
+            },
         });
     </script>
 {% endblock %}

@@ -213,7 +213,7 @@ class RatingUpdateView(LoginRequiredMixin, TemplateView):
             # todo: Do i need a queryset here. It would be best to pass kwargs to form and change queryset there
             return self.formset_class(self.request.POST, form_kwargs=form_kwargs)
 
-        return self.formset_class(
+        return self.formset_class(user=self.request.user,
             queryset=Rating.objects.filter(title=self.title, user=self.request.user),
             form_kwargs=form_kwargs
         )
