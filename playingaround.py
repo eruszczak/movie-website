@@ -91,14 +91,14 @@ def create_rating_duplicat():
 def restart_favs():
     user = User.objects.get(username='test')
     Favourite.objects.filter(user=user).delete()
-    t = ['It', 'Thor: Ragnarok', 'Justice League']
+    t = ['It', 'Thor: Ragnarok']
     for i, x in enumerate(t, 1):
         Favourite.objects.create(user=user, title=Title.objects.get(name=x), order=i)
 
     print(Favourite.objects.filter(user=user))
 
 # restart_favs()
-
+restart_favs()
 # create_rating_duplicat()
 # t = GetTitleMixin()
 # u = GetUserMixin()
@@ -147,7 +147,7 @@ def test_csv():
     import_ratings_from_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/ratings december 2017 — kopia (2).csv')
     # update_user_ratings_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/imdb.csv')
 
-print(Title.objects.all().first().pk)
+# print(Title.objects.all().first().pk)
 # test_queryset()
 # test_csv()
 # add_crew_to_person()
