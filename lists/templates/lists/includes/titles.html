@@ -1,3 +1,7 @@
+<div class="ui right floated text menu">
+    <div class="header item">{{ sorted_by }}</div>
+</div>
+<div class="ui clearing hidden divider"></div>
 {% if title_list %}
     <h1 class="ui center aligned dividing header">{{ title_list|length }} titles</h1>
     <div class="ui items"{% if is_owner and favourites %} id="sortable" data-url="{% url 'user-fav-reorder' %}"{% endif %}>
