@@ -25,12 +25,10 @@
                     <div class="label">Seasons</div>
                 </div>
             {% endif %}
-            {% if summary.avg %}
-                <div class="statistic">
-                    <div class="value">{{ summary.avg }}</div>
-                    <div class="label">average score</div>
-                </div>
-            {% endif %}
+            <div class="statistic">
+                <div class="value">{{ summary.avg|default:'-' }}</div>
+                <div class="label">average score</div>
+            </div>
             <div class="statistic">
                 <div class="value">{{ summary.votes|intcomma }}</div>
                 <div class="label">Votes</div>
