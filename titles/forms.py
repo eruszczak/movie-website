@@ -102,14 +102,22 @@ class RateForm(forms.ModelForm):
 
 
 class BaseRatingFormSet(BaseModelFormSet):
-    def __init__(self, user, *args, **kwargs):
-        print(user, 'base formset')
+    def __init__(self, user, title, *args, **kwargs):
+        self.user = user
+        self.title = title
+        self.queryset = Rating.objects.filter(title=title, user=user)
         super().__init__(*args, **kwargs)
-        # self.queryset = Rating.objects.filter(title=None, user=None)
 
-    def clean(self):
-        pass
+    # def clean(self):
+    #     pass
 
+    def get_form_kwargs(self, index):
+        kwargs = super().get_form_kwargs(index)
+        kwargs.update({
+            'user': self.user,
+            'title': self.title
+        })
+        return kwargs
 
 RatingFormset = modelformset_factory(
     Rating, form=RateForm, formset=BaseRatingFormSet, extra=3, can_delete=True, max_num=100

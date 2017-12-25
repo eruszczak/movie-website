@@ -189,36 +189,26 @@ class RatingUpdateView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         formset = self.get_formset()
-        # for form in formset.forms:
-        #     print(form)
-        #     form.user = self.request.user
-        #     form.title = self.title
-
         if formset.is_valid():
-            # for form in formset.forms:
-            #     rating = form.save(commit=False)
-            #     rating.user = self.request.user
-            #     rating.title = self.title
-            #     rating.save()
             return self.formset_valid(formset)
         else:
             return self.formset_invalid(formset)
 
     def get_formset(self):
-        form_kwargs = {
+        if self.request.POST:
+            # todo: do they pass kwargs in POST too?
+            return self.formset_class(self.request.POST)
+
+        return self.formset_class(**self.get_formset_kwargs())
+
+    def get_formset_kwargs(self):
+        return {
             'user': self.request.user,
             'title': self.title
         }
-        if self.request.POST:
-            # todo: Do i need a queryset here. It would be best to pass kwargs to form and change queryset there
-            return self.formset_class(self.request.POST, form_kwargs=form_kwargs)
-
-        return self.formset_class(user=self.request.user,
-            queryset=Rating.objects.filter(title=self.title, user=self.request.user),
-            form_kwargs=form_kwargs
-        )
 
     def formset_invalid(self, formset):
+        # todo: must see how this is done in FormView, why this formset was passed correctly
         return self.render_to_response(self.get_context_data(formset=formset))
 
     def formset_valid(self, formset):
