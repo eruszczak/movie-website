@@ -141,7 +141,12 @@ class TitleDetailView(DetailView):
                         ).order_by('-rate_date').values('rate_date')[:1]
                     )
                 ).select_related('followed'),
-                'summary': Rating.objects.filter(title=self.object).aggregate(avg=Avg('rate'), votes=Count('pk'))
+            })
+
+            summary = Rating.objects.filter(title=self.object).aggregate(avg=Avg('rate'), votes=Count('pk'))
+            context.update({
+                'avg': round(summary['avg'], 2) if summary['avg'] else 0,
+                'votes': summary['votes']
             })
 
             annotate_rate = {
