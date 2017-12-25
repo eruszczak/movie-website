@@ -4,13 +4,13 @@ from django.db.models import OuterRef
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import DetailView, TemplateView, RedirectView, ListView, UpdateView, FormView
+from django.views.generic import DetailView, TemplateView, RedirectView, ListView, FormView
 
 from accounts.models import UserFollow
 from lists.models import Watchlist, Favourite
 from shared.mixins import LoginRequiredMixin
 from shared.views import SearchViewMixin
-from titles.forms import TitleSearchForm, TitleRatingInlineFormset, RatingFormset
+from titles.forms import TitleSearchForm, RatingFormset
 from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPlaying, Upcoming, CurrentlyWatchingTV
 
 User = get_user_model()
@@ -209,10 +209,11 @@ class RatingUpdateView(LoginRequiredMixin, TemplateView):
         return HttpResponseRedirect(reverse('rating-update', args=[self.kwargs['imdb_id']]))
 
     def get_context_data(self, **kwargs):
-        context = {'formset': self.get_formset(), 'title': self.title}
-        context2 = super().get_context_data(**kwargs)
-        context.update(context2)
-        # this must work with form_invalid
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        # formset (with errors, passed from formset_invalid) could already be in the context
+        if context.get('formset') is None:
+            context['formset'] = self.get_formset()
         return context
 
 
