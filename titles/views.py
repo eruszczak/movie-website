@@ -187,30 +187,39 @@ class RatingUpdateView(LoginRequiredMixin, TemplateView):
         self.title = Title.objects.get(imdb_id=self.kwargs['imdb_id'])
         return super().dispatch(request, *args, **kwargs)
 
-    # def form_valid(self, form):
-    #     form.instance.created_by = self.request.user
-    #     return super().form_valid(form)
     def post(self, request, *args, **kwargs):
         formset = self.get_formset()
+        # for form in formset.forms:
+        #     print(form)
+        #     form.user = self.request.user
+        #     form.title = self.title
+
         if formset.is_valid():
-            for form in formset.forms:
-                rating = form.save(commit=False)
-                rating.user = self.request.user
-                rating.title = self.title
-                rating.save()
+            # for form in formset.forms:
+            #     rating = form.save(commit=False)
+            #     rating.user = self.request.user
+            #     rating.title = self.title
+            #     rating.save()
             return self.formset_valid(formset)
         else:
             return self.formset_invalid(formset)
 
-    def formset_invalid(self, formset):
-        return self.render_to_response(self.get_context_data(formset=formset))
-
     def get_formset(self):
+        form_kwargs = {
+            'user': self.request.user,
+            'title': self.title
+        }
         if self.request.POST:
             # todo: Do i need a queryset here. It would be best to pass kwargs to form and change queryset there
-            return self.formset_class(self.request.POST)
+            return self.formset_class(self.request.POST, form_kwargs=form_kwargs)
 
-        return self.formset_class(queryset=Rating.objects.filter(title=self.title, user=self.request.user))
+        return self.formset_class(
+            queryset=Rating.objects.filter(title=self.title, user=self.request.user),
+            form_kwargs=form_kwargs
+        )
+
+    def formset_invalid(self, formset):
+        return self.render_to_response(self.get_context_data(formset=formset))
 
     def formset_valid(self, formset):
         formset.save()
@@ -220,8 +229,8 @@ class RatingUpdateView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         # formset (with errors, passed from formset_invalid) could already be in the context
-        if context.get('formset') is None:
-            context['formset'] = self.get_formset()
+        # if context.get('formset') is None:
+        context['formset'] = self.get_formset()
         return context
 
 

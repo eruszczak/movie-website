@@ -2,8 +2,10 @@ import re
 
 from django import forms
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db.models import Q, Count
 from django.forms import inlineformset_factory, modelformset_factory, BaseModelFormSet
+from django.utils.timezone import now
 
 from shared.widgets import MySelectMultipleWidget
 from titles.constants import TITLE_TYPE_CHOICES
@@ -49,6 +51,47 @@ class RateForm(forms.ModelForm):
     class Meta:
         model = Rating
         fields = ('rate_date', 'rate')
+
+    def __init__(self, user, title, *args, **kwargs):
+        print('init')
+        super().__init__(*args, **kwargs)
+    #     print(self.instance, 'init')
+        if self.instance:
+            print(self.instance.pk, 'init')
+
+        self.user = user
+        self.title = title
+
+    def save(self, commit=True):
+        obj = super().save(False)
+        obj.user = self.user
+        obj.title = self.title
+        obj.save()
+        return obj
+
+    def clean_rate(self):
+        """rating must be integer 1-10"""
+        rate = self.cleaned_data['rate']
+        try:
+            rate = int(rate)
+        except (ValueError, TypeError):
+            pass
+        else:
+            if 0 < rate < 11:
+                return rate
+        raise ValidationError(f'{rate} is not a value between 1-10')
+
+    def clean_rate_date(self):
+        rate_date = self.cleaned_data['rate_date']
+        if rate_date > now().date():
+            raise ValidationError(f'{rate_date} is a future date')
+
+        print(self.cleaned_data.items())
+        created = self.instance.pk is None
+        if created and Rating.objects.filter(user=self.user, title=self.title, rate_date=rate_date).exists():
+            raise ValidationError(f'Title was already rated on {rate_date}')
+
+        return rate_date
 
 
 class BaseRatingFormSet(BaseModelFormSet):
