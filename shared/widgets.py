@@ -1,4 +1,4 @@
-from django.forms.widgets import SelectMultiple, ClearableFileInput
+from django.forms.widgets import SelectMultiple, ClearableFileInput, NumberInput
 
 
 class MySelectMultipleWidget(SelectMultiple):
@@ -8,3 +8,8 @@ class MySelectMultipleWidget(SelectMultiple):
 
 class MyClearableFileInput(ClearableFileInput):
     template_name = 'shared/widgets/clearable_file_input.html'
+
+
+class MyRatingWidget(NumberInput):
+    """widget that renders hidden input and star rating. Clicking on rating will set input's value"""
+    template_name = 'shared/widgets/rating.html'

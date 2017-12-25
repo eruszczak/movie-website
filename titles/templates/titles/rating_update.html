@@ -46,6 +46,7 @@
 {#                                {% include 'includes/field.html' with field=form.rate_date %}#}
 {#                                {% include 'includes/field.html' with field=form.rate %}#}
                                 <td>{{ form.rate }}</td>
+{#                                <td>{{ form.rate }} <div class="ui star formset rating" data-rating="3"></div></td>#}
                                 <td>{{ form.DELETE }}</td>
                             </tr>
             {#                {% include 'includes/place_image_form.html' with form=form %}#}
@@ -101,5 +102,13 @@
 
         });
 
+        $('.formset.rating').rating({
+            initialRating: 0,
+            maxRating: 10,
+            clearable: true,
+            onRate: function (rating) {
+                $(this).prev().val(rating);
+            }
+        });
     </script>
 {% endblock %}

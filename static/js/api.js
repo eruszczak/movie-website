@@ -8,16 +8,12 @@ $.fn.api.settings.api = {
     'currently watching': '/api/tv/{pk}/watching',
 };
 
-$('.rating').rating({
+$('.regular.rating').rating({
     initialRating: 0,
     maxRating: 10,
-    clearable:true,
+    clearable: true,
     onRate: function (rating) {
-        var data = {
-            'rating': rating,
-            'insert_as_new': false
-        };
-        ajax_request(data, {url: $(this).data('url')});
+        ajax_request({'rating': rating}, {url: $(this).data('url')});
     }
 });
 
