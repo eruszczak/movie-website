@@ -187,9 +187,17 @@ class RatingUpdateView(LoginRequiredMixin, TemplateView):
         self.title = Title.objects.get(imdb_id=self.kwargs['imdb_id'])
         return super().dispatch(request, *args, **kwargs)
 
+    # def form_valid(self, form):
+    #     form.instance.created_by = self.request.user
+    #     return super().form_valid(form)
     def post(self, request, *args, **kwargs):
         formset = self.get_formset()
         if formset.is_valid():
+            for form in formset.forms:
+                rating = form.save(commit=False)
+                rating.user = self.request.user
+                rating.title = self.title
+                rating.save()
             return self.formset_valid(formset)
         else:
             return self.formset_invalid(formset)

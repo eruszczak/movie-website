@@ -2,6 +2,18 @@
 
 {% block title %}Update ratings of {{ title.name }} ({{ title.year }}){% endblock %}
 
+{% block breadcrumb %}
+    <div class="ui breadcrumb">
+        <a class="section" href="{% url 'home' %}">Home</a>
+        <i class="right angle icon divider"></i>
+        <a class="section" href="{% url 'title-list' %}">Title list</a>
+        <i class="right angle icon divider"></i>
+        <a class="section" href="{{ title.get_absolute_url }}">{{ title.name }} ({{ title.year }})</a>
+        <i class="right angle icon divider"></i>
+        <a class="section active" href="{% url 'rating-update' title.imdb_id %}">Update ratings</a>
+    </div>
+{% endblock %}
+
 {#{% block image %}#}
 {#{% endblock %}#}
 
@@ -10,6 +22,8 @@
         <span class="ui teal ribbon label">Manage your ratings</span>
         <div class="ui list">
             <form action="{% url 'rating-update' title.imdb_id %}" method="post">{% csrf_token %}
+                {{ formset.non_form_errors }}
+                {{ formset.management_form }}
                 <table class="ui celled unstackable table">
                     <thead>
                         <tr>
@@ -22,7 +36,11 @@
                     </thead>
                     <tbody id="{{ formset.prefix }}">
                         {% for form in formset.forms %}
+{#                            {{ form }}#}
                             <tr>
+                                {% for hidden in form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
                                 <td>{{ form.rate_date }}</td>
                                 <td>{{ form.rate }}</td>
                                 <td>{{ form.DELETE }}</td>
