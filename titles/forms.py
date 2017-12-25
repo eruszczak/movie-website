@@ -7,7 +7,7 @@ from django.db.models import Q, Count
 from django.forms import inlineformset_factory, modelformset_factory, BaseModelFormSet
 from django.utils.timezone import now
 
-from shared.widgets import MySelectMultipleWidget
+from shared.widgets import MySelectMultipleWidget, MyRatingWidget
 from titles.constants import TITLE_TYPE_CHOICES
 from titles.models import Title, Genre, Rating
 from shared.forms import SearchFormMixin
@@ -51,13 +51,17 @@ class RateForm(forms.ModelForm):
     class Meta:
         model = Rating
         fields = ('rate_date', 'rate')
+        widgets = {
+            'rate': MyRatingWidget
+            # 'rate': forms.HiddenInput
+        }
 
     def __init__(self, user, title, *args, **kwargs):
         print('init')
         super().__init__(*args, **kwargs)
     #     print(self.instance, 'init')
-        if self.instance:
-            print(self.instance.pk, 'init')
+    #     if self.instance:
+    #         print(self.instance.pk, 'init')
 
         self.user = user
         self.title = title
@@ -88,7 +92,10 @@ class RateForm(forms.ModelForm):
 
         print(self.cleaned_data.items())
         created = self.instance.pk is None
-        if created and Rating.objects.filter(user=self.user, title=self.title, rate_date=rate_date).exists():
+        print(self.changed_data, 'changed data')
+        # but if other form has changed, it must be validated even is not created
+        # if (created or 'rate_date' in self.changed_data) and Rating.objects.filter(user=self.user, title=self.title, rate_date=rate_date).exists():
+        if Rating.objects.exclude(pk=self.instance.pk).filter(user=self.user, title=self.title, rate_date=rate_date).exists():
             raise ValidationError(f'Title was already rated on {rate_date}')
 
         return rate_date
@@ -98,6 +105,9 @@ class BaseRatingFormSet(BaseModelFormSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # self.queryset = Rating.objects.filter(title=None, user=None)
+
+    def clean(self):
+        pass
 
 
 RatingFormset = modelformset_factory(
