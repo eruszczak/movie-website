@@ -74,9 +74,17 @@ class TitleListView(SearchViewMixin, ListView):
         context = super().get_context_data(**kwargs)
         len_of_get = len(self.request.GET)
         only_user_ratings = self.searched_user and len_of_get == 1
+        only_pagination_and_ratings = self.request.GET.get('page') and len_of_get == 2 and self.searched_user
+
+        # hide search box if:
+        # - looking for a user's ratings (or paginated ratings)
+        # - there is no GET parameters
+        show_search_box = (len_of_get > 1 or (len_of_get > 0 and not only_user_ratings))\
+                          and not only_pagination_and_ratings
+
         context.update({
             'searched_user': self.searched_user,
-            'show_search_box': len_of_get > 1 or (len_of_get > 0 and not only_user_ratings)
+            'show_search_box': show_search_box
         })
         return context
 
