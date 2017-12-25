@@ -57,5 +57,6 @@ class BaseRatingFormSet(BaseModelFormSet):
         # self.queryset = Rating.objects.filter(title=None, user=None)
 
 
-TitleRatingInlineFormset = inlineformset_factory(Title, Rating, form=RateForm, extra=2, max_num=5)
-RatingFormset = modelformset_factory(Rating, form=RateForm, formset=BaseRatingFormSet)
+RatingFormset = modelformset_factory(
+    Rating, form=RateForm, formset=BaseRatingFormSet, extra=3, can_delete=True, max_num=100
+)
