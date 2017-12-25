@@ -105,7 +105,7 @@ class BaseRatingFormSet(BaseModelFormSet):
     def __init__(self, user, title, *args, **kwargs):
         self.user = user
         self.title = title
-        self.queryset = Rating.objects.filter(title=title, user=user)
+        kwargs['queryset'] = Rating.objects.filter(title=title, user=user)
         super().__init__(*args, **kwargs)
 
     # def clean(self):
