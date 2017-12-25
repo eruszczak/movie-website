@@ -1,0 +1,8 @@
+<tr class="center aligned">
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
+    <td>{{ form.rate_date }}</td>
+    <td>{{ form.rate }}</td>
+    <td>{{ form.DELETE }}</td>
+</tr>

@@ -25,9 +25,9 @@
                 {{ formset.non_form_errors }}
                 {% for form in formset.forms %}{{ form.errors }}{% endfor %}
                 {{ formset.management_form }}
-                <table class="ui celled unstackable table">
+                <table class="ui celled selectable table">
                     <thead>
-                        <tr>
+                        <tr class="center aligned">
                             {% with formset.forms|first as form %}
                                 <th>{{ form.rate_date.label }}</th>
                                 <th>{{ form.rate.label }}</th>
@@ -37,15 +37,7 @@
                     </thead>
                     <tbody id="{{ formset.prefix }}">
                         {% for form in formset.forms %}
-{#                            {{ form }}#}
-                            <tr>
-                                {% for hidden in form.hidden_fields %}
-                                    {{ hidden }}
-                                {% endfor %}
-                                <td>{{ form.rate_date }}</td>
-                                <td>{{ form.rate }}</td>
-                                <td>{{ form.DELETE }}</td>
-                            </tr>
+                            {% include 'titles/includes/formset_form_row.html' with form=form %}
                         {% endfor %}
                         <tr id="add-row">
                             <td colspan="3">
@@ -61,15 +53,12 @@
     <table style="display:none">
         <tbody id="{{ formset.prefix }}-EMPTY-FORM">
             {% with formset.empty_form as form %}
-                <tr>
-                    <td>{{ form.rate_date }}</td>
-                    <td>{{ form.rate }}</td>
-                    <td>{{ form.DELETE }}</td>
-                </tr>
+                {% include 'titles/includes/formset_form_row.html' with form=form %}
             {% endwith %}
         </tbody>
     </table>
 {% endblock %}
+
 {% block scripts %}
     <script type="application/javascript">
         $(function() {
