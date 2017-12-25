@@ -196,9 +196,7 @@ class RatingUpdateView(LoginRequiredMixin, TemplateView):
 
     def get_formset(self):
         if self.request.POST:
-            # todo: do they pass kwargs in POST too?
-            return self.formset_class(self.request.POST)
-
+            return self.formset_class(data=self.request.POST, **self.get_formset_kwargs())
         return self.formset_class(**self.get_formset_kwargs())
 
     def get_formset_kwargs(self):
