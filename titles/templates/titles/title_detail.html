@@ -26,15 +26,15 @@
                 </div>
             {% endif %}
             <div class="statistic">
-                <div class="value">{{ summary.avg|default:'-' }}</div>
+                <div class="value">{{ avg|default:'-' }}</div>
                 <div class="label">average score</div>
             </div>
             <div class="statistic">
-                <div class="value">{{ summary.votes|intcomma }}</div>
+                <div class="value">{{ votes|intcomma }}</div>
                 <div class="label">Votes</div>
             </div>
             <div class="statistic">
-                <div class="value">{{ title.release_date|date:'d.m.Y'|default:'-' }}</div>
+                <div class="value">{{ title.release_date|date:'d M Y'|default:'-' }}</div>
                 <div class="label">Release date</div>
             </div>
         </div>
