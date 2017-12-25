@@ -73,6 +73,8 @@
 {% block scripts %}
     <script type="application/javascript">
         $(function() {
+            var today = new Date();
+
             $('#add-form').click(function(e) {
                 e.preventDefault();
                 var totalForms = $('[name="{{ formset.prefix }}-TOTAL_FORMS"]');
@@ -81,38 +83,46 @@
                 $('#{{ formset.prefix }} tr:last').before(emptyForm);
                 formIndex += 1;
                 totalForms.val(formIndex);
+                var $addedRow = $('#{{ formset.prefix }} tr:last').prev('tr');
+                initCalendar($addedRow.find('.my-date'));
+                initRating($addedRow.find('.formset.rating'));
             });
 
-        });
+            initRating($('.formset.rating'));
+            initCalendar($('.my-date'));
 
-        $('.formset.rating').rating({
-            initialRating: 0,
-            maxRating: 10,
-            clearable: true,
-            onRate: function (rating) {
-                $(this).prev().val(rating);
+            function initRating(el) {
+                el.rating({
+                    initialRating: 0,
+                    maxRating: 10,
+                    clearable: true,
+                    onRate: function (rating) {
+                        $(this).prev().val(rating);
+                    }
+                });
             }
-        });
 
-        var today = new Date();
-        $('.my-date').calendar({
-            type: 'date',
-            maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5),
-            formatter: {
-                date: function(date, settings) {
-                    if (!date) return '';
-                    var day = date.getDate();
-                    var month = date.toLocaleString('en-us', {month: 'short'});
-                    var year = date.getFullYear();
-                    console.log($(this))
-                    console.log($(this).parent())
-                    console.log($('.my-date'))
-                    return day + ' ' + month + ' ' + year;
-                }
-            },
-            onChange: function (date, text, mode) {
-                console.log(date,text,mode);
-            },
+            function initCalendar(el) {
+                el.calendar({
+                    type: 'date',
+                    maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+                    formatter: {
+                        date: function(date, settings) {
+                            if (!date) return '';
+                            var day = date.getDate();
+                            var month = date.toLocaleString('en-us', {month: 'short'});
+                            var year = date.getFullYear();
+                            console.log($(this))
+                            console.log($(this).parent())
+                            console.log($('.my-date'))
+                            return day + ' ' + month + ' ' + year;
+                        }
+                    },
+                    onChange: function (date, text, mode) {
+                        console.log(date,text,mode);
+                    },
+                });
+            }
         });
     </script>
 {% endblock %}
