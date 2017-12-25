@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import F, Q
+from django.db.transaction import atomic
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.generics import RetrieveAPIView
@@ -105,23 +106,22 @@ class ReorderFavourite(IsAuthenticatedMixin, APIView):
         change = old_index - new_index
 
         if new_index and old_index and change != 0 and self.valid_indexes(new_index, old_index, favourite_list):
-            print(favourite_list)
-            print(favourite_list.values_list('order'))
-            # get item that was moved and exclude its order before updating
-            # Its order will be changed manually
-            moved_item = favourite_list.get(order=old_index)
+            with atomic():
+                # get item that was moved and exclude its order before updating
+                # Its order will be changed manually
+                moved_item = favourite_list.get(order=old_index)
 
-            # if item has moved from #3 to #5 (or reversed),
-            # this will either decrease (or increase) order of #4 (middle items)
-            favourite_list = favourite_list.exclude(order=moved_item.order)
-            if change > 0:
-                favourite_list.filter(Q(order__gte=new_index) & Q(order__lt=old_index)).update(order=F('order') + 1)
-            else:
-                favourite_list.filter(Q(order__lte=new_index) & Q(order__gt=old_index)).update(order=F('order') - 1)
+                # if item has moved from #3 to #5 (or reversed),
+                # this will either decrease (or increase) order of #4 (middle items)
+                favourite_list = favourite_list.exclude(order=moved_item.order)
+                if change > 0:
+                    favourite_list.filter(Q(order__gte=new_index) & Q(order__lt=old_index)).update(order=F('order') + 1)
+                else:
+                    favourite_list.filter(Q(order__lte=new_index) & Q(order__gt=old_index)).update(order=F('order') - 1)
 
-            # moved_item hasn't been updated yet, so right now 2 items have order==old_index
-            moved_item.order = new_index
-            moved_item.save()
+                # moved_item hasn't been updated yet, so right now 2 items have order==old_index
+                moved_item.order = new_index
+                moved_item.save()
 
             return Response({'message': 'Changed order.'}, status=status.HTTP_200_OK)
         return Response({'message': 'Nothing has changed.'}, status=status.HTTP_200_OK)

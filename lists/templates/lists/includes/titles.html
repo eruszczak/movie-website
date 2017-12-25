@@ -20,6 +20,7 @@
                     <div class="description">
                         {% include 'titles/includes/rating.html' with rate=title.request_user_rate %}
                     </div>
+                    <div class="extra">Added: {{ title.added_date }}</div>
                 </div>
             </div>
         {% endfor %}
