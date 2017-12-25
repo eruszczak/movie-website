@@ -172,7 +172,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <h4><a href="{% url 'rating-update' user_ratings_of_title.0.pk %}">Manage my ratings of this title</a></h4>
+                <h4><a href="{% url 'rating-update' title.imdb_id %}">Manage my ratings of this title</a></h4>
             </div>
         </div>
 {#        <div class="ui segment">#}

@@ -1,36 +1,60 @@
 {% extends 'base.html' %}
-{% block title %}Update rating{% endblock %}
+{% block title %}Update ratings{% endblock %}
+{#todo#}
 {% block content %}
-{% block styles %}
-<style>
+{#    <div class="row lower">#}
+{#        <div class="col-md-8 col-md-offset-2">#}
+{#            <h1 class="page-header text-center"><a href="{{ rating.title.get_absolute_url }}">{{ rating.title.name }}</a></h1>#}
+{#        </div>#}
+{#        <div class="col-md-4 col-md-offset-4 text-center">#}
+            <form action="{% url 'rating-update' title.imdb_id %}" method="post">{% csrf_token %}
+                <fieldset class="mt30">
+{#                    <legend>Dołącz zdjęcia</legend>#}
+                    {{ formset.management_form }}
+                    {{ formset.non_form_errors }}
+                    <table class="table">
+                {#        <thead>#}
+                {#            <tr>#}
+                {#                {% with formset.forms|first as form %}#}
+                {#                    <th>{{ form.image.label }}</th>#}
+                {#                    <th>{{ form.title.label }}</th>#}
+                {#                    {% if formset.can_delete %}#}
+                {#                        <th>{{ form.DELETE.label }}</th>#}
+                {#                    {% endif %}#}
+                {#                {% endwith %}#}
+                {#            </tr>#}
+                {#        </thead>#}
+                        <tbody id="{{ formset.prefix }}">
+                            {% for form in formset.forms %}
+                                {{ form }}
+                {#                {% include 'includes/place_image_form.html' with form=form %}#}
+                            {% endfor %}
+                            <tr id="add-row">
+                                <td colspan="3">
+                                    <a id="add-form">Dodaj kolejne zdjęcie</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </fieldset>
+{#            {{ form.rate }}#}
+{#            {{ form.rate_date }}#}
+{#                <div class="controlgroup">#}
+{#                    <p>Rate:#}
+{#                        <select name="rate">#}
+{#                        {% for i in 'xxxxxxxxxx' %}#}
+{#                            <option value="{{ forloop.counter }}" {% if rating.rate == forloop.counter %}selected{% endif %}>{{ forloop.counter }}</option>#}
+{#                        {% endfor %}#}
+{#                        </select>#}
+{#                    </p>#}
+{#                </div>#}
+{#                <input name="newDateValue" value="{{ rating.rate_date }}" hidden>#}
+{#                <div id="datepicker"></div>#}
+                <input type="submit" value="Submit" class="btn btn-success" style="margin-top: 20px"/>
+            </form>
+{#        </div>#}
+{#    </div>#}
 
-</style>
-{% endblock %}
-
-<div class="row lower">
-	<div class="col-md-8 col-md-offset-2">
-		<h1 class="page-header text-center"><a href="{{ rating.title.get_absolute_url }}">{{ rating.title.name }}</a></h1>
-	</div>
-	<div class="col-md-4 col-md-offset-4 text-center">
-		<form action="{% url 'rating-update' rating.pk %}" method="post">{% csrf_token %}
-        {{ form.rate }}
-        {{ form.rate_date }}
-			<div class="controlgroup">
-				<p>Rate:
-					<select name="rate">
-					{% for i in 'xxxxxxxxxx' %}
-						<option value="{{ forloop.counter }}" {% if rating.rate == forloop.counter %}selected{% endif %}>{{ forloop.counter }}</option>
-					{% endfor %}
-					</select>
-				</p>
-			</div>
-			<input name="newDateValue" value="{{ rating.rate_date }}" hidden>
-			<div id="datepicker"></div>
-			<input type="submit" value="Submit" class="btn btn-success" style="margin-top: 20px"/>
-		</form>
-	</div>
-</div>
-<!--|date:"Y-m-d"-->
 {% endblock %}
 {% block scripts %}
     <script type="application/javascript">
