@@ -1,13 +1,16 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Subquery, Q, Avg
 from django.db.models import OuterRef
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.views.generic import DetailView, TemplateView, RedirectView, ListView, UpdateView
+from django.urls import reverse
+from django.views.generic import DetailView, TemplateView, RedirectView, ListView, UpdateView, FormView
 
 from accounts.models import UserFollow
 from lists.models import Watchlist, Favourite
+from shared.mixins import LoginRequiredMixin
 from shared.views import SearchViewMixin
-from titles.forms import TitleSearchForm, RateUpdateForm
+from titles.forms import TitleSearchForm, TitleRatingInlineFormset, RatingFormset
 from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPlaying, Upcoming, CurrentlyWatchingTV
 
 User = get_user_model()
@@ -171,10 +174,46 @@ class TitleDetailView(DetailView):
         return context
 
 
-class RatingUpdateView(UpdateView):
-    model = Rating
+class Test(LoginRequiredMixin, FormView):
+    pass
+
+
+class RatingUpdateView(LoginRequiredMixin, TemplateView):
     template_name = 'titles/rating_update.html'
-    form_class = RateUpdateForm
+    formset_class = RatingFormset
+    title = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.title = Title.objects.get(imdb_id=self.kwargs['imdb_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        formset = self.get_formset()
+        if formset.is_valid():
+            return self.formset_valid(formset)
+        else:
+            return self.formset_invalid(formset)
+
+    def formset_invalid(self, formset):
+        return self.render_to_response(self.get_context_data(formset=formset))
+
+    def get_formset(self):
+        if self.request.POST:
+            # todo: Do i need a queryset here. It would be best to pass kwargs to form and change queryset there
+            return self.formset_class(self.request.POST)
+
+        return self.formset_class(queryset=Rating.objects.filter(title=self.title, user=self.request.user))
+
+    def formset_valid(self, formset):
+        formset.save()
+        return HttpResponseRedirect(reverse('rating-update', args=[self.kwargs['imdb_id']]))
+
+    def get_context_data(self, **kwargs):
+        context = {'formset': self.get_formset(), 'title': self.title}
+        context2 = super().get_context_data(**kwargs)
+        context.update(context2)
+        # this must work with form_invalid
+        return context
 
 
 class TitleRedirectView(RedirectView):
