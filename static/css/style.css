@@ -134,6 +134,9 @@ body {
 .mt10 {margin-top: 10px!important;}
 .mt20 {margin-top: 20px!important;}
 .ml10 {margin-left: 10px!important;}
+.mr10 {margin-right: 10px!important;}
+.ml10 {margin-left: 10px!important;}
+.pl10 {padding-left: 10px!important;}
 
 .backdrop-card {
     width: 500px!important;
