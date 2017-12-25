@@ -18,6 +18,11 @@ class WatchlistListView(PropMixin, WatchFavListViewMixin, ListView):
             )
         ).order_by('-watchlist__create_date')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sorted_by'] = 'Sorted by added date'
+        return context
+
 
 class FavouriteListView(PropMixin, WatchFavListViewMixin, ListView):
     template_name = 'lists/favourite.html'
@@ -29,3 +34,8 @@ class FavouriteListView(PropMixin, WatchFavListViewMixin, ListView):
                 Favourite.objects.filter(user=self.request.user, title=OuterRef('pk')).values('create_date')[:1]
             )
         ).order_by('favourite__order')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sorted_by'] = 'Sorted by order'
+        return context
