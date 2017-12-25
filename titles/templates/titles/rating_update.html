@@ -23,6 +23,7 @@
         <div class="ui list">
             <form action="{% url 'rating-update' title.imdb_id %}" method="post">{% csrf_token %}
                 {{ formset.non_form_errors }}
+                {% for form in formset.forms %}{{ form.errors }}{% endfor %}
                 {{ formset.management_form }}
                 <table class="ui celled unstackable table">
                     <thead>
@@ -42,6 +43,8 @@
                                     {{ hidden }}
                                 {% endfor %}
                                 <td>{{ form.rate_date }}</td>
+{#                                {% include 'includes/field.html' with field=form.rate_date %}#}
+{#                                {% include 'includes/field.html' with field=form.rate %}#}
                                 <td>{{ form.rate }}</td>
                                 <td>{{ form.DELETE }}</td>
                             </tr>
