@@ -10,9 +10,11 @@ from django.contrib.auth.views import (
 )
 from django.urls import reverse
 from django.views.generic import CreateView
+from os.path import join, isfile
 
 from accounts.forms import UserUpdateForm, RegisterForm
 from accounts.models import UserFollow
+from importer.constants import EXPORT_FILE_NAME
 from importer.forms import ImportRatingsForm
 from shared.mixins import LoginRequiredMixin
 from titles.constants import SERIES, MOVIE
@@ -139,7 +141,13 @@ class UserDetailView(DetailView):
                 'comparision': self.get_ratings_comparision()
             })
         elif is_owner:
+            export_file_path = join(self.object.get_temp_folder_path(absolute=True), EXPORT_FILE_NAME)
             context['form'] = ImportRatingsForm()
+            if isfile(export_file_path):
+                context['export_file'] = {
+                    'path': join(self.object.get_temp_folder_path(), EXPORT_FILE_NAME),
+                    'name': EXPORT_FILE_NAME
+                }
 
         context.update({
             'is_other_user': is_other_user,
