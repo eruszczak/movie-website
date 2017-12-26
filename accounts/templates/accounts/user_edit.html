@@ -23,9 +23,10 @@
             <div class="sub header">Update your account settings</div>
         </div>
     </div>
-    <h4><a href="{% url 'password-change' %}">Change my password</a></h4>
-    <button class="ui basic primary button clear-ratings">Clear my ratings</button>
-    <h4><a>Clear my ratings</a></h4>
+    <div class="ui grid center aligned mt10 mb10">
+        <a href="{% url 'password-change' %}" class="ui basic primary button">Change my password</a>
+        <button class="ui basic primary button clear-ratings">Clear my ratings</button>
+    </div>
     {% include 'includes/form_errors.html' %}
     <form action="{{ user.edit_url }}" class="ui large form" method="post" enctype="multipart/form-data">{% csrf_token %}
         <div class="ui stacked segment">
