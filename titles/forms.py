@@ -87,7 +87,7 @@ class RateForm(forms.ModelForm):
         # but if other form has changed, it must be validated even is not created
         # if (created or 'rate_date' in self.changed_data) and Rating.objects.filter(user=self.user, title=self.title, rate_date=rate_date).exists():
         if Rating.objects.exclude(pk=self.instance.pk).filter(user=self.user, title=self.title, rate_date=rate_date).exists():
-            raise ValidationError(f'Title was already rated on {rate_date}')
+            raise ValidationError(f'Another title was already rated on {rate_date}')
 
         return rate_date
 

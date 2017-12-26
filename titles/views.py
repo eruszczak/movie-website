@@ -190,10 +190,8 @@ class RatingUpdateView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         formset = self.get_formset()
         if formset.is_valid():
-            print('valid')
             return self.formset_valid(formset)
         else:
-            print('not valid')
             return self.formset_invalid(formset)
 
     def get_formset(self):
@@ -208,7 +206,6 @@ class RatingUpdateView(LoginRequiredMixin, TemplateView):
         }
 
     def formset_invalid(self, formset):
-        # todo: must see how this is done in FormView, why this formset was passed correctly
         return self.render_to_response(self.get_context_data(formset=formset))
 
     def formset_valid(self, formset):
@@ -216,12 +213,10 @@ class RatingUpdateView(LoginRequiredMixin, TemplateView):
         return HttpResponseRedirect(reverse('rating-update', args=[self.kwargs['imdb_id']]))
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = self.title
-        # formset (with errors, passed from formset_invalid) could already be in the context
-        # if context.get('formset') is None:
-        context['formset'] = self.get_formset()
-        return context
+        kwargs['title'] = self.title
+        if 'formset' not in kwargs:
+            kwargs['formset'] = self.get_formset()
+        return super().get_context_data(**kwargs)
 
 
 class TitleRedirectView(RedirectView):
