@@ -24,6 +24,8 @@
         </div>
     </div>
     <h4><a href="{% url 'password-change' %}">Change my password</a></h4>
+    <button class="ui basic primary button clear-ratings">Clear my ratings</button>
+    <h4><a>Clear my ratings</a></h4>
     {% include 'includes/form_errors.html' %}
     <form action="{{ user.edit_url }}" class="ui large form" method="post" enctype="multipart/form-data">{% csrf_token %}
         <div class="ui stacked segment">
@@ -49,4 +51,24 @@
             <button type="submit" class="ui button primary">Update</button>
         </div>
     </form>
+
+    <div class="ui clear tiny modal">
+        <i class="close icon"></i>
+        <div class="header">Clear your {{ user.count_ratings }} ratings</div>
+        <div class="content">
+            <div class="description">
+                You cannot revert this operation. You will lose all of you ratings if you haven't exported them first, because you won't be able to import them back.
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui cancel button">Cancel</div>
+            <div class="ui negative button">Clear</div>
+        </div>
+    </div>
+    <div class="ui second tiny modal">
+        <i class="close icon"></i>
+        <div class="header"></div>
+        <div class="content"><div class="description"></div></div>
+        <div class="actions"><div class="ui approve button"><i class="checkmark icon"></i> Ok</div></div>
+    </div>
 {% endblock %}

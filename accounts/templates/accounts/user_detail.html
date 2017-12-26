@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static widget_tweaks %}
+
 {% block title %}{{ user.username }}'s profile{% endblock %}
 
 {% block breadcrumb %}
@@ -80,7 +81,6 @@
         <button class="ui button">Ratings</button>
     </div>
 
-
     <div class="ui divider hidden"></div>
     {% if is_other_user %}
         <div class="ui fluid {% if is_other_user %}two{% endif %} item menu title-menu">
@@ -151,7 +151,7 @@
         </div>
     {% endif %}
 
-    {#    MODALS#}
+    {#    MODALS MODALS MODALS #}
     {% if request.user.is_authenticated %}
         <div class="ui export tiny modal">
             <i class="close icon"></i>

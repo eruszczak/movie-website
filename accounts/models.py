@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils import timezone
 
 from shared.helpers import get_random_file_path
 from shared.models import FolderPathMixin
@@ -80,6 +79,10 @@ class User(FolderPathMixin, AbstractUser):
         if latest_rating:
             return latest_rating.title
         return None
+
+    @property
+    def count_ratings(self):
+        return Rating.objects.filter(user=self).count()
 
     @property
     def count_titles(self):
