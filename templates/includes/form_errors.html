@@ -1,18 +1,17 @@
 {% if form.errors %}
     <div class="ui error">
-      <div class="ui error message">
-{#                <div class="header">Could you check something!</div>#}
-        <ul class="list">
-            {% for error in form.non_field_errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-            {% for field in form %}
-                {% if field.errors %}
-                    <li>{{ field.label|capfirst }}: {{ field.errors.as_text|cut:'* ' }}</li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-      </div>
+        <div class="ui error message">
+            <ul class="list">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                {% for field in form %}
+                    {% if field.errors %}
+                        <li>{{ field.label|capfirst }}: {{ field.errors.as_text|cut:'* ' }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
     </div>
     <div class="ui divider hidden"></div>
 {% endif %}

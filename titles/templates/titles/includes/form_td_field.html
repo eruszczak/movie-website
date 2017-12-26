@@ -1,0 +1,4 @@
+<td>
+    <div class="field">{{ field }}</div>
+    {% if field.errors %}<div class="ui pointing red basic label">{{ field.errors.as_text|cut:'* ' }}</div>{% endif %}
+</td>
