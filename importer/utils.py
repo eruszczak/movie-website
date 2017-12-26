@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from importer.helpers import recognize_file_source, convert_to_datetime, fill_dictwriter_with_rating_qs, get_imdb_rss, \
     unpack_from_rss_item
 from lists.models import Watchlist
-from titles.constants import MY_HEADERS
+from titles.constants import MY_HEADERS, IMDB_CSV_MAPPER
 from titles.forms import RateForm
 from titles.models import Rating
 from titles.tmdb_api import TmdbWrapper
@@ -15,18 +15,23 @@ from titles.tmdb_api import TmdbWrapper
 
 def import_ratings_from_csv(user, file_path):
     """import missing ratings from csv file (exported from here or imdb)"""
-    with open(file_path, 'r') as f:
-        mapper = recognize_file_source(f)
+    with open(file_path, 'r', encoding='utf-8') as f:
+        mapper = IMDB_CSV_MAPPER
+        # mapper = recognize_file_source(f)
         print(mapper)
+        remove(file_path)
         if not mapper:
             print('headers are wrong')
+            return
+
         reader = DictReader(f)
         row_count, created_count = 0, 0
         for row in reader:
             row_count += 1
             imdb_id, rate_date, rate = row[mapper['imdb_id']], row[mapper['rate_date']], row[mapper['rate']]
             rate_date = convert_to_datetime(row[mapper['rate_date']], 'csv')
-            title = TmdbWrapper().get(imdb_id=imdb_id)
+            title = None
+            # title = TmdbWrapper().get(imdb_id=imdb_id)
             print('\n------------', imdb_id, rate_date, rate, title)
             if not title or not rate_date:
                 continue
@@ -45,7 +50,6 @@ def import_ratings_from_csv(user, file_path):
 
             print('\n----------')
         print(f'imported {created_count} out of {row_count} ratings - {round((created_count / row_count) * 100, 2)}%')
-    remove(file_path)
 
 
 def export_ratings(user):
