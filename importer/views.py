@@ -42,7 +42,6 @@ class ImportRatingsFormView(LoginRequiredMixin, FormView):
             default_storage.delete(file_path)
         path = default_storage.save(file_path, ContentFile(file.read()))
         import_ratings_from_csv(self.request.user, path)
-        # It may take some time. You will be notified once it's done.
         messages.success(self.request, WAIT_MESSAGE)
         return super().form_valid(form)
 
@@ -55,45 +54,45 @@ class ExportRatingsAPIView(LoginRequiredMixin, GetUserMixin, APIView):
         return Response({'message': WAIT_MESSAGE, 'title': 'Export'}, status=status.HTTP_200_OK)
 
 
-class SyncRatingsAPIView(LoginRequiredMixin, APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        return Response({'message': WAIT_MESSAGE, 'title': 'Sync ratings'}, status=status.HTTP_200_OK)
-
-
-class SyncWatchlistAPIView(LoginRequiredMixin, APIView):
-
-    def post(self, request, *args, **kwargs):
-        # def update_user_watchlist(user):
-        #     """
-        #     updates user's watchlist rss.imdb.com/user/<userid>/watchlist
-        #     """
-        #     itemlist = get_rss(user.imdb_id, 'watchlist')
-        #     if itemlist:
-        #         updated_titles = []
-        #         current_watchlist = []
-        #         count = 0
-        #         user_watchlist = Watchlist.objects.filter(user=user)
-        #         print('update_user_watchlist', user)
-        #         for obj in itemlist:
-        #             const, date = unpack_from_rss_item(obj, for_watchlist=True)
-        #             title = get_title_or_create(const)
-        #             if title:
-        #                 current_watchlist.append(const)
-        #                 obj, created = Watchlist.objects.get_or_create(user=user, title=title,
-        #                                                                defaults={'imdb': True, 'added_date': date})
-        #                 if created:
-        #                     count += 1
-        #                     if len(updated_titles) < 10:
-        #                         updated_titles.append(title)
-        #         no_longer_in_watchlist = user_watchlist.filter(imdb=True).exclude(title__const__in=current_watchlist)
-        #         deleted_titles = [w.title for w in no_longer_in_watchlist]
-        #         no_longer_in_watchlist.delete()
-        #         return {
-        #             'updated': (updated_titles, count),
-        #             'deleted': (deleted_titles, len(deleted_titles))
-        #         }
-        #     return None
-
-        return Response({'message': WAIT_MESSAGE, 'title': 'Sync ratings'}, status=status.HTTP_200_OK)
+# class SyncRatingsAPIView(LoginRequiredMixin, APIView):
+#
+#     def post(self, request, *args, **kwargs):
+#
+#         return Response({'message': WAIT_MESSAGE, 'title': 'Sync ratings'}, status=status.HTTP_200_OK)
+#
+#
+# class SyncWatchlistAPIView(LoginRequiredMixin, APIView):
+#
+#     def post(self, request, *args, **kwargs):
+#         # def update_user_watchlist(user):
+#         #     """
+#         #     updates user's watchlist rss.imdb.com/user/<userid>/watchlist
+#         #     """
+#         #     itemlist = get_rss(user.imdb_id, 'watchlist')
+#         #     if itemlist:
+#         #         updated_titles = []
+#         #         current_watchlist = []
+#         #         count = 0
+#         #         user_watchlist = Watchlist.objects.filter(user=user)
+#         #         print('update_user_watchlist', user)
+#         #         for obj in itemlist:
+#         #             const, date = unpack_from_rss_item(obj, for_watchlist=True)
+#         #             title = get_title_or_create(const)
+#         #             if title:
+#         #                 current_watchlist.append(const)
+#         #                 obj, created = Watchlist.objects.get_or_create(user=user, title=title,
+#         #                                                                defaults={'imdb': True, 'added_date': date})
+#         #                 if created:
+#         #                     count += 1
+#         #                     if len(updated_titles) < 10:
+#         #                         updated_titles.append(title)
+#         #         no_longer_in_watchlist = user_watchlist.filter(imdb=True).exclude(title__const__in=current_watchlist)
+#         #         deleted_titles = [w.title for w in no_longer_in_watchlist]
+#         #         no_longer_in_watchlist.delete()
+#         #         return {
+#         #             'updated': (updated_titles, count),
+#         #             'deleted': (deleted_titles, len(deleted_titles))
+#         #         }
+#         #     return None
+#
+#         return Response({'message': WAIT_MESSAGE, 'title': 'Sync ratings'}, status=status.HTTP_200_OK)
