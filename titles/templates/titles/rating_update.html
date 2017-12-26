@@ -118,7 +118,6 @@
                     maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
                     formatter: {
                         date: function(date, settings) {
-                            if (!date) return '';
                             return getFormattedDate(date);
                         }
                     },
@@ -129,8 +128,10 @@
             }
 
             function getFormattedDate(date) {
-                if (!date) return '';
-                    if (typeof date === 'string') {
+                if (!date) {
+                    return '';
+                }
+                if (typeof date === 'string') {
                     date = new Date(date);
                 }
                 var year = date.getFullYear();

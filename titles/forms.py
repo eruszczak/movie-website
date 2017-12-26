@@ -1,17 +1,14 @@
-import re
-
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import Q, Count
-from django.forms import inlineformset_factory, modelformset_factory, BaseModelFormSet
+from django.forms import modelformset_factory, BaseModelFormSet
 from django.utils.timezone import now
 
-from shared.widgets import MySelectMultipleWidget, MyRatingWidget, MyDateWidget
+from shared.widgets import MyRatingWidget, MyDateWidget
 from titles.constants import TITLE_TYPE_CHOICES
-from titles.models import Title, Genre, Rating
+from titles.models import Genre, Rating
 from shared.forms import SearchFormMixin
-
 
 User = get_user_model()
 
@@ -20,7 +17,8 @@ class TitleSearchForm(SearchFormMixin, forms.Form):
     year = forms.IntegerField(required=False)
     user = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
     keyword = forms.CharField(max_length=100, required=False, label='Keywords')
-    genre = forms.ModelMultipleChoiceField(queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False)
+    genre = forms.ModelMultipleChoiceField(
+        queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False)
     type = forms.ChoiceField(choices=TITLE_TYPE_CHOICES, required=False)
 
     @staticmethod
@@ -57,12 +55,7 @@ class RateForm(forms.ModelForm):
         }
 
     def __init__(self, user, title, *args, **kwargs):
-        print('init')
         super().__init__(*args, **kwargs)
-    #     print(self.instance, 'init')
-    #     if self.instance:
-    #         print(self.instance.pk, 'init')
-
         self.user = user
         self.title = title
 
@@ -90,9 +83,7 @@ class RateForm(forms.ModelForm):
         if rate_date > now().date():
             raise ValidationError(f'{rate_date} is a future date')
 
-        print(self.cleaned_data.items())
         created = self.instance.pk is None
-        print(self.changed_data, 'changed data')
         # but if other form has changed, it must be validated even is not created
         # if (created or 'rate_date' in self.changed_data) and Rating.objects.filter(user=self.user, title=self.title, rate_date=rate_date).exists():
         if Rating.objects.exclude(pk=self.instance.pk).filter(user=self.user, title=self.title, rate_date=rate_date).exists():
@@ -105,11 +96,11 @@ class BaseRatingFormSet(BaseModelFormSet):
     def __init__(self, user, title, *args, **kwargs):
         self.user = user
         self.title = title
-        kwargs['queryset'] = Rating.objects.filter(title=title, user=user)
+        kwargs['queryset'] = Rating.objects.filter(title=title, user=user).order_by('-rate_date')
         super().__init__(*args, **kwargs)
 
-    def clean(self):
-        raise ValidationError('test')
+    # def clean(self):
+    #     raise ValidationError('test')
 
     def get_form_kwargs(self, index):
         kwargs = super().get_form_kwargs(index)
