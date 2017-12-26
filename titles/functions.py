@@ -66,10 +66,7 @@ def recommend_title(title, sender, user_ids):
 
 
 def create_or_update_rating(title, user, rate, insert_as_new=False):
-    """
-    updates current title rating or creates new one
-    if rate is '0' rating is deleted
-    """
+    """updates current title rating or creates new one"""
     today = datetime.now().date()
     current_rating = Rating.objects.filter(user=user, title=title).first()
     todays_rating = Rating.objects.filter(user=user, title=title, rate_date=today)
