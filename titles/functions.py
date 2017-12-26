@@ -65,27 +65,6 @@ def recommend_title(title, sender, user_ids):
     return 'Already recommended'
 
 
-def create_or_update_rating(title, user, rate, insert_as_new=False):
-    """updates current title rating or creates new one"""
-    today = datetime.now().date()
-    current_rating = Rating.objects.filter(user=user, title=title).first()
-    todays_rating = Rating.objects.filter(user=user, title=title, rate_date=today)
-    if rate != '0':
-        if current_rating and not insert_as_new:
-            current_rating.rate = rate
-            current_rating.save(update_fields=['rate'])
-            return 'Updated rating'
-        elif insert_as_new and todays_rating.exists():
-            todays_rating.update(rate=rate)
-            return 'Updated today\'s rating'
-        else:
-            Rating.objects.create(user=user, title=title, rate=rate, rate_date=today)
-            return 'Created rating'
-    elif current_rating:
-        current_rating.delete()
-        return 'Deleted rating'
-
-
 def follow_user(follower, followed, add):
     if add:
         UserFollow.objects.get_or_create(follower=follower, followed=followed)

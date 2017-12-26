@@ -55,7 +55,7 @@ class RateForm(forms.ModelForm):
             'rate_date': MyDateWidget
         }
 
-    def __init__(self, user, title, from_formset=False, *args, **kwargs):
+    def __init__(self, user=None, title=None, from_formset=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
         self.title = title
@@ -63,8 +63,10 @@ class RateForm(forms.ModelForm):
 
     def save(self, commit=True):
         obj = super().save(False)
-        obj.user = self.user
-        obj.title = self.title
+        created = obj.pk is None
+        if created:
+            obj.user = self.user
+            obj.title = self.title
         obj.save()
         return obj
 

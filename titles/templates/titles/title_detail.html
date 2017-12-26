@@ -204,8 +204,7 @@
                     <a href="{% url 'user-detail' userfollow.followed.username %}" class="ui image label">
                         <img src="{{ userfollow.followed.avatar_url }}">
                         {{ userfollow.followed.username }}
-                        <div class="detail">{{ userfollow.user_rate }} <i
-                                class="star icon green"></i> {{ userfollow.user_rate_date }}</div>
+                        <div class="detail">{{ userfollow.user_rate }} <i class="star icon green"></i> {{ userfollow.user_rate_date }}</div>
                     </a>
                 {% endfor %}
                 {% if not followed_saw_title %}
