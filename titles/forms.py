@@ -5,6 +5,7 @@ from django.db.models import Q, Count
 from django.forms import modelformset_factory, BaseModelFormSet
 from django.utils.timezone import now
 
+from shared.helpers import get_list_duplicates
 from shared.widgets import MyRatingWidget, MyDateWidget
 from titles.constants import TITLE_TYPE_CHOICES
 from titles.models import Genre, Rating
@@ -54,10 +55,11 @@ class RateForm(forms.ModelForm):
             'rate_date': MyDateWidget
         }
 
-    def __init__(self, user, title, *args, **kwargs):
+    def __init__(self, user, title, from_formset=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
         self.title = title
+        self.from_formset = from_formset
 
     def save(self, commit=True):
         obj = super().save(False)
@@ -83,10 +85,9 @@ class RateForm(forms.ModelForm):
         if rate_date > now().date():
             raise ValidationError(f'{rate_date} is a future date')
 
-        created = self.instance.pk is None
-        # but if other form has changed, it must be validated even is not created
-        # if (created or 'rate_date' in self.changed_data) and Rating.objects.filter(user=self.user, title=self.title, rate_date=rate_date).exists():
-        if Rating.objects.exclude(pk=self.instance.pk).filter(user=self.user, title=self.title, rate_date=rate_date).exists():
+        # do not check rate_date uniqueness if form is part of a formset. Formset will walidate all dates at once
+        if not self.from_formset and Rating.objects.exclude(
+                pk=self.instance.pk).filter(user=self.user, title=self.title, rate_date=rate_date).exists():
             raise ValidationError(f'Another title was already rated on {rate_date}')
 
         return rate_date
@@ -99,14 +100,26 @@ class BaseRatingFormSet(BaseModelFormSet):
         kwargs['queryset'] = Rating.objects.filter(title=title, user=user).order_by('-rate_date')
         super().__init__(*args, **kwargs)
 
-    # def clean(self):
-    #     raise ValidationError('test')
+    def clean(self):
+        """
+        RateForm has rate_date validation (it checks eg. before new Rating is created,
+        if the title was already rated by the user on the same day).
+        In formset I want to validate uniqueness of rate_dates at once.
+        Because if Rating from May 15 will be changed, another rating couldn't be set to May 15.
+        """
+        super().clean()
+        dates = [f.cleaned_data['rate_date'] for f in self.forms if f.cleaned_data and f.cleaned_data.get('rate_date') and not f.cleaned_data.get('DELETE')]
+        duplicates = get_list_duplicates(dates)
+        if len(duplicates):
+            duplicates = [d.strftime('%Y-%m-%d') for d in duplicates]
+            raise ValidationError(f"Dates: {', '.join(duplicates)} are not unique.")
 
     def get_form_kwargs(self, index):
         kwargs = super().get_form_kwargs(index)
         kwargs.update({
             'user': self.user,
-            'title': self.title
+            'title': self.title,
+            'from_formset': True
         })
         return kwargs
 

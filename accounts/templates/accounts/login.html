@@ -36,6 +36,7 @@
 {% block content %}
     {% if request.GET.next %}
         <div class="mt10 ui text ignored info message warning">
+            <div class="header">You must be logged in</div>
             To continue, login or <a href="{% url 'register' %}?next={{ request.GET.next }}">sign up</a> for a new account
         </div>
     {% endif %}
