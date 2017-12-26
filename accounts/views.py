@@ -195,11 +195,12 @@ class UserDetailView(DetailView):
             )
 
             distinct_titles_count = self.object.total_movies + self.object.total_series
+            aggregation = common_titles.aggregate(user=Avg('user_rate'), request_user=Avg('request_user_rate'))
+            averages = {k: round(v, 2) for k, v in aggregation.items()}
             return {
                 'common_titles_length': common_titles_length,
-                'averages': common_titles.aggregate(user=Avg('user_rate'), request_user=Avg('request_user_rate')),
+                'averages': averages,
                 'percentage': round((common_titles_length / distinct_titles_count) * 100, 2),
-
                 'titles_user_rate_higher': titles_user_rate_higher[:self.limit],
                 'titles_user_rate_lower': titles_user_rate_lower[:self.limit],
                 'titles_rated_the_same': titles_rated_the_same[:self.limit],
