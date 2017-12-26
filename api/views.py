@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import F, Q
 from django.db.transaction import atomic
 from django.urls import reverse
+from django.utils.timezone import now
 from rest_framework import status
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
@@ -15,9 +16,11 @@ from rest_framework.viewsets import GenericViewSet
 
 from api.mixins import IsAuthenticatedMixin, GetTitleMixin, ToggleAPIView, GetUserMixin
 from lists.models import Favourite
-from titles.forms import TitleSearchForm
-from titles.functions import create_or_update_rating, toggle_title_in_favourites, toggle_title_in_watchlist, \
-    recommend_title, follow_user, toggle_currently_watched_title
+from titles.forms import TitleSearchForm, RateForm
+from titles.functions import (
+    toggle_title_in_favourites, toggle_title_in_watchlist, toggle_currently_watched_title,
+    recommend_title, follow_user
+)
 from titles.helpers import instance_required
 from titles.models import Rating, Title, Person
 from .serializers import RatingListSerializer, TitleSerializer, PersonSerializer
@@ -50,12 +53,27 @@ class CreateUpdateRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        new_rating = request.POST.get('rating')
-        # todo: this must use a form
-        # insert_as_new = False  # request.POST.get('insert_as_new', False)
-        message = create_or_update_rating(self.title, request.user, new_rating, insert_as_new)
-        message = ''
-        return Response({'message': message}, status=status.HTTP_200_OK)
+        """create new rating (with today's date) or update latest rating's rate"""
+        data = {'rate': request.POST.get('rating')}
+        try:
+            instance = Rating.objects.filter(user=self.request.user, title=self.title).latest('rate_date')
+        except Rating.DoesNotExist:
+            data['rate_date'] = now().date()
+            form = RateForm(user=self.request.user, title=self.title, data=data)
+            message = 'Created rating'
+        else:
+            # instance already has rate_date but this field is required (also, do not need to pass title, user here)
+            data['rate_date'] = instance.rate_date
+            form = RateForm(data=data, instance=instance)
+            message = 'Updated rating'
+
+        if form.is_valid():
+            form.save()
+            return Response({'message': message}, status=status.HTTP_200_OK)
+
+        message = 'Error'
+        # message = form.errors
+        return Response({'message': message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DeleteRatingAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
@@ -65,16 +83,11 @@ class DeleteRatingAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, AP
         try:
             current_rating = Rating.objects.filter(user=self.request.user, title=self.title).latest('rate_date')
         except Rating.DoesNotExist:
-            response = {
-                'message': 'Rating doesn\'t exist',
-                'status': status.HTTP_400_BAD_REQUEST
-            }
+            return Response({'message': 'Rating doesn\'t exist'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            response = {
-                'message': f'Removed rating from {current_rating.rate_date}',
-                'status': status.HTTP_200_OK
-            }
-        return Response({'message': response['message']}, status=response['status'])
+            rate_date = current_rating.rate_date
+            current_rating.delete()
+            return Response({'message': f'Removed rating from {rate_date}'}, status=status.HTTP_200_OK)
 
 
 class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
