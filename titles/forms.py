@@ -108,8 +108,8 @@ class BaseRatingFormSet(BaseModelFormSet):
         kwargs['queryset'] = Rating.objects.filter(title=title, user=user)
         super().__init__(*args, **kwargs)
 
-    # def clean(self):
-    #     pass
+    def clean(self):
+        raise ValidationError('test')
 
     def get_form_kwargs(self, index):
         kwargs = super().get_form_kwargs(index)
@@ -118,6 +118,7 @@ class BaseRatingFormSet(BaseModelFormSet):
             'title': self.title
         })
         return kwargs
+
 
 RatingFormset = modelformset_factory(
     Rating, form=RateForm, formset=BaseRatingFormSet, extra=3, can_delete=True, max_num=100

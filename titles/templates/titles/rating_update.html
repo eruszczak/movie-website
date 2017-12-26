@@ -18,9 +18,28 @@
     <div class="ui segment">
         <span class="ui teal ribbon label">Manage your ratings</span>
         <div class="ui list">
+            {% if formset.errors %}
+                <div class="ui error">
+                    <div class="ui error message">
+                    {{ formset.errors }}
+                    {% for form in formset %}
+                        {{ form.errors }}
+                    {% endfor %}
+                        <ul class="list">
+                            {% for error in form.non_field_errors %}
+                                <li>1st {{ error.as_text }}</li>
+                            {% endfor %}
+                            {% for error in formset.errors %}
+                                <li>2nd {{ error.as_text }}</li>
+                            {% endfor %}
+                            {% for error in formset.non_form_errors %}
+                                <li>3rd {{ error.as_text }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
             <form action="{% url 'rating-update' title.imdb_id %}" method="post">{% csrf_token %}
-                {{ formset.non_form_errors }}
-                {% for form in formset.forms %}{{ form.errors }}{% endfor %}
                 {{ formset.management_form }}
                 <table class="ui celled selectable table">
                     <thead>
@@ -75,7 +94,9 @@
             });
 
             initRating($('.formset.rating'));
-            initCalendar($('.my-date'));
+            $('.my-date').each(function(i, el) {
+                initCalendar($(el));
+            });
 
             function initRating(el) {
                 el.rating({
@@ -89,25 +110,35 @@
             }
 
             function initCalendar(el) {
+                const $hiddenInput = $(el).prev();
+                const initialVal = $hiddenInput.val();
                 el.calendar({
+                    today: true,
                     type: 'date',
                     maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
                     formatter: {
                         date: function(date, settings) {
                             if (!date) return '';
-                            var day = date.getDate();
-                            var month = date.toLocaleString('en-us', {month: 'short'});
-                            var year = date.getFullYear();
-                            console.log($(this))
-                            console.log($(this).parent())
-                            console.log($('.my-date'))
-                            return day + ' ' + month + ' ' + year;
+                            return getFormattedDate(date);
                         }
                     },
                     onChange: function (date, text, mode) {
-                        console.log(date,text,mode);
-                    },
-                });
+                        $hiddenInput.val(text);
+                    }
+                }).calendar('set date', getFormattedDate(initialVal));
+            }
+
+            function getFormattedDate(date) {
+                if (!date) return '';
+                    if (typeof date === 'string') {
+                    date = new Date(date);
+                }
+                var year = date.getFullYear();
+                var month = (1 + date.getMonth()).toString();
+                month = month.length > 1 ? month : '0' + month;
+                var day = date.getDate().toString();
+                day = day.length > 1 ? day : '0' + day;
+                return year + '-' + month + '-' + day;
             }
         });
     </script>

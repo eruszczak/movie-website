@@ -1,8 +1,8 @@
-<tr class="center aligned">
+<tr class="center aligned{% if form.errors %} negative{% endif %}">
     {% for hidden in form.hidden_fields %}
         {{ hidden }}
     {% endfor %}
-    <td>{{ form.rate_date }}</td>
-    <td>{{ form.rate }}</td>
-    <td>{{ form.DELETE }}</td>
+    {% include 'titles/includes/form_td_field.html' with field=form.rate_date %}
+    {% include 'titles/includes/form_td_field.html' with field=form.rate %}
+    {% include 'titles/includes/form_td_field.html' with field=form.DELETE %}
 </tr>

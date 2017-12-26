@@ -190,8 +190,10 @@ class RatingUpdateView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         formset = self.get_formset()
         if formset.is_valid():
+            print('valid')
             return self.formset_valid(formset)
         else:
+            print('not valid')
             return self.formset_invalid(formset)
 
     def get_formset(self):
