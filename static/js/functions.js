@@ -12,9 +12,13 @@ function showXHRErrorToast(xhr) {
 }
 
 function setModalContentAndShow($modal, response) {
-    $modal.find('.header').text(response.title);
-    $modal.find('.description').text(response.message);
-    $modal.modal('show');
+    if (response) {
+        $modal.find('.header').text(response.title || 'Success');
+        $modal.find('.description').text(response.message);
+        $modal.modal('show');
+    } else {
+        $modal.modal('show');
+    }
 }
 
 var TOKEN = getCookie('csrftoken');

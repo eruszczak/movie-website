@@ -30,6 +30,7 @@ $('.grid .backdrop-card img').visibility({
 
 $('.ui.accordion').accordion();
 
+$('.clear.tiny.modal').modal('attach events', '.clear-ratings.button', 'show');
 $('.export.tiny.modal').modal('attach events', '.export-ratings.button', 'show');
 $('.watchlist.tiny.modal').modal('attach events', '.update-watchlist.button', 'show');
 $('.ratings.tiny.modal').modal('attach events', '.update-ratings.button', 'show');

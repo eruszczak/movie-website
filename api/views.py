@@ -90,6 +90,13 @@ class DeleteRatingAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, AP
             return Response({'message': f'Removed rating from {rate_date}'}, status=status.HTTP_200_OK)
 
 
+class ClearRatingsAPIView(IsAuthenticatedMixin, APIView):
+
+    def post(self, request, *args, **kwargs):
+        Rating.objects.filter(user=self.request.user).delete()
+        return Response({'message': f'Ratings has have cleared'}, status=status.HTTP_200_OK)
+
+
 class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
 
     @instance_required

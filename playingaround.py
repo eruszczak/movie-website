@@ -97,8 +97,15 @@ def restart_favs():
 
     print(Favourite.objects.filter(user=user))
 
+
+def test_ratings():
+    user = User.objects.get(username='test')
+    print(user.rating_set.all())
+
+test_ratings()
+
 # restart_favs()
-restart_favs()
+# restart_favs()
 # create_rating_duplicat()
 # t = GetTitleMixin()
 # u = GetUserMixin()

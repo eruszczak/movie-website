@@ -1,11 +1,12 @@
 $.fn.api.settings.api = {
-    'search': '/api/search?keyword={query}',
-    'follow user': '/api/user/{pk}/follow',
-    'export ratings': '/importer/user/{pk}/export',
-    'favourite title': '/api/title/{pk}/favourites',
-    'watchlist title': '/api/title/{pk}/watchlist',
-    'recommend title': '/api/title/{pk}/recommend',
-    'currently watching': '/api/tv/{pk}/watching'
+    'search': '/api/search/?keyword={query}',
+    'follow user': '/api/user/{pk}/follow/',
+    'export ratings': '/importer/user/{pk}/export/',
+    'favourite title': '/api/title/{pk}/favourites/',
+    'watchlist title': '/api/title/{pk}/watchlist/',
+    'recommend title': '/api/title/{pk}/recommend/',
+    'currently watching': '/api/tv/{pk}/watching/',
+    'clear ratings': '/api/clear-ratings/'
 };
 
 $('.regular.rating').rating({
@@ -132,6 +133,13 @@ var exportRatingsSettings = $.extend({
     }
 }, API_SETTINGS_BASE);
 
+var clearRatingsSettings = $.extend({
+    action: 'clear ratings',
+    onSuccess: function(response) {
+        setModalContentAndShow($('.second.modal'), response);
+    }
+}, API_SETTINGS_BASE);
+
 
 $('.title-fav').api(titleFavSettings);
 $('.title-watch').api(titleWatchSetttings);
@@ -149,3 +157,4 @@ $('.currently-watching.button').api(currentlyWatchingSettings).state({
     }
 });
 $('.export.modal .actions .positive').api(exportRatingsSettings);
+$('.clear.modal .actions .negative').api(clearRatingsSettings);
