@@ -40,8 +40,13 @@ class ImportRatingsFormView(LoginRequiredMixin, FormView):
         file_path = join(user_tmp_folder, file.name)
         if default_storage.exists(file_path):
             default_storage.delete(file_path)
+        # path = default_storage.save(file_path, ContentFile(file.read()))
         path = default_storage.save(file_path, ContentFile(file.read()))
-        import_ratings_from_csv(self.request.user, path)
+        # with default_storage.open(file_path, 'wb+') as destination:
+        #     for chunk in file.chunks():
+        #         destination.write(chunk)
+
+        import_ratings_from_csv(self.request.user, file_path)
         messages.success(self.request, WAIT_MESSAGE)
         return super().form_valid(form)
 
