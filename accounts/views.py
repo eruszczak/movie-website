@@ -135,19 +135,21 @@ class UserDetailView(DetailView):
                 )
             )
 
+            export_file_path = join(self.object.get_temp_folder_path(absolute=True), EXPORT_FILE_NAME)
+            if isfile(export_file_path):
+                context['export_file'] = {
+                    'path': f'/media/{join(self.object.get_temp_folder_path(), EXPORT_FILE_NAME)}',
+                    'name': EXPORT_FILE_NAME
+                }
+
         if is_other_user:
             context.update({
                 'already_follows': UserFollow.objects.filter(follower=self.request.user, followed=self.object).exists(),
                 'comparision': self.get_ratings_comparision()
             })
         elif is_owner:
-            export_file_path = join(self.object.get_temp_folder_path(absolute=True), EXPORT_FILE_NAME)
             context['form'] = ImportRatingsForm()
-            if isfile(export_file_path):
-                context['export_file'] = {
-                    'path': join(self.object.get_temp_folder_path(), EXPORT_FILE_NAME),
-                    'name': EXPORT_FILE_NAME
-                }
+
 
         context.update({
             'is_other_user': is_other_user,

@@ -59,7 +59,7 @@ class TmdbResponseMixin:
         query_string.update(self.query_string)
         url = self.urls['base'] + '/'.join(list(map(str, path_parameters)))
         response, response_url = get_json_response(url, query_string)
-        print('name/title', response.get('name'), 'or', response.get('title'), response_url)
+        # print('name/title', response.get('name'), 'or', response.get('title'), response_url)
         if response is None:
             return None
         return SlashDict(response)
@@ -111,7 +111,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
 
     def get_or_create(self):
         if self.title:
-            print('title existed', self.title.name)
+            # print('title existed', self.title.name)
 
             # self.save_cast(self.cached_response['credits/cast'])
             # self.save_crew(self.cached_response['credits/crew'])
@@ -141,7 +141,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         return None
 
     def create(self):
-        print(self.tmdb_id, self.api_response.get('name'), 'or', self.api_response.get('title'), 'updated', self.call_updater)
+        # print(self.tmdb_id, self.api_response.get('name'), 'or', self.api_response.get('title'), 'updated', self.call_updater)
         title_data = {
             attr_name: self.api_response[tmdb_attr_name] for attr_name, tmdb_attr_name in self.title_model_map.items()
         }
@@ -328,7 +328,7 @@ class TitleUpdater(TmdbResponseMixin):
 
         for path, handler in self.response_handlers_map.items():
             value = self.api_response[path]
-            print('\t\t\t', handler.__name__, 'for tmdb_pk', self.title.tmdb_id)
+            # print('\t\t\t', handler.__name__, 'for tmdb_pk', self.title.tmdb_id)
             if value:
                 handler(value)
 
