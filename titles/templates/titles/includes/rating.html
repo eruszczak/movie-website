@@ -1,1 +1,1 @@
-<p{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui star regular large rating" data-url="{% url 'title-rate' title.pk %}" data-rating="{{ rate }}"></p>
+<p{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini"{% endif %} class="ui star regular large rating" data-url="{% url 'title-rate' title.pk %}" data-remove-url="{% url 'title-remove-rate' title.pk %}" data-rating="{{ rate }}"></p>

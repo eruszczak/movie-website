@@ -5,7 +5,7 @@ $.fn.api.settings.api = {
     'favourite title': '/api/title/{pk}/favourites',
     'watchlist title': '/api/title/{pk}/watchlist',
     'recommend title': '/api/title/{pk}/recommend',
-    'currently watching': '/api/tv/{pk}/watching',
+    'currently watching': '/api/tv/{pk}/watching'
 };
 
 $('.regular.rating').rating({
@@ -13,7 +13,8 @@ $('.regular.rating').rating({
     maxRating: 10,
     clearable: true,
     onRate: function (rating) {
-        ajax_request({'rating': rating}, {url: $(this).data('url')});
+        var url = rating === 0 ? $(this).data('remove-url') : $(this).data('url');
+        ajax_request({'rating': rating}, {url: url});
     }
 });
 
@@ -41,7 +42,7 @@ $('.ui.search').search({
             });
             var action = null;
             if (serverResponse.titles.length) {
-                var action = {
+                action = {
                     text: 'See more titles',
                     url: serverResponse.action.url
                 }

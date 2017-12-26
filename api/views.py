@@ -51,13 +51,20 @@ class AddRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
     @instance_required
     def post(self, request, *args, **kwargs):
         new_rating = request.POST.get('rating')
-        insert_as_new = False  # request.POST.get('insert_as_new', False)
-        message = create_or_update_rating(self.title, request.user, new_rating, insert_as_new)
+        # todo: this must use a form
+        # insert_as_new = False  # request.POST.get('insert_as_new', False)
+        # message = create_or_update_rating(self.title, request.user, new_rating, insert_as_new)
+        message = ''
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class TitleDeleteRatingView(APIView):
-    pass
+class DeleteRatingAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
+
+    @instance_required
+    def post(self, request, *args, **kwargs):
+        current_rating = Rating.objects.filter(user=self.request.user, title=self.title).delete()
+        # todo
+        return Response({'message': current_rating})
 
 
 class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):

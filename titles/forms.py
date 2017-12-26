@@ -108,7 +108,8 @@ class BaseRatingFormSet(BaseModelFormSet):
         Because if Rating from May 15 will be changed, another rating couldn't be set to May 15.
         """
         super().clean()
-        dates = [f.cleaned_data['rate_date'] for f in self.forms if f.cleaned_data and f.cleaned_data.get('rate_date') and not f.cleaned_data.get('DELETE')]
+        dates = [f.cleaned_data['rate_date'] for f in self.forms
+                 if f.cleaned_data and f.cleaned_data.get('rate_date') and not f.cleaned_data.get('DELETE')]
         duplicates = get_list_duplicates(dates)
         if len(duplicates):
             duplicates = [d.strftime('%Y-%m-%d') for d in duplicates]
