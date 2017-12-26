@@ -27,7 +27,7 @@ def convert_to_datetime(date_string, source):
         'imdb_xml': '%a, %d %b %Y %H:%M:%S GMT',
         'csv': '%Y-%m-%d'
     }
-    if date_formats.get(source):
+    if date_string and date_formats.get(source):
         try:
             return datetime.strptime(date_string, date_formats[source])
         except ValueError:

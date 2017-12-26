@@ -2,12 +2,11 @@ from csv import DictReader, DictWriter
 from os import remove
 from os.path import join
 
-from django.core.exceptions import ValidationError
-
+from importer.constants import EXPORT_FILE_NAME
 from importer.helpers import recognize_file_source, convert_to_datetime, fill_dictwriter_with_rating_qs, get_imdb_rss, \
     unpack_from_rss_item
 from lists.models import Watchlist
-from titles.constants import MY_HEADERS, IMDB_CSV_MAPPER
+from titles.constants import MY_HEADERS
 from titles.forms import RateForm
 from titles.models import Rating
 from titles.tmdb_api import TmdbWrapper
@@ -15,41 +14,46 @@ from titles.tmdb_api import TmdbWrapper
 
 def import_ratings_from_csv(user, file_path):
     """import missing ratings from csv file (exported from here or imdb)"""
-    with open(file_path, 'r', encoding='utf-8') as f:
-        mapper = IMDB_CSV_MAPPER
-        # mapper = recognize_file_source(f)
+    try:
+        f = open(file_path, 'r')
+        mapper = recognize_file_source(f)
+    except Exception as e:
+        print(e)
+    else:
         print(mapper)
-        remove(file_path)
-        if not mapper:
-            print('headers are wrong')
-            return
+        if mapper:
+            reader = DictReader(f)
+            row_count, created_count = 0, 0
+            for row in reader:
+                row_count += 1
+                imdb_id, rate_date, rate = row[mapper['imdb_id']], row[mapper['rate_date']], row[mapper['rate']]
+                rate_date = convert_to_datetime(row[mapper['rate_date']], 'csv')
+                title = TmdbWrapper().get(imdb_id=imdb_id)
+                print(imdb_id, rate_date, rate, title)
 
-        reader = DictReader(f)
-        row_count, created_count = 0, 0
-        for row in reader:
-            row_count += 1
-            imdb_id, rate_date, rate = row[mapper['imdb_id']], row[mapper['rate_date']], row[mapper['rate']]
-            rate_date = convert_to_datetime(row[mapper['rate_date']], 'csv')
-            title = None
-            # title = TmdbWrapper().get(imdb_id=imdb_id)
-            print('\n------------', imdb_id, rate_date, rate, title)
-            if not title or not rate_date:
-                continue
-
-            if not Rating.objects.filter(user=user, title=title, rate_date=rate_date).exists():
-                data = {
-                    'rate_date': rate_date,
-                    'rate': rate
-                }
-                form = RateForm(user=user, title=title, data=data)
-                if form.is_valid():
-                    created_count += 1
-                    # form.save()
+                if title and rate_date and not Rating.objects.filter(
+                        user=user, title=title, rate_date=rate_date).exists():
+                    data = {
+                        'rate_date': rate_date,
+                        'rate': rate
+                    }
+                    form = RateForm(user=user, title=title, data=data)
+                    if form.is_valid():
+                        created_count += 1
+                        form.save()
+                    else:
+                        if form.errors:
+                            for error in form.errors.items():
+                                print(error)
                 else:
-                    form.errors
+                    print('existed or title or rate_date is missing')
+        else:
+            print('headers are wrong')
 
-            print('\n----------')
         print(f'imported {created_count} out of {row_count} ratings - {round((created_count / row_count) * 100, 2)}%')
+        f.close()
+    finally:
+        remove(file_path)
 
 
 def export_ratings(user):
@@ -64,8 +68,7 @@ def export_ratings(user):
     # count_ratings = ratings.count()
     # count_titles = ratings.values_list('title').distinct().count()
     # filename = '{}_ratings_for_{}_titles_{}'.format(count_ratings, count_titles, now().strftime('%Y-%m-%d'))
-    filename = 'export'
-    file_path = join(user_tmp_folder, f'{filename}.csv')
+    file_path = join(user_tmp_folder, EXPORT_FILE_NAME)
     with open(file_path, 'w') as csvfile:
         writer = DictWriter(csvfile, fieldnames=MY_HEADERS, lineterminator='\n')
         writer.writeheader()

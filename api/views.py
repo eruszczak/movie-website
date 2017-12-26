@@ -94,7 +94,7 @@ class ClearRatingsAPIView(IsAuthenticatedMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         Rating.objects.filter(user=self.request.user).delete()
-        return Response({'message': f'Ratings has have cleared'}, status=status.HTTP_200_OK)
+        return Response({'message': f'Ratings have been cleared'}, status=status.HTTP_200_OK)
 
 
 class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
