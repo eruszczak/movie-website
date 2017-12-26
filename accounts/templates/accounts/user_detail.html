@@ -45,26 +45,13 @@
                         <button class="ui basic primary button import-ratings">Import ratings</button>
                         <button class="ui basic primary button export-ratings">Export your ratings</button>
                     </div>
-                    {% if export_file %}<h4 class="mb10"><a href="/media/{{ export_file.path }}" download="{{ export_file.name }}">Download your latest export</a></h4>{% endif %}
+                    {% if export_file %}<h4 class="mb10"><a href="{{ export_file.path }}" download="{{ export_file.name }}">Download your latest export</a></h4>{% endif %}
                 </div>
             </div>
         </div>
     {% else %}
     {% endif %}
     {% if user.tagline %}<div class="ui center aligned piled segment"><i class="quote left icon"></i> {{ user.tagline }} <i class="quote right icon"></i></div>{% endif %}
-    <div class="ui centered grid">
-        {% with user.imdb_url as imdb_url %}
-            <div class="{% if imdb_url %}five{% else %}four{% endif %} columns">
-                <a href="{{ user.ratings_url }}" class="ui label">See all ratings</a>
-                <a class="ui label">Watchlist</a>
-                <a class="ui label">Favourites</a>
-                <a class="ui label">Recommendations? get rid of it?</a>
-                {% if imdb_url %}
-                    <a href="{{ imdb_url }}" target="_blank"><i class="imdb big yellow icon"></i></a>
-                {% endif %}
-            </div>
-        {% endwith %}
-    </div>
 
     <div class="ui basic buttons right floated">
         {% include 'accounts/includes/follow.html' %}
@@ -72,14 +59,13 @@
             <div class="ui button export-ratings" {% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini" {% endif %}>Export</div>
         {% endif %}
     </div>
-    <br>
-    <br>
+    <div class="ui clearing hidden divider"></div>
 
     <div class="four ui buttons">
-        <button class="ui button">Favourites</button>
-        <button class="ui button">Watchlist</button>
-        <button class="ui button">Recommendations</button>
-        <button class="ui button">Ratings</button>
+        <a class="ui button" href="{{ user.ratings_url }}" >Ratings</a>
+        <a class="ui button" href="{{ user.favourite_url }}">Favourites</a>
+        <a class="ui button" href="{{ user.watchlist_url }}">Watchlist</a>
+        {% if user.imdb_url %}<a class="ui button" href="{{ user.imdb_url }}" target="_blank"><i class="imdb yellow icon"></i> IMDb Profile</a>{% endif %}
     </div>
 
     <div class="ui divider hidden"></div>
@@ -163,6 +149,9 @@
                 <div class="description">
                     You can export {{ user.username }}'s ratings to csv file. For example, if you will lose some of your ratings, you
                     will be able to import them back.
+                </div>
+                <div class="extra">
+                    {% if export_file %}<a class="ui basic primary button mt10" href="{{ export_file.path }}" download="{{ export_file.name }}">Download latest export</a>{% endif %}
                 </div>
             </div>
             <div class="actions">
