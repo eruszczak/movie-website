@@ -45,6 +45,7 @@
                         <button class="ui basic primary button import-ratings">Import ratings</button>
                         <button class="ui basic primary button export-ratings">Export your ratings</button>
                     </div>
+                    {% if export_file %}<h4 class="mb10"><a href="/media/{{ export_file.path }}" download="{{ export_file.name }}">Download your latest export</a></h4>{% endif %}
                 </div>
             </div>
         </div>
