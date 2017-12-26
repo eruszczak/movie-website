@@ -46,14 +46,14 @@ class TitleDetailView(RetrieveAPIView):
     serializer_class = TitleSerializer
 
 
-class AddRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
+class CreateUpdateRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
         new_rating = request.POST.get('rating')
         # todo: this must use a form
         # insert_as_new = False  # request.POST.get('insert_as_new', False)
-        # message = create_or_update_rating(self.title, request.user, new_rating, insert_as_new)
+        message = create_or_update_rating(self.title, request.user, new_rating, insert_as_new)
         message = ''
         return Response({'message': message}, status=status.HTTP_200_OK)
 
@@ -62,9 +62,19 @@ class DeleteRatingAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, AP
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        current_rating = Rating.objects.filter(user=self.request.user, title=self.title).delete()
-        # todo
-        return Response({'message': current_rating})
+        try:
+            current_rating = Rating.objects.filter(user=self.request.user, title=self.title).latest('rate_date')
+        except Rating.DoesNotExist:
+            response = {
+                'message': 'Rating doesn\'t exist',
+                'status': status.HTTP_400_BAD_REQUEST
+            }
+        else:
+            response = {
+                'message': f'Removed rating from {current_rating.rate_date}',
+                'status': status.HTTP_200_OK
+            }
+        return Response({'message': response['message']}, status=response['status'])
 
 
 class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
