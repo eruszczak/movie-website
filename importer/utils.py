@@ -8,44 +8,43 @@ from importer.helpers import recognize_file_source, convert_to_datetime, fill_di
     unpack_from_rss_item
 from lists.models import Watchlist
 from titles.constants import MY_HEADERS
+from titles.forms import RateForm
 from titles.models import Rating
 from titles.tmdb_api import TmdbWrapper
 
 
 def import_ratings_from_csv(user, file_path):
     """import missing ratings from csv file (exported from here or imdb)"""
-    # file = file.read().decode('utf-8')  TODO -- i must take into account that I have 2 different files
-    # TODO what about error in FOR LOOP? headers doesnt mean its valid
-    # what if rate is incorrect (because if title or date is wrong is ok)
     with open(file_path, 'r') as f:
         mapper = recognize_file_source(f)
         print(mapper)
-        if mapper:
-            reader = DictReader(f)
-            row_count, created_count = 0, 0
-            for row in reader:
-                row_count += 1
-                imdb_id, rate_date, rate = row[mapper['imdb_id']], row[mapper['rate_date']], row[mapper['rate']]
-                rate_date = convert_to_datetime(row[mapper['rate_date']], 'csv')
-                title = TmdbWrapper().get(imdb_id=imdb_id)
-                print('\n------------', imdb_id, rate_date, rate, title)
-                if title and rate_date:
-                    try:
-                        r, created = Rating.objects.get_or_create(
-                            user=user, title=title, rate_date=rate_date, defaults={'rate': rate}
-                        )
-                    except ValidationError as e:
-                        print('. '.join(e.messages))
-                    else:
-                        if created:
-                            print('creating', r)
-                            created_count += 1
-                        else:
-                            print('existed', r)
-                print('\n----------')
-            print(f'imported {created_count} out of {row_count} ratings - {round((created_count / row_count) * 100, 2)}%')
-        else:
+        if not mapper:
             print('headers are wrong')
+        reader = DictReader(f)
+        row_count, created_count = 0, 0
+        for row in reader:
+            row_count += 1
+            imdb_id, rate_date, rate = row[mapper['imdb_id']], row[mapper['rate_date']], row[mapper['rate']]
+            rate_date = convert_to_datetime(row[mapper['rate_date']], 'csv')
+            title = TmdbWrapper().get(imdb_id=imdb_id)
+            print('\n------------', imdb_id, rate_date, rate, title)
+            if not title or not rate_date:
+                continue
+
+            if not Rating.objects.filter(user=user, title=title, rate_date=rate_date).exists():
+                data = {
+                    'rate_date': rate_date,
+                    'rate': rate
+                }
+                form = RateForm(user=user, title=title, data=data)
+                if form.is_valid():
+                    created_count += 1
+                    # form.save()
+                else:
+                    form.errors
+
+            print('\n----------')
+        print(f'imported {created_count} out of {row_count} ratings - {round((created_count / row_count) * 100, 2)}%')
     remove(file_path)
 
 

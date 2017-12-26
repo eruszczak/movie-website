@@ -54,7 +54,7 @@ class CreateUpdateRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
     @instance_required
     def post(self, request, *args, **kwargs):
         """create new rating (with today's date) or update latest rating's rate"""
-        data = {'rate': request.POST.get('rating')}
+        data = {'rate': request.POST['rating']}
         try:
             instance = Rating.objects.filter(user=self.request.user, title=self.title).latest('rate_date')
         except Rating.DoesNotExist:
@@ -81,7 +81,7 @@ class DeleteRatingAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, AP
     @instance_required
     def post(self, request, *args, **kwargs):
         try:
-            current_rating = Rating.objects.filter(user=self.request.user, title=self.title).latest('rate_date')
+            current_rating = Rating.objects.filter(user=request.user, title=self.title).latest('rate_date')
         except Rating.DoesNotExist:
             return Response({'message': 'Rating doesn\'t exist'}, status=status.HTTP_400_BAD_REQUEST)
         else:
