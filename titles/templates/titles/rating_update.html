@@ -19,24 +19,13 @@
         <span class="ui teal ribbon label">Manage your ratings</span>
         <div class="ui list">
             {% if formset.errors %}
-                <div class="ui error">
-                    <div class="ui error message">
-                    {{ formset.errors }}
-                    {% for form in formset %}
-                        {{ form.errors }}
-                    {% endfor %}
-                        <ul class="list">
-                            {% for error in form.non_field_errors %}
-                                <li>1st {{ error.as_text }}</li>
-                            {% endfor %}
-                            {% for error in formset.errors %}
-                                <li>2nd {{ error.as_text }}</li>
-                            {% endfor %}
-                            {% for error in formset.non_form_errors %}
-                                <li>3rd {{ error.as_text }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+                <div class="ui error message">
+                    <div class="header">There were some problems</div>
+                    <ul class="list">
+                        {% for error in formset.non_form_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
                 </div>
             {% endif %}
             <form action="{% url 'rating-update' title.imdb_id %}" method="post">{% csrf_token %}

@@ -251,36 +251,10 @@ class Rating(models.Model):
     rate_date = models.DateField()
 
     class Meta:
-        unique_together = ('user', 'title', 'rate_date')
         ordering = ('-rate_date', '-create_date')
 
     def __str__(self):
         return '{} {}'.format(self.title.name, self.rate_date)
-
-    def save(self, *args, **kwargs):
-        # todo: from Rating Form can pass a parameter to omit cleaning process
-        # self.clean_fields()
-        # if not self.validate_rate():
-        #     raise ValidationError(f'{self.rate} is not a value between 1-10')
-        #
-        # if self.rate_date > datetime.today().date():
-        #     raise ValidationError(f'{self.rate_date} is a future date')
-        #
-        # if self.pk is None and Rating.objects.filter(
-        #         user=self.user, title=self.title, rate_date=self.rate_date).exists():
-        #     raise ValidationError(f'Title was already rated on {self.rate_date}')
-        return super().save(*args, **kwargs)
-
-    # def clean_fields(self, exclude=None):
-    #     super().clean_fields(exclude)
-
-    # def validate_rate(self):
-    #     """rating must be integer 1-10"""
-    #     try:
-    #         rate = int(self.rate)
-    #     except (ValueError, TypeError):
-    #         return False
-    #     return 0 < rate < 11
 
 
 class Season(models.Model):
