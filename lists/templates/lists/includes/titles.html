@@ -9,7 +9,7 @@
     <div class="ui items"{% if is_owner and favourites %} id="sortable" data-url="{% url 'user-fav-reorder' %}"{% endif %}>
         {% for title in title_list %}
             <div id="{{ title.pk }}" class="item">
-                <div class="ui tiny image">
+                <div class="ui tiny image" style="max-height: 100%!important;">
                     {% if title.user_rate and not is_owner %}
                         <span class="ui left corner label red green">
                             <span class="icon">{{ title.user_rate }}</span>
