@@ -13,13 +13,6 @@ class IsAuthenticatedMixin:
     permission_classes = (IsAuthenticated,)
 
 
-class ToggleAPIView:
-    toggle_active = None
-
-    def init_data(self):
-        self.toggle_active = self.request.POST.get('rating') == '1'
-
-
 class GetObjectMixin:
     """
     Class that is meant to be used with instance_required decorator, which is used around APIView's post handler.

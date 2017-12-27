@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from api.mixins import IsAuthenticatedMixin, GetTitleMixin, ToggleAPIView, GetUserMixin
+from api.mixins import IsAuthenticatedMixin, GetTitleMixin, GetUserMixin
 from lists.models import Favourite
 from titles.forms import TitleSearchForm, RateForm
 from titles.utils import (
@@ -76,7 +76,7 @@ class CreateUpdateRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
         return Response({'message': message}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class DeleteRatingAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
+class DeleteRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
@@ -97,41 +97,41 @@ class ClearRatingsAPIView(IsAuthenticatedMixin, APIView):
         return Response({'message': f'Ratings have been cleared'}, status=status.HTTP_200_OK)
 
 
-class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
+class ToggleFavouriteAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
         try:
-            message = toggle_favourite(request.user, self.title, self.toggle_active)
+            message = toggle_favourite(request.user, self.title)
         except ValidationError as e:
             return Response({'message': '. '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class ToggleWatchlistAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
+class ToggleWatchlistAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
         try:
-            message = toggle_watchlist(request.user, self.title, self.toggle_active)
+            message = toggle_watchlist(request.user, self.title)
         except ValidationError as e:
             return Response({'message': '. '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin, APIView):
+class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        message = toggle_currentlywatchingtv(self.title, self.request.user, self.toggle_active)
+        message = toggle_currentlywatchingtv(self.title, self.request.user)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPIView, GetUserMixin, APIView):
+class ToggleFollowUser(IsAuthenticatedMixin, GetUserMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        message = toggle_userfollow(self.request.user, self.user, self.toggle_active)
+        message = toggle_userfollow(self.request.user, self.user)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
