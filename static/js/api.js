@@ -22,10 +22,8 @@ const TOGGLE_API_SETTINGS_BASE = $.extend({
             // TOGGLE BUTTON
             if (response.created) {
                 $(this).addClass('positive').text($(this).data('active'));
-                console.log($(this).data('active'))
             } else {
                 $(this).removeClass('positive').text($(this).data('inactive'));
-                console.log($(this).data('inactive'))
             }
         }
     }
