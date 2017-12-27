@@ -102,10 +102,10 @@ class ToggleFavouriteAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
     @instance_required
     def post(self, request, *args, **kwargs):
         try:
-            message = toggle_favourite(request.user, self.title)
+            created, message = toggle_favourite(request.user, self.title)
         except ValidationError as e:
             return Response({'message': '. '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'message': message}, status=status.HTTP_200_OK)
+        return Response({'message': message, 'created': created}, status=status.HTTP_200_OK)
 
 
 class ToggleWatchlistAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
@@ -113,26 +113,26 @@ class ToggleWatchlistAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
     @instance_required
     def post(self, request, *args, **kwargs):
         try:
-            message = toggle_watchlist(request.user, self.title)
+            created, message = toggle_watchlist(request.user, self.title)
         except ValidationError as e:
             return Response({'message': '. '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'message': message}, status=status.HTTP_200_OK)
+        return Response({'message': message, 'created': created}, status=status.HTTP_200_OK)
 
 
 class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        message = toggle_currentlywatchingtv(self.title, self.request.user)
-        return Response({'message': message}, status=status.HTTP_200_OK)
+        created, message = toggle_currentlywatchingtv(self.title, self.request.user)
+        return Response({'message': message, 'created': created}, status=status.HTTP_200_OK)
 
 
 class ToggleFollowUser(IsAuthenticatedMixin, GetUserMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        message = toggle_userfollow(self.request.user, self.user)
-        return Response({'message': message}, status=status.HTTP_200_OK)
+        created, message = toggle_userfollow(self.request.user, self.user)
+        return Response({'message': message, 'created': created}, status=status.HTTP_200_OK)
 
 
 class ReorderFavourite(IsAuthenticatedMixin, APIView):
