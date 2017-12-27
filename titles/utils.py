@@ -1,38 +1,23 @@
-from datetime import datetime
-
 from django.contrib.auth import get_user_model
-from django.db.models import F, Q
 
 from accounts.models import UserFollow
-from recommend.models import Recommendation
-from titles.models import Rating, CurrentlyWatchingTV
+from titles.models import CurrentlyWatchingTV
 from lists.models import Watchlist, Favourite
 
 User = get_user_model()
 
 
-def toggle_watchlist(user=None, title=None, watch=None):
-    """
-    adds or deletes title from user's watchlist. if title comes from IMDb's watchlist, it is only marked as 'deleted',
-    because it would be added again with another watchlist update anyway
-    """
-    unwatch = not watch
-    watchlist_instance = Watchlist.objects.filter(user=user, title=title).first()
-
-    if watchlist_instance and watchlist_instance.imdb:
-        watchlist_instance.deleted = False if watch else True
-        watchlist_instance.save(update_fields=['deleted'])
+def toggle_watchlist(user, title):
+    """adds or deletes title from user's watchlist"""
+    try:
+        Watchlist.objects.get(user=user, title=title).delete()
         return 'Removed from watchlist'
-    else:
-        if watch:
-            Watchlist.objects.create(user=user, title=title)
-            return 'Added to watchlist'
-        elif unwatch and watchlist_instance:
-            watchlist_instance.delete()
-            return 'Removed from watchlist'
+    except Watchlist.DoesNotExist:
+        Watchlist.objects.create(user=user, title=title)
+        return 'Added to watchlist'
 
 
-def toggle_favourite(user, title, fav=True):
+def toggle_favourite(user, title):
     """deletes or adds title to user's favourites"""
     try:
         Favourite.objects.get(user=user, title=title).delete()
@@ -42,7 +27,8 @@ def toggle_favourite(user, title, fav=True):
         return 'Added to favourites'
 
 
-def toggle_userfollow(follower, followed, add=True):
+def toggle_userfollow(follower, followed):
+    """follows or unfollows user"""
     try:
         UserFollow.objects.get(follower=follower, followed=followed).delete()
         return f'Unfollowed {followed.username}'
@@ -51,7 +37,8 @@ def toggle_userfollow(follower, followed, add=True):
         return f'Followed {followed.username}'
 
 
-def toggle_currentlywatchingtv(title, user, add=True):
+def toggle_currentlywatchingtv(title, user):
+    """sets or unsets tv as currently watching"""
     try:
         CurrentlyWatchingTV.objects.get(title=title, user=user).delete()
         return f'Not watching {title.name}'
