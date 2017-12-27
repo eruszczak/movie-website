@@ -1,21 +1,20 @@
-<div class="slick-carousel-small">
-    {% if rating_qs %}
-        {% for rating in queryset %}
-            <div>
-                {% include 'titles/includes/title_small_slick.html' with lazy=True title=rating.title rate_date=rating.rate_date rate=rating.rate rate2=rating.request_user_rate is_owner=is_owner %}
-            </div>
-        {% empty %}
-            <p>Nothing found</p>
-        {% endfor %}
-    {% else %}
-        {% for title in queryset %}
-            <div>
-                {% include 'titles/includes/title_small_slick.html' with lazy=True rate=title.user_rate rate2=title.request_user_rate is_owner=is_owner %}
-            </div>
-        {% empty %}
-            <p>Nothing found</p>
-        {% endfor %}
-    {% endif %}
-</div>
-
+{% if queryset %}
+    <div class="slick-carousel-small">
+        {% if rating_qs %}
+            {% for rating in queryset %}
+                <div>
+                    {% include 'titles/includes/title_small_slick.html' with lazy=True title=rating.title rate_date=rating.rate_date rate=rating.rate rate2=rating.request_user_rate is_owner=is_owner %}
+                </div>
+            {% endfor %}
+        {% else %}
+            {% for title in queryset %}
+                <div>
+                    {% include 'titles/includes/title_small_slick.html' with lazy=True rate=title.user_rate rate2=title.request_user_rate is_owner=is_owner %}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% else %}
+    <p>Nothing found</p>
+{% endif %}
 
