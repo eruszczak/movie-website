@@ -9,10 +9,10 @@
 
 {% block content %}
     <div class="ui fluid two item menu title-menu">
-        <a class="item" data-tab="first">Title Details</a>
-        <a class="item active" data-tab="second">Your Overview</a>
+        <a class="item active" data-tab="first">Title Details</a>
+        <a class="item" data-tab="second">Your Overview</a>
     </div>
-    <div class="ui tab segment" data-tab="first">
+    <div class="ui tab segment active" data-tab="first">
         <div class="ui grid centered statistics">
             {% if title.runtime %}
                 <div class="statistic">
@@ -149,7 +149,7 @@
             </div>
         </div>
     </div>
-    <div class="ui tab segment active" data-tab="second">
+    <div class="ui tab segment" data-tab="second">
         <div class="ui segment">
             <span class="ui teal ribbon label">Rating history</span>
             <div class="ui list">

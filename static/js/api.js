@@ -1,3 +1,5 @@
+const TOKEN = getCookie('csrftoken');
+
 const API_SETTINGS_BASE = {
     method: 'POST',
     data: {

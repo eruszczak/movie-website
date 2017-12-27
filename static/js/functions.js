@@ -21,8 +21,6 @@ function setModalContentAndShow($modal, response) {
     }
 }
 
-var TOKEN = getCookie('csrftoken');
-
 function showToast(message, options) {
     options = options || {};
     message = message || 'No message';
