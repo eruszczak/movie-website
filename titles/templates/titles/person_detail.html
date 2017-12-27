@@ -4,25 +4,21 @@
 {% block title %}{{ person.name }}{% endblock %}
 
 {% block image %}
-    <div class="still-background2 still-background2-gradient">
-        <!-- Background pattern from Subtle Patterns -->
-        {% with title=latest_title %}
-            {% if not title %}
-                <div class="backdrop"
-                     style="background-image: url({% static 'img/posters/w1920_and_h318_bestv2.png' %});background-repeat: repeat-x;"></div>
-            {% else %}
-                <img class="backdrop" {% get_src_attrs title.poster_backdrop_user_placeholder title.poster_backdrop_user %}>
-            {% endif %}
+    {% with title=latest_title %}
+        <div class="still-background">
+            <img class="backdrop" {% get_src_attrs title.poster_backdrop_title_placeholder title.poster_backdrop_title %} alt="{{ title.name }}">
             <div class="ui grid centered">
-                <div class="user-background">
-                    <div class="card-user card-user-01 height-fix">
-                        <img class="card-img-top" src="{{ person.picture }}" alt="Card image cap">
+                <div class="poster-background">
+                    <div class="card1 card-01 height-fix">
+                        <img class="card-img-top" src="{{ person.picture }}">
+                        <div class="card-img-overlay">
+                            <h3 class="card-title">{{ person.name }}</h3>
+                        </div>
                     </div>
-                    <div class="ui tiny user-title message">{{ person.name }}</div>
                 </div>
             </div>
-        {% endwith %}
-    </div>
+        </div>
+    {% endwith %}
 {% endblock %}
 
 {% block content %}
@@ -55,6 +51,8 @@
                             <i class="icon star yellow"></i>{% endif %}</div>
                     </div>
                 </div>
+            {% empty %}
+                <p>Nothing found</p>
             {% endfor %}
         </div>
     </div>
@@ -71,6 +69,8 @@
                             <i class="icon star yellow"></i>{% endif %}</div>
                     </div>
                 </div>
+            {% empty %}
+                <p>Nothing found</p>
             {% endfor %}
         </div>
     </div>
