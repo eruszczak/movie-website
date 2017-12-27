@@ -1,11 +1,7 @@
-$.fn.api.settings.api = {
-    // 'recommend title': '/api/title/{pk}/recommend/',
-};
-
 const API_SETTINGS_BASE = {
-    method : 'POST',
+    method: 'POST',
     data: {
-      csrfmiddlewaretoken: TOKEN
+        csrfmiddlewaretoken: TOKEN
     },
     onError: function(errorMessage, element, xhr) {
         showErrorToastOrRedirectToLoginWithNext(xhr);
@@ -43,19 +39,6 @@ const SHOW_RESULT_MODAL_BASE = $.extend({
 
 $('.title-fav, .title-watch, .follow.button, .currently-watching.button').api(TOGGLE_API_SETTINGS_BASE);
 $('.export.modal .actions .positive, .clear.modal .actions .negative').api(SHOW_RESULT_MODAL_BASE);
-
-// $('.recommend.button').api(recommendSettings);
-// var recommendSettings = $.extend({
-//     action: 'recommend title',
-//     beforeSend: function(settings) {
-//         settings.data.recommended_user_ids = $('[name="recommended_user_ids"]').val().split(',');
-//         return settings;
-//     },
-//     onSuccess: function(response) {
-//         showToast(response.message);
-//         // $('[name="recommended_user_ids"]').val('');
-//     }
-// }, API_SETTINGS_BASE);
 
 $('.regular.rating').rating({
     initialRating: 0,
