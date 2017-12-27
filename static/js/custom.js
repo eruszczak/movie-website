@@ -20,7 +20,8 @@ $('.recommend.dropdown').dropdown({
     }
 });
 
-$('.grid .backdrop-card img, img').visibility({
+// every image I want to lazy load is rendered with `data-src` and `type="src"`
+$('[type="src"]').visibility({
     type: 'image',
     transition: 'fade in',
     duration: 500
