@@ -176,17 +176,6 @@ class ReorderFavourite(IsAuthenticatedMixin, APIView):
         return index1 <= max_index and index2 <= max_index
 
 
-class RecommendTitleAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
-
-    @instance_required
-    def post(self, request, *args, **kwargs):
-        user_ids = request.POST.getlist('recommended_user_ids[]')
-        message = ''
-        # if user_ids:
-        #     message = recommend_title(self.title, request.user, user_ids)
-        return Response({'message': message}, status=status.HTTP_200_OK)
-
-
 class SearchAPIView(APIView):
     MAX_RESULTS = 15
 
