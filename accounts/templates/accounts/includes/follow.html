@@ -1,7 +1,7 @@
 {% if user.pk != request.user.pk %}
-    <div class="ui follow toggle button{% if user_list %} right floated{% endif %}{% if user.already_follows %} active{% endif %}"
+    <div class="ui follow button{% if user_list %} right floated{% endif %}{% if user.already_follows %} positive{% endif %}"
        {% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini" {% endif %}
-        data-pk="{{ user.pk }}"
+        data-pk="{{ user.pk }}" data-inactive="Follow" data-active="Followed"
     >
         {% if user.already_follows %}Followed{% else %}Follow{% endif %}
     </div>

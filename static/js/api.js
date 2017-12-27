@@ -66,77 +66,71 @@ var API_SETTINGS_BASE = {
     }
 };
 
-var titleFavSettings = $.extend({
-    action: 'favourite title',
+const TOGGLE_API_SETTINGS_BASE = $.extend({
     onSuccess: function(response) {
         showToast(response.message);
-        $(this).toggleClass('empty').toggleClass('active');
+        if ($(this).hasClass('icon')) {
+            console.log('icon')
+            if (response.created) {
+                $(this).removeClass('empty remove').addClass('active');
+            } else {
+                $(this).addClass('empty remove').removeClass('active');
+            }
+        } else if ($(this).hasClass('button')) {
+            console.log('button')
+            if (response.created) {
+                $(this).addClass('positive').text($(this).data('active'));
+                console.log($(this).data('active'))
+            } else {
+                $(this).removeClass('positive').text($(this).data('inactive'));
+                console.log($(this).data('inactive'))
+            }
+        }
+
     }
 }, API_SETTINGS_BASE);
 
-var titleWatchSetttings = $.extend({
-    action: 'watchlist title',
-    onSuccess: function(response) {
-        showToast(response.message);
-        $(this).toggleClass('remove').toggleClass('active');
-    }
-}, API_SETTINGS_BASE);
+const TOGGLE_FAV = $.extend({action: 'favourite title'}, TOGGLE_API_SETTINGS_BASE);
+const TOGGLE_WATCH = $.extend({action: 'watchlist title'}, TOGGLE_API_SETTINGS_BASE);
+const TOGGLE_FOLLOW = $.extend({action: 'follow user'}, TOGGLE_API_SETTINGS_BASE);
+const TOGGLE_WATCHING = $.extend({action: 'currently watching'}, TOGGLE_API_SETTINGS_BASE);
 
-var recommendSettings = $.extend({
-    action: 'recommend title',
-    beforeSend: function(settings) {
-        settings.data.recommended_user_ids = $('[name="recommended_user_ids"]').val().split(',');
-        return settings;
-    },
-    onSuccess: function(response) {
-        showToast(response.message);
-        // $('[name="recommended_user_ids"]').val('');
+$('.title-fav').api(TOGGLE_FAV);
+$('.title-watch').api(TOGGLE_WATCH);
+$('.follow.button').api(TOGGLE_FOLLOW).state({
+    text: {
+        inactive: 'Follow',
+        active: 'Followed'
     }
-}, API_SETTINGS_BASE);
-
-var followSettings = $.extend({
-    action: 'follow user',
-    onSuccess: function(response) {
-        showToast(response.message);
+});
+$('.currently-watching.button').api(TOGGLE_WATCHING).state({
+    text: {
+        inactive: 'Not watching currently',
+        active: 'Currently watching'
     }
-}, API_SETTINGS_BASE);
+});
 
-var currentlyWatchingSettings = $.extend({
-    action: 'currently watching',
-    onSuccess: function(response) {
-        showToast(response.message);
-    }
-}, API_SETTINGS_BASE);
-
-var exportRatingsSettings = $.extend({
-    action: 'export ratings',
+const SHOW_RESULT_MODAL_BASE = $.extend({
     onSuccess: function(response) {
         setModalContentAndShow($('.second.modal'), response);
     }
 }, API_SETTINGS_BASE);
 
-var clearRatingsSettings = $.extend({
-    action: 'clear ratings',
-    onSuccess: function(response) {
-        setModalContentAndShow($('.second.modal'), response);
-    }
-}, API_SETTINGS_BASE);
+var EXPORT_SETTINGS = $.extend({action: 'export ratings'}, SHOW_RESULT_MODAL_BASE);
+var CLEAR_SETTINGS = $.extend({action: 'clear ratings'}, SHOW_RESULT_MODAL_BASE);
+// $('.recommend.button').api(recommendSettings);
+$('.export.modal .actions .positive').api(EXPORT_SETTINGS);
+$('.clear.modal .actions .negative').api(CLEAR_SETTINGS);
 
 
-$('.title-fav').api(titleFavSettings);
-$('.title-watch').api(titleWatchSetttings);
-$('.recommend.button').api(recommendSettings);
-$('.follow.button').api(followSettings).state({
-    text: {
-      inactive: 'Follow',
-      active: 'Followed'
-    }
-});
-$('.currently-watching.button').api(currentlyWatchingSettings).state({
-    text: {
-      inactive: 'Not watching currently',
-      active: 'Currently watching'
-    }
-});
-$('.export.modal .actions .positive').api(exportRatingsSettings);
-$('.clear.modal .actions .negative').api(clearRatingsSettings);
+// var recommendSettings = $.extend({
+//     action: 'recommend title',
+//     beforeSend: function(settings) {
+//         settings.data.recommended_user_ids = $('[name="recommended_user_ids"]').val().split(',');
+//         return settings;
+//     },
+//     onSuccess: function(response) {
+//         showToast(response.message);
+//         // $('[name="recommended_user_ids"]').val('');
+//     }
+// }, API_SETTINGS_BASE);

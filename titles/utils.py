@@ -11,40 +11,40 @@ def toggle_watchlist(user, title):
     """adds or deletes title from user's watchlist"""
     try:
         Watchlist.objects.get(user=user, title=title).delete()
-        return 'Removed from watchlist'
+        return False, 'Removed from watchlist'
     except Watchlist.DoesNotExist:
         Watchlist.objects.create(user=user, title=title)
-        return 'Added to watchlist'
+        return True, 'Added to watchlist'
 
 
 def toggle_favourite(user, title):
     """deletes or adds title to user's favourites"""
     try:
         Favourite.objects.get(user=user, title=title).delete()
-        return 'Removed from favourites'
+        return False, 'Removed from favourites'
     except Favourite.DoesNotExist:
         Favourite.objects.create(user=user, title=title)
-        return 'Added to favourites'
+        return True, 'Added to favourites'
 
 
 def toggle_userfollow(follower, followed):
     """follows or unfollows user"""
     try:
         UserFollow.objects.get(follower=follower, followed=followed).delete()
-        return f'Unfollowed {followed.username}'
+        return False, f'Unfollowed {followed.username}'
     except UserFollow.DoesNotExist:
         UserFollow.objects.create(follower=follower, followed=followed)
-        return f'Followed {followed.username}'
+        return True, f'Followed {followed.username}'
 
 
 def toggle_currentlywatchingtv(title, user):
     """sets or unsets tv as currently watching"""
     try:
         CurrentlyWatchingTV.objects.get(title=title, user=user).delete()
-        return f'Not watching {title.name}'
+        return False, f'Not watching {title.name}'
     except CurrentlyWatchingTV.DoesNotExist:
         CurrentlyWatchingTV.objects.create(title=title, user=user)
-        return f'Watching {title.name}'
+        return True, f'Watching {title.name}'
 
 
 # def recommend_title(title, sender, user_ids):
