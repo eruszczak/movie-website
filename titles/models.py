@@ -198,8 +198,16 @@ class Title(models.Model):
         return IMAGE_SIZES['backdrop_user']
 
     @property
+    def poster_backdrop_user_placeholder(self):
+        return IMAGE_SIZES['backdrop_user']
+
+    @property
     @tmdb_image
     def poster_backdrop_title(self):
+        return IMAGE_SIZES['backdrop_title']
+
+    @property
+    def poster_backdrop_title_placeholder(self):
         return IMAGE_SIZES['backdrop_title']
 
     @property
@@ -208,8 +216,16 @@ class Title(models.Model):
         return IMAGE_SIZES['small']
 
     @property
+    def poster_small_placeholder(self):
+        return IMAGE_SIZES['small']
+
+    @property
     @tmdb_image
     def poster_card(self):
+        return IMAGE_SIZES['card']
+
+    @property
+    def poster_card_placeholder(self):
         return IMAGE_SIZES['card']
 
     @property

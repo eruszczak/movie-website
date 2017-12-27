@@ -102,7 +102,7 @@ def test_ratings():
     user = User.objects.get(username='test')
     print(user.rating_set.all())
 
-test_ratings()
+# test_ratings()
 
 # restart_favs()
 # restart_favs()
@@ -168,8 +168,15 @@ def test_fav():
 # add_crew_to_person()
 
 
-Favourite.objects.get(id=4554).delete()
+# Favourite.objects.get(id=4554).delete()
 
+def test_poster():
+    t = Title.objects.get(imdb_id='tt2527336')
+    print(t, t.image_path)
+    t.image_path = '/xGWVjewoXnJhvxKW619cMzppJDQ.jpg'
+    t.save()
+
+# test_poster()
 
 # query = Title.objects.filter(
 #     Q(casttitle__person=p) | Q(crewtitle__person=p)
