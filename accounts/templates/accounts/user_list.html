@@ -1,5 +1,6 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
+
 {% block title %}Accounts{% endblock %}
 
 {% block breadcrumb %}
@@ -20,8 +21,7 @@
             <img class="backdrop" src="{{ title.poster_backdrop_user }}">
             <div class="ui grid centered">
                 <div class="searched-title-background">
-                    <div class="ui message"><h2 class="ui header">Users who have seen <a
-                            href="{{ title.get_absolute_url }}">{{ title }}</a></h2></div>
+                    <div class="ui message"><h2 class="ui header">Users who have seen <a href="{{ title.get_absolute_url }}">{{ title }}</a></h2></div>
                 </div>
             </div>
         </div>
@@ -43,21 +43,19 @@
                     </a>
                     <div class="middle aligned content">
                         {% include 'accounts/includes/follow.html' with user_list=True %}
+                        {% if user.pk == request.user.pk %}
+                            <div class="ui button right floated disabled owner mb10">My account</div>
+                        {% endif %}
                         <a href="{{ user_detail_url }}" class="header">{{ user.username }}</a>
                         {% if title %}{{ user.user_rate }} <i class="star icon green"></i>{% endif %}
-                        <div class="floated right">
-                            <a class="ui small label">Watchlist</a>
-                            <a class="ui label">Favourites</a>
-                            <a class="ui label">Ratings</a>
-                            {% if user.imdb_url %}
-                                <a href="{{ user.imdb_url }}" target="_blank">
-                                    <i class="imdb big yellow icon"></i>
-                                </a>
-                            {% endif %}
-                        </div>
                         <div class="description">
-                            {% if user.tagline %}<p>{{ user.tagline }}</p>{% endif %}
-                            <p>{{ user.titles_count }} ratings</p>
+                            <div class="ui mini buttons">
+                                <a class="ui button" href="{{ user.ratings_url }}" >Ratings</a>
+                                <a class="ui button" href="{{ user.favourite_url }}">Favourites</a>
+                                <a class="ui button" href="{{ user.watchlist_url }}">Watchlist</a>
+                                {% if user.imdb_url %}<a class="ui button" href="{{ user.imdb_url }}" target="_blank"><i class="imdb yellow icon"></i> IMDb Profile</a>{% endif %}
+                            </div>
+                            <p class="mt10">{{ user.titles_count }} ratings</p>
                         </div>
                     </div>
                 </div>
