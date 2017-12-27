@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load widget_tweaks get_query_string %}
+{% load widget_tweaks get_query_string get_src_attrs %}
 {% block title %}{% if searched_user %}{{ searched_user.username }}'s ratings{% else %}Titles{% endif %}{% endblock %}
 
 {% block scripts %}
@@ -93,7 +93,7 @@
                                     <span class="icon">{{ title.user_rate }}</span>
                                 </a>
                             {% endif %}
-                            <img src="{{ title.poster_card }}">
+                            <img {% get_src_attrs title.poster_card_placeholder title.poster_card %}>
                         </a>
                         <div class="content">
                             <p class="header center aligned"><a href="{{ title.get_absolute_url }}">{{ title.name }}</a>

@@ -20,10 +20,10 @@ $('.recommend.dropdown').dropdown({
     }
 });
 
-$('.grid .backdrop-card img').visibility({
-    type       : 'image',
-    transition : 'fade in',
-    duration   : 1000
+$('.grid .backdrop-card img, img').visibility({
+    type: 'image',
+    transition: 'fade in',
+    duration: 500
 });
 
 $('.ui.accordion').accordion();
