@@ -31,7 +31,8 @@ class WatchFavListViewMixin:
         context = super().get_context_data(**kwargs)
         context.update({
             'is_owner': self.is_owner,
-            'user': self.user
+            'user': self.user,
+            'limit': LIST_LIMIT
         })
         return context
 
