@@ -8,7 +8,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
 
-from .helpers import tmdb_image
+from .helpers import tmdb_image, static_poster
 from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES, SERIES, MOVIE, IMAGE_SIZES
 from .managers import TitleQuerySet
 
@@ -48,6 +48,11 @@ class Person(models.Model):
     @property
     @tmdb_image
     def picture(self):
+        return IMAGE_SIZES['small_person']
+
+    @property
+    @static_poster
+    def picture_placeholder(self):
         return IMAGE_SIZES['small_person']
 
 
@@ -198,6 +203,7 @@ class Title(models.Model):
         return IMAGE_SIZES['backdrop_user']
 
     @property
+    @static_poster
     def poster_backdrop_user_placeholder(self):
         return IMAGE_SIZES['backdrop_user']
 
@@ -207,6 +213,7 @@ class Title(models.Model):
         return IMAGE_SIZES['backdrop_title']
 
     @property
+    @static_poster
     def poster_backdrop_title_placeholder(self):
         return IMAGE_SIZES['backdrop_title']
 
@@ -216,6 +223,7 @@ class Title(models.Model):
         return IMAGE_SIZES['small']
 
     @property
+    @static_poster
     def poster_small_placeholder(self):
         return IMAGE_SIZES['small']
 
@@ -225,6 +233,7 @@ class Title(models.Model):
         return IMAGE_SIZES['card']
 
     @property
+    @static_poster
     def poster_card_placeholder(self):
         return IMAGE_SIZES['card']
 
