@@ -4,6 +4,14 @@ $(document).ready(function() {
         $slickCarousel.slick({
           'dots': true,
           lazyLoad: 'ondemand',
+          responsive: [
+            {
+                breakpoint: 600,
+                settings: {
+                    dots: false
+                }
+            }
+        ]
         }).on('beforeChange', function(event, slick, currentSlide, nextSlide) {
             $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
         }).on('lazyLoaded', function(event, slick, image, imageSource){
@@ -37,7 +45,7 @@ $(document).ready(function() {
                     breakpoint: 600,
                     settings: {
                         slidesToShow: 2,
-                        // dots: true
+                        dots: false
                     }
                 },
             ]
