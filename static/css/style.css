@@ -1,5 +1,7 @@
 body {
     overflow-y: scroll;
+        background-image: url('/static/img/posters/intersection_w500.png');
+    background-repeat: repeat;
 }
 
 .ui.text.menu .active.item {
