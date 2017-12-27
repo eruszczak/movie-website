@@ -45,8 +45,10 @@
             {% if not title.is_movie %}
                 <div{% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in."
                                                                data-variation="mini"{% endif %}
-                                                               class="ui basic currently-watching toggle button{% if title.currently_watching %} active{% endif %}"
-                                                               data-url="{% url 'tv-watching' title.pk %}">
+                                                               class="ui basic currently-watching button{% if title.currently_watching %} positive{% endif %}"
+                                                               data-url="{% url 'tv-watching' title.pk %}"
+                                                               data-active="Currently watching" data-inactive="Not currently watching"
+                >
                     {% if title.currently_watching %}Currently watching{% else %}Not watching currently{% endif %}</div>
             {% endif %}
         </div>
