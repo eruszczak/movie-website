@@ -12,4 +12,4 @@ def get_src_attrs(placeholder, image, slick=False):
     :return: src attribute with temporary static placeholder image, real image will be fetched later from data-attr
     """
     lazy_attr_name = 'lazy' if slick else 'src'
-    return f'src={placeholder} data-{lazy_attr_name}={image}'
+    return f'src={placeholder} data-{lazy_attr_name}={image} type={lazy_attr_name}'
