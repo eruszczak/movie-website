@@ -1,17 +1,11 @@
 $(document).ready(function() {
     var $slickCarousel = $('.slick-carousel');
     if ($slickCarousel) {
-        $slickCarousel.on('init', function(event, slick) {
-            // on init, show card of first carousel item. it is hidden on init load to avoid weird `flickering`
-            $('.slick-slide.slick-current.slick-active').find('.card1').first().fadeIn();
-        });
-
         $slickCarousel.slick({
           'dots': true,
           lazyLoad: 'ondemand',
         }).on('beforeChange', function(event, slick, currentSlide, nextSlide) {
             $("[data-slick-index='" + nextSlide + "']").find('.slick-item').first().css('visibility', 'visible');
-            // $('.slick-slide.slick-current.slick-active').find('.still-background').first().css('visibility', 'visible');
         }).on('lazyLoaded', function(event, slick, image, imageSource){
             $(image).parent().find('[type="tooltip"]').popup();
         });
