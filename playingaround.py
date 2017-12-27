@@ -161,12 +161,14 @@ def test_fav():
     for title in Title.objects.all():
         Favourite.objects.get_or_create(user=user, title=title)
 
-test_fav()
+# test_fav()
 # print(Title.objects.all().first().pk)
 # test_queryset()
 # test_csv()
 # add_crew_to_person()
 
+
+Favourite.objects.get(id=4554).delete()
 
 
 # query = Title.objects.filter(
