@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
-{% load static humanize get_rating_diff widget_tweaks %}
-{% block title %}{{ person.name }}{% endblock %}
+{% load static get_src_attrs %}
 
+{% block title %}{{ person.name }}{% endblock %}
 
 {% block image %}
     <div class="still-background2 still-background2-gradient">
+        <!-- Background pattern from Subtle Patterns -->
         {% with title=latest_title %}
             {% if not title %}
-                <!-- Background pattern from Subtle Patterns -->
                 <div class="backdrop"
-                     style="background-image: url({% static 'img/posters/intersection.png' %});background-repeat: repeat-x;"></div>
+                     style="background-image: url({% static 'img/posters/w1920_and_h318_bestv2.png' %});background-repeat: repeat-x;"></div>
             {% else %}
-                <img class="backdrop" src="{{ title.poster_backdrop_user }}">
+                <img class="backdrop" {% get_src_attrs title.poster_backdrop_user_placeholder title.poster_backdrop_user %}>
             {% endif %}
             <div class="ui grid centered">
                 <div class="user-background">
@@ -47,8 +47,7 @@
         <div class="ui list">
             {% for cast in casttitle_list %}
                 <div class="item">
-                    <a class="ui mini title image" href="{{ cast.title.get_absolute_url }}"><img
-                            src="{{ cast.title.poster_small }}"></a>
+                    <a class="ui mini title image" href="{{ cast.title.get_absolute_url }}"><img {% get_src_attrs cast.title.poster_small_placeholder cast.title.poster_small %}></a>
                     <div class="content">
                         <p class="header">{{ cast.character|default:'-' }}</p>
                         <div class="description"><a href="{{ cast.title.get_absolute_url }}">{{ cast.title.name }}
@@ -64,8 +63,7 @@
         <div class="ui list">
             {% for crew in crewtitle_list %}
                 <div class="item">
-                    <a class="ui mini title image" href="{{ crew.title.get_absolute_url }}"><img
-                            src="{{ crew.title.poster_small }}"></a>
+                    <a class="ui mini title image" href="{{ crew.title.get_absolute_url }}"><img {% get_src_attrs crew.title.poster_small_placeholder crew.title.poster_small %}></a>
                     <div class="content">
                         <p class="header">{{ crew.get_job_display|default:'-' }}</p>
                         <div class="description"><a href="{{ crew.title.get_absolute_url }}">{{ crew.title.name }}

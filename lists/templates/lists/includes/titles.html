@@ -1,3 +1,5 @@
+{% load get_src_attrs %}
+
 <div class="ui right floated text menu">
     <div class="header item">{{ sorted_by }}</div>
 </div>
@@ -13,7 +15,7 @@
                             <span class="icon">{{ title.user_rate }}</span>
                         </span>
                     {% endif %}
-                    <a href="{{ title.get_absolute_url }}"><img src="{{ title.poster_small }}"></a>
+                    <a href="{{ title.get_absolute_url }}"><img {% get_src_attrs title.poster_small_placeholder title.poster_small %}></a>
                 </div>
                 <div class="middle aligned content">
                     <div class="header">
@@ -24,7 +26,7 @@
                     <div class="description">
                         {% include 'titles/includes/rating.html' with rate=title.request_user_rate %}
                     </div>
-                    <div class="extra">Added: {{ title.added_date }}</div>
+                    <div class="extra">{{ title.get_type_display }}. Added: {{ title.added_date }}</div>
                 </div>
             </div>
         {% endfor %}

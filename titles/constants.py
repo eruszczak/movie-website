@@ -19,7 +19,7 @@ MOVIE = 0
 MOVIE_DISPLAY = 'Movie'
 
 SERIES = 1
-SERIES_DISPLAY = 'TV Shows'
+SERIES_DISPLAY = 'TV Show'
 
 TITLE_TYPE_CHOICES = (
     (None, ''),

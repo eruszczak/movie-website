@@ -234,8 +234,10 @@ class PersonDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        casttitle_list = CastTitle.objects.filter(person=self.object).select_related('title')
-        crewtitle_list = CrewTitle.objects.filter(person=self.object).select_related('title')
+        casttitle_list = CastTitle.objects.filter(
+            person=self.object).select_related('title').order_by('-title__release_date')
+        crewtitle_list = CrewTitle.objects.filter(
+            person=self.object).select_related('title').order_by('-title__release_date')
 
         if self.request.user.is_authenticated:
             latest_rate = {

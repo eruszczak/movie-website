@@ -171,12 +171,13 @@ def test_fav():
 # Favourite.objects.get(id=4554).delete()
 
 def test_poster():
-    t = Title.objects.get(imdb_id='tt2527336')
+    t = Title.objects.get(imdb_id='tt0974015')
     print(t, t.image_path)
-    t.image_path = '/xGWVjewoXnJhvxKW619cMzppJDQ.jpg'
+    # t.image_path = '/xGWVjewoXnJhvxKW619cMzppJDQ.jpg'
+    t.image_path = ''
     t.save()
 
-# test_poster()
+test_poster()
 
 # query = Title.objects.filter(
 #     Q(casttitle__person=p) | Q(crewtitle__person=p)
