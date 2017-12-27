@@ -68,10 +68,6 @@ var API_SETTINGS_BASE = {
 
 var titleFavSettings = $.extend({
     action: 'favourite title',
-    beforeSend: function(settings) {
-      settings.data.rating = $(this).hasClass('active') ? 0: 1;
-      return settings;
-    },
     onSuccess: function(response) {
         showToast(response.message);
         $(this).toggleClass('empty').toggleClass('active');
@@ -80,10 +76,6 @@ var titleFavSettings = $.extend({
 
 var titleWatchSetttings = $.extend({
     action: 'watchlist title',
-    beforeSend: function(settings) {
-      settings.data.rating = $(this).hasClass('active') ? 0: 1;
-      return settings;
-    },
     onSuccess: function(response) {
         showToast(response.message);
         $(this).toggleClass('remove').toggleClass('active');
@@ -93,10 +85,8 @@ var titleWatchSetttings = $.extend({
 var recommendSettings = $.extend({
     action: 'recommend title',
     beforeSend: function(settings) {
-      settings.data.recommended_user_ids = $('[name="recommended_user_ids"]').val().split(',');
-      // var fieldName = $(this).data('field-name');
-      // settings.data[fieldName] = $('#' + fieldName).val();
-      return settings;
+        settings.data.recommended_user_ids = $('[name="recommended_user_ids"]').val().split(',');
+        return settings;
     },
     onSuccess: function(response) {
         showToast(response.message);
@@ -106,10 +96,6 @@ var recommendSettings = $.extend({
 
 var followSettings = $.extend({
     action: 'follow user',
-    beforeSend: function(settings) {
-      settings.data.rating = $(this).hasClass('active') ? 0: 1;
-      return settings;
-    },
     onSuccess: function(response) {
         showToast(response.message);
     }
@@ -117,10 +103,6 @@ var followSettings = $.extend({
 
 var currentlyWatchingSettings = $.extend({
     action: 'currently watching',
-    beforeSend: function(settings) {
-      settings.data.rating = $(this).hasClass('active') ? 0: 1;
-      return settings;
-    },
     onSuccess: function(response) {
         showToast(response.message);
     }
