@@ -37,3 +37,8 @@ class Favourite(LimitInstancesMixin, models.Model):
 
     def __str__(self):
         return '{} {}'.format(self.title.name, self.title.year)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.order = Favourite.objects.filter(user=self.user).count() + 1
+        super().save(*args, **kwargs)

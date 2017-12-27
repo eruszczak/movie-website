@@ -17,7 +17,7 @@
                 </div>
                 <div class="middle aligned content">
                     <div class="header">
-                        <span class="item-order">{{ title.order|default:forloop.counter }}</span>. <span class="ui circular label item-order-change hide"></span>
+                        <span class="item-order">{% if favourites %}{{ title.order }}{% else %}{{ forloop.counter }}{% endif %}</span>. <span class="ui circular label item-order-change hide"></span>
                         <a href="{{ title.get_absolute_url }}" class="header">{{ title }}</a>
                         {% include 'titles/includes/toggles.html' %}
                     </div>

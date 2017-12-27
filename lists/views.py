@@ -37,5 +37,5 @@ class FavouriteListView(PropMixin, WatchFavListViewMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['sorted_by'] = 'Sorted by order'
+        context['sorted_by'] = 'Sorted by your order'
         return context
