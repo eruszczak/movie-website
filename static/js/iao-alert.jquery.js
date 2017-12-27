@@ -11,6 +11,7 @@
 */
 (function( $ ) {
     $.fn.iaoAlert = $.iaoAlert = function(arr) {
+        $('iao-alert').remove();
         var opt = $.extend( {
             msg: "This is default iao alert message.",
             type: "notification",
