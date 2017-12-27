@@ -42,6 +42,7 @@ class PersonMixin:
 
 
 class TmdbResponseMixin:
+    IGNORE_FILES = True
     api_key = config('TMDB_API_KEY')
     source_file_path = os.path.join(settings.BACKUP_ROOT, 'source', '{}.json')
     urls = {
@@ -65,11 +66,15 @@ class TmdbResponseMixin:
         return SlashDict(response)
 
     def get_response_from_file(self, title_id):
+        if self.IGNORE_FILES:
+            raise FileNotFoundError
         os.makedirs(os.path.dirname(self.source_file_path), exist_ok=True)
         with open(self.source_file_path.format(title_id), 'r') as outfile:
             return SlashDict(json.load(outfile))
 
     def save_to_file(self, data, file_name):
+        if self.IGNORE_FILES:
+            return
         with open(self.source_file_path.format(file_name), 'w') as outfile:
             json.dump(data, outfile)
 
@@ -165,7 +170,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
                 handler(value)
 
         if self.call_updater:
-            print('\t\t updater for', self.tmdb_id)
+            # print('\t\t updater for', self.tmdb_id)
             # TitleUpdater(self.title)
             self.title.update()
 
