@@ -1,12 +1,5 @@
 $.fn.api.settings.api = {
-    'search': '/api/search/?keyword={query}',
-    'follow user': '/api/user/{pk}/follow/',
-    'export ratings': '/importer/user/{pk}/export/',
-    'favourite title': '/api/title/{pk}/favourites/',
-    'watchlist title': '/api/title/{pk}/watchlist/',
-    'recommend title': '/api/title/{pk}/recommend/',
-    'currently watching': '/api/tv/{pk}/watching/',
-    'clear ratings': '/api/clear-ratings/'
+    // 'recommend title': '/api/title/{pk}/recommend/',
 };
 
 $('.regular.rating').rating({
@@ -70,14 +63,14 @@ const TOGGLE_API_SETTINGS_BASE = $.extend({
     onSuccess: function(response) {
         showToast(response.message);
         if ($(this).hasClass('icon')) {
-            console.log('icon')
+            // TOGGLE ICON
             if (response.created) {
                 $(this).removeClass('empty remove').addClass('active');
             } else {
                 $(this).addClass('empty remove').removeClass('active');
             }
         } else if ($(this).hasClass('button')) {
-            console.log('button')
+            // TOGGLE BUTTON
             if (response.created) {
                 $(this).addClass('positive').text($(this).data('active'));
                 console.log($(this).data('active'))

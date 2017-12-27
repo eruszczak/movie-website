@@ -9,7 +9,7 @@
         <a href="{% url 'user-list' %}" class="item{% if url_name == 'user-list' %} active{% endif %}">Users</a>
         <a href="{% url 'about' %}" class="item{% if url_name == 'about' %} active{% endif %}">About</a>
         <div class="right menu">
-            <div class="ui search">
+            <div class="ui search" data-url="{% url 'search' %}?keyword={query}">
                 <div class="ui icon input">
                     <input class="prompt" type="text" placeholder="Search...">
                     <i class="search icon"></i>
