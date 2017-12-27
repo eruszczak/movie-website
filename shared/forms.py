@@ -12,7 +12,7 @@ class SearchFormMixin:
         if self.is_valid():
             search_queries = []
             for search_key, search_value in self.cleaned_data.items():
-                print('cleaned:', search_key, search_value)
+                # print('cleaned:', search_key, search_value)
                 if not search_value:
                     continue
 
@@ -27,7 +27,7 @@ class SearchFormMixin:
             if search_queries:
                 # flat_list = [item for sublist in search_queries for item in sublist]
                 # print(flat_list)
-                print('queries:', search_queries)
+                # print('queries:', search_queries)
                 return queryset.filter(reduce(and_, search_queries))
 
         return queryset

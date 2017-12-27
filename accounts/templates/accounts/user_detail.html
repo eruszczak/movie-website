@@ -133,7 +133,9 @@
                     </div>
                 </div>
             {% else %}
-                <p>You and {{ user.username }} have no common rated titles</p>
+                <div class="ui message">
+                    <p>You and {{ user.username }} have no common rated titles</p>
+                </div>
             {% endif %}
         </div>
     {% endif %}

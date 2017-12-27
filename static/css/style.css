@@ -260,6 +260,11 @@ body {
     background: #21ba45;
 }
 
+.ui.disabled.button.owner {
+    background: #fbbd08;
+    opacity: 1!important;
+}
+
 .ui.label > a.see-more {
     color: black;
 }
