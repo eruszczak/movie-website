@@ -10,21 +10,23 @@ def tmdb_image(func):
     @tmdb_image
     def poster_backdrop_user(self):
         return IMAGE_SIZES['backdrop_user']
-    Property will only return what kind of image it is. This decorator will return full TMDB hotlink.
-    For development it returns static image.
+    Property returns what kind of image it is. This decorator will return full TMDB hotlink.
+    During development it returns static placeholder image to save traffic.
     """
 
     def func_wrapper(self):
-        if False:
-            if self.__class__.__name__ == 'Person':
-                # for developing I want to display different w185 placeholder for Person
-                return static('img/posters/w185_and_h278_bestv2_person.jpg')
-            return static(f'img/posters/{func(self)}.jpg')
-
-        if self.image_path:
+        if self.image_path and not settings.DEBUG:
             return f'http://image.tmdb.org/t/p/{func(self)}{self.image_path}'
 
-        return static(f'img/posters/{func(self)}.jpg')
+        return getattr(self, f'{func.__name__}_placeholder')
+
+    return func_wrapper
+
+
+def static_poster(func):
+
+    def func_wrapper(self):
+        return static(f'img/posters/{func(self)}.png')
 
     return func_wrapper
 
