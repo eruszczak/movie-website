@@ -11,7 +11,8 @@ def tmdb_image(func):
     def poster_backdrop_user(self):
         return IMAGE_SIZES['backdrop_user']
     Property returns what kind of image it is. This decorator will return full TMDB hotlink.
-    During development it returns static placeholder image to save traffic.
+    During development or when object has no image_path it returns static placeholder image to save traffic
+    by simply returning a property 'self.poster_backdrop_user_placeholder'
     """
 
     def func_wrapper(self):
