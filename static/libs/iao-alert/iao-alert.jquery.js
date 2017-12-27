@@ -20,7 +20,7 @@
             alertTime: "3000",
             fadeTime: "500",
             closeButton: true,
-            closeOnClick: false,
+            closeOnClick: true,
             fadeOnHover: true,
             position: 'top-right',
             zIndex: '999'

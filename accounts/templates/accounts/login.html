@@ -1,43 +1,46 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+
 {% block title %}Login{% endblock %}
+
 {% block scripts %}
-  <script>
-  $(document)
-    .ready(function() {
-      $('.ui.form')
-        .form({
-          fields: {
-            email: {
-              identifier  : 'username',
-              rules: [
-                {
-                  type   : 'empty',
-                  prompt : 'Please enter your username'
-                }
-              ]
-            },
-            password: {
-              identifier  : 'password',
-              rules: [
-                {
-                  type   : 'empty',
-                  prompt : 'Please enter your password'
-                }
-              ]
-            }
-          }
-        })
-      ;
-    })
-  ;
-  </script>
+    <script>
+        $(document)
+            .ready(function () {
+                $('.ui.form')
+                    .form({
+                        fields: {
+                            email: {
+                                identifier: 'username',
+                                rules: [
+                                    {
+                                        type: 'empty',
+                                        prompt: 'Please enter your username'
+                                    }
+                                ]
+                            },
+                            password: {
+                                identifier: 'password',
+                                rules: [
+                                    {
+                                        type: 'empty',
+                                        prompt: 'Please enter your password'
+                                    }
+                                ]
+                            }
+                        }
+                    })
+                ;
+            })
+        ;
+    </script>
 {% endblock %}
 {% block content %}
-    {% if request.GET.next %}
+    {% if request.GET.next and not request.GET.ignore_dialog %}
         <div class="mt10 ui text ignored info message warning">
             <div class="header">You must be logged in</div>
-            To continue, login or <a href="{% url 'register' %}?next={{ request.GET.next }}">sign up</a> for a new account
+            To continue, login or <a href="{% url 'register' %}?next={{ request.GET.next }}">sign up</a> for a new
+            account
         </div>
     {% endif %}
     <div class="ui middle aligned center aligned grid">
@@ -46,7 +49,8 @@
             <h2 class="ui teal image header">
                 <div class="content">Log-in to your account</div>
             </h2>
-            <form class="ui large form" action="{% url 'login' %}?next={{ request.GET.next }}" method="post">{% csrf_token %}
+            <form class="ui large form" action="{% url 'login' %}?next={{ request.GET.next }}"
+                  method="post">{% csrf_token %}
                 <div class="ui stacked segment">
                     {% include 'accounts/includes/field.html' with field=form.username icon='user' %}
                     {% include 'accounts/includes/field.html' with field=form.password icon='lock' %}
@@ -55,7 +59,6 @@
                 <div class="ui error message"></div>
             </form>
             <div class="ui message">New to us? <a href="{% url 'register' %}?next={{ request.GET.next }}">Sign Up</a></div>
-{#            <div class="ui message">Forgot your password? <a href="">Reset it</a></div>#}
         </div>
     </div>
 {% endblock %}

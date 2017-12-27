@@ -14,7 +14,7 @@ class WatchlistListView(PropMixin, WatchFavListViewMixin, ListView):
     def get_queryset(self):
         return super().get_queryset().filter(watchlist__user=self.user).annotate(
             added_date=Subquery(
-                Watchlist.objects.filter(user=self.request.user, title=OuterRef('pk')).values('create_date')[:1]
+                Watchlist.objects.filter(user=self.user, title=OuterRef('pk')).values('create_date')[:1]
             )
         ).order_by('-watchlist__create_date')
 
@@ -31,7 +31,7 @@ class FavouriteListView(PropMixin, WatchFavListViewMixin, ListView):
         return super().get_queryset().filter(favourite__user=self.user).annotate(
             order=Subquery(Favourite.objects.filter(user=self.user, title=OuterRef('pk')).values('order')[:1]),
             added_date=Subquery(
-                Favourite.objects.filter(user=self.request.user, title=OuterRef('pk')).values('create_date')[:1]
+                Favourite.objects.filter(user=self.user, title=OuterRef('pk')).values('create_date')[:1]
             )
         ).order_by('favourite__order')
 
