@@ -32,20 +32,16 @@ def toggle_title_in_watchlist(user=None, title=None, watch=None):
             return 'Removed from watchlist'
 
 
-def toggle_title_in_favourites(user, title, fav):
-    """
-    deletes or adds title to user's favourites while maintaining the proper order
-    fav titles are ordered and when some title is being deleted, order of another titles must be updated
-    """
-    unfav = not fav
+def toggle_title_in_favourites(user, title, fav=True):
+    """deletes or adds title to user's favourites"""
     user_favourites = Favourite.objects.filter(user=user)
-    favourite_instance = user_favourites.filter(title=title).first()
-    if fav:
-        Favourite.objects.create(user=user, title=title, order=user_favourites.count() + 1)
+    try:
+        instance = user_favourites.get(title=title)
+    except Favourite.DoesNotExist:
+        Favourite.objects.create(user=user, title=title)
         return 'Added to favourites'
-    elif unfav and favourite_instance:
-        user_favourites.filter(order__gt=favourite_instance.order).update(order=F('order') - 1)
-        favourite_instance.delete()
+    else:
+        instance.delete()
         return 'Removed from favourites'
 
 

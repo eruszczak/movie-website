@@ -155,6 +155,13 @@ def test_csv():
 
     # update_user_ratings_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/imdb.csv')
 
+def test_fav():
+    user = User.objects.get(username='test')
+    # Favourite.objects.filter(user=user).delete()
+    for title in Title.objects.all():
+        Favourite.objects.get_or_create(user=user, title=title)
+
+test_fav()
 # print(Title.objects.all().first().pk)
 # test_queryset()
 # test_csv()
