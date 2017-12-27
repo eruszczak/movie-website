@@ -1,15 +1,13 @@
-{% load static %}
+{% load static get_src_attrs %}
 
 <div class="still-background slick-item"{% if counter > 0 %} style="visibility: hidden"{% endif %}>
-    <img class="backdrop" {% if slick %}src="{% static 'img/posters/intersection.png' %}" data-lazy{% else %}src{% endif %}="{{ title.poster_backdrop_title }}" alt="{{ title.name }}">
+    <img class="backdrop" {% get_src_attrs title.poster_backdrop_title_placeholder title.poster_backdrop_title slick=slick %} alt="{{ title.name }}">
     <div class="ui grid centered">
         <div class="poster-background">
             <div class="card1 card-01 height-fix"{% if slick and counter == 0 %} style="display: none"{% endif %}>
-                {% if slick %}
-                    <a href="{{ title.get_absolute_url }}"><img class="card-img-top" {% if slick1 %}data-lazy{% else %}src{% endif %}="{{ title.poster_small }}" alt="{{ title.name }}"></a>
-                {% else %}
-                    <img class="card-img-top" {% if slick %}data-lazy{% else %}src{% endif %}="{{ title.poster_small }}" alt="{{ title.name }}">
-                {% endif %}
+                <a href="{{ title.get_absolute_url }}">
+                    <img class="card-img-top" {% get_src_attrs title.poster_small_placeholder title.poster_small slick=slick %} alt="{{ title.name }}">
+                </a>
                 <div class="card-img-overlay">
                 <h3 class="card-title">{{ title.name }}</h3>{#<p class="card-text"></p>#}
                 {% include 'titles/includes/rating.html' with rate=rate %}

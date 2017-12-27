@@ -2,19 +2,19 @@
     {% if person_qs %}
         {% for person in queryset %}
             <div>
-                {% include 'titles/includes/person_small_slick.html' with lazy=True person=person %}
+                {% include 'titles/includes/person_small_slick.html' with person=person %}
             </div>
         {% endfor %}
     {% elif cast_qs %}
         {% for cast in queryset %}
             <div>
-                {% include 'titles/includes/person_small_slick.html' with lazy=True person=cast.person role=cast.character %}
+                {% include 'titles/includes/person_small_slick.html' with person=cast.person role=cast.character %}
             </div>
         {% endfor %}
     {% elif crew_qs %}
         {% for crew in queryset %}
             <div>
-                {% include 'titles/includes/person_small_slick.html' with lazy=True person=crew.person role=crew.get_job_display %}
+                {% include 'titles/includes/person_small_slick.html' with person=crew.person role=crew.get_job_display %}
             </div>
         {% endfor %}
     {% endif %}
