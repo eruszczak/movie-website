@@ -168,7 +168,7 @@ class TitleDetailView(DetailView):
             'similar': similar_titles,
             'recommendations': recommendations,
             'collection_titles': collection_titles,
-            'cast_list': CastTitle.objects.filter(title=self.object).select_related('person'),
+            'cast_list': CastTitle.objects.filter(title=self.object).select_related('person')[:20],
             'crew_list': CrewTitle.objects.filter(title=self.object).select_related('person'),
         })
         return context
