@@ -17,9 +17,9 @@ from rest_framework.viewsets import GenericViewSet
 from api.mixins import IsAuthenticatedMixin, GetTitleMixin, ToggleAPIView, GetUserMixin
 from lists.models import Favourite
 from titles.forms import TitleSearchForm, RateForm
-from titles.functions import (
-    toggle_title_in_favourites, toggle_title_in_watchlist, toggle_currently_watched_title,
-    recommend_title, follow_user
+from titles.utils import (
+    toggle_favourite, toggle_watchlist, toggle_currentlywatchingtv,
+    toggle_userfollow
 )
 from titles.helpers import instance_required
 from titles.models import Rating, Title, Person
@@ -102,7 +102,7 @@ class ToggleFavouriteAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin,
     @instance_required
     def post(self, request, *args, **kwargs):
         try:
-            message = toggle_title_in_favourites(request.user, self.title, self.toggle_active)
+            message = toggle_favourite(request.user, self.title, self.toggle_active)
         except ValidationError as e:
             return Response({'message': '. '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'message': message}, status=status.HTTP_200_OK)
@@ -113,7 +113,7 @@ class ToggleWatchlistAPIView(IsAuthenticatedMixin, ToggleAPIView, GetTitleMixin,
     @instance_required
     def post(self, request, *args, **kwargs):
         try:
-            message = toggle_title_in_watchlist(request.user, self.title, self.toggle_active)
+            message = toggle_watchlist(request.user, self.title, self.toggle_active)
         except ValidationError as e:
             return Response({'message': '. '.join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'message': message}, status=status.HTTP_200_OK)
@@ -123,7 +123,7 @@ class ToggleCurrentlyWatchingTV(IsAuthenticatedMixin, ToggleAPIView, GetTitleMix
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        message = toggle_currently_watched_title(self.title, self.request.user, self.toggle_active)
+        message = toggle_currentlywatchingtv(self.title, self.request.user, self.toggle_active)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
@@ -131,7 +131,7 @@ class ToggleFollowUser(IsAuthenticatedMixin, ToggleAPIView, GetUserMixin, APIVie
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        message = follow_user(self.request.user, self.user, self.toggle_active)
+        message = toggle_userfollow(self.request.user, self.user, self.toggle_active)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
@@ -182,8 +182,8 @@ class RecommendTitleAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
     def post(self, request, *args, **kwargs):
         user_ids = request.POST.getlist('recommended_user_ids[]')
         message = ''
-        if user_ids:
-            message = recommend_title(self.title, request.user, user_ids)
+        # if user_ids:
+        #     message = recommend_title(self.title, request.user, user_ids)
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
