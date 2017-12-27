@@ -1,25 +1,29 @@
 {% load static get_src_attrs %}
 
-<div class="still-background slick-item"{% if counter > 0 %} style="visibility: hidden"{% endif %}>
+<div class="still-background slick-item"{% if slick and counter > 0 %} style="visibility: hidden"{% endif %}>
     <img class="backdrop" {% get_src_attrs title.poster_backdrop_title_placeholder title.poster_backdrop_title slick=slick %} alt="{{ title.name }}">
     <div class="ui grid centered">
         <div class="poster-background">
-            <div class="card1 card-01 height-fix"{% if slick and counter == 0 %} style="display: none"{% endif %}>
+            <div class="card1 card-01 height-fix">
                 <a href="{{ title.get_absolute_url }}">
-                    <img class="card-img-top" {% get_src_attrs title.poster_small_placeholder title.poster_small slick=slick %} alt="{{ title.name }}">
+                    {% if counter == 0 %}
+                        <img class="card-img-top" src="{{ title.poster_small }}" alt="{{ title.name }}">
+                    {% else %}
+                        <img class="card-img-top" {% get_src_attrs title.poster_small_placeholder title.poster_small slick=slick %} alt="{{ title.name }}">
+                    {% endif %}
                 </a>
                 <div class="card-img-overlay">
-                <h3 class="card-title">{{ title.name }}</h3>{#<p class="card-text"></p>#}
-                {% include 'titles/includes/rating.html' with rate=rate %}
-                <p class="card-text">
-                    {% if title.year %}<i class="calendar icon"></i> {{ title.year }}{% endif %}
-                    {% include 'titles/includes/toggles.html' %}
-                </p>
-                <p class="card-text">
-                    {% for genre in title.genre.all %}
-                        <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
-                    {% endfor %}
-                </p>
+                    <h3 class="card-title">{{ title.name }}</h3>
+                    {% include 'titles/includes/rating.html' with rate=rate %}
+                    <p class="card-text">
+                        {% if title.year %}<i class="calendar icon"></i> {{ title.year }}{% endif %}
+                        {% include 'titles/includes/toggles.html' %}
+                    </p>
+                    <p class="card-text">
+                        {% for genre in title.genre.all %}
+                            <a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a>
+                        {% endfor %}
+                    </p>
                 </div>
             </div>
         </div>

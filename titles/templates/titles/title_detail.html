@@ -4,7 +4,7 @@
 {% block title %}{{ title.name }} ({{ title.year }}){% endblock %}
 
 {% block image %}
-    {% include 'titles/includes/title_background.html' with title=title rate=user_ratings_of_title.0.rate %}
+    {% include 'titles/includes/title_background.html' with title=title rate=user_ratings_of_title.0.rate counter=0 %}
 {% endblock %}
 
 {% block content %}
