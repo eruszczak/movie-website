@@ -125,16 +125,22 @@ def test_api():
 
 # test_api()
 
+# t = Title.objects.all().first()
+# t.collection = Collection.objects.get(pk=119)
+# print(t.imdb_id)
+# t.save()
+
 
 def test_details():
+    # return
     # print(Collection.objects.get(pk=119).delete())
     # return
     # imdb_id = 'tt0120737'  # 2001
     imdb_id = 'tt0167260'  # 2003
-    TmdbWrapper().get(imdb_id=imdb_id, update=True)
+    # TmdbWrapper().get(imdb_id=imdb_id, update=True)
 
-    return
-    # t = Title.objects.get(imdb_id=imdb_id)    # LOTR - COLLECTION
+    # return
+    t = Title.objects.get(imdb_id=imdb_id)    # LOTR - COLLECTION
 
     keyword = t.keywords.all().first()
     t.keywords.remove(keyword)
