@@ -174,6 +174,11 @@ class Title(models.Model):
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
 
+    # todo: task
+    def update(self):
+        tmdb_instance = self.get_tmdb_instance()
+        tmdb_instance(title=self, update=True).get_or_create()
+
     # todo: force
     def call_get_details_task(self, force=False):
         from titles.tasks import task_get_details
@@ -193,6 +198,10 @@ class Title(models.Model):
         self.getting_details = False
         self.has_details = True
         self.save()
+
+    def get_tmdb_instance(self):
+        from titles.tmdb_api import get_tmdb_concrete_class
+        return get_tmdb_concrete_class(self.type)
 
     @property
     @tmdb_image
