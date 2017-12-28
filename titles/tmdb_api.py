@@ -355,7 +355,6 @@ class TitleDetailsGetter(TmdbResponseMixin):
 
         for path, handler in self.response_handlers_map.items():
             value = self.api_response[path]
-            # print('\t\t\t', handler.__name__, 'for tmdb_pk', self.title.tmdb_id)
             if value:
                 handler(value)
 
@@ -384,6 +383,8 @@ class TitleDetailsGetter(TmdbResponseMixin):
 
                 collection.titles.update(collection=None)
                 Title.objects.filter(pk__in=title_pks).update(collection=collection)
+                # self.title just got a collection, but it needs to be refreshed
+                self.title.refresh_from_db()
 
     def save_titles_to_attribute(self, value, attribute):
         pks = []
