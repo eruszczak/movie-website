@@ -53,7 +53,7 @@
     {% endif %}
     {% if user.tagline %}<div class="ui center aligned piled segment"><i class="quote left icon"></i> {{ user.tagline }} <i class="quote right icon"></i></div>{% endif %}
 
-    <div class="ui basic buttons right floated">
+    <div class="ui buttons right floated">
         {% include 'accounts/includes/follow.html' %}
         {% if is_other_user %}
             <div class="ui button export-ratings" {% if not request.user.is_authenticated %} type="tooltip" data-content="You must be logged in." data-variation="mini" {% endif %}>Export</div>

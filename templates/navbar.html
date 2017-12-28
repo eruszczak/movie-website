@@ -7,7 +7,6 @@
         <a href="{% url 'home' %}" class="item{% if url_name == 'home' %} active{% endif %}">Home</a>
         <a href="{% url 'title-list' %}" class="item{% if url_name == 'title-list' and not request.GET.user|slugify == request.user.pk|slugify %} active{% endif %}">Explore</a>
         <a href="{% url 'user-list' %}" class="item{% if url_name == 'user-list' %} active{% endif %}">Users</a>
-        <a href="{% url 'about' %}" class="item{% if url_name == 'about' %} active{% endif %}">About</a>
         <div class="right menu">
             <div class="ui search" data-url="{% url 'search' %}?keyword={query}">
                 <div class="ui icon input">
