@@ -42,7 +42,6 @@ class PersonMixin:
 
 
 class TmdbResponseMixin:
-    IGNORE_FILES = True
     api_key = config('TMDB_API_KEY')
     source_file_path = os.path.join(settings.BACKUP_ROOT, 'source', '{}.json')
     urls = {
@@ -60,23 +59,19 @@ class TmdbResponseMixin:
         query_string.update(self.query_string)
         url = self.urls['base'] + '/'.join(list(map(str, path_parameters)))
         response, response_url = get_json_response(url, query_string)
-        # print('name/title', response.get('name'), 'or', response.get('title'), response_url)
-        if response is None:
-            return None
-        return SlashDict(response)
+        print(response_url, 'name/title', response.get('name'), 'or', response.get('title'))
+        if response:
+            return SlashDict(response)
+        return None
 
-    def get_response_from_file(self, title_id):
-        if self.IGNORE_FILES:
-            raise FileNotFoundError
-        os.makedirs(os.path.dirname(self.source_file_path), exist_ok=True)
-        with open(self.source_file_path.format(title_id), 'r') as outfile:
-            return SlashDict(json.load(outfile))
-
-    def save_to_file(self, data, file_name):
-        if self.IGNORE_FILES:
-            return
-        with open(self.source_file_path.format(file_name), 'w') as outfile:
-            json.dump(data, outfile)
+    # def get_response_from_file(self, title_id):
+    #     os.makedirs(os.path.dirname(self.source_file_path), exist_ok=True)
+    #     with open(self.source_file_path.format(title_id), 'r') as outfile:
+    #         return SlashDict(json.load(outfile))
+    #
+    # def save_to_file(self, data, file_name):
+    #     with open(self.source_file_path.format(file_name), 'w') as outfile:
+    #         json.dump(data, outfile)
 
 
 class BaseTmdb(PersonMixin, TmdbResponseMixin):
@@ -84,7 +79,9 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
     title = None
     imdb_id_path = None
 
-    def __init__(self, tmdb_id, title=None, **kwargs):
+    def __init__(self, tmdb_id, title=None, update=False, **kwargs):
+        super().__init__()
+        self.update = update  # if True, basic data like seasons and release_will be updated
         self.api_response = None
         self.cached_response = None
         # maps Title model attribute names to TMDB's response
@@ -95,11 +92,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         # maps paths in TMDB's response to their method handlers
         self.response_handlers_map = {}
 
-        # todo: decide about limits
-        # if not settings.DEBUG:
-        sleep(1)
-        super().__init__()
-        self.call_updater = kwargs.get('call_updater', False)
+        self.get_details = kwargs.get('get_details', False)
         self.cached_response = kwargs.get('cached_response', None)
         self.tmdb_id = tmdb_id
 
@@ -115,30 +108,27 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         })
 
     def get_or_create(self):
-        if self.title:
+        if not self.update and self.title:
             # print('title existed', self.title.name)
-
-            # self.save_cast(self.cached_response['credits/cast'])
-            # self.save_crew(self.cached_response['credits/crew'])
             return self.title
 
         # This is for testing. Because once title in production is added, I won't need this file anymore.
-        if self.cached_response:
-            self.api_response = self.cached_response
-            return self.create()
+        # if self.cached_response:
+        #     self.api_response = self.cached_response
+        #     return self.create()
 
-        try:
-            # it's like 'cached_response' but not from TmdbWrapper
-            self.api_response = self.get_response_from_file(self.tmdb_id)
-        except FileNotFoundError:
-            qs = {'append_to_response': 'credits,keywords,similar,videos,images,recommendations,external_ids'}
-            self.api_response = self.get_tmdb_response(self.urls['details'], self.tmdb_id, qs=qs)
-            self.api_response['title_type'] = self.title_type
-            #
-            if self.api_response:
-                imdb_id = self.get_imdb_id_from_response()
-                for id_value in [imdb_id, self.tmdb_id]:
-                    self.save_to_file(self.api_response, id_value)
+        # try:
+        #     # it's like 'cached_response' but not from TmdbWrapper
+        #     self.api_response = self.get_response_from_file(self.tmdb_id)
+        # except FileNotFoundError:
+        qs = {'append_to_response': 'credits,keywords,similar,videos,images,recommendations,external_ids'}
+        self.api_response = self.get_tmdb_response(self.urls['details'], self.tmdb_id, qs=qs)
+        # self.api_response['title_type'] = self.title_type
+        #
+        # if self.api_response:
+        #     imdb_id = self.get_imdb_id_from_response()
+        #     for id_value in [imdb_id, self.tmdb_id]:
+        #         self.save_to_file(self.api_response, id_value)
 
         if self.api_response:
             return self.create()
@@ -146,7 +136,6 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         return None
 
     def create(self):
-        # print(self.tmdb_id, self.api_response.get('name'), 'or', self.api_response.get('title'), 'updated', self.call_updater)
         title_data = {
             attr_name: self.api_response[tmdb_attr_name] for attr_name, tmdb_attr_name in self.title_model_map.items()
         }
@@ -161,17 +150,22 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         if not title_data['imdb_id']:
             return None
 
-        self.title = Title.objects.create(tmdb_id=self.tmdb_id, **title_data)
-        # update_or_create
+        if self.update and self.title:
+            # update only regular attributes
+            Title.objects.filter(pk=self.title.pk).update(**title_data)
+            # clean relations so they can be added again later
+            self.clear_related()
+        else:
+            self.title = Title.objects.create(tmdb_id=self.tmdb_id, **title_data)
+
+        assert self.title
 
         for path, handler in self.response_handlers_map.items():
             value = self.api_response[path]
             if value:
                 handler(value)
 
-        if self.call_updater:
-            # print('\t\t updater for', self.tmdb_id)
-            # TitleUpdater(self.title)
+        if self.get_details:
             self.title.update()
 
         return self.title
@@ -198,6 +192,12 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
             person = self.get_person(cast)
             CastTitle.objects.create(title=self.title, person=person, character=cast['character'], order=cast['order'])
 
+    def clear_related(self):
+        """before title is updated, all of his related models must be cleared so they can be updated"""
+        self.title.keywords.clear()
+        self.title.genres.clear()
+        CastTitle.objects.filter(title=self.title).delete()
+
 
 class MovieTmdb(BaseTmdb):
     title_type = MOVIE
@@ -223,6 +223,10 @@ class MovieTmdb(BaseTmdb):
             if job:
                 person = self.get_person(crew)
                 CrewTitle.objects.create(title=self.title, person=person, job=job)
+
+    def clear_related(self):
+        super().clear_related()
+        CrewTitle.objects.filter(title=self.title).delete()
 
 
 class SeriesTmdb(BaseTmdb):
@@ -260,6 +264,11 @@ class SeriesTmdb(BaseTmdb):
             person, created = Person.objects.get_or_create(pk=creator['id'], defaults={'name': creator['name']})
             CrewTitle.objects.create(title=self.title, person=person, job=CREATOR)
 
+    def clear_related(self):
+        super().clear_related()
+        CrewTitle.objects.filter(title=self.title).delete()
+        Season.objects.filter(title=self.title).delete()
+
 
 def get_tmdb_concrete_class(title_type):
     """depending on title_type, returns MovieTmdb or SeriesTmdb class"""
@@ -280,14 +289,15 @@ class TmdbWrapper(TmdbResponseMixin):
         But the thing is, you can't call /tv with imdb_id - only tmdb_id. So I use `find` endpoint and it returns
         whether an imdb_id is a movie/series and I know its tmdb_id, so I can call any endpoint.
         """
-        try:
-            cached_response = self.get_response_from_file(imdb_id)
-            tmdb_id = cached_response['id']
-            wrapper_class = get_tmdb_concrete_class(cached_response['title_type'])
-        except FileNotFoundError:
-            wrapper_class, tmdb_id = self.call_find_endpoint(imdb_id)
-        else:
-            kwargs.update(cached_response=cached_response)
+        # try:
+        #     cached_response = self.get_response_from_file(imdb_id)
+        #     tmdb_id = cached_response['id']
+        #     wrapper_class = get_tmdb_concrete_class(cached_response['title_type'])
+        # except FileNotFoundError:
+        #     print('file not found')
+        wrapper_class, tmdb_id = self.call_find_endpoint(imdb_id)
+        # else:
+        #     kwargs.update(cached_response=cached_response)
 
         if wrapper_class:
             return wrapper_class(tmdb_id, **kwargs).get_or_create()
@@ -310,14 +320,15 @@ class TmdbWrapper(TmdbResponseMixin):
         return None
 
 
-class TitleUpdater(TmdbResponseMixin):
+class TitleDetailsGetter(TmdbResponseMixin):
     """Class that fetches additional information for a title"""
 
     def __init__(self, title):
         super().__init__()
         self.title = title
+        print('TitleUpdater for', self.title)
 
-        self.title.before_update()
+        self.title.before_get_details()
 
         self.api_response = SlashDict(title.source)
         self.tmdb_instance = get_tmdb_concrete_class(title.type)
@@ -337,7 +348,7 @@ class TitleUpdater(TmdbResponseMixin):
             if value:
                 handler(value)
 
-        self.title.after_update()
+        self.title.after_get_details()
 
     def save_similar(self, value):
         self.save_titles_to_attribute(value, self.title.similar)

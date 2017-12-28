@@ -136,8 +136,8 @@ class Title(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     source = JSONField(blank=True)
-    updated = models.BooleanField(default=False)
-    being_updated = models.BooleanField(default=False)
+    has_details = models.BooleanField(default=False)
+    getting_details = models.BooleanField(default=False)
 
     genres = models.ManyToManyField('Genre')
     keywords = models.ManyToManyField('Keyword', blank=True)
@@ -162,10 +162,10 @@ class Title(models.Model):
     objects = TitleQuerySet.as_manager()
 
     class Meta:
-        ordering = ()
+        ordering = ('-release_date', '-update_date')
 
     def __str__(self):
-        return f'{self.name} ({self.year})'
+        return f"{self.name} ({self.year or '?'})"
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -174,27 +174,24 @@ class Title(models.Model):
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
 
-    def call_update_task(self, force=False):
-        """
-        Calls celery task if title haven't been updated yet. Triggered after title was visited by someone.
-        Can pass `force=True` so title will be updated even if it was updated before
-        """
-        from titles.tasks import task_update_title
-        if (not self.updated and not self.being_updated) or force:
+    # todo: force
+    def call_get_details_task(self, force=False):
+        from titles.tasks import task_get_details
+        if (not self.has_details and not self.getting_details) or force:
             print('call tmdb updater task for tmdb_id', self.tmdb_id)
-            task_update_title.delay(self.pk)
+            task_get_details.delay(self.pk)
 
-    def update(self):
-        from titles.tmdb_api import TitleUpdater
-        TitleUpdater(self)
+    def get_details(self):
+        from titles.tmdb_api import TitleDetailsGetter
+        TitleDetailsGetter(self)
 
-    def before_update(self):
-        self.being_updated = True
+    def before_get_details(self):
+        self.getting_details = True
         self.save()
 
-    def after_update(self):
-        self.being_updated = False
-        self.updated = True
+    def after_get_details(self):
+        self.getting_details = False
+        self.has_details = True
         self.save()
 
     @property
@@ -260,10 +257,10 @@ class Title(models.Model):
         except AttributeError:
             return ''
 
-    @property
-    def can_be_updated(self):
-        seconds_since_last_update = (timezone.now() - self.update_date).seconds
-        return seconds_since_last_update > 60 * 10
+    # @property
+    # def can_be_updated(self):
+    #     seconds_since_last_update = (timezone.now() - self.update_date).seconds
+    #     return seconds_since_last_update > 60 * 10
 
 
 class Rating(models.Model):

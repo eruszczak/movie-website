@@ -22,7 +22,7 @@ from lists.models import Favourite
 User = get_user_model()
 collection_id = 119
 
-from titles.tmdb_api import TmdbWrapper, PopularMoviesTmdbTask, TitleUpdater, MovieTmdb, TmdbResponseMixin, \
+from titles.tmdb_api import TmdbWrapper, PopularMoviesTmdbTask, TitleDetailsGetter, MovieTmdb, TmdbResponseMixin, \
     PopularPeopleTmdbTask, \
     NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTVTmdbTask, TmdbTaskRunner
 
@@ -58,7 +58,7 @@ tbbt = 'tt0898266'
 
 def database_is_clean():
     title_in_collection = 'tt0120737'
-    TmdbWrapper().get(title_in_collection, call_updater=True)
+    TmdbWrapper().get(title_in_collection, get_details=True)
     PopularMoviesTmdbTask().get()
     User.objects.create_user(username='test', password='123')
     User.objects.create_user(username='test2', password='123')
@@ -71,6 +71,15 @@ def database_is_clean():
 #         print(p.name)
 #         print(p.slug)
 # print(Title.objects.all().count())
+
+def test_api():
+    update = True
+    if not update and Title.objects.filter(imdb_id='tt0110912').exists():
+        Title.objects.filter(imdb_id='tt0110912').delete()
+    else:
+        TmdbWrapper().get(imdb_id='tt0110912', update=update)
+
+test_api()
 
 def clean_models():
     Upcoming.objects.all().delete()
@@ -177,7 +186,7 @@ def test_poster():
     # t.image_path = ''
     t.save()
 
-test_poster()
+# test_poster()
 
 # query = Title.objects.filter(
 #     Q(casttitle__person=p) | Q(crewtitle__person=p)
