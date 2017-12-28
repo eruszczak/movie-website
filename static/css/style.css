@@ -204,6 +204,10 @@ body {
     right: 35px;
 }
 
+.color-red {
+    color: red;
+}
+
 .slick-prev {
     left: 35px;
 }
