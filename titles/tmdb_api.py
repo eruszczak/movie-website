@@ -185,7 +185,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
     def save_keywords(self, value):
         pks = []
         for keyword in value:
-            keyword, created = Keyword.objects.get_or_create(pk=keyword['id'], defaults={'name': keyword})
+            keyword, created = Keyword.objects.get_or_create(pk=keyword['id'], defaults={'name': keyword['name']})
             pks.append(keyword.pk)
         self.title.keywords.add(*pks)
 
