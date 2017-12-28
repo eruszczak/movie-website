@@ -16,8 +16,8 @@ def tmdb_image(func):
     """
 
     def func_wrapper(self):
-        # if self.image_path and not settings.DEBUG:
-        if self.image_path:
+        if self.image_path and not settings.DEBUG:
+        # if self.image_path:
             return f'http://image.tmdb.org/t/p/{func(self)}{self.image_path}'
 
         return getattr(self, f'{func.__name__}_placeholder')
