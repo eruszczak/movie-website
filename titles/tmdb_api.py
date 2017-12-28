@@ -436,7 +436,7 @@ class TmdbTaskRunner:
     def run(self):
         print('run tasks', self.today)
         self.run_popular_tasks()
-        self.run_tasks()
+        self.run_other_tasks()
 
     def run_popular_tasks(self):
         popular = self.get_model_instance(Popular)
@@ -447,7 +447,7 @@ class TmdbTaskRunner:
             popular.active = True
             popular.save()
 
-    def run_tasks(self):
+    def run_other_tasks(self):
         now_playing = self.get_model_instance(NowPlaying)
         if now_playing:
             NowPlayingMoviesTmdbTask(now_playing).get()
@@ -461,7 +461,7 @@ class TmdbTaskRunner:
             upcoming.save()
 
     def get_model_instance(self, model):
-        """only active instances can exist, return new (not saved yet) instance or None - do not update it"""
+        """only active instances can exist, so if there is no active instance from today - it means it can be created"""
         if not model.objects.filter(update_date=self.today).exists():
             return model.objects.create(update_date=self.today)
         return None

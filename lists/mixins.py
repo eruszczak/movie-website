@@ -40,6 +40,6 @@ class WatchFavListViewMixin:
 class LimitInstancesMixin:
 
     def save(self, *args, **kwargs):
-        if self.pk is None and self.__class__.objects.all().count() >= LIST_LIMIT:
+        if self.pk is None and self.__class__.objects.filter(user=self.user).count() >= LIST_LIMIT:
             raise ValidationError(f'List is full ({LIST_LIMIT} titles).')
         super().save(*args, **kwargs)
