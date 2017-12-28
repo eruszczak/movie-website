@@ -186,6 +186,7 @@ class Title(models.Model):
             print('call tmdb updater task for tmdb_id', self.tmdb_id)
             task_get_details.delay(self.pk)
 
+    # todo: this should not exists, it should always call task
     def get_details(self):
         from titles.tmdb_api import TitleDetailsGetter
         TitleDetailsGetter(self)
