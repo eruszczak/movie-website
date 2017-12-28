@@ -123,7 +123,55 @@ def test_api():
     # print(t.image_path)
 
 
-test_api()
+# test_api()
+
+
+def test_details():
+    # print(Collection.objects.get(pk=119).delete())
+    # return
+    # imdb_id = 'tt0120737'  # 2001
+    imdb_id = 'tt0167260'  # 2003
+    TmdbWrapper().get(imdb_id=imdb_id, update=True)
+
+    return
+    # t = Title.objects.get(imdb_id=imdb_id)    # LOTR - COLLECTION
+
+    keyword = t.keywords.all().first()
+    t.keywords.remove(keyword)
+
+    similar = t.similar.all().first()
+    t.similar.remove(similar)
+
+    recommendations = t.recommendations.all().first()
+    t.recommendations.remove(recommendations)
+
+    print(t.keywords.all().count(), t.keywords.all())
+    print(t.similar.all().count(), t.similar.all())
+    print(t.recommendations.all().count(), t.recommendations.all())
+    print(t.collection, t.collection.titles.count(), t.collection.titles.all())
+    t.update()
+
+    t = Title.objects.get(imdb_id=imdb_id)    # LOTR - COLLECTION
+    print(t.keywords.all().count(), t.keywords.all())
+    print(t.similar.all().count(), t.similar.all())
+    print(t.recommendations.all().count(), t.recommendations.all())
+    # print(t.similar.all().count(), Keyword.objects.all().count(), t.similar.all())
+
+test_details()
+
+def test_collection():
+    c = Collection.objects.get(pk=119)
+    print(c.titles.all())
+    ts = [375, 376, 377]
+    t = Title.objects.filter(pk__in=ts)
+    print(t)
+    c.titles.update(collection=None)
+    print(Collection.objects.get(pk=119).titles.all())
+    Title.objects.filter(pk__in=ts).update(collection=c)
+    print(Collection.objects.get(pk=119).titles.all())
+
+
+# test_collection()
 
 def clean_models():
     Upcoming.objects.all().delete()

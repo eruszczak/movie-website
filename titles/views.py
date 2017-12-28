@@ -167,7 +167,7 @@ class TitleDetailView(DetailView):
         context.update({
             'similar': similar_titles,
             'recommendations': recommendations,
-            'collection_titles': collection_titles,
+            'collection_titles': collection_titles.order_by('release_date'),
             'cast_list': CastTitle.objects.filter(title=self.object).select_related('person')[:20],
             'crew_list': CrewTitle.objects.filter(title=self.object).select_related('person'),
         })
