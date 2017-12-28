@@ -114,13 +114,11 @@ class TitleDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        collection_titles = Title.objects.none()
         similar_titles = self.object.similar.all()
         if self.object.collection:
-            collection_titles = self.object.collection.titles.all()
-            similar_titles = similar_titles.exclude(pk__in=collection_titles.values_list('pk', flat=True))
-
-        recommendations = self.object.recommendations.all()
+            context['collection_titles'] = self.object.collection.titles.annotate_rates(
+                request_user=self.request.user).order_by('release_date')
+            similar_titles = similar_titles.exclude(pk__in=context['collection_titles'].values_list('pk', flat=True))
 
         if self.request.user.is_authenticated:
             context.update({
@@ -149,22 +147,9 @@ class TitleDetailView(DetailView):
                 'votes': summary['votes']
             })
 
-            annotate_rate = {
-                'request_user_rate': Subquery(
-                    Rating.objects.filter(
-                        user=self.request.user, title=OuterRef('pk')
-                    ).order_by('-rate_date').values('rate')[:1]
-                )
-            }
-
-            collection_titles = collection_titles.annotate(**annotate_rate)
-            similar_titles = similar_titles.annotate(**annotate_rate)
-            recommendations = recommendations.annotate(**annotate_rate)
-
         context.update({
-            'similar': similar_titles,
-            'recommendations': recommendations,
-            'collection_titles': collection_titles.order_by('release_date'),
+            'similar': similar_titles.annotate_rates(request_user=self.request.user),
+            'recommendations': self.object.recommendations.annotate_rates(request_user=self.request.user),
             'cast_list': CastTitle.objects.filter(title=self.object).select_related('person')[:20],
             'crew_list': CrewTitle.objects.filter(title=self.object).select_related('person'),
         })
