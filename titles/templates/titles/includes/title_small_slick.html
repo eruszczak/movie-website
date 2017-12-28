@@ -13,5 +13,5 @@
     <a href="{{ title.get_absolute_url }}">
         <img {% if lazy %}src="{{ title.poster_small_placeholder }}" data-lazy{% else %}src{% endif %}="{{ title.poster_small }}">
     </a>
-    <small>{{ title.name }}</small>
+    <small{% if collection and title.pk == title_pk %} class="color-red"{% endif %}>{{ title.name }}</small>
 </div>

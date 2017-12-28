@@ -63,12 +63,12 @@
         {% endif %}
 
 {#        todo#}
-        {% if title.updated %}
-            {% if title.is_movie and title.collection %}
+        {% if title.has_details or True %}
+            {% if title.collection %}
                 <div class="ui segment">
                     <span class="ui blue ribbon label">{{ title.collection.name }}</span>
                     <div class="ui list">
-                        {% include 'titles/includes/slick_titles.html' with queryset=collection_titles %}
+                        {% include 'titles/includes/slick_titles.html' with queryset=collection_titles collection=True title_pk=title.pk %}
                     </div>
                 </div>
             {% endif %}
@@ -90,7 +90,7 @@
                     </div>
                 </div>
             {% endif %}
-        {% elif title.being_updated %}
+        {% elif title.getting_details %}
             <div class="ui hidden divider"></div>
             <div class="ui segment loader-box">
                 <div class="ui active dimmer">
