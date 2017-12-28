@@ -174,22 +174,15 @@ class Title(models.Model):
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
 
-    # todo: task & call_update_task
     def update(self):
-        tmdb_instance = self.get_tmdb_instance()
-        tmdb_instance(title=self, update=True).get_or_create()
+        from titles.tasks import task_update_title
+        task_update_title.delay(self.pk)
 
-    # todo: force
-    def call_get_details_task(self, force=False):
+    def get_details(self, force=False):
         from titles.tasks import task_get_details
         if (not self.has_details and not self.getting_details) or force:
             print('call tmdb updater task for tmdb_id', self.tmdb_id)
             task_get_details.delay(self.pk)
-
-    # todo: this should not exists, it should always call task
-    def get_details(self):
-        from titles.tmdb_api import TitleDetailsGetter
-        TitleDetailsGetter(self)
 
     def before_get_details(self):
         self.getting_details = True
