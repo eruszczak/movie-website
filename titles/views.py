@@ -99,7 +99,7 @@ class TitleDetailView(DetailView):
     object = None
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(imdb_id=self.kwargs['imdb_id']).prefetch_related('seasons')\
+        queryset = super().get_queryset().filter(imdb_id=self.kwargs['imdb_id']).prefetch_related('seasons', 'keywords')\
             .annotate_fav_and_watch(self.request.user)
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(

@@ -53,6 +53,7 @@
             {% endif %}
         </div>
 
+{#        todo#}
         {{ title.updated }}; {{ title.being_updated }}
 
         {% if title.overview %}
@@ -61,6 +62,7 @@
             <div class="ui hidden divider"></div>
         {% endif %}
 
+{#        todo#}
         {% if title.updated %}
             {% if title.is_movie and title.collection %}
                 <div class="ui segment">
@@ -146,6 +148,12 @@
                 <a href="{{ title.tmdb_url }}" target="_blank">
                     <img class="image" src="{% static 'img/tmdb.png' %}" alt="..." style="height: 50px">
                 </a>
+                <div class="ui styled fluid accordion mt10">
+                    <div class="user title"><i class="dropdown icon"></i> Keywords</div>
+                    <div class="content">
+                        {% for keyword in title.keywords.all %}{{ keyword.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

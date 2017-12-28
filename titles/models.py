@@ -174,7 +174,7 @@ class Title(models.Model):
     def get_absolute_url(self):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
 
-    # todo: task
+    # todo: task & call_update_task
     def update(self):
         tmdb_instance = self.get_tmdb_instance()
         tmdb_instance(title=self, update=True).get_or_create()

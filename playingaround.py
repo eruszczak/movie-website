@@ -27,7 +27,7 @@ from titles.tmdb_api import TmdbWrapper, PopularMoviesTmdbTask, TitleDetailsGett
     NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTVTmdbTask, TmdbTaskRunner
 
 from titles.models import Title, Person, Collection, Upcoming, Popular, NowPlaying, CurrentlyWatchingTV, CastTitle, \
-    CrewTitle
+    CrewTitle, Season, Keyword
 
 # Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection, NowPlaying, Upcoming = [
 #     apps.get_model('titles.' + model_name) for model_name in
@@ -72,22 +72,56 @@ def database_is_clean():
 #         print(p.slug)
 # print(Title.objects.all().count())
 
+# Keyword.objects.all().delete()
 def test_api():
     update = True
     # if not update and Title.objects.filter(imdb_id='tt0110912').exists():
     #     Title.objects.filter(imdb_id='tt0110912').delete()
     # else:
-    t = Title.objects.get(imdb_id='tt0110912')
+
+    # t = Title.objects.get(imdb_id='tt0110912')
+    t = Title.objects.get(imdb_id='tt2707408')    # SERIES -- NARCOS
+
+
     t.image_path = ''
     t.save()
     print(t)
-    print(t.image_path)
+    # genre = t.genres.all().first()
+    keyword = t.keywords.all().first()
+    # cast = CastTitle.objects.filter(title=t).first()
+    # crew = CrewTitle.objects.filter(title=t).first()
+    season = Season.objects.filter(title=t).first()
 
+    # cast.delete()
+    # crew.delete()
+    if season:
+        season.delete()
+    # t.genres.remove(genre)
+    # t.keywords.remove(keyword)
+
+    # Season.objects.filter(title=t).delete()
+    # print(t.genres.all().count(), t.genres.all())
+    print(t.keywords.all().count(), t.keywords.all())
+    # print(CastTitle.objects.filter(title=t).count(), CastTitle.objects.filter(title=t))
+    # print(CrewTitle.objects.filter(title=t).count(), CrewTitle.objects.filter(title=t))
+    print(Season.objects.filter(title=t).count(), Season.objects.filter(title=t))
+    # print(t.image_path)
+
+    # todo: check if clear_relations works
+    # todo: test for seasons
+    # todo: update details
 
     t.update()
-    t = Title.objects.get(imdb_id='tt0110912')
-    print(t.image_path)
-    # TmdbWrapper().get(imdb_id='tt0110912', update=update)
+    print(t.keywords.all().count(), Keyword.objects.all().count(), t.keywords.all())
+
+    t = Title.objects.get(imdb_id='tt2707408')
+    # print(t.genres.all().count(), t.genres.all())
+    print(t.keywords.all().count(), Keyword.objects.all().count(), t.keywords.all())
+    # print(CastTitle.objects.filter(title=t).count(), CastTitle.objects.filter(title=t))
+    # print(CrewTitle.objects.filter(title=t).count(), CrewTitle.objects.filter(title=t))
+    print(Season.objects.filter(title=t).count(), Season.objects.filter(title=t))
+    # print(t.image_path)
+
 
 test_api()
 
