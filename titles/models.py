@@ -146,7 +146,7 @@ class Title(models.Model):
     similar = models.ManyToManyField('Title', blank=True, related_name='similars')
     recommendations = models.ManyToManyField('Title', blank=True, related_name='recommends')
 
-    collection = models.ForeignKey('Collection', blank=True, null=True, related_name='titles', on_delete=models.CASCADE)
+    collection = models.ForeignKey('Collection', blank=True, null=True, related_name='titles', on_delete=models.SET_NULL)
 
     type = models.IntegerField(choices=TITLE_TYPE_CHOICES, blank=True, null=True)
     tmdb_id = models.CharField(unique=True, max_length=10)

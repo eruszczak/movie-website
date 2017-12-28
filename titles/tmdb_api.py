@@ -98,7 +98,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         self.imdb_id = None
         self.title = title
 
-        if self.title:
+        if not self.title:
             try:
                 self.title = Title.objects.get(tmdb_id=tmdb_id)
             except Title.DoesNotExist:
