@@ -149,13 +149,13 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         }
 
         title_data.update({
-            'imdb_id': self.imdb_id,
             'type': self.title_type,
             'source': self.api_response,
             'image_path': self.api_response['poster_path'] or ''
         })
 
-        if not title_data['imdb_id']:
+        if not self.imdb_id:
+            # some title had no imdb_id - do not add it
             return None
 
         if self.update and self.title:
@@ -164,7 +164,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
             # clean relations so they can be added again later
             self.clear_related()
         else:
-            self.title = Title.objects.create(tmdb_id=self.tmdb_id, **title_data)
+            self.title = Title.objects.create(tmdb_id=self.tmdb_id, imdb_id=self.imdb_id, **title_data)
 
         assert self.title
 
@@ -173,9 +173,8 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
             if value:
                 handler(value)
 
-        # todo: pass updater
-        if self.get_details:
-            self.title.update()
+        if self.get_details or self.update:
+            self.title.get_details()
 
         return self.title
 
@@ -337,19 +336,22 @@ class TitleDetailsGetter(TmdbResponseMixin):
         self.title = title
         print('TitleUpdater for', self.title)
 
+        # title could have details. make sure they are cleared before updating them
+        self.clear_details()
+
         self.title.before_get_details()
 
         self.api_response = SlashDict(title.source)
+
+        # this is needed because similar/recommended/collection titles have the same type as self.title
+        # and this instance is needed to fetch their details
         self.tmdb_instance = self.title.get_tmdb_instance()
 
         self.response_handlers_map = {
             'similar/results': self.save_similar,
-            'recommendations/results': self.save_recommendations
+            'recommendations/results': self.save_recommendations,
+            'belongs_to_collection': self.save_collection
         }
-        if self.title.is_movie:
-            self.response_handlers_map.update({
-                'belongs_to_collection': self.save_collection,
-            })
 
         for path, handler in self.response_handlers_map.items():
             value = self.api_response[path]
@@ -366,8 +368,12 @@ class TitleDetailsGetter(TmdbResponseMixin):
         self.save_titles_to_attribute(value, self.title.recommendations)
 
     def save_collection(self, value):
+        """
+        Collection is updated every time. If title is in collection X, all its titles will be removed from it,
+        and each title will be added again to the collection - in case some has been added/removed from it
+        """
         if self.title.is_movie:
-            collection, created = Collection.objects.get_or_create(pk=value['id'], defaults={'name': value['name']})
+            collection, created = Collection.objects.update_or_create(pk=value['id'], defaults={'name': value['name']})
             response = self.get_tmdb_response('collection', collection.pk)
             if response is not None:
                 title_pks = []
@@ -386,6 +392,10 @@ class TitleDetailsGetter(TmdbResponseMixin):
             if title:
                 pks.append(title.pk)
         attribute.add(*pks)
+
+    def clear_details(self):
+        self.title.similar.clear()
+        self.title.recommendations.clear()
 
 
 class MovieTmdbTaskMixin:
