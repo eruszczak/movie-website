@@ -1,62 +1,64 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+
 {% block title %}Sign up{% endblock %}
+
 {% block scripts %}
-  <script>
-  $(document).ready(function() {
-      $('.ui.form').form({
-          fields: {
-            email: {
-              identifier  : 'username',
-              rules: [
-                {
-                  type   : 'empty',
-                  prompt : 'Please enter your username'
+    <script>
+        $(document).ready(function () {
+            $('.ui.form').form({
+                fields: {
+                    email: {
+                        identifier: 'username',
+                        rules: [
+                            {
+                                type: 'empty',
+                                prompt: 'Please enter your username'
+                            }
+                        ]
+                    },
+                    password1: {
+                        identifier: 'password1',
+                        rules: [
+                            {
+                                type: 'empty',
+                                prompt: 'Please enter your password'
+                            }
+                        ]
+                    },
+                    password2: {
+                        identifier: 'password2',
+                        rules: [
+                            {
+                                type: 'empty',
+                                prompt: 'Please enter password confirmation'
+                            }
+                        ]
+                    }
                 }
-              ]
-            },
-            password1: {
-              identifier  : 'password1',
-              rules: [
-                {
-                  type   : 'empty',
-                  prompt : 'Please enter your password'
-                }
-              ]
-            },
-            password2: {
-              identifier  : 'password2',
-              rules: [
-                {
-                  type   : 'empty',
-                  prompt : 'Please enter password confirmation'
-                }
-              ]
-            }
-          }
+            })
+            ;
         })
-      ;
-    })
-  ;
-  </script>
+        ;
+    </script>
 {% endblock %}
+
 {% block content %}
     {% include 'includes/form_errors.html' %}
     <div class="ui middle aligned center aligned grid">
         <div class="column twelve wide">
-            <h2 class="ui teal image header">
-                <div class="content">Sign up</div>
-            </h2>
-            <form class="ui large form" action="{% url 'register' %}?next={{ request.GET.next }}" method="post">{% csrf_token %}
+            <h2 class="ui teal image header">Sign up</h2>
+            <form class="ui large form" action="{% url 'register' %}?next={{ request.GET.next }}"
+                  method="post">{% csrf_token %}
                 <div class="ui stacked segment">
                     {% include 'accounts/includes/field.html' with field=form.username icon='user' %}
                     {% include 'accounts/includes/field.html' with field=form.password1 icon='lock' %}
                     {% include 'accounts/includes/field.html' with field=form.password2 icon='lock' %}
                     <div class="field">
-                      <div class="ui checkbox">
-                        {{ form.login_after }}
-                          <label class="control-label" for="{{ form.login_after.auto_id }}">{{ form.login_after.label }}{% if form.login_after.field.required %}<span class="required">*</span>{% endif %}&nbsp;</label>
-                      </div>
+                        <div class="ui checkbox">
+                            {{ form.login_after }}
+                            <label>{{ form.login_after.label }}</label>
+                        </div>
                     </div>
                     <div class="ui fluid large teal submit button">Create an account</div>
                 </div>

@@ -1,6 +1,6 @@
 function showErrorToastOrRedirectToLoginWithNext(xhr) {
     if (xhr.status === 403 && xhr.responseText.indexOf('credentials were not provided') > -1) {
-        window.location = '/accounts/login?next=/' + (location.pathname+location.search).substr(1);
+        window.location = '/accounts/login?login_required=1&next=/' + (location.pathname+location.search).substr(1);
     } else {
         showXHRErrorToast(xhr);
     }
