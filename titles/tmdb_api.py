@@ -59,8 +59,8 @@ class TmdbResponseMixin:
         query_string.update(self.query_string)
         url = self.urls['base'] + '/'.join(list(map(str, path_parameters)))
         response, response_url = get_json_response(url, query_string)
-        print(response_url, 'name/title', response.get('name'), 'or', response.get('title'))
         if response:
+            print(response_url, 'name/title', response.get('name'), 'or', response.get('title'))
             return SlashDict(response)
         return None
 
@@ -76,14 +76,14 @@ class TmdbResponseMixin:
 
 class BaseTmdb(PersonMixin, TmdbResponseMixin):
     title_type = None
-    title = None
     imdb_id_path = None
 
-    def __init__(self, tmdb_id, title=None, update=False, **kwargs):
+    def __init__(self, tmdb_id=None, title=None, update=False, **kwargs):
+        assert tmdb_id or title
         super().__init__()
         self.update = update  # if True, basic data like seasons and release_will be updated
         self.api_response = None
-        self.cached_response = None
+        # self.cached_response = None
         # maps Title model attribute names to TMDB's response
         self.title_model_map = {
             'overview': 'overview',
@@ -93,14 +93,20 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         self.response_handlers_map = {}
 
         self.get_details = kwargs.get('get_details', False)
-        self.cached_response = kwargs.get('cached_response', None)
+        # self.cached_response = kwargs.get('cached_response', None)
         self.tmdb_id = tmdb_id
+        self.imdb_id = None
+        self.title = title
 
-        if not title:
+        if self.title:
             try:
                 self.title = Title.objects.get(tmdb_id=tmdb_id)
             except Title.DoesNotExist:
                 pass
+
+        if self.title:
+            self.tmdb_id = self.title.tmdb_id
+            self.imdb_id = self.title.imdb_id
 
         self.response_handlers_map.update({
             'genres': self.save_genres,
@@ -123,6 +129,8 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         # except FileNotFoundError:
         qs = {'append_to_response': 'credits,keywords,similar,videos,images,recommendations,external_ids'}
         self.api_response = self.get_tmdb_response(self.urls['details'], self.tmdb_id, qs=qs)
+        if not self.imdb_id:
+            self.imdb_id = self.get_imdb_id_from_response()
         # self.api_response['title_type'] = self.title_type
         #
         # if self.api_response:
@@ -141,7 +149,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         }
 
         title_data.update({
-            'imdb_id': self.get_imdb_id_from_response(),
+            'imdb_id': self.imdb_id,
             'type': self.title_type,
             'source': self.api_response,
             'image_path': self.api_response['poster_path'] or ''
@@ -165,6 +173,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
             if value:
                 handler(value)
 
+        # todo: pass updater
         if self.get_details:
             self.title.update()
 
@@ -331,7 +340,7 @@ class TitleDetailsGetter(TmdbResponseMixin):
         self.title.before_get_details()
 
         self.api_response = SlashDict(title.source)
-        self.tmdb_instance = get_tmdb_concrete_class(title.type)
+        self.tmdb_instance = self.title.get_tmdb_instance()
 
         self.response_handlers_map = {
             'similar/results': self.save_similar,

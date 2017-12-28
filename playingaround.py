@@ -74,10 +74,20 @@ def database_is_clean():
 
 def test_api():
     update = True
-    if not update and Title.objects.filter(imdb_id='tt0110912').exists():
-        Title.objects.filter(imdb_id='tt0110912').delete()
-    else:
-        TmdbWrapper().get(imdb_id='tt0110912', update=update)
+    # if not update and Title.objects.filter(imdb_id='tt0110912').exists():
+    #     Title.objects.filter(imdb_id='tt0110912').delete()
+    # else:
+    t = Title.objects.get(imdb_id='tt0110912')
+    t.image_path = ''
+    t.save()
+    print(t)
+    print(t.image_path)
+
+
+    t.update()
+    t = Title.objects.get(imdb_id='tt0110912')
+    print(t.image_path)
+    # TmdbWrapper().get(imdb_id='tt0110912', update=update)
 
 test_api()
 
