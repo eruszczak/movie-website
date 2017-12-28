@@ -128,9 +128,6 @@ class TitleDetailView(DetailView):
                 'is_favourite_for_user': Favourite.objects.filter(user=self.request.user, title=self.object).exists(),
                 'is_in_user_watchlist': Watchlist.objects.filter(
                     user=self.request.user, title=self.object, deleted=False).exists(),
-                'followed_title_not_recommended': UserFollow.objects.filter(follower=self.request.user).exclude(
-                    Q(followed__rating__title=self.object) | Q(followed__recommendation__title=self.object)
-                ).select_related('followed'),
                 'followed_saw_title': UserFollow.objects.filter(
                     follower=self.request.user, followed__rating__title=self.object).annotate(
                     user_rate=Subquery(
