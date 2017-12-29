@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.text import slugify
@@ -133,7 +132,6 @@ class CurrentlyWatchingTV(models.Model):
 class Title(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
-    source = JSONField(blank=True)
     has_details = models.BooleanField(default=False)
     getting_details = models.BooleanField(default=False)
 
@@ -180,6 +178,7 @@ class Title(models.Model):
         # don't update if it was updated today
         if now().date() == self.update_date.date():
             return False, 'It was updated today'
+
         task_update_title.delay(self.pk)
         return True, 'Title should be updated soon'
 
