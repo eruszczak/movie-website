@@ -48,16 +48,12 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
     title_type = None
     imdb_id_path = None
 
-    def __init__(self, tmdb_id=None, title=None, update=False, **kwargs):
+    def __init__(self, tmdb_id=None, title=None, **kwargs):
         assert tmdb_id or title
         super().__init__()
-        self.update = update  # if True, basic data like seasons and release_will be updated
         self.api_response = None
         # maps Title model attribute names to TMDB's response
-        self.title_model_map = {
-            'overview': 'overview',
-        }
-
+        self.title_model_map = {'overview': 'overview'}
         # maps paths in TMDB's response to their method handlers
         self.response_handlers_map = {}
 
@@ -81,57 +77,59 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
             'credits/cast': self.save_cast,
         })
 
-    def get_or_create(self):
-        if not self.update and self.title:
-            return self.title
-
+    def set_response(self):
         qs = {'append_to_response': 'credits,keywords,similar,videos,images,recommendations,external_ids'}
         self.api_response = self.get_tmdb_response(self.urls['details'], self.tmdb_id, qs=qs)
-        if not self.imdb_id:
-            self.imdb_id = self.get_imdb_id_from_response()
 
+    def get_or_create(self):
+        if self.title:
+            return self.title
+
+        self.set_response()
         if self.api_response:
-            return self.create()
+            self.imdb_id = self.api_response[self.imdb_id_path]
+            if self.imdb_id:
+                return self.create()
 
         return None
 
     def create(self):
+        title_data = self.get_basic_data()
+        self.title = Title.objects.create(tmdb_id=self.tmdb_id, imdb_id=self.imdb_id, **title_data)
+
+        self.call_updater_handlers()
+        if self.get_details:
+            self.title.get_details()
+
+        return self.title
+
+    def update(self):
+        """updates existing title - both: basic info and details"""
+        if self.title:
+            self.set_response()
+            title_data = self.get_basic_data()
+            Title.objects.filter(pk=self.title.pk).update(**title_data)
+            self.title.refresh_from_db()
+            self.clear_related()
+            self.call_updater_handlers()
+            self.title.get_details()
+
+    def get_basic_data(self):
         title_data = {
             attr_name: self.api_response[tmdb_attr_name] for attr_name, tmdb_attr_name in self.title_model_map.items()
         }
-
         title_data.update({
             'type': self.title_type,
             'source': self.api_response,
             'image_path': self.api_response['poster_path'] or ''
         })
+        return title_data
 
-        if not self.imdb_id:
-            # some title had no imdb_id - do not add it
-            return None
-
-        if self.update and self.title:
-            # update only regular attributes
-            Title.objects.filter(pk=self.title.pk).update(**title_data)
-            # clean relations so they can be added again later
-            self.clear_related()
-        else:
-            self.title = Title.objects.create(tmdb_id=self.tmdb_id, imdb_id=self.imdb_id, **title_data)
-
-        assert self.title
-
+    def call_updater_handlers(self):
         for path, handler in self.response_handlers_map.items():
             value = self.api_response[path]
             if value:
                 handler(value)
-
-        if self.get_details or self.update:
-            self.title.get_details()
-
-        return self.title
-
-    def get_imdb_id_from_response(self):
-        return self.api_response[self.imdb_id_path]
 
     def save_keywords(self, value):
         pks = []

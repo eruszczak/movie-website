@@ -110,7 +110,7 @@ class TitleDetailView(DetailView):
 
     def get_object(self, queryset=None):
         obj = self.get_queryset().get()
-        obj.get_details(force=True)
+        # obj.get_details()
         return obj
 
     def get_context_data(self, **kwargs):

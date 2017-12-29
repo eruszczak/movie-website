@@ -1,3 +1,5 @@
+from time import sleep
+
 import django
 import os
 
@@ -131,23 +133,16 @@ def test_api():
 # t.save()
 
 
-def test_details():
-    # return
-    # print(Collection.objects.get(pk=119).delete())
-    # return
-    # imdb_id = 'tt0120737'  # 2001
-    imdb_id = 'tt0167260'  # 2003
+def test_updater():
+    imdb_id = 'tt2527336'  # 2003
     # TmdbWrapper().get(imdb_id=imdb_id, update=True)
 
-    # return
-    t = Title.objects.get(imdb_id=imdb_id)    # LOTR - COLLECTION
+    t = Title.objects.get(imdb_id=imdb_id)
 
     keyword = t.keywords.all().first()
     t.keywords.remove(keyword)
-
     similar = t.similar.all().first()
     t.similar.remove(similar)
-
     recommendations = t.recommendations.all().first()
     t.recommendations.remove(recommendations)
 
@@ -155,15 +150,20 @@ def test_details():
     print(t.similar.all().count(), t.similar.all())
     print(t.recommendations.all().count(), t.recommendations.all())
     print(t.collection, t.collection.titles.count(), t.collection.titles.all())
-    t.update()
+    print(t.update_date)
 
-    t = Title.objects.get(imdb_id=imdb_id)    # LOTR - COLLECTION
+    t.update()
+    sleep(3)
+    t.refresh_from_db()
+
     print(t.keywords.all().count(), t.keywords.all())
     print(t.similar.all().count(), t.similar.all())
     print(t.recommendations.all().count(), t.recommendations.all())
-    # print(t.similar.all().count(), Keyword.objects.all().count(), t.similar.all())
+    print(t.collection, t.collection.titles.count(), t.collection.titles.all())
+    print(t.update_date)
 
-test_details()
+test_updater()
+
 
 def test_collection():
     c = Collection.objects.get(pk=119)

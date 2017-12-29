@@ -20,4 +20,4 @@ def task_update_title(title_pk):
     from titles.models import Title
     title = Title.objects.get(pk=title_pk)
     tmdb_instance = title.get_tmdb_instance()
-    tmdb_instance(title=title, update=True).get_or_create()
+    tmdb_instance(title=title).update()
