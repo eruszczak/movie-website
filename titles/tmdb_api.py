@@ -1,9 +1,6 @@
-import json
 import os
-from time import sleep
 
 from decouple import config
-from django.apps import apps
 from django.conf import settings
 
 from django.utils.timezone import now
@@ -14,30 +11,12 @@ from titles.models import Season, Person, CrewTitle, Popular, Title, Keyword, Ge
     Upcoming
 
 
-# Season, Person, CrewTitle, Popular, Title, Keyword, Genre, CastTitle, Collection, NowPlaying, Upcoming = [
-#     apps.get_model('titles.' + model_name) for model_name in
-#     [
-#         'Season', 'Person', 'CrewTitle', 'Popular', 'Title', 'Keyword', 'Genre', 'CastTitle', 'Collection', 'NowPlaying', 'Upcoming'
-#     ]
-# ]
-
-
 class PersonMixin:
 
     def get_person(self, value):
         person, created = Person.objects.update_or_create(
             pk=value['id'], defaults={'name': value['name'], 'image_path': value['profile_path'] or ''}
         )
-        # if not person.slug:
-        #     # person doesnt have a slug so I have to get details about that person to check alternative names
-        #     person_details = self.get_tmdb_response('person', value['id'])
-        #     if person_details is not None:
-        #         aka = person_details['also_known_as']
-        #         for other_name in aka:
-        #             if slugify(other_name):
-        #                 person.name = other_name
-        #                 person.save()
-        #                 break
         return person
 
 
@@ -60,18 +39,9 @@ class TmdbResponseMixin:
         url = self.urls['base'] + '/'.join(list(map(str, path_parameters)))
         response, response_url = get_json_response(url, query_string)
         if response:
-            print(response_url, 'name/title', response.get('name'), 'or', response.get('title'))
+            print(response_url)
             return SlashDict(response)
         return None
-
-    # def get_response_from_file(self, title_id):
-    #     os.makedirs(os.path.dirname(self.source_file_path), exist_ok=True)
-    #     with open(self.source_file_path.format(title_id), 'r') as outfile:
-    #         return SlashDict(json.load(outfile))
-    #
-    # def save_to_file(self, data, file_name):
-    #     with open(self.source_file_path.format(file_name), 'w') as outfile:
-    #         json.dump(data, outfile)
 
 
 class BaseTmdb(PersonMixin, TmdbResponseMixin):
@@ -83,7 +53,6 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         super().__init__()
         self.update = update  # if True, basic data like seasons and release_will be updated
         self.api_response = None
-        # self.cached_response = None
         # maps Title model attribute names to TMDB's response
         self.title_model_map = {
             'overview': 'overview',
@@ -93,7 +62,6 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         self.response_handlers_map = {}
 
         self.get_details = kwargs.get('get_details', False)
-        # self.cached_response = kwargs.get('cached_response', None)
         self.tmdb_id = tmdb_id
         self.imdb_id = None
         self.title = title
@@ -115,28 +83,12 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
 
     def get_or_create(self):
         if not self.update and self.title:
-            # print('title existed', self.title.name)
             return self.title
 
-        # This is for testing. Because once title in production is added, I won't need this file anymore.
-        # if self.cached_response:
-        #     self.api_response = self.cached_response
-        #     return self.create()
-
-        # try:
-        #     # it's like 'cached_response' but not from TmdbWrapper
-        #     self.api_response = self.get_response_from_file(self.tmdb_id)
-        # except FileNotFoundError:
         qs = {'append_to_response': 'credits,keywords,similar,videos,images,recommendations,external_ids'}
         self.api_response = self.get_tmdb_response(self.urls['details'], self.tmdb_id, qs=qs)
         if not self.imdb_id:
             self.imdb_id = self.get_imdb_id_from_response()
-        # self.api_response['title_type'] = self.title_type
-        #
-        # if self.api_response:
-        #     imdb_id = self.get_imdb_id_from_response()
-        #     for id_value in [imdb_id, self.tmdb_id]:
-        #         self.save_to_file(self.api_response, id_value)
 
         if self.api_response:
             return self.create()
@@ -297,16 +249,7 @@ class TmdbWrapper(TmdbResponseMixin):
         But the thing is, you can't call /tv with imdb_id - only tmdb_id. So I use `find` endpoint and it returns
         whether an imdb_id is a movie/series and I know its tmdb_id, so I can call any endpoint.
         """
-        # try:
-        #     cached_response = self.get_response_from_file(imdb_id)
-        #     tmdb_id = cached_response['id']
-        #     wrapper_class = get_tmdb_concrete_class(cached_response['title_type'])
-        # except FileNotFoundError:
-        #     print('file not found')
         wrapper_class, tmdb_id = self.call_find_endpoint(imdb_id)
-        # else:
-        #     kwargs.update(cached_response=cached_response)
-
         if wrapper_class:
             return wrapper_class(tmdb_id, **kwargs).get_or_create()
 
@@ -334,7 +277,7 @@ class TitleDetailsGetter(TmdbResponseMixin):
     def __init__(self, title):
         super().__init__()
         self.title = title
-        print('TitleUpdater for', self.title)
+        print(f'TitleUpdater for {self.title.imdb_id}')
 
         # title could have details. make sure they are cleared before updating them
         self.clear_details()

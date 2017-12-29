@@ -1,16 +1,13 @@
-from datetime import datetime
-
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
-from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils import timezone
 from django.utils.text import slugify
 
 from .helpers import tmdb_image, static_poster
 from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES, SERIES, MOVIE, IMAGE_SIZES
 from .managers import TitleQuerySet
+from titles.tasks import task_update_title, task_get_details
 
 
 class Keyword(models.Model):
@@ -175,11 +172,9 @@ class Title(models.Model):
         return reverse('title-detail', args=[self.imdb_id, self.slug])
 
     def update(self):
-        from titles.tasks import task_update_title
         task_update_title.delay(self.pk)
 
     def get_details(self, force=False):
-        from titles.tasks import task_get_details
         if (not self.has_details and not self.getting_details) or force:
             print('call tmdb updater task for tmdb_id', self.tmdb_id)
             task_get_details.delay(self.pk)
