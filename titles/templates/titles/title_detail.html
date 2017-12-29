@@ -154,6 +154,12 @@
                         {% for keyword in title.keywords.all %}{{ keyword.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
                     </div>
                 </div>
+                {% if request.user.is_authenticated %}
+                    <div class="mt10">
+                        <small>Latest update: {{ title.update_date }}</small>
+                        <a class="ui mini basic title-update button ml10 no-toggle" data-url="{% url 'title-update' title.pk %}">Update</a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -203,5 +209,10 @@
             </div>
         </div>
     </div>
-    <small>Latest update: {{ title.update_date }}</small>
+    <div class="ui second tiny modal">
+        <i class="close icon"></i>
+        <div class="header"></div>
+        <div class="content"><div class="description"></div></div>
+        <div class="actions"><div class="ui approve button"><i class="checkmark icon"></i> Ok</div></div>
+    </div>
 {% endblock %}
