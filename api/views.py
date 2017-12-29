@@ -18,8 +18,7 @@ from api.mixins import IsAuthenticatedMixin, GetTitleMixin, GetUserMixin
 from lists.models import Favourite
 from titles.forms import TitleSearchForm, RateForm
 from titles.utils import (
-    toggle_favourite, toggle_watchlist, toggle_currentlywatchingtv,
-    toggle_userfollow
+    toggle_favourite, toggle_watchlist, toggle_currentlywatchingtv, toggle_userfollow
 )
 from titles.helpers import instance_required
 from titles.models import Rating, Title, Person
@@ -139,9 +138,7 @@ class ReorderFavourite(IsAuthenticatedMixin, APIView):
 
     def post(self, request, *args, **kwargs):
         favourite_list = Favourite.objects.filter(user=request.user)
-        new_index, old_index = self.get_indexes()
-        change = old_index - new_index
-
+        new_index, old_index, change = self.get_indexes()
         if new_index and old_index and change != 0 and self.valid_indexes(new_index, old_index, favourite_list):
             with atomic():
                 # get item that was moved and exclude its order before updating
@@ -165,9 +162,11 @@ class ReorderFavourite(IsAuthenticatedMixin, APIView):
 
     def get_indexes(self):
         try:
-            return int(self.request.POST.get('newIndex')) + 1, int(self.request.POST.get('oldIndex')) + 1
+            new_index = int(self.request.POST.get('newIndex')) + 1
+            old_index = int(self.request.POST.get('oldIndex')) + 1
+            return new_index, old_index, old_index - new_index
         except (ValueError, TypeError):
-            return None, None
+            return None, None, 0
 
     @staticmethod
     def valid_indexes(index1, index2, fav_qs):
