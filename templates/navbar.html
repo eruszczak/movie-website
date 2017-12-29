@@ -5,7 +5,7 @@
             <div class="ui secondary top attached menu">
                 <a href="{% url 'home' %}" class="header item">Movie Website</a>
                 <a href="{% url 'home' %}" class="item{% if url_name == 'home' %} active{% endif %}"><i class="home icon"></i> Home</a>
-                <a href="{% url 'title-list' %}" class="item{% if url_name == 'title-list' and not request.GET.user|slugify == request.user.pk|slugify %} active{% endif %}"><i class="list layout icon"></i> Explore</a>
+                <a href="{% url 'title-list' %}" class="item{% if url_name == 'title-list' and not owner_looks_on_his_ratings %} active{% endif %}"><i class="list layout icon"></i> Explore</a>
                 <a href="{% url 'user-list' %}" class="item{% if url_name == 'user-list' %} active{% endif %}"><i class="user icon"></i> Users</a>
                 <div class="right menu item">
                     {% if request.user.is_authenticated %}
@@ -18,7 +18,7 @@
                                 <a href="{{ request.user.edit_url }}"
                                 class="item{% if url_name == 'user-edit' %} active{% endif %}"><i class="setting icon"></i>Settings</a>
                                 <div class="divider"></div>
-                                <a class="item{% if url_name == 'title-list' and request.GET.user|slugify == request.user.pk|slugify %} active{% endif %}"
+                                <a class="item{% if url_name == 'title-list' and owner_looks_on_his_ratings %} active{% endif %}"
                                 href="{{ request.user.ratings_url }}"><i class="star icon"></i>My Ratings</a>
                                 <a class="item{% if url_name == 'favourite-list' and user.username == request.user.username %} active{% endif %}"
                                 href="{{ request.user.favourite_url }}"><i class="list icon"></i>Favourites</a>
@@ -48,14 +48,14 @@
             </div>
             <div class="ui vertical menu" style="width:100%;display:none">
                 <a href="{% url 'home' %}" class="item{% if url_name == 'home' %} active{% endif %}"><i class="home icon"></i> Home</a>
-                <a href="{% url 'title-list' %}" class="item{% if url_name == 'title-list' and not request.GET.user|slugify == request.user.pk|slugify %} active{% endif %}"><i class="list layout icon"></i> Explore</a>
+                <a href="{% url 'title-list' %}" class="item{% if url_name == 'title-list' and not owner_looks_on_his_ratings %} active{% endif %}"><i class="list layout icon"></i> Explore</a>
                 <a href="{% url 'user-list' %}" class="item{% if url_name == 'user-list' %} active{% endif %}"><i class="user icon"></i> Users</a>
                 {% if request.user.is_authenticated %}
                     <a class="item{% if url_name == 'user-detail' and user.username == request.user.username %} active{% endif %}"
                     href="{% url 'user-detail' request.user.username %}"><i class="user icon"></i>My Account</a>
                     <a href="{{ request.user.edit_url }}"
                     class="item{% if url_name == 'user-edit' %} active{% endif %}"><i class="setting icon"></i>Settings</a>
-                    <a class="item{% if url_name == 'title-list' and request.GET.user|slugify == request.user.pk|slugify %} active{% endif %}"
+                    <a class="item{% if url_name == 'title-list' and owner_looks_on_his_ratings %} active{% endif %}"
                     href="{{ request.user.ratings_url }}"><i class="star icon"></i>My Ratings</a>
                     <a class="item{% if url_name == 'favourite-list' and user.username == request.user.username %} active{% endif %}"
                     href="{{ request.user.favourite_url }}"><i class="list icon"></i>Favourites</a>
