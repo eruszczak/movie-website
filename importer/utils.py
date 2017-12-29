@@ -20,7 +20,6 @@ def import_ratings_from_csv(user, file_path):
     except Exception as e:
         print(e)
     else:
-        print(mapper)
         if mapper:
             reader = DictReader(f)
             row_count, created_count = 0, 0
@@ -29,8 +28,6 @@ def import_ratings_from_csv(user, file_path):
                 imdb_id, rate_date, rate = row[mapper['imdb_id']], row[mapper['rate_date']], row[mapper['rate']]
                 rate_date = convert_to_datetime(row[mapper['rate_date']], 'csv')
                 title = TmdbWrapper().get(imdb_id=imdb_id)
-                print(imdb_id, rate_date, rate, title)
-
                 if title and rate_date and not Rating.objects.filter(
                         user=user, title=title, rate_date=rate_date).exists():
                     data = {
@@ -45,12 +42,13 @@ def import_ratings_from_csv(user, file_path):
                         if form.errors:
                             for error in form.errors.items():
                                 print(error)
-                else:
-                    print('existed or title or rate_date is missing')
+                # else:
+                #     print('existed or title or rate_date is missing')
+            print(f'imported {created_count} out of {row_count} ratings '
+                  f'- {round((created_count / row_count) * 100, 2)}%')
         else:
             print('headers are wrong')
 
-        print(f'imported {created_count} out of {row_count} ratings - {round((created_count / row_count) * 100, 2)}%')
         f.close()
     finally:
         remove(file_path)
