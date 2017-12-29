@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
 
-from titles.tmdb_api import TmdbTaskRunner
+from titles.tasks import task_run_daily_tmdb_tasks
 
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        TmdbTaskRunner().run()
+        task_run_daily_tmdb_tasks.delay()

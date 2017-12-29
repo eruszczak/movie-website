@@ -1,3 +1,4 @@
+from datetime import timedelta
 from time import sleep
 
 import django
@@ -132,6 +133,28 @@ def test_api():
 # print(t.imdb_id)
 # t.save()
 
+def remove_attrs(imdb_id=None):
+    imdb_id = imdb_id or 'tt2527336'
+    t = Title.objects.get(imdb_id=imdb_id)
+
+    keyword = t.keywords.all().first()
+    t.keywords.remove(keyword)
+    similar = t.similar.all().first()
+    t.similar.remove(similar)
+    recommendations = t.recommendations.all().first()
+    t.recommendations.remove(recommendations)
+
+    t.collection =None
+    t.update_date = t.update_date - timedelta(days=1)
+    t.save()
+
+    print(t.keywords.all().count(), t.keywords.all())
+    print(t.similar.all().count(), t.similar.all())
+    print(t.recommendations.all().count(), t.recommendations.all())
+    # print(t.collection, t.collection.titles.count(), t.collection.titles.all())
+    print(t.update_date)
+
+remove_attrs()
 
 def test_updater():
     imdb_id = 'tt2527336'  # 2003
@@ -166,21 +189,6 @@ def test_updater():
     # print(t.update_date)
 
 # test_updater()
-
-class Test:
-    response = None
-
-
-class X(Test):
-
-    def __init__(self):
-        super().__init__()
-        print(self.response)
-        self.response = {'test'}
-        print(self.response)
-
-
-X()
 
 
 def test_collection():

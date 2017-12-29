@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 
 from api.mixins import GetUserMixin
 from importer.forms import ImportRatingsForm
-from importer.utils import import_ratings_from_csv, export_ratings
+from importer.tasks import task_import, task_export
 from shared.mixins import LoginRequiredMixin
 from titles.helpers import instance_required
 
@@ -40,14 +40,13 @@ class ImportRatingsFormView(LoginRequiredMixin, FormView):
         file_path = join(user_tmp_folder, file.name)
         if default_storage.exists(file_path):
             default_storage.delete(file_path)
-        # path = default_storage.save(file_path, ContentFile(file.read()))
-        path = default_storage.save(file_path, ContentFile(file.read()))
+        default_storage.save(file_path, ContentFile(file.read()))
+        task_import.delay(self.request.user.pk, file_path)
+        messages.success(self.request, WAIT_MESSAGE)
         # with default_storage.open(file_path, 'wb+') as destination:
         #     for chunk in file.chunks():
         #         destination.write(chunk)
-
-        import_ratings_from_csv(self.request.user, file_path)
-        messages.success(self.request, WAIT_MESSAGE)
+        # import_ratings_from_csv(self.request.user, file_path)
         return super().form_valid(form)
 
 
@@ -55,7 +54,8 @@ class ExportRatingsAPIView(LoginRequiredMixin, GetUserMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        export_ratings(self.user)
+        task_export.delay(self.request.user.pk)
+        # export_ratings(self.user)
         return Response({'message': WAIT_MESSAGE, 'title': 'Export'}, status=status.HTTP_200_OK)
 
 
