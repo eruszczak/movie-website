@@ -58,18 +58,18 @@ $('.ui.search').search({
             var results = [];
             $.each(serverResponse.titles, function(index, item) {
                 results.push({
-                    title: item.name,
-                    description: item.year + ' ' + item.type,
+                    title: item.name + ' (' + item.year + ' ' + item.type + ')',
+                    // description: item.year + ' ' + item.type,
                     url: item.url,
-                    image: item.img
+                    // image: item.img
                 });
             });
             $.each(serverResponse.persons, function(index, item) {
                 results.push({
                     title: item.name,
-                    description: 'Person',
+                    // description: 'Person',
                     url: item.url,
-                    image: item.img
+                    // image: item.img
                 });
             });
             var action = null;

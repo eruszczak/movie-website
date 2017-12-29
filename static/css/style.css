@@ -282,6 +282,10 @@ body {
      padding-right: 0!important;
 }
 
+.results {
+    width: 100%!important;
+}
+
 /*.ui.tab {*/
     /*visibility: hidden;*/
 /*}*/
