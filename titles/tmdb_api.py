@@ -275,7 +275,7 @@ class TitleDetailsGetter(TmdbResponseMixin):
     def __init__(self, title):
         super().__init__()
         self.title = title
-        # print(f'TitleUpdater for {self.title.imdb_id}')
+        print(f'TitleUpdater for {self.title.imdb_id}')
 
         # this is needed because similar/recommended/collection titles have the same type as self.title
         # and this instance is needed to fetch their details
