@@ -165,7 +165,22 @@ def test_updater():
     # print(t.collection, t.collection.titles.count(), t.collection.titles.all())
     # print(t.update_date)
 
-test_updater()
+# test_updater()
+
+class Test:
+    response = None
+
+
+class X(Test):
+
+    def __init__(self):
+        super().__init__()
+        print(self.response)
+        self.response = {'test'}
+        print(self.response)
+
+
+X()
 
 
 def test_collection():

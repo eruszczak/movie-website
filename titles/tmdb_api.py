@@ -1,7 +1,4 @@
-import os
-
 from decouple import config
-from django.conf import settings
 
 from django.utils.timezone import now
 
@@ -22,7 +19,6 @@ class PersonMixin:
 
 class TmdbResponseMixin:
     api_key = config('TMDB_API_KEY')
-    source_file_path = os.path.join(settings.BACKUP_ROOT, 'source', '{}.json')
     urls = {
         'base': 'https://api.themoviedb.org/3/'
     }
@@ -32,6 +28,7 @@ class TmdbResponseMixin:
             'api_key': self.api_key,
             'language': 'language=en-US'
         }
+        self.api_response = None
 
     def get_tmdb_response(self, *path_parameters, **kwargs):
         query_string = kwargs.get('qs', {})
@@ -43,6 +40,16 @@ class TmdbResponseMixin:
             return SlashDict(response)
         return None
 
+    def set_title_response(self, tmdb_id):
+        qs = {'append_to_response': 'credits,keywords,similar,videos,images,recommendations,external_ids'}
+        self.api_response = self.get_tmdb_response(self.urls['details'], tmdb_id, qs=qs)
+
+    def call_updater_handlers(self):
+        for path, handler in self.response_handlers_map.items():
+            value = self.api_response[path]
+            if value:
+                handler(value)
+
 
 class BaseTmdb(PersonMixin, TmdbResponseMixin):
     title_type = None
@@ -51,7 +58,6 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
     def __init__(self, tmdb_id=None, title=None, **kwargs):
         assert tmdb_id or title
         super().__init__()
-        self.api_response = None
         # maps Title model attribute names to TMDB's response
         self.title_model_map = {'overview': 'overview'}
         # maps paths in TMDB's response to their method handlers
@@ -77,15 +83,11 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
             'credits/cast': self.save_cast,
         })
 
-    def set_response(self):
-        qs = {'append_to_response': 'credits,keywords,similar,videos,images,recommendations,external_ids'}
-        self.api_response = self.get_tmdb_response(self.urls['details'], self.tmdb_id, qs=qs)
-
     def get_or_create(self):
         if self.title:
             return self.title
 
-        self.set_response()
+        self.set_title_response(self.tmdb_id)
         if self.api_response:
             self.imdb_id = self.api_response[self.imdb_id_path]
             if self.imdb_id:
@@ -99,14 +101,14 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
 
         self.call_updater_handlers()
         if self.get_details:
-            self.title.get_details()
+            TitleDetailsGetter(self.title).run()
 
         return self.title
 
     def update(self):
         """updates existing title - both: basic info and details"""
         if self.title:
-            self.set_response()
+            self.set_title_response(self.tmdb_id)
             title_data = self.get_basic_data()
             Title.objects.filter(pk=self.title.pk).update(**title_data)
             self.title.refresh_from_db()
@@ -114,7 +116,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
             # self.title.save()
             self.clear_related()
             self.call_updater_handlers()
-            self.title.get_details()
+            TitleDetailsGetter(self.title).run()
 
     def get_basic_data(self):
         title_data = {
@@ -122,16 +124,9 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         }
         title_data.update({
             'type': self.title_type,
-            'source': self.api_response,
             'image_path': self.api_response['poster_path'] or ''
         })
         return title_data
-
-    def call_updater_handlers(self):
-        for path, handler in self.response_handlers_map.items():
-            value = self.api_response[path]
-            if value:
-                handler(value)
 
     def save_keywords(self, value):
         pks = []
@@ -279,13 +274,6 @@ class TitleDetailsGetter(TmdbResponseMixin):
         self.title = title
         print(f'TitleUpdater for {self.title.imdb_id}')
 
-        # title could have details. make sure they are cleared before updating them
-        self.clear_details()
-
-        self.title.before_get_details()
-
-        self.api_response = SlashDict(title.source)
-
         # this is needed because similar/recommended/collection titles have the same type as self.title
         # and this instance is needed to fetch their details
         self.tmdb_instance = self.title.get_tmdb_instance()
@@ -296,12 +284,14 @@ class TitleDetailsGetter(TmdbResponseMixin):
             'belongs_to_collection': self.save_collection
         }
 
-        for path, handler in self.response_handlers_map.items():
-            value = self.api_response[path]
-            if value:
-                handler(value)
-
-        self.title.after_get_details()
+    def run(self):
+        self.set_title_response(self.title.tmdb_id)
+        if self.api_response:
+            # title could have details. make sure they are cleared before updating them
+            self.clear_details()
+            self.title.before_get_details()
+            self.call_updater_handlers()
+            self.title.after_get_details()
 
     def save_similar(self, value):
         self.save_titles_to_attribute(value, self.title.similar)
