@@ -26,7 +26,6 @@ INSTALLED_APPS = [
     'shared.apps.SharedConfig',
     'accounts.apps.AccountsConfig',
     'titles.apps.TitlesConfig',
-    'recommend.apps.RecommendConfig',
     'lists.apps.ListsConfig',
     'importer.apps.ImporterConfig'
 ]
