@@ -37,8 +37,8 @@ const SHOW_RESULT_MODAL_BASE = $.extend({
     }
 }, API_SETTINGS_BASE);
 
-$('.title-fav, .title-watch, .follow.button, .currently-watching.button').api(TOGGLE_API_SETTINGS_BASE);
-$('.export.modal .actions .positive, .clear.modal .actions .negative, .title-update').api(SHOW_RESULT_MODAL_BASE);
+$('.title-fav, .title-watch, .follow.button, .currently-watching.button, .title-update').api(TOGGLE_API_SETTINGS_BASE);
+$('.export.modal .actions .positive, .clear.modal .actions .negative').api(SHOW_RESULT_MODAL_BASE);
 
 $('.regular.rating').rating({
     initialRating: 0,

@@ -146,21 +146,24 @@ def test_updater():
     recommendations = t.recommendations.all().first()
     t.recommendations.remove(recommendations)
 
-    print(t.keywords.all().count(), t.keywords.all())
-    print(t.similar.all().count(), t.similar.all())
-    print(t.recommendations.all().count(), t.recommendations.all())
-    print(t.collection, t.collection.titles.count(), t.collection.titles.all())
-    print(t.update_date)
-
-    t.update()
-    sleep(3)
-    t.refresh_from_db()
+    t.collection =None
+    t.save()
 
     print(t.keywords.all().count(), t.keywords.all())
     print(t.similar.all().count(), t.similar.all())
     print(t.recommendations.all().count(), t.recommendations.all())
     print(t.collection, t.collection.titles.count(), t.collection.titles.all())
     print(t.update_date)
+
+    # t.update()
+    # sleep(3)
+    # t.refresh_from_db()
+    #
+    # print(t.keywords.all().count(), t.keywords.all())
+    # print(t.similar.all().count(), t.similar.all())
+    # print(t.recommendations.all().count(), t.recommendations.all())
+    # print(t.collection, t.collection.titles.count(), t.collection.titles.all())
+    # print(t.update_date)
 
 test_updater()
 

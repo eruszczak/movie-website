@@ -4,7 +4,7 @@ from django.db.models import OuterRef
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import DetailView, TemplateView, RedirectView, ListView, FormView
+from django.views.generic import DetailView, TemplateView, RedirectView, ListView
 
 from accounts.models import UserFollow
 from lists.models import Watchlist, Favourite
@@ -110,7 +110,9 @@ class TitleDetailView(DetailView):
 
     def get_object(self, queryset=None):
         obj = self.get_queryset().get()
-        # obj.get_details()
+        if obj.should_get_details:
+            obj.get_details()
+        # consider if update() it if it wasn't updated for like 50 days
         return obj
 
     def get_context_data(self, **kwargs):
@@ -155,10 +157,6 @@ class TitleDetailView(DetailView):
             'crew_list': CrewTitle.objects.filter(title=self.object).select_related('person'),
         })
         return context
-
-
-class Test(LoginRequiredMixin, FormView):
-    pass
 
 
 class RatingUpdateView(LoginRequiredMixin, TemplateView):
