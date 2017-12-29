@@ -302,7 +302,7 @@ body {
     visibility: hidden;
 }
 
-.ui.secondary.menu .active.item, .ui.menu .ui.dropdown .menu>.active.item {
+.ui.secondary.menu .active.item, .ui.menu .ui.dropdown .menu>.active.item, .menu .item.active {
     background: rgba(165, 165, 165, 0.38)!important;
 }
 
