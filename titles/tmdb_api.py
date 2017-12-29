@@ -110,6 +110,8 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
             title_data = self.get_basic_data()
             Title.objects.filter(pk=self.title.pk).update(**title_data)
             self.title.refresh_from_db()
+            # if get_details won't be called, update_date won't be updated (filter.update doesn't call save)
+            # self.title.save()
             self.clear_related()
             self.call_updater_handlers()
             self.title.get_details()

@@ -177,20 +177,19 @@ class Title(models.Model):
         Updates title through a button on title_detail page. It updates basic info and also calls get_details.
         Every authenticated user can request a title update by clicking button on title_detail.
         """
-        # not not update if it was updated today
-        # if now().date() == self.update_date.date():
-        #     return False, 'It was updated today'
+        # don't update if it was updated today
+        if now().date() == self.update_date.date():
+            return False, 'It was updated today'
         task_update_title.delay(self.pk)
-        return True, None
+        return True, 'Title should be updated soon'
 
-    def get_details(self, force=False):
+    def get_details(self):
         """
         Title by default is added without details (similar, recommendations, collection).
         Details are fetched when title without details is visited (through detail-view)
         """
-        if (not self.has_details and not self.getting_details) or force:
-            print('call tmdb updater task for tmdb_id', self.tmdb_id)
-            task_get_details.delay(self.pk)
+        print(f'call tmdb updater task for {self.imdb_id}')
+        task_get_details.delay(self.pk)
 
     def before_get_details(self):
         self.getting_details = True
@@ -267,6 +266,10 @@ class Title(models.Model):
             return self.release_date.year
         except AttributeError:
             return ''
+
+    @property
+    def should_get_details(self):
+        return not self.has_details and not self.getting_details
 
     # @property
     # def can_be_updated(self):

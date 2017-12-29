@@ -94,8 +94,6 @@ class UpdateTitleAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
     @instance_required
     def post(self, request, *args, **kwargs):
         is_updated, message = self.title.update()
-        if is_updated:
-            message = 'Title should be updated soon'
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
