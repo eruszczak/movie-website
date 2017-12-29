@@ -1,3 +1,5 @@
+from time import sleep
+
 from decouple import config
 
 from django.utils.timezone import now
@@ -34,6 +36,7 @@ class TmdbResponseMixin:
         query_string = kwargs.get('qs', {})
         query_string.update(self.query_string)
         url = self.urls['base'] + '/'.join(list(map(str, path_parameters)))
+        sleep(1.5)
         response, response_url = get_json_response(url, query_string)
         if response:
             print(response_url)
@@ -272,7 +275,7 @@ class TitleDetailsGetter(TmdbResponseMixin):
     def __init__(self, title):
         super().__init__()
         self.title = title
-        print(f'TitleUpdater for {self.title.imdb_id}')
+        # print(f'TitleUpdater for {self.title.imdb_id}')
 
         # this is needed because similar/recommended/collection titles have the same type as self.title
         # and this instance is needed to fetch their details
