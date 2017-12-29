@@ -91,7 +91,7 @@ def celery():
 
 
 def celery_win():
-    with virtualenv:
+    with virtualenv():
         local('celery -A mysite worker --pool=solo -l info')
 
 

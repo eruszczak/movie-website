@@ -10,6 +10,7 @@ router.register(r'ratings', views.RatingsViewSet)
 urlpatterns = [
     url(r'^search/$', views.SearchAPIView.as_view(), name='search'),
     url(r'^title/(?P<pk>\d+)/rate/$', views.CreateUpdateRatingAPIView.as_view(), name='title-rate'),
+    url(r'^title/(?P<pk>\d+)/update/$', views.UpdateTitleAPIView.as_view(), name='title-update'),
     url(r'^title/(?P<pk>\d+)/remove-rate/$', views.DeleteRatingAPIView.as_view(), name='title-remove-rate'),
     url(r'^title/(?P<pk>\d+)/favourites/$', views.ToggleFavouriteAPIView.as_view(), name='title-fav'),
     url(r'^title/(?P<pk>\d+)/watchlist/$', views.ToggleWatchlistAPIView.as_view(), name='title-watch'),
