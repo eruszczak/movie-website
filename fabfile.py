@@ -90,6 +90,11 @@ def celery():
         local('celery -A mysite worker -l info')
 
 
+def celery_win():
+    with virtualenv:
+        local('celery -A mysite worker --pool=solo -l info')
+
+
 def requirements():
     with virtualenv():
         local('sudo pip install -r requirements.txt')

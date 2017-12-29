@@ -96,7 +96,6 @@ class TitleDetailView(DetailView):
     query_pk_and_slug = False
     template_name = 'titles/title_detail.html'
     model = Title
-    object = None
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(imdb_id=self.kwargs['imdb_id']).prefetch_related('seasons', 'keywords')\
@@ -110,7 +109,9 @@ class TitleDetailView(DetailView):
         return queryset
 
     def get_object(self, queryset=None):
-        return self.get_queryset().get()
+        obj = self.get_queryset().get()
+        obj.get_details(force=True)
+        return obj
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
