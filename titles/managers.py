@@ -68,7 +68,7 @@ class RatingQuerySet(QuerySet):
         from titles.models import Rating
 
         if request_user and request_user.is_authenticated:
-            return self.annotate(Subquery(
+            return self.annotate(request_user_rate=Subquery(
                 Rating.objects.filter(
                     user=request_user, title=OuterRef('title__pk')
                 ).order_by('-rate_date').values('rate')[:1]

@@ -1,3 +1,3 @@
 <a href="{% url 'home' %}" class="item{% if url_name == 'home' %} active{% endif %}"><i class="home icon"></i> Home</a>
-<a href="{% url 'title-list' %}" class="item{% if url_name == 'title-list' and not owner_looks_at_his_ratings %} active{% endif %}"><i class="list layout icon"></i> Explore</a>
+<a href="{% url 'title-list' %}" class="item{% if url_name == 'title-list' %} active{% endif %}"><i class="list layout icon"></i> Explore</a>
 <a href="{% url 'user-list' %}" class="item{% if url_name == 'user-list' %} active{% endif %}"><i class="user icon"></i> Users</a>
