@@ -1,11 +1,11 @@
 from django import template
-from urllib.parse import urlencode, parse_qsl
+from urllib.parse import urlencode, parse_qsl, quote_plus
 
 register = template.Library()
 
 
-@register.simple_tag(name='get_query_string')
-def get_query_string(get_request, *args):
+@register.simple_tag(name='pagination_qs')
+def pagination_qs(get_request, *args):
     """
     returns encoded query string without page parameter and extra parameter names passed as *args
     Using parse_qsl because I need a list and get_request.urlencode() because it gives an access to multiple values
@@ -23,3 +23,12 @@ def get_query_string(get_request, *args):
     parameter_list = parse_qsl(get_request.urlencode())
     encoded_query_string = urlencode(parameter_list)
     return '&{}'.format(encoded_query_string) if encoded_query_string else ''
+
+
+@register.simple_tag(name='get_next')
+def get_next(request):
+    if request.GET.urlencode():  # path can be none but it can have a qs
+        url = f'{request.path}?{request.GET.urlencode()}'
+        # todo: do not encode GET, full url. check if request.GET, not path
+        return f'?next={quote_plus(url)}'
+    return f'?next={request.path}'

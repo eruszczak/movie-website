@@ -1,5 +1,6 @@
-{% load static %}
+{% load static query_string %}
 {% with url_name=request.resolver_match.url_name %}
+    {% get_next request as next_param %}
     <div class="ui grid">
         <div class="computer tablet only row">
             <div class="ui secondary top attached menu">
@@ -25,14 +26,14 @@
                                 <a class="item{% if url_name == 'watchlist-list' and user.username == request.user.username %} active{% endif %}"
                                 href="{{ request.user.watchlist_url }}"><i class="bookmark icon"></i>Watchlist</a>
                                 <div class="divider"></div>
-                                <a href="{% url 'logout' %}?next={{ request.path }}" class="item"><i class="sign out icon"></i>Logout</a>
+                                <a href="{% url 'logout' %}{{ next_param }}" class="item"><i class="sign out icon"></i>Logout</a>
                             </div>
                         </div>
                     {% else %}
                         <div class="right menu">
-                            <a href="{% url 'login' %}?next={{ request.path }}" class="item{% if url_name == 'login' %} active{% endif %}"><i
+                            <a href="{% url 'login' %}{{ next_param }}" class="item{% if url_name == 'login' %} active{% endif %}"><i
                                     class="sign in icon"></i>Login</a>
-                            <a class="ui primary button" href="{% url 'register' %}" class="item{% if url_name == 'register' %} active{% endif %}"><i
+                            <a class="ui primary button" href="{% url 'register' %}{{ next_param }}" class="item{% if url_name == 'register' %} active{% endif %}"><i
                                     class="sign out icon"></i>Sign up</a>
                         </div>
                     {% endif %}
@@ -61,9 +62,9 @@
                     href="{{ request.user.favourite_url }}"><i class="list icon"></i>Favourites</a>
                     <a class="item{% if url_name == 'watchlist-list' and user.username == request.user.username %} active{% endif %}"
                     href="{{ request.user.watchlist_url }}"><i class="bookmark icon"></i>Watchlist</a>
-                    <a href="{% url 'logout' %}?next={{ request.path }}" class="item"><i class="sign out icon"></i>Logout</a>
+                    <a href="{% url 'logout' %}?next={{ request.path }}?{{ request.GET.urlencode }}" class="item"><i class="sign out icon"></i>Logout</a>
                 {% else %}
-                    <a href="{% url 'login' %}?next={{ request.path }}" class="item{% if url_name == 'login' %} active{% endif %}"><i
+                    <a href="{% url 'login' %}?next={{ request.path }}?{{ request.GET.urlencode }}" class="item{% if url_name == 'login' %} active{% endif %}"><i
                             class="sign in icon"></i>Login</a>
                     <a href="{% url 'register' %}" class="item{% if url_name == 'register' %} active{% endif %}"><i
                             class="sign out icon"></i>Sign up</a>
