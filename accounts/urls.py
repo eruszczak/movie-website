@@ -1,5 +1,6 @@
 from django.conf.urls import url
 
+from titles.views import UserRatingsListView
 from . import views
 import lists.views as lists_views
 
@@ -12,6 +13,7 @@ urlpatterns = [
     url(r'^password-change/$', views.PasswordChangeView.as_view(), name='password-change'),
     url(r'^settings/$', views.UserUpdateView.as_view(), name='user-edit'),
     url(r'^(?P<username>[-\w]+)/$', views.UserDetailView.as_view(), name='user-detail'),
+    url(r'^(?P<username>[-\w]+)/ratings/$', UserRatingsListView.as_view(), name='user-ratings'),
     url(r'^(?P<username>[-\w]+)/watchlist/$', lists_views.WatchlistListView.as_view(), name='watchlist-list'),
     url(r'^(?P<username>[-\w]+)/favourites/$', lists_views.FavouriteListView.as_view(), name='favourite-list'),
 ]

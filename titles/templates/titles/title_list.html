@@ -1,33 +1,6 @@
-{% extends 'base.html' %}
-{% load widget_tweaks get_src_attrs %}
-{% block title %}{% if searched_user %}{{ searched_user.username }}'s ratings{% else %}Titles{% endif %}{% endblock %}
+{% extends 'titles/user_ratings_list.html' %}
 
-{% block scripts %}
-    <script>
-        $('.ui.form')
-            .form({
-                fields: {
-                    year: {
-                        identifier: 'year',
-                        optional: true,
-                        rules: [
-                            {
-                                type: 'integer[1890..2030]',
-                                prompt: 'Insert value between 1890 and 2030'
-                            }
-                        ]
-                    }
-                }
-            })
-        ;
-    </script>
-{% endblock %}
-
-{% block image %}
-    {% if searched_user %}
-        {% include 'accounts/includes/user_background.html' with user=searched_user %}
-    {% endif %}
-{% endblock %}
+{% block title %}Explore titles{% endblock %}
 
 {% block breadcrumb %}
     <div class="ui breadcrumb">
@@ -41,92 +14,12 @@
     </div>
 {% endblock %}
 
-{% block content %}
-    {% if searched_user and paginator.count == 0 %}
-        <h1 class="ui center aligned dividing header">{{ searched_user.username }}'s ratings</h1>
-    {% else %}
-        <div class="ui styled fluid accordion">
-            <div class="title{% if show_search_box %} active{% endif %}"><i class="dropdown icon"></i> Search</div>
-            <div class="content{% if show_search_box %} active{% endif %}">
-                {% include 'includes/form_errors.html' with form=search_form %}
-                <form class="ui form">
-                    <div class="ui error message"></div>
-                    <div class="fields">
-                        <input name="user" value="{{ request.GET.user }}" hidden>
-                        <div class="four wide field">
-                            {% include 'includes/fied2.html' with field=search_form.keyword %}
-                        </div>
-                        <div class="five wide field">
-                            <label>{{ search_form.genre.label|cut:'*' }}</label>
-                            {% render_field search_form.genre|add_class:'ui dropdown search' %}
-                        </div>
-                        <div class="six wide field">
-                            <div class="two fields">
-                                <div class="field">
-                                    {% include 'includes/fied2.html' with field=search_form.year %}
-                                </div>
-                                <div class="field">
-                                    {% include 'includes/fied2.html' with field=search_form.type %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <button class="ui primary submit button">Search</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    {% endif %}
+{% block list_header %}{{ paginator.count }} titles{% endblock %}
 
-    {% if paginator.count %}
-        <h1 class="ui center aligned dividing header">
-            {% if searched_user %}{{ searched_user.username }}'s {{ paginator.count }} ratings
-                {% else %}{{ paginator.count }} titles{% endif %}</h1>
-        <div class="ui two column stackable grid">
-            {% for title in title_list %}
-                <div class="column">
-                    <div class="ui card backdrop-card">
-                        <a href="{{ title.get_absolute_url }}" class="ui image">
-                            {% if not owner_looks_at_his_ratings %}
-                                <a class="ui left corner label green">
-                                    <span class="icon">{{ title.user_rate }}</span>
-                                </a>
-                            {% endif %}
-                            <img {% get_src_attrs title.poster_card_placeholder title.poster_card %}>
-                        </a>
-                        <div class="content">
-                            <p class="header center aligned"><a href="{{ title.get_absolute_url }}">{{ title.name }}</a>
-                            </p>
-                            <div class="meta">
-                                <span class="date">{{ title.plot|truncatewords:25|truncatechars:150 }}</span>
-                            </div>
-                            <div class="description">
-                                <p>
-                                    {% for genre in title.genres.all %}
-                                        <a href="{{ genre.get_absolute_url }}">
-                                            {{ genre.name }}{% if not forloop.last %},{% endif %}</a>
-                                    {% endfor %}
-                                    <span class="right floated">
-                                    <i class="calendar icon"></i> {{ title.year }}
-                                </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="extra content">
-                            {% include 'titles/includes/rating.html' with rate=title.request_user_rate %}
-                            <div class="right floated">
-                                {% include 'titles/includes/toggles.html' %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+{% block columns %}
+    {% for title in title_list %}
+        <div class="column">
+            {% include 'titles/includes/title_card.html' with is_fav=title.has_in_favourites is_watch=title.has_in_watchlist %}
         </div>
-    {% else %}
-        <div class="ui message">
-            List is empty
-        </div>
-    {% endif %}
-    {% include 'includes/pagination.html' %}
+    {% endfor %}
 {% endblock %}

@@ -1,0 +1,36 @@
+{% load get_src_attrs %}
+
+<div class="ui card backdrop-card">
+    <a href="{{ title.get_absolute_url }}" class="ui image">
+        {% if is_other_user %}
+            <a class="ui left corner label green">
+                <span class="icon">{{ title.user_rate }}</span>
+            </a>
+        {% endif %}
+        <img {% get_src_attrs title.poster_card_placeholder title.poster_card %}>
+    </a>
+    <div class="content">
+        <p class="header center aligned"><a href="{{ title.get_absolute_url }}">{{ title.name }}</a>
+        </p>
+        <div class="meta">
+            <span class="date">{{ title.plot|truncatewords:25|truncatechars:150 }}</span>
+        </div>
+        <div class="description">
+            <p>
+                {% for genre in title.genres.all %}
+                    <a href="{{ genre.get_absolute_url }}">
+                        {{ genre.name }}{% if not forloop.last %},{% endif %}</a>
+                {% endfor %}
+                <span class="right floated">
+                <i class="calendar icon"></i> {{ title.year }}
+            </span>
+            </p>
+        </div>
+    </div>
+    <div class="extra content">
+        {% include 'titles/includes/rating.html' with rate=rate %}
+        <div class="right floated">
+            {% include 'titles/includes/toggles.html' with is_fav=is_fav is_watch=is_watch %}
+        </div>
+    </div>
+</div>

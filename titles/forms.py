@@ -14,13 +14,16 @@ from shared.forms import SearchFormMixin
 User = get_user_model()
 
 
-class TitleSearchForm(SearchFormMixin, forms.Form):
+class TitleSearchMixin(SearchFormMixin, forms.Form):
+    """search_ methods need to be implemented"""
     year = forms.IntegerField(required=False)
-    user = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
     keyword = forms.CharField(max_length=100, required=False, label='Keywords')
     genre = forms.ModelMultipleChoiceField(
         queryset=Genre.objects.annotate(count=Count('title')).order_by('-count'), required=False)
     type = forms.ChoiceField(choices=TITLE_TYPE_CHOICES, required=False)
+
+
+class TitleSearchForm(TitleSearchMixin):
 
     @staticmethod
     def search_keyword(value):
@@ -40,9 +43,26 @@ class TitleSearchForm(SearchFormMixin, forms.Form):
     def search_type(value):
         return Q(type=value)
 
+
+class RatingSearchForm(TitleSearchForm):
+
     @staticmethod
-    def search_user(value):
-        return Q(rating__user=value)
+    def search_keyword(value):
+        if len(value) > 2:
+            return Q(title__name__icontains=value)
+        return Q(title__name__istartswith=value)
+
+    @staticmethod
+    def search_genre(value):
+        return Q(title__genres__in=value)
+
+    @staticmethod
+    def search_year(value):
+        return Q(title__release_date__year=value)
+
+    @staticmethod
+    def search_type(value):
+        return Q(title__type=value)
 
 
 class RateForm(forms.ModelForm):
