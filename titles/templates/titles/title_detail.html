@@ -131,7 +131,7 @@
                 {% if request.user.is_authenticated %}
                     <div class="mt10">
                         <small>Latest update: {{ title.update_date }}</small>
-                        <a class="ui mini basic title-update button ml10 no-toggle" data-url="{% url 'title-update' title.pk %}">Update</a>
+                        <a class="ui mini basic title-update button ml10 no-toggle{% if not can_be_updated %} disabled{% endif %}" data-url="{% url 'title-update' title.pk %}">Update</a>
                     </div>
                 {% endif %}
             </div>

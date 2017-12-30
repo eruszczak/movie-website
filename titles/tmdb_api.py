@@ -20,6 +20,7 @@ class PersonMixin:
 
 
 class TmdbResponseMixin:
+    details_path = None
     api_key = config('TMDB_API_KEY')
     urls = {
         'base': 'https://api.themoviedb.org/3/'
@@ -45,7 +46,7 @@ class TmdbResponseMixin:
 
     def set_title_response(self, tmdb_id):
         qs = {'append_to_response': 'credits,keywords,similar,videos,images,recommendations,external_ids'}
-        self.api_response = self.get_tmdb_response(self.urls['details'], tmdb_id, qs=qs)
+        self.api_response = self.get_tmdb_response(self.details_path, tmdb_id, qs=qs)
 
     def call_updater_handlers(self):
         for path, handler in self.response_handlers_map.items():
@@ -110,8 +111,8 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
 
     def update(self):
         """updates existing title - both: basic info and details"""
-        if self.title:
-            self.set_title_response(self.tmdb_id)
+        self.set_title_response(self.tmdb_id)
+        if self.title and self.api_response:
             title_data = self.get_basic_data()
             Title.objects.filter(pk=self.title.pk).update(**title_data)
             self.title.refresh_from_db()
@@ -158,6 +159,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
 
 
 class MovieTmdb(BaseTmdb):
+    details_path = 'movie'
     title_type = MOVIE
     imdb_id_path = 'imdb_id'
     model_map = {
@@ -168,7 +170,6 @@ class MovieTmdb(BaseTmdb):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.urls['details'] = 'movie'
         self.title_model_map.update(self.model_map)
         self.response_handlers_map.update({
             'keywords/keywords': self.save_keywords,
@@ -188,6 +189,7 @@ class MovieTmdb(BaseTmdb):
 
 
 class SeriesTmdb(BaseTmdb):
+    details_path = 'tv'
     title_type = SERIES
     imdb_id_path = 'external_ids/imdb_id'
     model_map = {
@@ -202,7 +204,6 @@ class SeriesTmdb(BaseTmdb):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.urls['details'] = 'tv'
         self.title_model_map.update(self.model_map)
         self.response_handlers_map.update({
             'keywords/results': self.save_keywords,
@@ -280,12 +281,13 @@ class TitleDetailsGetter(TmdbResponseMixin):
         # this is needed because similar/recommended/collection titles have the same type as self.title
         # and this instance is needed to fetch their details
         self.tmdb_instance = self.title.get_tmdb_instance()
-
+        self.details_path = self.tmdb_instance.details_path
         self.response_handlers_map = {
             'similar/results': self.save_similar,
             'recommendations/results': self.save_recommendations,
-            'belongs_to_collection': self.save_collection
         }
+        if self.title.is_movie:
+            self.response_handlers_map['belongs_to_collection'] = self.save_collection
 
     def run(self):
         self.set_title_response(self.title.tmdb_id)
@@ -307,20 +309,19 @@ class TitleDetailsGetter(TmdbResponseMixin):
         Collection is updated every time. If title is in collection X, all its titles will be removed from it,
         and each title will be added again to the collection - in case some has been added/removed from it
         """
-        if self.title.is_movie:
-            collection, created = Collection.objects.update_or_create(pk=value['id'], defaults={'name': value['name']})
-            response = self.get_tmdb_response('collection', collection.pk)
-            if response is not None:
-                title_pks = []
-                for part in response['parts']:
-                    movie = MovieTmdb(part['id']).get_or_create()
-                    if movie is not None:
-                        title_pks.append(movie.pk)
+        collection, created = Collection.objects.update_or_create(pk=value['id'], defaults={'name': value['name']})
+        response = self.get_tmdb_response('collection', collection.pk)
+        if response is not None:
+            title_pks = []
+            for part in response['parts']:
+                movie = MovieTmdb(part['id']).get_or_create()
+                if movie is not None:
+                    title_pks.append(movie.pk)
 
-                collection.titles.update(collection=None)
-                Title.objects.filter(pk__in=title_pks).update(collection=collection)
-                # self.title just got a collection, but it needs to be refreshed
-                self.title.refresh_from_db()
+            collection.titles.update(collection=None)
+            Title.objects.filter(pk__in=title_pks).update(collection=collection)
+            # self.title just got a collection, but it needs to be refreshed
+            self.title.refresh_from_db()
 
     def save_titles_to_attribute(self, value, attribute):
         pks = []
