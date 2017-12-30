@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load widget_tweaks get_query_string get_src_attrs %}
+{% load widget_tweaks get_src_attrs %}
 {% block title %}{% if searched_user %}{{ searched_user.username }}'s ratings{% else %}Titles{% endif %}{% endblock %}
 
 {% block scripts %}

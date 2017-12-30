@@ -1,7 +1,7 @@
-{% load get_query_string %}
+{% load query_string %}
 
 {% if is_paginated %}
-    {% get_query_string request.GET as query_string %}
+    {% pagination_qs request.GET as query_string %}
     <div class="ui center aligned grid">
         <div class="column">
             <div class="ui buttons">
