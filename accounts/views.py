@@ -90,9 +90,7 @@ class UserDetailView(DetailView):
             total_series=SubqueryCount(
                 Rating.objects.filter(title__type=SERIES, user=OuterRef('pk')).order_by().distinct('title')
             ),
-            total_followers=SubqueryCount(
-                UserFollow.objects.filter(followed=OuterRef('pk'))
-            ),
+            total_followers=SubqueryCount(UserFollow.objects.filter(followed=OuterRef('pk'))),
             total_ratings=Count('rating'),
         )
 
@@ -111,13 +109,14 @@ class UserDetailView(DetailView):
         is_other_user = self.request.user.is_authenticated and not is_owner
 
         ratings = Rating.objects.filter(user=self.object).select_related('title')
-        currently_watching = Title.objects.filter(currentlywatchingtv__user=self.object).annotate(
-            user_rate=Subquery(
-                Rating.objects.filter(user=self.object, title=OuterRef('pk')).order_by('-rate_date').values('rate')[:1]
-            )
-        )
+        currently_watching = Title.objects.filter(currentlywatchingtv__user=self.object).annotate_rates(user=self.object)
 
         if self.request.user.is_authenticated:
+            context['export_file'] = self.object.exported_ratings_file
+
+        # if owner - I don't need annotation because rating is already there (rating.rate)
+        # but for other use I want to display always current rating so annotation is needed
+        if is_other_user:
             ratings = ratings.annotate(
                 request_user_rate=Subquery(
                     Rating.objects.filter(
@@ -125,22 +124,16 @@ class UserDetailView(DetailView):
                     ).order_by('-rate_date').values('rate')[:1]
                 )
             )
-            currently_watching = currently_watching.annotate(
-                request_user_rate=Subquery(
-                    Rating.objects.filter(
-                        user=self.request.user, title=OuterRef('pk')
-                    ).order_by('-rate_date').values('rate')[:1]
-                )
-            )
+            currently_watching = currently_watching.annotate_rates(request_user=self.request.user)
 
-            context['export_file'] = self.object.exported_ratings_file
-
-        if is_other_user:
             context.update({
                 'already_follows': UserFollow.objects.filter(follower=self.request.user, followed=self.object).exists(),
                 'comparision': self.get_ratings_comparision()
             })
         elif is_owner:
+            # create `aliases` because template requires different field names
+            ratings = ratings.annotate(request_user_rate=F('rate'))
+            currently_watching = currently_watching.annotate(request_user_rate=F('user_rate'))
             context['form'] = ImportRatingsForm()
 
 
