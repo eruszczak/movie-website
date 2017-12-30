@@ -63,6 +63,9 @@ class TitleListView(SearchViewMixin, ListView):
         qs = qs.annotate_fav_and_watch(self.request.user).annotate_rates(request_user=self.request.user)
 
         if self.searched_user:
+            # searched user will see only his latest ratings because for Title queryset
+            # it's not possible to fetch 'different ratings' - just latest one or something.
+            # And I can't use Rating queryset because it will make a searching a mess.s
             qs = qs.annotate_rates(user=self.searched_user).order_by('-rating__rate_date')
         else:
             qs = qs.order_by('-release_date', '-name')
