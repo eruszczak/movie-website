@@ -1,3 +1,5 @@
+from os.path import join, isfile
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
@@ -6,6 +8,7 @@ from django.db import models
 from shared.helpers import get_random_file_path
 from shared.models import FolderPathMixin
 from titles.models import Title, Rating
+from importer.constants import EXPORT_FILE_NAME
 
 
 class User(FolderPathMixin, AbstractUser):
@@ -66,6 +69,17 @@ class User(FolderPathMixin, AbstractUser):
     #     if self.imdb_id:
     #         return f'http://www.rss.imdb.com/user/{self.imdb_id}/watchlist'
     #     return ''
+
+    @property
+    def exported_ratings_file(self):
+        # can use default_storage so I won't need a absolute path
+        export_file_path = join(self.get_temp_folder_path(absolute=True), EXPORT_FILE_NAME)
+        if isfile(export_file_path):
+            return {
+                'path': f'/media/{join(self.get_temp_folder_path(), EXPORT_FILE_NAME)}',
+                'name': EXPORT_FILE_NAME
+            }
+        return None
 
     @property
     def avatar_url(self):

@@ -88,7 +88,7 @@ class TitleListView(SearchViewMixin, ListView):
         context.update({
             'searched_user': self.searched_user,
             'show_search_box': show_search_box,
-            'owner_looks_on_his_ratings': self.searched_user and self.request.user and self.request.user.pk == self.searched_user.pk
+            'owner_looks_at_his_ratings': self.searched_user and self.request.user and self.request.user.pk == self.searched_user.pk
         })
         return context
 
