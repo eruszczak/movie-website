@@ -156,6 +156,7 @@ class TitleDetailView(DetailView):
             'recommendations': self.object.recommendations.annotate_rates(request_user=self.request.user),
             'cast_list': CastTitle.objects.filter(title=self.object).select_related('person')[:20],
             'crew_list': CrewTitle.objects.filter(title=self.object).select_related('person'),
+            'can_be_updated': self.object.can_be_updated(self.request.user)
         })
         return context
 
