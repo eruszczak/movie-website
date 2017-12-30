@@ -43,12 +43,6 @@
     <span>{{ user.username }}'s latest ratings</span>
     <div class="ui list">
         {% include 'titles/includes/slick_titles.html' with queryset=rating_list rating_qs=True %}
-        {#                {% if not rating_list %}#}
-        {#                    <p>Nothing found</p>#}
-        {#                {% else %}#}
-        {#                    <div class="ui hidden divider"></div>#}
-        {#                    <p><a href="{{ user.ratings_url }}" class="ui label">See all</a></p>#}
-        {#                {% endif %}#}
     </div>
 </div>
 <div class="ui segment">
