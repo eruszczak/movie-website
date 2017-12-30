@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Subquery, Q, Avg
+from django.db.models import Count, Subquery, Q, Avg, F
 from django.db.models import OuterRef
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -64,15 +64,6 @@ class TitleListView(TitleSearchMixin):
             .prefetch_related('genres')\
             .order_by('-release_date', '-name')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context.update({
-            # 'searched_user': self.searched_user,
-            # 'owner_looks_at_his_ratings': self.searched_user and self.request.user and self.request.user.pk == self.searched_user.pk
-        })
-        return context
-
 
 class UserRatingsListView(TitleSearchMixin):
     model = Rating
@@ -90,6 +81,8 @@ class UserRatingsListView(TitleSearchMixin):
         self.is_other_user = self.request.user.is_authenticated and self.user.pk != self.request.user.pk
         if self.is_other_user:
             qs = qs.annotate_rates(request_user=self.request.user)
+        else:
+            qs = qs.annotate(request_user_rate=F('rate'))
 
         return qs.order_by('-rate_date')
 
@@ -122,7 +115,7 @@ class TitleDetailView(DetailView):
         obj = self.get_queryset().get()
         if obj.should_get_details:
             obj.get_details()
-        # consider if update() it if it wasn't updated for like 50 days
+        # consider if update() it wasn't updated for like 50 days
         return obj
 
     def get_context_data(self, **kwargs):
