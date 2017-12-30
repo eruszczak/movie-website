@@ -26,7 +26,7 @@
 {% block columns %}
     {% for rating in rating_list %}
         <div class="column">
-            {% include 'titles/includes/title_card.html' with title=rating.title rate=rating.rate rate2=rating.request_user_rate rating=rating.has_in_favourites is_watch=rating.has_in_watchlist %}
+            {% include 'titles/includes/title_card.html' with title=rating.title rate=rating.rate rate2=rating.request_user_rate rating=rating.has_in_favourites is_watch=rating.has_in_watchlist rate_date=rating.rate_date %}
         </div>
     {% endfor %}
 {% endblock %}
