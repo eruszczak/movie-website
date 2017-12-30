@@ -89,7 +89,7 @@ class User(FolderPathMixin, AbstractUser):
 
     @property
     def latest_rated_title(self):
-        latest_rating = Rating.objects.filter(user=self).latest('rate_date')
+        latest_rating = Rating.objects.filter(user=self).first()
         if latest_rating:
             return latest_rating.title
         return None
