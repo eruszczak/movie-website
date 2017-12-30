@@ -2,9 +2,9 @@
 
 <div class="ui card backdrop-card">
     <a href="{{ title.get_absolute_url }}" class="ui image">
-        {% if is_other_user %}
+        {% if rate2 %}
             <a class="ui left corner label green">
-                <span class="icon">{{ title.user_rate }}</span>
+                <span class="icon">{{ rate2 }}</span>
             </a>
         {% endif %}
         <img {% get_src_attrs title.poster_card_placeholder title.poster_card %}>

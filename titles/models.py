@@ -6,7 +6,7 @@ from django.utils.timezone import now
 
 from .helpers import tmdb_image, static_poster
 from titles.constants import TITLE_CREW_JOB_CHOICES, TITLE_TYPE_CHOICES, SERIES, MOVIE, IMAGE_SIZES
-from .managers import TitleQuerySet
+from .managers import TitleQuerySet, RatingQuerySet
 from titles.tasks import task_update_title, task_get_details
 
 
@@ -282,6 +282,8 @@ class Rating(models.Model):
     title = models.ForeignKey('Title', on_delete=models.CASCADE)
     rate = models.IntegerField()
     rate_date = models.DateField()
+
+    objects = RatingQuerySet.as_manager()
 
     class Meta:
         ordering = ('-rate_date', '-create_date')
