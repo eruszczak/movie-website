@@ -26,47 +26,7 @@
 {% block columns %}
     {% for rating in rating_list %}
         <div class="column">
-            {% include 'titles/includes/title_card.html' with title=rating.title rating=title.has_in_favourites is_watch=rating.has_in_watchlist %}
+            {% include 'titles/includes/title_card.html' with title=rating.title rate=rating.rate rate2=rating.request_user_rate rating=rating.has_in_favourites is_watch=rating.has_in_watchlist %}
         </div>
     {% endfor %}
 {% endblock %}
-
-
-{#            {% for title in title_list %}#}
-{#                <div class="column">#}
-{#                    <div class="ui card backdrop-card">#}
-{#                        <a href="{{ title.get_absolute_url }}" class="ui image">#}
-{#                            {% if not owner_looks_at_his_ratings %}#}
-{#                                <a class="ui left corner label green">#}
-{#                                    <span class="icon">{{ title.user_rate }}</span>#}
-{#                                </a>#}
-{#                            {% endif %}#}
-{#                            <img {% get_src_attrs title.poster_card_placeholder title.poster_card %}>#}
-{#                        </a>#}
-{#                        <div class="content">#}
-{#                            <p class="header center aligned"><a href="{{ title.get_absolute_url }}">{{ title.name }}</a>#}
-{#                            </p>#}
-{#                            <div class="meta">#}
-{#                                <span class="date">{{ title.plot|truncatewords:25|truncatechars:150 }}</span>#}
-{#                            </div>#}
-{#                            <div class="description">#}
-{#                                <p>#}
-{#                                    {% for genre in title.genres.all %}#}
-{#                                        <a href="{{ genre.get_absolute_url }}">#}
-{#                                            {{ genre.name }}{% if not forloop.last %},{% endif %}</a>#}
-{#                                    {% endfor %}#}
-{#                                    <span class="right floated">#}
-{#                                    <i class="calendar icon"></i> {{ title.year }}#}
-{#                                </span>#}
-{#                                </p>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                        <div class="extra content">#}
-{#                            {% include 'titles/includes/rating.html' with rate=title.request_user_rate %}#}
-{#                            <div class="right floated">#}
-{#                                {% include 'titles/includes/toggles.html' %}#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
-{#            {% endfor %}#}

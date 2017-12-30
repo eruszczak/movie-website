@@ -94,14 +94,16 @@ class UserRatingsListView(TitleSearchMixin):
     is_other_user = False
 
     def get_queryset(self):
-        # qs = qs.annotate_rates(user=self.searched_user).order_by('-rating__rate_date')
-        # todo annotate rate only for not owner
-        # template needs to pass next param to rating update. maybe another endpoint
-        # todo annotate favs_watch, no need for rating!
-
         self.user = User.objects.get(username=self.kwargs['username'])
+        qs = super().get_queryset().filter(user=self.user)\
+            .annotate_fav_and_watch(self.request.user)\
+            .select_related('title').prefetch_related('title__genres')
+
         self.is_other_user = self.request.user.is_authenticated and self.user.pk != self.request.user.pk
-        return super().get_queryset().filter(user=self.user).select_related('title').prefetch_related('title__genres')
+        if self.is_other_user:
+            qs = qs.annotate_rates(request_user=self.request.user)
+
+        return qs.order_by('-rate_date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

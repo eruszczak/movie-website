@@ -30,7 +30,6 @@
             <form class="ui form">
                 <div class="ui error message"></div>
                 <div class="fields">
-                    <input name="user" value="{{ request.GET.user }}" hidden>
                     <div class="four wide field">
                         {% include 'includes/fied2.html' with field=search_form.keyword %}
                     </div>
