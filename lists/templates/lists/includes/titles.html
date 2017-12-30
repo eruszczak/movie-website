@@ -21,7 +21,7 @@
                     <div class="header">
                         <span class="item-order">{% if favourites %}{{ title.order }}{% else %}{{ forloop.counter }}{% endif %}</span>. <span class="ui circular label item-order-change hide"></span>
                         <a href="{{ title.get_absolute_url }}" class="header">{{ title }}</a>
-                        {% include 'titles/includes/toggles.html' %}
+                        {% include 'titles/includes/toggles.html' with is_fav=title.has_in_favourites is_watch=title.has_in_watchlist %}
                     </div>
                     <div class="description">
                         {% include 'titles/includes/rating.html' with rate=title.request_user_rate %}

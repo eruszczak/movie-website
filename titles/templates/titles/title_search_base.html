@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load widget_tweaks get_src_attrs %}
+
+{% block scripts %}
+    <script>
+        $('.ui.form')
+            .form({
+                fields: {
+                    year: {
+                        identifier: 'year',
+                        optional: true,
+                        rules: [
+                            {
+                                type: 'integer[1890..2030]',
+                                prompt: 'Insert value between 1890 and 2030'
+                            }
+                        ]
+                    }
+                }
+            })
+        ;
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="ui styled fluid accordion">
+        <div class="title{% if show_search_box %} active{% endif %}"><i class="dropdown icon"></i> Search</div>
+        <div class="content{% if show_search_box %} active{% endif %}">
+            {% include 'includes/form_errors.html' with form=search_form %}
+            <form class="ui form">
+                <div class="ui error message"></div>
+                <div class="fields">
+                    <input name="user" value="{{ request.GET.user }}" hidden>
+                    <div class="four wide field">
+                        {% include 'includes/fied2.html' with field=search_form.keyword %}
+                    </div>
+                    <div class="five wide field">
+                        <label>{{ search_form.genre.label|cut:'*' }}</label>
+                        {% render_field search_form.genre|add_class:'ui dropdown search' %}
+                    </div>
+                    <div class="six wide field">
+                        <div class="two fields">
+                            <div class="field">
+                                {% include 'includes/fied2.html' with field=search_form.year %}
+                            </div>
+                            <div class="field">
+                                {% include 'includes/fied2.html' with field=search_form.type %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="ui primary submit button">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if paginator.count %}
+        <h1 class="ui center aligned dividing header">{% block list_header %}{% endblock %}</h1>
+        <div class="ui two column stackable grid">
+            {% block columns %}{% endblock %}
+        </div>
+    {% else %}
+        <div class="ui message">
+            List is empty
+        </div>
+    {% endif %}
+    {% include 'includes/pagination.html' %}
+{% endblock %}

@@ -154,7 +154,14 @@ def remove_attrs(imdb_id=None):
     # print(t.collection, t.collection.titles.count(), t.collection.titles.all())
     print(t.update_date)
 
-remove_attrs()
+# remove_attrs()
+
+def test_sql():
+    print(Rating.objects.filter(title__in=Title.objects.all()).query)
+
+
+test_sql()
+
 
 def test_updater():
     imdb_id = 'tt2527336'  # 2003

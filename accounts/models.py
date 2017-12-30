@@ -36,7 +36,7 @@ class User(FolderPathMixin, AbstractUser):
         return reverse('favourite-list', args=[self.username])
 
     def ratings_url(self):
-        return reverse('title-list') + '?user={}'.format(self.pk)
+        return reverse('user-ratings', args=[self.username])
 
     @property
     def imdb_url(self):

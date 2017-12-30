@@ -10,7 +10,7 @@ from accounts.models import UserFollow
 from lists.models import Watchlist, Favourite
 from shared.mixins import LoginRequiredMixin
 from shared.views import SearchViewMixin
-from titles.forms import TitleSearchForm, RatingFormset
+from titles.forms import TitleSearchForm, RatingFormset, RatingSearchForm
 from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPlaying, Upcoming, CurrentlyWatchingTV
 
 User = get_user_model()
@@ -48,34 +48,28 @@ class HomeTemplateView(TemplateView):
         return context
 
 
-class TitleListView(SearchViewMixin, ListView):
+class TitleSearchMixin(SearchViewMixin, ListView):
+    paginate_by = 20
+
+
+class TitleListView(TitleSearchMixin):
     search_form_class = TitleSearchForm
     template_name = 'titles/title_list.html'
-    paginate_by = 20
     model = Title
-    searched_user = None
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        if self.request.GET.get('user'):
-            self.searched_user = self.search_form.cleaned_data.get('user')
-
-        qs = qs.annotate_fav_and_watch(self.request.user).annotate_rates(request_user=self.request.user)
-
-        if self.searched_user:
-            # searched user will see only his latest ratings because for Title queryset
-            # it's not possible to fetch 'different ratings' - just latest one or something.
-            # And I can't use Rating queryset because it will make a searching a mess.s
-            qs = qs.annotate_rates(user=self.searched_user).order_by('-rating__rate_date')
-        else:
-            qs = qs.order_by('-release_date', '-name')
-
-        return qs.prefetch_related('genres')
+        return super().get_queryset()\
+            .annotate_fav_and_watch(self.request.user)\
+            .annotate_rates(request_user=self.request.user)\
+            .prefetch_related('genres')\
+            .order_by('-release_date', '-name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         len_of_get = len(self.request.GET)
         only_user_ratings = self.searched_user and len_of_get == 1
+
+        # todo: this will be not needed anymore
         only_pagination_and_ratings = self.request.GET.get('page') and len_of_get == 2 and self.searched_user
 
         # hide search box if:
@@ -85,9 +79,35 @@ class TitleListView(SearchViewMixin, ListView):
                           and not only_pagination_and_ratings
 
         context.update({
-            'searched_user': self.searched_user,
+            # 'searched_user': self.searched_user,
             'show_search_box': show_search_box,
-            'owner_looks_at_his_ratings': self.searched_user and self.request.user and self.request.user.pk == self.searched_user.pk
+            # 'owner_looks_at_his_ratings': self.searched_user and self.request.user and self.request.user.pk == self.searched_user.pk
+        })
+        return context
+
+
+class UserRatingsListView(TitleSearchMixin):
+    model = Rating
+    search_form_class = RatingSearchForm
+    template_name = 'titles/user_ratings_list.html'
+    user = None
+    is_other_user = False
+
+    def get_queryset(self):
+        # qs = qs.annotate_rates(user=self.searched_user).order_by('-rating__rate_date')
+        # todo annotate rate only for not owner
+        # template needs to pass next param to rating update. maybe another endpoint
+        # todo annotate favs_watch, no need for rating!
+
+        self.user = User.objects.get(username=self.kwargs['username'])
+        self.is_other_user = self.request.user.is_authenticated and self.user.pk != self.request.user.pk
+        return super().get_queryset().filter(user=self.user).select_related('title').prefetch_related('title__genres')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'user': self.user,
+            'is_other_user': self.is_other_user,
         })
         return context
 
