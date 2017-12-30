@@ -22,8 +22,9 @@
                         {{ genre.name }}{% if not forloop.last %},{% endif %}</a>
                 {% endfor %}
                 <span class="right floated">
-                <i class="calendar icon"></i> {{ title.year }}
-            </span>
+                    {% if rate_date %}{{ rate_date }}{% endif %}
+                    <i class="calendar icon"></i> {{ title.year|default:'?' }}
+                </span>
             </p>
         </div>
     </div>

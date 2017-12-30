@@ -24,8 +24,8 @@
 
 {% block content %}
     <div class="ui styled fluid accordion">
-        <div class="title{% if show_search_box %} active{% endif %}"><i class="dropdown icon"></i> Search</div>
-        <div class="content{% if show_search_box %} active{% endif %}">
+        <div class="title{% if request.GET %} active{% endif %}"><i class="dropdown icon"></i> Search</div>
+        <div class="content{% if request.GET %} active{% endif %}">
             {% include 'includes/form_errors.html' with form=search_form %}
             <form class="ui form">
                 <div class="ui error message"></div>
