@@ -63,10 +63,6 @@ class TitleListView(SearchViewMixin, ListView):
         qs = qs.annotate_fav_and_watch(self.request.user).annotate_rates(request_user=self.request.user)
 
         if self.searched_user:
-            # TODO: problem - any annotation makes titles distinct which I don't want in this case
-            # i think i should use Rating qs? because in this case I don't want latest rating
-            # anyway, it will make searching a mess.
-            # maybe use Rating.values(). but it won't make a searching problem disappear
             qs = qs.annotate_rates(user=self.searched_user).order_by('-rating__rate_date')
         else:
             qs = qs.order_by('-release_date', '-name')
