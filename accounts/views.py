@@ -10,11 +10,9 @@ from django.contrib.auth.views import (
 )
 from django.urls import reverse
 from django.views.generic import CreateView
-from os.path import join, isfile
 
 from accounts.forms import UserUpdateForm, RegisterForm
 from accounts.models import UserFollow
-from importer.constants import EXPORT_FILE_NAME
 from importer.forms import ImportRatingsForm
 from shared.mixins import LoginRequiredMixin
 from titles.constants import SERIES, MOVIE
@@ -135,12 +133,7 @@ class UserDetailView(DetailView):
                 )
             )
 
-            export_file_path = join(self.object.get_temp_folder_path(absolute=True), EXPORT_FILE_NAME)
-            if isfile(export_file_path):
-                context['export_file'] = {
-                    'path': f'/media/{join(self.object.get_temp_folder_path(), EXPORT_FILE_NAME)}',
-                    'name': EXPORT_FILE_NAME
-                }
+            context['export_file'] = self.object.exported_ratings_file
 
         if is_other_user:
             context.update({
