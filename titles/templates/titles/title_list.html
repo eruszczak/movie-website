@@ -88,8 +88,8 @@
                 <div class="column">
                     <div class="ui card backdrop-card">
                         <a href="{{ title.get_absolute_url }}" class="ui image">
-                            {% if searched_user %}
-                                <a class="ui left corner label red green">
+                            {% if not owner_looks_at_his_ratings %}
+                                <a class="ui left corner label green">
                                     <span class="icon">{{ title.user_rate }}</span>
                                 </a>
                             {% endif %}
