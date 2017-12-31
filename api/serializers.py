@@ -20,12 +20,14 @@ class TitleSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     poster_small = serializers.ReadOnlyField()
     poster_backdrop_title = serializers.ReadOnlyField()
+    poster_backdrop_user = serializers.ReadOnlyField()
     imdb_url = serializers.ReadOnlyField()
     release_date = serializers.ReadOnlyField()
 
     class Meta:
         model = Title
-        fields = ('year', 'name', 'url', 'type', 'poster_small', 'release_date', 'poster_backdrop_title', 'overview', 'genres', 'imdb_url')
+        fields = ('year', 'name', 'url', 'type', 'poster_small', 'release_date',
+                  'poster_backdrop_title', 'poster_backdrop_user', 'overview', 'genres', 'imdb_url')
 
     @staticmethod
     def get_type(obj):
