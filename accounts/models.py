@@ -85,7 +85,7 @@ class User(FolderPathMixin, AbstractUser):
     def avatar_url(self):
         if self.picture:
             return self.picture.url
-        return f'http://api.adorable.io/avatar/200/{self.username}'
+        return f'https://api.adorable.io/avatar/200/{self.username}'
 
     @property
     def latest_rated_title(self):
