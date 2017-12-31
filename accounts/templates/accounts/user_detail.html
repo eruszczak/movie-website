@@ -105,28 +105,28 @@
                     </div>
                 </div>
                 <div class="ui segment">
-                    <span class="ui teal ribbon label">Lower</span>
+                    <span class="ui blue ribbon label">Lower</span>
                     <span>{{ user.username }} rated lower</span>
                     <div class="ui list">
                         {% include 'titles/includes/slick_titles.html' with queryset=comparision.titles_user_rate_lower %}
                     </div>
                 </div>
                 <div class="ui segment">
-                    <span class="ui teal ribbon label">Higher</span>
+                    <span class="ui blue ribbon label">Higher</span>
                     <span>{{ user.username }} rated higher</span>
                     <div class="ui list">
                         {% include 'titles/includes/slick_titles.html' with queryset=comparision.titles_user_rate_higher %}
                     </div>
                 </div>
                 <div class="ui segment">
-                    <span class="ui teal ribbon label">The same</span>
+                    <span class="ui blue ribbon label">The same</span>
                     <span>{{ user.username }} rated the same</span>
                     <div class="ui list">
                         {% include 'titles/includes/slick_titles.html' with queryset=comparision.titles_rated_the_same %}
                     </div>
                 </div>
                 <div class="ui segment">
-                    <span class="ui teal ribbon label">You need to see</span>
+                    <span class="ui blue ribbon label">You need to see</span>
                     <span>{{ user.username }} liked that you haven't seen</span>
                     <div class="ui list">
                         {% include 'titles/includes/slick_titles.html' with queryset=comparision.titles_user_liked %}
