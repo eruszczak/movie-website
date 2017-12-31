@@ -45,8 +45,23 @@ $('.regular.rating').rating({
     maxRating: 10,
     clearable: true,
     onRate: function (rating) {
-        var url = rating === 0 ? $(this).data('remove-url') : $(this).data('url');
-        ajax_request({'rating': rating}, {url: url});
+        const removingRating = rating === 0;
+        const url = removingRating ? $(this).data('remove-url') : $(this).data('url');
+        const ratingPk = $(this).data('rating-pk');
+        var data = {'rating': rating};
+        var that = $(this);
+        var callback = null;
+        // if 'My Ratings' page
+        if (ratingPk !== '') {
+            data['rating-pk'] = ratingPk;
+            // if rating is being deleted from 'My Ratings' - remove deleted title from the UI
+            if (removingRating) {
+                callback = function() {
+                    $(that).closest('.column').fadeOut(500);
+                }
+            }
+        }
+        ajax_request(data, {url: url}, callback);
     }
 });
 

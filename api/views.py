@@ -16,10 +16,10 @@ from rest_framework.viewsets import GenericViewSet
 
 from api.mixins import IsAuthenticatedMixin, GetTitleMixin, GetUserMixin
 from lists.models import Favourite
-from titles.forms import TitleSearchForm, RateForm
+from titles.forms import TitleSearchForm
 from titles.utils import (
-    toggle_favourite, toggle_watchlist, toggle_currentlywatchingtv, toggle_userfollow
-)
+    toggle_favourite, toggle_watchlist, toggle_currentlywatchingtv, toggle_userfollow,
+    update_create_latest_rating, update_rating_rate_or_create)
 from titles.helpers import instance_required
 from titles.models import Rating, Title, Person
 from .serializers import RatingListSerializer, TitleSerializer, PersonSerializer
@@ -49,24 +49,21 @@ class TitleDetailView(RetrieveAPIView):
 
 
 class CreateUpdateRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
+    """
+    If no rating_pk - updated is latest user's rating (or created new one).
+    If rating_pk - only update rate of that rating.
+    """
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        """create new rating (with today's date) or update latest rating's rate"""
         data = {'rate': request.POST['rating']}
-        try:
-            instance = Rating.objects.filter(user=self.request.user, title=self.title).latest('rate_date')
-        except Rating.DoesNotExist:
-            data['rate_date'] = now().date()
-            form = RateForm(user=self.request.user, title=self.title, data=data)
-            message = 'Created rating'
+        rating_pk = request.POST.get('rating-pk')
+        if rating_pk is not None:
+            form, message = update_rating_rate_or_create(self.request.user, rating_pk, data)
         else:
-            # instance already has rate_date but this field is required (also, do not need to pass title, user here)
-            data['rate_date'] = instance.rate_date
-            form = RateForm(data=data, instance=instance)
-            message = 'Updated rating'
+            form, message = update_create_latest_rating(self.request.user, self.title, data)
 
-        if form.is_valid():
+        if form and form.is_valid():
             form.save()
             return Response({'message': message}, status=status.HTTP_200_OK)
 
@@ -76,16 +73,21 @@ class CreateUpdateRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
 
 
 class DeleteRatingAPIView(IsAuthenticatedMixin, GetTitleMixin, APIView):
+    """Deleted user's current rating of a title but if rating_pk is passed - removed that rating."""
 
     @instance_required
     def post(self, request, *args, **kwargs):
+        rating_pk = request.POST.get('rating-pk')
         try:
-            current_rating = Rating.objects.filter(user=request.user, title=self.title).latest('rate_date')
+            if rating_pk is not None:
+                instance = Rating.objects.get(pk=rating_pk, user=request.user)
+            else:
+                instance = Rating.objects.filter(user=request.user, title=self.title).latest('rate_date')
         except Rating.DoesNotExist:
             return Response({'message': 'Rating doesn\'t exist'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            rate_date = current_rating.rate_date
-            current_rating.delete()
+            rate_date = instance.rate_date
+            instance.delete()
             return Response({'message': f'Removed rating from {rate_date}'}, status=status.HTTP_200_OK)
 
 
