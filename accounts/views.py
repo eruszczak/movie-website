@@ -117,15 +117,8 @@ class UserDetailView(DetailView):
         # if owner - I don't need annotation because rating is already there (rating.rate)
         # but for other use I want to display always current rating so annotation is needed
         if is_other_user:
-            ratings = ratings.annotate(
-                request_user_rate=Subquery(
-                    Rating.objects.filter(
-                        user=self.request.user, title=OuterRef('title')
-                    ).order_by('-rate_date').values('rate')[:1]
-                )
-            )
+            ratings = ratings.annotate_rates(request_user=self.request.user)
             currently_watching = currently_watching.annotate_rates(request_user=self.request.user)
-
             context.update({
                 'already_follows': UserFollow.objects.filter(follower=self.request.user, followed=self.object).exists(),
                 'comparision': self.get_ratings_comparision()
@@ -171,13 +164,7 @@ class UserDetailView(DetailView):
             titles_user_rate_lower = common_titles.filter(user_rate__lt=F('request_user_rate'))
             titles_rated_the_same = common_titles.filter(user_rate=F('request_user_rate'))
             titles_user_liked = Title.objects.filter(rating__user=self.object, rating__rate__gte=7).exclude(
-                rating__user=self.request.user).distinct().annotate(
-                user_rate=Subquery(
-                    Rating.objects.filter(
-                        user=self.object, title=OuterRef('pk')
-                    ).order_by('-rate_date').values('rate')[:1]
-                )
-            )
+                rating__user=self.request.user).distinct().annotate_rates(user=self.object)
 
             distinct_titles_count = self.object.total_movies + self.object.total_series
             aggregation = common_titles.aggregate(user=Avg('user_rate'), request_user=Avg('request_user_rate'))
