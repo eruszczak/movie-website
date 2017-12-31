@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q, Count
 from django.forms import modelformset_factory, BaseModelFormSet
 from django.utils.timezone import now
+from re import match
 
 from shared.helpers import get_list_duplicates
 from shared.widgets import MyRatingWidget, MyDateWidget
@@ -28,7 +29,12 @@ class TitleSearchForm(TitleSearchMixin):
     @staticmethod
     def search_keyword(value):
         if len(value) > 2:
-            return Q(name__icontains=value)
+            year = match(r'\d{4}', value)
+            if year:
+                year = year.group(0)
+                return Q(name__icontains=value) | Q(release_date__year=year) | Q(imdb_id=value)
+            return Q(name__icontains=value) | Q(imdb_id=value)
+
         return Q(name__istartswith=value)
 
     @staticmethod
