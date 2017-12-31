@@ -8,18 +8,17 @@
     {% endif %}
 {% endblock %}
 
-
-{#{% block breadcrumb %}#}
-{#    <div class="ui breadcrumb">#}
-{#        <a class="section" href="{% url 'home' %}">Home</a>#}
-{#        <i class="right angle icon divider"></i>#}
-{#        <a class="{% if not request.GET %}active {% endif %}section" href="{% url 'title-list' %}">Explore</a>#}
-{#        {% if request.GET %}#}
-{#            <i class="right angle icon divider"></i>#}
-{#            <div class="active section">Search</div>#}
-{#        {% endif %}#}
-{#    </div>#}
-{#{% endblock %}#}
+{% block breadcrumb %}
+    <div class="ui breadcrumb">
+        <a class="section" href="{% url 'home' %}">Home</a>
+        <i class="right angle icon divider"></i>
+        <a class="section" href="{% url 'user-list' %}">Users</a>
+        <i class="right angle icon divider"></i>
+        <a class="section" href="{% url 'user-detail' user.username %}">{{ user.username }}</a>
+        <i class="right angle icon divider"></i>
+        <a class="section active" href="{{ user.ratings_url }}">Ratings</a>
+    </div>
+{% endblock %}
 
 {% block list_header %}{{ user.username }}'s {{ paginator.count }} ratings{% endblock %}
 
