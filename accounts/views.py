@@ -80,7 +80,7 @@ class UserListView(ListView):
 class UserDetailView(DetailView):
     model = User
     template_name = 'accounts/user_detail.html'
-    limit = 15
+    limit = 10
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(username=self.kwargs['username']).annotate(
@@ -135,7 +135,6 @@ class UserDetailView(DetailView):
             ratings = ratings.annotate(request_user_rate=F('rate'))
             currently_watching = currently_watching.annotate(request_user_rate=F('user_rate'))
             context['form'] = ImportRatingsForm()
-
 
         context.update({
             'is_other_user': is_other_user,
