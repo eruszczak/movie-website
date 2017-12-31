@@ -15,14 +15,17 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(many=True, read_only=True)
-    year = serializers.SerializerMethodField()
+    year = serializers.ReadOnlyField()
     url = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
-    img = serializers.SerializerMethodField()
+    poster_small = serializers.ReadOnlyField()
+    poster_backdrop_title = serializers.ReadOnlyField()
+    imdb_url = serializers.ReadOnlyField()
+    release_date = serializers.ReadOnlyField()
 
     class Meta:
         model = Title
-        fields = ('year', 'name', 'url', 'type', 'img', 'overview', 'genres')
+        fields = ('year', 'name', 'url', 'type', 'poster_small', 'release_date', 'poster_backdrop_title', 'overview', 'genres', 'imdb_url')
 
     @staticmethod
     def get_type(obj):
@@ -31,14 +34,6 @@ class TitleSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_url(obj):
         return obj.get_absolute_url()
-
-    @staticmethod
-    def get_year(obj):
-        return obj.year
-
-    @staticmethod
-    def get_img(obj):
-        return obj.poster_small
 
 
 class TitlePreviewSerializer(serializers.ModelSerializer):
