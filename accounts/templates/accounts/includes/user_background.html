@@ -4,7 +4,7 @@
     {% with title=user.latest_rated_title %}
         {% if not title %}
             <!-- Background pattern from Subtle Patterns -->
-            <div class="backdrop" style="background-image: url({% static 'img/posters/intersection.png' %});background-repeat: repeat-x;"></div>
+            <div class="backdrop" style="background-image: url({% static 'img/posters/w1920_and_h318_bestv2.png' %});background-repeat: repeat-x;"></div>
         {% else %}
             <img class="backdrop" src="{{ title.poster_backdrop_user }}">
         {% endif %}
