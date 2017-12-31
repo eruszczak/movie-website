@@ -1,7 +1,9 @@
 from django.contrib.auth import get_user_model
+from django.utils.timezone import now
 
 from accounts.models import UserFollow
-from titles.models import CurrentlyWatchingTV
+from titles.forms import RateForm
+from titles.models import CurrentlyWatchingTV, Rating
 from lists.models import Watchlist, Favourite
 
 User = get_user_model()
@@ -45,3 +47,31 @@ def toggle_currentlywatchingtv(title, user):
     except CurrentlyWatchingTV.DoesNotExist:
         CurrentlyWatchingTV.objects.create(title=title, user=user)
         return True, f'Watching {title.name}'
+
+
+def update_create_latest_rating(user, title, data):
+    """if user already has rated a title - update it's rating else create new one (with today's date)"""
+    try:
+        instance = Rating.objects.filter(user=user, title=title).latest('rate_date')
+    except Rating.DoesNotExist:
+        data['rate_date'] = now().date()
+        form = RateForm(user=user, title=title, data=data)
+        message = 'Created rating'
+    else:
+        # instance already has rate_date but this field is required (also, do not need to pass title, user here)
+        data['rate_date'] = instance.rate_date
+        form = RateForm(data=data, instance=instance)
+        message = 'Updated latest rating'
+    return form, message
+
+
+def update_rating_rate_or_create(user, rating_pk, data):
+    """update rate of existing rating"""
+    try:
+        instance = Rating.objects.get(pk=rating_pk, user=user)
+    except Rating.DoesNotExist:
+        return None, 'Rating does not exist'
+    else:
+        data['rate_date'] = instance.rate_date
+        form = RateForm(data=data, instance=instance)
+        return form, f'Updated rating from {instance.rate_date}'
