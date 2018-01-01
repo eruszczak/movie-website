@@ -54,7 +54,10 @@
             </form>
         </div>
     </div>
-
+    <div class="ui right floated text menu">
+        <div class="header item">sorted by {{ sorted_by }}</div>
+    </div>
+    <div class="ui clearing hidden divider"></div>
     {% if paginator.count %}
         <h1 class="ui center aligned dividing header">{% block list_header %}{% endblock %}</h1>
         <div class="ui two column stackable grid">

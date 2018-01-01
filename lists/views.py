@@ -10,7 +10,7 @@ User = get_user_model()
 
 class WatchlistListView(PropMixin, WatchFavListViewMixin, ListView):
     template_name = 'lists/watchlist.html'
-    sorted_by = 'Sorted by added date'
+    sorted_by = 'added date'
 
     def get_queryset(self):
         return super().get_queryset().filter(watchlist__user=self.user).annotate(
@@ -22,7 +22,7 @@ class WatchlistListView(PropMixin, WatchFavListViewMixin, ListView):
 
 class FavouriteListView(PropMixin, WatchFavListViewMixin, ListView):
     template_name = 'lists/favourite.html'
-    sorted_by = 'Sorted by your order'
+    sorted_by = 'your order'
 
     def get_queryset(self):
         return super().get_queryset().filter(favourite__user=self.user).annotate(

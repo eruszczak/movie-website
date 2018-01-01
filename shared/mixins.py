@@ -10,11 +10,11 @@ class LoginRequiredMixin:
         return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
-class CacheMixin:
+class AnonymousCacheMixin:
+    """view with this mixin will be cached for not logged users"""
     cache_timeout = 60 * 60 * 24  # 24h
 
     def dispatch(self, *args, **kwargs):
-        # don't cache for logged in users
         if self.request.user.is_authenticated:
             return super().dispatch(*args, **kwargs)
-        return cache_page(self.cache_timeout)(super(CacheMixin, self).dispatch)(*args, **kwargs)
+        return cache_page(self.cache_timeout)(super().dispatch)(*args, **kwargs)

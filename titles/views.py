@@ -8,7 +8,7 @@ from django.views.generic import DetailView, TemplateView, RedirectView, ListVie
 
 from accounts.models import UserFollow
 from lists.models import Watchlist, Favourite
-from shared.mixins import LoginRequiredMixin, CacheMixin
+from shared.mixins import LoginRequiredMixin, AnonymousCacheMixin
 from shared.views import SearchViewMixin
 from titles.forms import TitleSearchForm, RatingFormset, RatingSearchForm
 from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPlaying, Upcoming, CurrentlyWatchingTV
@@ -16,7 +16,7 @@ from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPla
 User = get_user_model()
 
 
-class HomeTemplateView(CacheMixin, TemplateView):
+class HomeTemplateView(AnonymousCacheMixin, TemplateView):
     template_name = 'titles/home.html'
 
     def get_context_data(self, **kwargs):
@@ -50,19 +50,26 @@ class HomeTemplateView(CacheMixin, TemplateView):
 
 class TitleSearchMixin(SearchViewMixin, ListView):
     paginate_by = 20
+    sorted_by = None
+
+    def get_context_data(self, **kwargs):
+        kwargs['sorted_by'] = self.sorted_by
+        return super().get_context_data(**kwargs)
 
 
-class TitleListView(CacheMixin, TitleSearchMixin):
+class TitleListView(AnonymousCacheMixin, TitleSearchMixin):
     search_form_class = TitleSearchForm
     template_name = 'titles/title_list.html'
     model = Title
+    sorted_by = 'desc votes, release date'
 
     def get_queryset(self):
         return super().get_queryset()\
             .annotate_fav_and_watch(self.request.user)\
             .annotate_rates(request_user=self.request.user)\
+            .annotate(votes=Count('rating'))\
             .prefetch_related('genres')\
-            .order_by('-release_date', '-name')
+            .order_by('-votes', '-release_date')
 
 
 class UserRatingsListView(TitleSearchMixin):
@@ -71,6 +78,7 @@ class UserRatingsListView(TitleSearchMixin):
     template_name = 'titles/user_ratings_list.html'
     user = None
     is_other_user = False
+    sorted_by = 'desc rate date'
 
     def get_queryset(self):
         self.user = User.objects.get(username=self.kwargs['username'])
