@@ -281,7 +281,7 @@ class Rating(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.ForeignKey('Title', on_delete=models.CASCADE)
     rate = models.IntegerField()
-    rate_date = models.DateField()
+    rate_date = models.DateField(db_index=True)
 
     objects = RatingQuerySet.as_manager()
 
