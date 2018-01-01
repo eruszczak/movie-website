@@ -8,7 +8,7 @@ from django.views.generic import DetailView, TemplateView, RedirectView, ListVie
 
 from accounts.models import UserFollow
 from lists.models import Watchlist, Favourite
-from shared.mixins import LoginRequiredMixin
+from shared.mixins import LoginRequiredMixin, CacheMixin
 from shared.views import SearchViewMixin
 from titles.forms import TitleSearchForm, RatingFormset, RatingSearchForm
 from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPlaying, Upcoming, CurrentlyWatchingTV
@@ -16,7 +16,7 @@ from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPla
 User = get_user_model()
 
 
-class HomeTemplateView(TemplateView):
+class HomeTemplateView(CacheMixin, TemplateView):
     template_name = 'titles/home.html'
 
     def get_context_data(self, **kwargs):
@@ -52,7 +52,7 @@ class TitleSearchMixin(SearchViewMixin, ListView):
     paginate_by = 20
 
 
-class TitleListView(TitleSearchMixin):
+class TitleListView(CacheMixin, TitleSearchMixin):
     search_form_class = TitleSearchForm
     template_name = 'titles/title_list.html'
     model = Title
@@ -113,8 +113,8 @@ class TitleDetailView(DetailView):
 
     def get_object(self, queryset=None):
         obj = self.get_queryset().get()
-        if obj.should_get_details:
-            obj.get_details()
+        # if obj.should_get_details:
+        #     obj.get_details()
         # consider if update() it wasn't updated for like 50 days
         return obj
 
