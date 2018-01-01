@@ -129,7 +129,7 @@ def runserver():
 def deploy():
     pull()
     cs()
-    requirements()
+    # requirements()
     migrate()
     # restart nginx
 

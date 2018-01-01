@@ -91,7 +91,7 @@ class UserDetailView(DetailView):
                 Rating.objects.filter(title__type=SERIES, user=OuterRef('pk')).order_by().distinct('title')
             ),
             total_followers=SubqueryCount(UserFollow.objects.filter(followed=OuterRef('pk'))),
-            total_ratings=Count('rating'),
+            # total_ratings=Count('rating'),  # this is very inefficient
         )
 
         if self.request.user.is_authenticated:
@@ -133,6 +133,7 @@ class UserDetailView(DetailView):
             'is_other_user': is_other_user,
             'is_owner': is_owner,
             'rating_list': ratings[:self.limit],
+            'total_ratings': Rating.objects.filter(user=self.object).count(),
             'currently_watching': currently_watching[:self.limit],
             'feed': Rating.objects.filter(
                 user__in=UserFollow.objects.filter(follower=self.object).values_list('followed', flat=True)
