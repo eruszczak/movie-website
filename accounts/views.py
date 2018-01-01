@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
 from django.db.models import Count, OuterRef, Subquery, F, Avg, Exists
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, UpdateView, DetailView
 from django.contrib.auth.views import (
@@ -208,6 +209,11 @@ class RegisterView(CreateView):
     template_name = 'accounts/register.html'
     form_class = RegisterForm
     login_after = False
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return HttpResponseRedirect(self.request.user.get_absolute_url())
+        return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
         messages.warning(self.request, 'Account created.')
