@@ -40,7 +40,7 @@ class TmdbResponseMixin:
         sleep(1.5)
         response, response_url = get_json_response(url, query_string)
         if response:
-            print(response_url)
+            # print(response_url)
             return SlashDict(response)
         return None
 
@@ -402,7 +402,7 @@ class TmdbTaskRunner:
     today = now().date()
 
     def run(self):
-        print('run tasks', self.today)
+        # print('run tasks', self.today)
         self.run_popular_tasks()
         self.run_other_tasks()
 
