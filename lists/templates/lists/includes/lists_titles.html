@@ -6,7 +6,7 @@
 <div class="ui clearing hidden divider"></div>
 {% if title_list %}
     <h1 class="ui center aligned dividing header">{{ title_list|length }} titles <span style="font-size:12px">(limit {{ limit }})</span></h1>
-    <div class="ui items"{% if is_owner and favourites %} id="sortable" data-url="{% url 'user-fav-reorder' %}"{% endif %}>
+    <div class="ui items"{% if enable_sortable %} id="sortable" data-url="{% url 'user-fav-reorder' %}"{% endif %}>
         {% for title in title_list %}
             <div id="{{ title.pk }}" class="item">
                 <div class="ui tiny image" style="max-height: 100%!important;">

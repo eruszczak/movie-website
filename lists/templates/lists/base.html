@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ user.username }}'s {% block title_text %}{% endblock %}{% endblock %}
+
+{% block breadcrumb %}
+    <div class="ui breadcrumb">
+        <a class="section" href="{% url 'home' %}">Home</a>
+        <i class="right angle icon divider"></i>
+        <a class="section" href="{% url 'user-list' %}">Users</a>
+        <i class="right angle icon divider"></i>
+        <a class="section" href="{% url 'user-detail' user.username %}">{{ user.username }}</a>
+        <i class="right angle icon divider"></i>
+        {% block breadcrumb_link %}{% endblock %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="ui dividing header">
+        <i class="list icon"></i>
+        <div class="content">
+            {% block content_header %}{% endblock %}
+        </div>
+    </div>
+    {% include 'lists/includes/lists_titles.html' with enable_sortable=enable_sortable %}
+{% endblock %}
+
+{% block scripts %}
+    <script type="application/javascript">
+        $sortable = $('#sortable');
+        if ($sortable.length) {
+            sortable($sortable.data('url'));
+        }
+
+        function sortable(url) {
+            $sortable.sortable({
+                axis: 'y',
+                start: function(e, ui) {
+                    // creates a temporary attribute on the element with the old index
+                    $(this).attr('data-previndex', ui.item.index());
+                },
+                update: function (event, ui) {
+                    var newIndex = ui.item.index();
+                    var oldIndex = $(this).attr('data-previndex');
+                    var orderDiff = oldIndex - newIndex;
+                    $(this).removeAttr('data-previndex');
+
+                    // update item that was moved
+                    var orderChange = ui.item.find('.item-order-change');
+                    var orderBefore = ui.item.find('.item-order');
+                    orderChange.removeClass('hide');
+                    orderChange.text((orderDiff > 0 ? '+' : '') + orderDiff);
+                    orderBefore.text(newIndex + 1);
+                    if (orderDiff > 0) {
+                        orderChange.removeClass('red').addClass('green');
+                    } else {
+                        orderChange.removeClass('green').addClass('red');
+                    }
+
+                    // update rest of the items
+                    $(this).find('.item').each(function(i) {
+                        if (i === newIndex) {
+                            return;
+                        }
+                        orderBefore = $(this).find('.item-order');
+                        orderChange = $(this).find('.item-order-change');
+                        orderChange.addClass('hide');
+                        orderBefore.text(i + 1);
+                    });
+                    ajax_request({'oldIndex': oldIndex, 'newIndex': newIndex}, {url: url});
+                }
+            });
+        }
+    </script>
+{% endblock %}

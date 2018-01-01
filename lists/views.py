@@ -10,6 +10,7 @@ User = get_user_model()
 
 class WatchlistListView(PropMixin, WatchFavListViewMixin, ListView):
     template_name = 'lists/watchlist.html'
+    sorted_by = 'Sorted by added date'
 
     def get_queryset(self):
         return super().get_queryset().filter(watchlist__user=self.user).annotate(
@@ -18,14 +19,10 @@ class WatchlistListView(PropMixin, WatchFavListViewMixin, ListView):
             )
         ).order_by('-watchlist__create_date')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['sorted_by'] = 'Sorted by added date'
-        return context
-
 
 class FavouriteListView(PropMixin, WatchFavListViewMixin, ListView):
     template_name = 'lists/favourite.html'
+    sorted_by = 'Sorted by your order'
 
     def get_queryset(self):
         return super().get_queryset().filter(favourite__user=self.user).annotate(
@@ -36,6 +33,5 @@ class FavouriteListView(PropMixin, WatchFavListViewMixin, ListView):
         ).order_by('favourite__order')
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['sorted_by'] = 'Sorted by your order'
-        return context
+        kwargs['enable_sortable'] = self.is_owner
+        return super().get_context_data(**kwargs)

@@ -20,6 +20,7 @@ class PropMixin:
 class WatchFavListViewMixin:
     model = Title
     paginate_by = 0
+    sorted_by = ''
 
     def get_queryset(self):
         qs = super().get_queryset()\
@@ -32,7 +33,8 @@ class WatchFavListViewMixin:
         context.update({
             'is_owner': self.is_owner,
             'user': self.user,
-            'limit': LIST_LIMIT
+            'limit': LIST_LIMIT,
+            'sorted_by': self.sorted_by
         })
         return context
 
