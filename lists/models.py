@@ -6,7 +6,7 @@ from lists.mixins import LimitInstancesMixin
 
 
 class Watchlist(LimitInstancesMixin, models.Model):
-    create_date = models.DateTimeField(auto_now_add=True)
+    create_date = models.DateTimeField(auto_now_add=True, db_index=True)
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.ForeignKey('titles.Title', on_delete=models.CASCADE)
@@ -29,7 +29,7 @@ class Favourite(LimitInstancesMixin, models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.ForeignKey('titles.Title', on_delete=models.CASCADE)
-    order = models.PositiveIntegerField(default=0)
+    order = models.PositiveIntegerField(default=0, db_index=True)
 
     class Meta:
         ordering = ('order', '-create_date')
