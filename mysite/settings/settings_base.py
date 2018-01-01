@@ -105,3 +105,10 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 CORS_ORIGIN_WHITELIST = config('CORS_ORIGIN_WHITELIST', cast=Csv())
 
 CELERY_BROKER_URL = 'amqp://localhost'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'movie-website',
+    }
+}

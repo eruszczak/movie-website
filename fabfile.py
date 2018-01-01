@@ -126,6 +126,11 @@ def runserver():
         local('python manage.py runserver')
 
 
+def cache():
+    with virtualenv():
+        local('python manage.py clear_cache')
+
+
 def deploy():
     pull()
     cs()
