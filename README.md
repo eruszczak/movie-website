@@ -14,7 +14,7 @@ It is helpful because if you rate again some title on IMDb, information about pr
 
 # Currently
 I was finishing up this website knowing that there is no easy way to keep in sync my ratings/watchlist anymore (RSS feed deprecation). I did this because I wasn't happy with code quality at all (eg. I wasn't using any Class Based Views).
-I will still be using this website, I will be exporting my full ratings and syncing them from time to time in that way. And maybe I will figure out some other way for updating in daily, as it was before.
+I will still be using this website, I will be exporting my full ratings and syncing them from time to time in that way. And maybe I will figure out some other way for updating them daily, as it was before.
 
 # Used technologies:
 * Semantic-UI - I am really happy that I replaced Bootstrap 3 with Semantic. They have a lot of useful built in components that I needed, and UI looks much better than previously.
@@ -23,7 +23,7 @@ I also use Celery for imports/exports. You can import ratings from a file export
 * TMDB - great service for getting movie/tv data. Previously I have used OMDB API but they went private. TMDB allows for hotlinking posters so I don't have to store them on my VPS (which is really helpful because I don't have a storage for that because now I have a lot of more titles and use 4 different poster sizes for each)
 * Let's Encrypt for SSL certificate
 * Jquery sortable for reordering favourite list
-* http://avatars.adorable.io/ for cool placeholder images
+* http://avatars.adorable.io/ for cool placeholder avatars
 * https://www.toptal.com/designers/subtlepatterns/ for a placeholder poster images
 * fabric - for ease work with command line
 * decouple - for hiding private variables from setting files
