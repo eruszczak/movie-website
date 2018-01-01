@@ -22,7 +22,7 @@ class TitleQuerySet(QuerySet):
         if request_user.is_authenticated:
             return self.annotate(
                 has_in_watchlist=Exists(
-                    Watchlist.objects.filter(user=request_user, deleted=False, title=OuterRef('pk'))),
+                    Watchlist.objects.filter(user=request_user, title=OuterRef('pk'))),
                 has_in_favourites=Exists(Favourite.objects.filter(user=request_user, title=OuterRef('pk'))),
             )
         return self
@@ -58,7 +58,7 @@ class RatingQuerySet(QuerySet):
         if request_user.is_authenticated:
             return self.annotate(
                 has_in_watchlist=Exists(
-                    Watchlist.objects.filter(user=request_user, deleted=False, title=OuterRef('title__pk'))),
+                    Watchlist.objects.filter(user=request_user, title=OuterRef('title__pk'))),
                 has_in_favourites=Exists(Favourite.objects.filter(user=request_user, title=OuterRef('title__pk'))),
             )
         return self
