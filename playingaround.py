@@ -4,6 +4,10 @@ from time import sleep
 import django
 import os
 
+from tmdb.mixins import TmdbResponseMixin
+from tmdb.popular import PopularMoviesTmdbTask, TmdbPopularTaskRunner
+from tmdb.api import MovieTmdb
+from tmdb.utils import TmdbWrapper, TitleDetailsGetter
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
@@ -24,10 +28,6 @@ from lists.models import Favourite
 
 User = get_user_model()
 collection_id = 119
-
-from titles.tmdb_api import TmdbWrapper, PopularMoviesTmdbTask, TitleDetailsGetter, MovieTmdb, TmdbResponseMixin, \
-    PopularPeopleTmdbTask, \
-    NowPlayingMoviesTmdbTask, UpcomingMoviesTmdbTask, PopularTVTmdbTask, TmdbTaskRunner
 
 from titles.models import Title, Person, Collection, Upcoming, Popular, NowPlaying, CurrentlyWatchingTV, CastTitle, \
     CrewTitle, Season, Keyword

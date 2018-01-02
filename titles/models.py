@@ -195,7 +195,7 @@ class Title(models.Model):
         self.save()
 
     def get_tmdb_instance(self):
-        from titles.tmdb_api import get_tmdb_concrete_class
+        from tmdb.utils import get_tmdb_concrete_class
         return get_tmdb_concrete_class(self.type)
 
     def can_be_updated(self, user):
