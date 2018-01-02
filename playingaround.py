@@ -6,8 +6,7 @@ import os
 
 from tmdb.mixins import TmdbResponseMixin
 from tmdb.popular import PopularMoviesTmdbTask, TmdbPopularTaskRunner
-from tmdb.api import MovieTmdb
-from tmdb.utils import TmdbWrapper, TitleDetailsGetter
+from tmdb.api import MovieTmdb, TmdbWrapper, TitleDetailsGetter
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
@@ -289,13 +288,7 @@ def test_queryset():
     print(Title.objects.filter(rating__user__username='test').distinct().filter(pk__in=[4773]))
 
 
-def test_csv():
-    user = User.objects.all().first()
-    import_ratings_from_csv(user, 'G:/code/PycharmProjects/movie website/media/test.csv')
 
-    # update_user_ratings_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/imdb.csv')
-
-test_csv()
 
 def test_fav():
     user = User.objects.get(username='test')
