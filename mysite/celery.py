@@ -17,12 +17,12 @@ app = Celery('mysite', backend='amqp', broker='amqp://')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 
-@app.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(
-        crontab(hour=21, minute=1),
-        task_run_daily_tmdb_tasks.s()
-    )
+# @app.on_after_configure.connect
+# def setup_periodic_tasks(sender, **kwargs):
+#     sender.add_periodic_task(
+#         crontab(hour=21, minute=1),
+#         task_run_daily_tmdb_tasks.s()
+#     )
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()

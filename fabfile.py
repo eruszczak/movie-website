@@ -87,12 +87,12 @@ def db():
 
 def celery():
     with virtualenv():
-        local('celery -A mysite worker -l info')
+        local('celery -A mysite worker -l info -c 1')
 
 
 def celery_win():
     with virtualenv():
-        local('celery -A mysite worker --pool=solo -l info')
+        local('celery -A mysite worker --pool=solo -l info -c 1')
 
 
 def requirements():
@@ -103,6 +103,14 @@ def requirements():
 def shell():
     with virtualenv():
         local('python manage.py shell')
+
+def shell_test():
+    with prefix('source ../venv/bin/activate'):
+        local('python manage.py shell')
+
+def test(command):
+    source = 'source ..venv/bin/activate && '
+    local(source + command)
 
 
 def freeze():
