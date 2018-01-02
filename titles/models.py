@@ -201,7 +201,7 @@ class Title(models.Model):
         return get_tmdb_concrete_class(self.type)
 
     def can_be_updated(self, user):
-        return not now().date() == self.update_date.date() or user.is_superuser
+        return (not now().date() == self.update_date.date() or self.should_get_details) or user.is_superuser
 
     @property
     @tmdb_image

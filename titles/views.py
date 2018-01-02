@@ -123,8 +123,8 @@ class TitleDetailView(DetailView):
 
     def get_object(self, queryset=None):
         obj = self.get_queryset().get()
-        # if obj.should_get_details:
-        #     obj.get_details()
+        if obj.should_get_details:
+            obj.get_details()
         # consider if update() it wasn't updated for like 50 days
         return obj
 

@@ -27,10 +27,7 @@ def import_ratings_from_csv(user, file_path):
                 row_count += 1
                 imdb_id, rate_date, rate = row[mapper['imdb_id']], row[mapper['rate_date']], row[mapper['rate']]
                 rate_date = convert_to_datetime(row[mapper['rate_date']], 'csv')
-                print(imdb_id)
                 title = TmdbWrapper().get(imdb_id=imdb_id)
-                print(title, title.pk)
-                continue
                 if title and rate_date and not Rating.objects.filter(
                         user=user, title=title, rate_date=rate_date).exists():
                     data = {

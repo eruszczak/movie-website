@@ -18,7 +18,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
 
         # tmdb_id is not unique (tv and movie can have the same tmdb_id).
         # so if not imdb_id is passed I need to know its type
-        print(tmdb_id, imdb_id, self.title_type, title)
+        # print(tmdb_id, imdb_id, self.title_type, title)
         assert (tmdb_id and imdb_id) or (tmdb_id and self.title_type is not None) or title
 
         self.get_details = kwargs.get('get_details', False)
@@ -37,8 +37,6 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
                 self.title = Title.objects.get(**lookup)
             except Title.DoesNotExist:
                 pass
-            else:
-                print('\t\texisted!')
 
         if self.title:
             self.tmdb_id = self.title.tmdb_id
@@ -58,7 +56,6 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
             if self.imdb_id:
                 title_data = self.get_basic_data()
                 self.title = Title.objects.create(tmdb_id=self.tmdb_id, imdb_id=self.imdb_id, **title_data)
-                print('created', self.title, self.title.imdb_id)
 
                 self.call_updater_handlers()
                 if self.get_details:
@@ -213,11 +210,11 @@ class TmdbWrapper(TmdbResponseMixin):
         except Title.DoesNotExist:
             # if not exist, add new title (need to pass both ids because tmdb_id is not unique)
             wrapper_class, tmdb_id = self.call_find_endpoint(imdb_id)
-            print('not existed', tmdb_id, imdb_id)
+            # print('not existed', tmdb_id, imdb_id)
             if wrapper_class:
                 return wrapper_class(imdb_id=imdb_id, tmdb_id=tmdb_id, **kwargs).get_or_create()
         else:
-            print(t, 'existed')
+            # print(t, 'existed')
             return t
 
         return None
