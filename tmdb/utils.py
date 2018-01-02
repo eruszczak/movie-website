@@ -14,7 +14,7 @@ def get_tmdb_concrete_class(title_type):
 
 
 class TmdbWrapper(TmdbResponseMixin):
-    """Based on imdb_id, returns title if exists, else MovieTmdb or SeriesTmdb instance"""
+    """Used by importer. Based on imdb_id, returns title if exists, else MovieTmdb or SeriesTmdb instance"""
 
     def get(self, imdb_id, **kwargs):
         """
@@ -24,13 +24,14 @@ class TmdbWrapper(TmdbResponseMixin):
         whether an imdb_id is a movie/series and I know its tmdb_id, so I can call any endpoint.
         """
         try:
+            # try to find title by imdb_id, it is unique
             t = Title.objects.get(imdb_id=imdb_id)
         except Title.DoesNotExist:
-            print('not existed')
+            # if not exist, add new title (need to pass both ids because tmdb_id is not unique)
             wrapper_class, tmdb_id = self.call_find_endpoint(imdb_id)
-            print(tmdb_id)
+            print('not existed', tmdb_id, imdb_id)
             if wrapper_class:
-                return wrapper_class(tmdb_id, **kwargs).get_or_create()
+                return wrapper_class(imdb_id=imdb_id, tmdb_id=tmdb_id, **kwargs).get_or_create()
         else:
             print(t, 'existed')
             return t

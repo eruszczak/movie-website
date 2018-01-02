@@ -8,22 +8,27 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
     title_type = None
     imdb_id_path = None
 
-    def __init__(self, tmdb_id=None, title=None, **kwargs):
-        assert tmdb_id or title
+    def __init__(self, tmdb_id=None, imdb_id=None, title=None, **kwargs):
         super().__init__()
-        # maps Title model attribute names to TMDB's response
-        self.title_model_map = {'overview': 'overview'}
-        # maps paths in TMDB's response to their method handlers
-        self.response_handlers_map = {}
+        self.response_handlers_map.update({
+            'genres': self.save_genres,
+            'credits/cast': self.save_cast,
+        })
+        self.title_model_map = {'overview': 'overview'}  # maps Title model attribute names to TMDB's response
+        self.response_handlers_map = {}  # maps paths in TMDB's response to their method handlers
+
+        # tmdb_id is not unique (tv and movie can have the same tmdb_id).
+        # so if not imdb_id is passed I need to know its type
+        assert (tmdb_id and imdb_id) or (tmdb_id and self.title_type) or self.title
 
         self.get_details = kwargs.get('get_details', False)
-        self.tmdb_id = tmdb_id
-        self.imdb_id = None
         self.title = title
 
-        if not self.title:
+        if tmdb_id and imdb_id:
+            self.tmdb_id = tmdb_id
+            self.imdb_id = imdb_id
             try:
-                self.title = Title.objects.get(tmdb_id=tmdb_id)
+                self.title = Title.objects.get(tmdb_id=tmdb_id, imdb_id=imdb_id)
             except Title.DoesNotExist:
                 pass
 
@@ -31,37 +36,29 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
             self.tmdb_id = self.title.tmdb_id
             self.imdb_id = self.title.imdb_id
 
-        self.response_handlers_map.update({
-            'genres': self.save_genres,
-            'credits/cast': self.save_cast,
-        })
-
     def get_or_create(self):
         if self.title:
             return self.title
 
         self.set_title_response(self.tmdb_id)
         if self.api_response:
+            if self.imdb_id:
+                assert self.imdb_id == self.api_response[self.imdb_id_path]
+
+            # if getting details (eg. similar title), only tmdb_id was passed to init
             self.imdb_id = self.api_response[self.imdb_id_path]
             if self.imdb_id:
-                return self.create()
+                title_data = self.get_basic_data()
+                self.title = Title.objects.create(
+                    tmdb_id=self.tmdb_id, imdb_id=self.imdb_id, defaults=dict(**title_data))
+
+                self.call_updater_handlers()
+                if self.get_details:
+                    TitleDetailsGetter(self.title).run()
+
+                return self.title
 
         return None
-
-    def create(self):
-        # todo
-        title_data = self.get_basic_data()
-        self.title, created = Title.objects.get_or_create(
-            tmdb_id=self.tmdb_id, imdb_id=self.imdb_id, defaults=dict(**title_data))
-        if not created:
-            print(f'{self.tmdb_id}, {self.imdb_id} --- bug. this should not exist but sometimes it does')
-        print('creating')
-
-        self.call_updater_handlers()
-        if self.get_details:
-            TitleDetailsGetter(self.title).run()
-
-        return self.title
 
     def update(self):
         """updates existing title - both: basic info and details"""
