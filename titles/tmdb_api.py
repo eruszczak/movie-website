@@ -40,7 +40,7 @@ class TmdbResponseMixin:
         sleep(1.5)
         response, response_url = get_json_response(url, query_string)
         if response:
-            # print(response_url)
+            print(response_url)
             return SlashDict(response)
         return None
 
@@ -248,14 +248,14 @@ class TmdbWrapper(TmdbResponseMixin):
         But the thing is, you can't call /tv with imdb_id - only tmdb_id. So I use `find` endpoint and it returns
         whether an imdb_id is a movie/series and I know its tmdb_id, so I can call any endpoint.
         """
-        # try:
-        #     return Title.objects.get(imdb_id=imdb_id)
-        # except Title.DoesNotExist:
-        wrapper_class, tmdb_id = self.call_find_endpoint(imdb_id)
-        if wrapper_class:
-            return wrapper_class(tmdb_id, **kwargs).get_or_create()
+        try:
+            return Title.objects.get(imdb_id=imdb_id)
+        except Title.DoesNotExist:
+            wrapper_class, tmdb_id = self.call_find_endpoint(imdb_id)
+            if wrapper_class:
+                return wrapper_class(tmdb_id, **kwargs).get_or_create()
 
-        return None
+            return None
 
     def call_find_endpoint(self, title_id):
         response = self.get_tmdb_response('find', title_id, qs={'external_source': 'imdb_id'})

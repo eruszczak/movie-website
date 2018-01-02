@@ -57,7 +57,7 @@ class CastTitle(models.Model):
     person = models.ForeignKey('Person', on_delete=models.CASCADE)
     title = models.ForeignKey('Title', on_delete=models.CASCADE)
     order = models.SmallIntegerField(default=0)
-    character = models.CharField(max_length=300, blank=True)
+    character = models.CharField(max_length=500, blank=True)
 
     def __str__(self):
         return f'{self.person} in {self.title}'
