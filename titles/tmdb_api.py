@@ -101,7 +101,10 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
 
     def create(self):
         title_data = self.get_basic_data()
-        self.title = Title.objects.create(tmdb_id=self.tmdb_id, imdb_id=self.imdb_id, **title_data)
+        self.title, created = Title.objects.get_or_create(tmdb_id=self.tmdb_id, imdb_id=self.imdb_id, defaults=dict(**title_data))
+        if not created:
+            print(f'{self.tmdb_id}, {self.imdb_id} --- bug. this should not exist but sometimes it does')
+        print('creating')
 
         self.call_updater_handlers()
         if self.get_details:
