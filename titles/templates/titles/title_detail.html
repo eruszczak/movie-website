@@ -8,9 +8,9 @@
 {% endblock %}
 
 {% block content %}
-    {% if not title.has_details and title.getting_details %}   
+{% if title.should_get_details %}   
         <div class="ui warning message">
-            Title is being updated.
+            You just visited title without details (eg. similar titles). It will be updated soon.
         </div>
     {% endif %}
     <div class="ui fluid two item menu title-menu">
