@@ -1,11 +1,13 @@
 import django
 import os
 
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
 from django.contrib.auth import get_user_model
 
 from importer.utils import import_ratings_from_csv
+from titles.models import Title
 
 User = get_user_model()
 
@@ -16,8 +18,13 @@ def test_csv():
 
     # update_user_ratings_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/imdb.csv')
 
-test_csv()
+# test_csv()
 
+
+for t in Title.objects.filter(tmdb_id='1414'):
+    print(t, t.imdb_id)
+    # tmdb_instance = t.get_tmdb_instance()
+    # tmdb_instance(title=t).update()
 
 imdb_id_movie = 'tt0120889'
 # tmdb_id_movie = '12159'
