@@ -10,7 +10,7 @@ def task_run_daily_tmdb_tasks():
 
 @shared_task
 def task_get_details(title_pk):  # cannot pass a model instance: `Object of type 'Title' is not JSON serializable`
-    from tmdb.utils import TitleDetailsGetter
+    from tmdb.api import TitleDetailsGetter
     from titles.models import Title
 
     title = Title.objects.get(pk=title_pk)

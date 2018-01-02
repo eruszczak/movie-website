@@ -1,9 +1,22 @@
 import django
 import os
 
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 django.setup()
+from django.contrib.auth import get_user_model
+
+from importer.utils import import_ratings_from_csv
+
+User = get_user_model()
+
+
+def test_csv():
+    user = User.objects.all().first()
+    import_ratings_from_csv(user, 'G:/code/PycharmProjects/movie website/media/test.csv')
+
+    # update_user_ratings_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/imdb.csv')
+
+test_csv()
 
 
 imdb_id_movie = 'tt0120889'

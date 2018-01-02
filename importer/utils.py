@@ -9,7 +9,7 @@ from lists.models import Watchlist
 from titles.constants import MY_HEADERS
 from titles.forms import RateForm
 from titles.models import Rating
-from tmdb.utils import TmdbWrapper
+from tmdb.api import TmdbWrapper
 
 
 def import_ratings_from_csv(user, file_path):
