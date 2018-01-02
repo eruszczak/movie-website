@@ -18,18 +18,27 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
 
         # tmdb_id is not unique (tv and movie can have the same tmdb_id).
         # so if not imdb_id is passed I need to know its type
-        assert (tmdb_id and imdb_id) or (tmdb_id and self.title_type) or self.title
+        print(tmdb_id, imdb_id, self.title_type, title)
+        assert (tmdb_id and imdb_id) or (tmdb_id and self.title_type is not None) or title
 
         self.get_details = kwargs.get('get_details', False)
         self.title = title
+        self.tmdb_id = tmdb_id
+        self.imdb_id = imdb_id
 
-        if tmdb_id and imdb_id:
-            self.tmdb_id = tmdb_id
-            self.imdb_id = imdb_id
+        if not self.title:
+            if tmdb_id and imdb_id:
+                lookup = {'tmdb_id': tmdb_id, 'imdb_id': imdb_id}
+            else:
+                # Importer passes only tmdb_id. It's not unique, it's unique with title_type
+                lookup = {'tmdb_id': tmdb_id, 'type': self.title_type}
+
             try:
-                self.title = Title.objects.get(tmdb_id=tmdb_id, imdb_id=imdb_id)
+                self.title = Title.objects.get(**lookup)
             except Title.DoesNotExist:
                 pass
+            else:
+                print('\t\texisted!')
 
         if self.title:
             self.tmdb_id = self.title.tmdb_id
@@ -53,7 +62,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
 
                 self.call_updater_handlers()
                 if self.get_details:
-                    TitleDetailsGetter(self.title).run()
+                    TitleDetailsGetter(self.title, api_response=self.api_response).run()
 
                 return self.title
 
@@ -70,7 +79,7 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
             # self.title.save()
             self.clear_related()
             self.call_updater_handlers()
-            TitleDetailsGetter(self.title).run()
+            TitleDetailsGetter(self.title, api_response=self.api_response).run()
 
     def get_basic_data(self):
         title_data = {
@@ -232,9 +241,10 @@ class TmdbWrapper(TmdbResponseMixin):
 class TitleDetailsGetter(TmdbResponseMixin):
     """Class that fetches additional information for a title"""
 
-    def __init__(self, title):
+    def __init__(self, title, api_response=None):
         super().__init__()
         self.title = title
+        self.api_response = api_response
         print(f'TitleUpdater for {self.title.imdb_id}')
 
         # this is needed because similar/recommended/collection titles have the same type as self.title
@@ -249,7 +259,8 @@ class TitleDetailsGetter(TmdbResponseMixin):
             self.response_handlers_map['belongs_to_collection'] = self.save_collection
 
     def run(self):
-        self.set_title_response(self.title.tmdb_id)
+        if self.api_response is None:
+            self.set_title_response(self.title.tmdb_id)
         if self.api_response:
             # title could have details. make sure they are cleared before updating them
             self.clear_details()
@@ -285,7 +296,7 @@ class TitleDetailsGetter(TmdbResponseMixin):
     def save_titles_to_attribute(self, value, attribute):
         pks = []
         for result in value:
-            title = self.tmdb_instance(result['id']).get_or_create()
+            title = self.tmdb_instance(tmdb_id=result['id']).get_or_create()
             if title:
                 pks.append(title.pk)
         attribute.add(*pks)

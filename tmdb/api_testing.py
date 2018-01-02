@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 
 from importer.utils import import_ratings_from_csv
 from titles.models import Title
+from tmdb.api import TmdbWrapper
 
 User = get_user_model()
 
@@ -20,11 +21,21 @@ def test_csv():
 
 # test_csv()
 
+# check add new tite
+# update that title
+# check popular
+# check import/eexport
 
-for t in Title.objects.filter(tmdb_id='1414'):
-    print(t, t.imdb_id)
-    # tmdb_instance = t.get_tmdb_instance()
-    # tmdb_instance(title=t).update()
+
+# for t in Title.objects.filter(tmdb_id='1414'):
+#     # print(t.similar.clear())
+# #     print(t, t.imdb_id)
+#     tmdb_instance = t.get_tmdb_instance()
+#     tmdb_instance(title=t).update()
+
+# Title.objects.filter(tmdb_id='1414').delete()
+# for imdb_id in ['tt0286486', 'tt0133363']:
+#     TmdbWrapper().get(imdb_id=imdb_id)
 
 imdb_id_movie = 'tt0120889'
 # tmdb_id_movie = '12159'
