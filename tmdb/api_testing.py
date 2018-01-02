@@ -21,20 +21,20 @@ def test_csv():
 
 # test_csv()
 
-# check add new tite
-# update that title
 # check popular
 # check import/eexport
 
 
 # for t in Title.objects.filter(tmdb_id='1414'):
+for t in Title.objects.filter(imdb_id='tt0454848'):
 #     # print(t.similar.clear())
 # #     print(t, t.imdb_id)
-#     tmdb_instance = t.get_tmdb_instance()
-#     tmdb_instance(title=t).update()
+    tmdb_instance = t.get_tmdb_instance()
+    tmdb_instance(title=t).update()
 
 # Title.objects.filter(tmdb_id='1414').delete()
 # for imdb_id in ['tt0286486', 'tt0133363']:
+# for imdb_id in ['tt0454848']:
 #     TmdbWrapper().get(imdb_id=imdb_id)
 
 imdb_id_movie = 'tt0120889'
