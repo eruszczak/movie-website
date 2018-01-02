@@ -239,7 +239,7 @@ def get_tmdb_concrete_class(title_type):
 
 
 class TmdbWrapper(TmdbResponseMixin):
-    """Based on imdb_id, returns either MovieTmdb or SeriesTmdb instance"""
+    """Based on imdb_id, returns title if exists, else MovieTmdb or SeriesTmdb instance"""
 
     def get(self, imdb_id, **kwargs):
         """
@@ -248,6 +248,9 @@ class TmdbWrapper(TmdbResponseMixin):
         But the thing is, you can't call /tv with imdb_id - only tmdb_id. So I use `find` endpoint and it returns
         whether an imdb_id is a movie/series and I know its tmdb_id, so I can call any endpoint.
         """
+        # try:
+        #     return Title.objects.get(imdb_id=imdb_id)
+        # except Title.DoesNotExist:
         wrapper_class, tmdb_id = self.call_find_endpoint(imdb_id)
         if wrapper_class:
             return wrapper_class(tmdb_id, **kwargs).get_or_create()
