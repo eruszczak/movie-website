@@ -290,10 +290,12 @@ def test_queryset():
 
 
 def test_csv():
-    user = User.objects.get(username='test')
-    import_ratings_from_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/export.csv')
+    user = User.objects.all().first()
+    import_ratings_from_csv(user, 'G:/code/PycharmProjects/movie website/media/test.csv')
 
     # update_user_ratings_csv(user, 'G:/code/PycharmProjects/movie website/media/accounts/imdb.csv')
+
+test_csv()
 
 def test_fav():
     user = User.objects.get(username='test')

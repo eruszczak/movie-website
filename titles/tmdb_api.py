@@ -100,8 +100,10 @@ class BaseTmdb(PersonMixin, TmdbResponseMixin):
         return None
 
     def create(self):
+        # todo
         title_data = self.get_basic_data()
-        self.title, created = Title.objects.get_or_create(tmdb_id=self.tmdb_id, imdb_id=self.imdb_id, defaults=dict(**title_data))
+        self.title, created = Title.objects.get_or_create(
+            tmdb_id=self.tmdb_id, imdb_id=self.imdb_id, defaults=dict(**title_data))
         if not created:
             print(f'{self.tmdb_id}, {self.imdb_id} --- bug. this should not exist but sometimes it does')
         print('creating')
@@ -252,13 +254,18 @@ class TmdbWrapper(TmdbResponseMixin):
         whether an imdb_id is a movie/series and I know its tmdb_id, so I can call any endpoint.
         """
         try:
-            return Title.objects.get(imdb_id=imdb_id)
+            t = Title.objects.get(imdb_id=imdb_id)
         except Title.DoesNotExist:
+            print('not existed')
             wrapper_class, tmdb_id = self.call_find_endpoint(imdb_id)
+            print(tmdb_id)
             if wrapper_class:
                 return wrapper_class(tmdb_id, **kwargs).get_or_create()
+        else:
+            print(t, 'existed')
+            return t
 
-            return None
+        return None
 
     def call_find_endpoint(self, title_id):
         response = self.get_tmdb_response('find', title_id, qs={'external_source': 'imdb_id'})
