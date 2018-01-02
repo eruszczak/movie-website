@@ -255,7 +255,7 @@ class PersonDetailView(DetailView):
             rates_clean = [r for r in rates if r]
 
             try:
-                context['avg'] = sum(rates_clean) / len(rates_clean)
+                context['avg'] = round(sum(rates_clean) / len(rates_clean), 2)
             except ZeroDivisionError:
                 pass
 
