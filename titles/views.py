@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Subquery, Q, Avg, F
+from django.db.models import Count, Subquery, Q, Avg, F, Prefetch
 from django.db.models import OuterRef
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -11,7 +11,8 @@ from lists.models import Watchlist, Favourite
 from shared.mixins import LoginRequiredMixin, AnonymousCacheMixin
 from shared.views import SearchViewMixin
 from titles.forms import TitleSearchForm, RatingFormset, RatingSearchForm
-from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPlaying, Upcoming, CurrentlyWatchingTV
+from .models import Title, Rating, Popular, CastTitle, Person, CrewTitle, NowPlaying, Upcoming, CurrentlyWatchingTV, \
+    Season
 
 User = get_user_model()
 
@@ -109,7 +110,8 @@ class TitleDetailView(DetailView):
     model = Title
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(imdb_id=self.kwargs['imdb_id']).prefetch_related('seasons', 'keywords')\
+        queryset = super().get_queryset().filter(imdb_id=self.kwargs['imdb_id'])\
+            .prefetch_related(Prefetch('seasons', queryset=Season.objects.exclude(number=0)), 'keywords')\
             .annotate_fav_and_watch(self.request.user)
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
