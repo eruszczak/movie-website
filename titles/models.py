@@ -145,7 +145,7 @@ class Title(models.Model):
     collection = models.ForeignKey('Collection', blank=True, null=True, related_name='titles', on_delete=models.SET_NULL)
 
     type = models.IntegerField(choices=TITLE_TYPE_CHOICES, blank=True, null=True)
-    tmdb_id = models.CharField(unique=True, max_length=10)
+    tmdb_id = models.CharField(max_length=10)
     imdb_id = models.CharField(unique=True, max_length=10)
     name = models.CharField(max_length=300)
     slug = models.SlugField(max_length=350)
@@ -159,6 +159,7 @@ class Title(models.Model):
 
     class Meta:
         ordering = ('-release_date', '-update_date')
+        unique_together = ('imdb_id', 'tmdb_id')
 
     def __str__(self):
         return f"{self.name} ({self.year or '?'})"
