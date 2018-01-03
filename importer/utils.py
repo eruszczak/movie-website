@@ -2,9 +2,10 @@ from csv import DictReader, DictWriter
 from os import remove
 from os.path import join
 
+from django.db.models import F
+
 from importer.constants import EXPORT_FILE_NAME
-from importer.helpers import recognize_file_source, convert_to_datetime, fill_dictwriter_with_rating_qs, get_imdb_rss, \
-    unpack_from_rss_item
+from importer.helpers import recognize_file_source, convert_to_datetime, get_imdb_rss, unpack_from_rss_item
 from lists.models import Watchlist
 from titles.constants import MY_HEADERS
 from titles.forms import RateForm
@@ -50,8 +51,8 @@ def import_ratings_from_csv(user, file_path):
             print('headers are wrong')
 
         f.close()
-    # finally:
-    #     remove(file_path)
+    finally:
+        remove(file_path)
 
 
 def export_ratings(user):
@@ -61,16 +62,12 @@ def export_ratings(user):
     The file can be used to import ratings back using ImportRatingsView
     """
     user_tmp_folder = user.get_temp_folder_path(absolute=True, create=True)
-
-    ratings = Rating.objects.filter(user=user).select_related('title')
-    # count_ratings = ratings.count()
-    # count_titles = ratings.values_list('title').distinct().count()
-    # filename = '{}_ratings_for_{}_titles_{}'.format(count_ratings, count_titles, now().strftime('%Y-%m-%d'))
+    ratings = Rating.objects.filter(user=user).annotate(imdb_id=F('title__imdb_id')).select_related('title')
     file_path = join(user_tmp_folder, EXPORT_FILE_NAME)
     with open(file_path, 'w') as csvfile:
         writer = DictWriter(csvfile, fieldnames=MY_HEADERS, lineterminator='\n')
         writer.writeheader()
-        fill_dictwriter_with_rating_qs(writer, ratings)
+        writer.writerows(ratings.values('imdb_id', 'rate', 'rate_date'))
 
 
 def update_user_watchlist(user):
