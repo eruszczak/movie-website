@@ -51,15 +51,6 @@ def valid_csv_header(headers, expected_headers):
     return all(h in headers for h in expected_headers)
 
 
-def fill_dictwriter_with_rating_qs(writer, ratings):
-    for r in ratings:
-        writer.writerow({
-            'imdb_id': r.title.imdb_id,
-            'rate_date': r.rate_date,
-            'rate': r.rate
-        })
-
-
 def get_imdb_rss(url):
     """gets XML from rss.imdb.com/user/<userid>/{ratings} or {watchlist}"""
     response = requests.get(url)
