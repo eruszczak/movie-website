@@ -1,8 +1,10 @@
 from csv import DictReader, DictWriter
 from os import remove
 from os.path import join
+from zipfile import ZipFile, ZIP_DEFLATED
 
 from django.db.models import F
+from django.utils.timezone import now
 
 from importer.constants import EXPORT_FILE_NAME
 from importer.helpers import recognize_file_source, convert_to_datetime, get_imdb_rss, unpack_from_rss_item
@@ -63,11 +65,17 @@ def export_ratings(user):
     """
     user_tmp_folder = user.get_temp_folder_path(absolute=True, create=True)
     ratings = Rating.objects.filter(user=user).annotate(imdb_id=F('title__imdb_id')).select_related('title')
-    file_path = join(user_tmp_folder, EXPORT_FILE_NAME)
-    with open(file_path, 'w') as csvfile:
+    temp_file_path = join(user_tmp_folder, 'temp.csv')
+    with open(temp_file_path, 'w') as csvfile:
         writer = DictWriter(csvfile, fieldnames=MY_HEADERS, lineterminator='\n')
         writer.writeheader()
         writer.writerows(ratings.values('imdb_id', 'rate', 'rate_date'))
+
+    zip_file_path = join(user_tmp_folder, EXPORT_FILE_NAME)
+    zf = ZipFile(zip_file_path, 'w')
+    zf.write(temp_file_path, f"{now().strftime('%Y-%m-%d')}_ratings_{ratings.count()}.csv", ZIP_DEFLATED)
+    zf.close()
+    remove(temp_file_path)
 
 
 def update_user_watchlist(user):

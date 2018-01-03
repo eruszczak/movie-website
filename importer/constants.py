@@ -1,1 +1,1 @@
-EXPORT_FILE_NAME = 'export.csv'
+EXPORT_FILE_NAME = 'export.zip'
