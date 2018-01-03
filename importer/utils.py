@@ -59,7 +59,7 @@ def import_ratings_from_csv(user, file_path):
 
 def export_ratings(user):
     """
-    exports to a csv file all of user's ratings, so they can be imported later
+    exports to a zipped csv file all of user's ratings
     file consists of lines in format: tt1234567,2017-05-23,7
     The file can be used to import ratings back using ImportRatingsView
     """
