@@ -6,7 +6,6 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from django.db.models import F
 from django.utils.timezone import now
 
-from importer.constants import EXPORT_FILE_NAME
 from importer.helpers import recognize_file_source, convert_to_datetime, get_imdb_rss, unpack_from_rss_item
 from lists.models import Watchlist
 from titles.constants import MY_HEADERS
@@ -71,8 +70,7 @@ def export_ratings(user):
         writer.writeheader()
         writer.writerows(ratings.values('imdb_id', 'rate', 'rate_date'))
 
-    zip_file_path = join(user_tmp_folder, EXPORT_FILE_NAME)
-    zf = ZipFile(zip_file_path, 'w')
+    zf = ZipFile(user.exported_zip_path, 'w')
     zf.write(temp_file_path, f"{now().strftime('%Y-%m-%d')}_ratings_{ratings.count()}.csv", ZIP_DEFLATED)
     zf.close()
     remove(temp_file_path)
