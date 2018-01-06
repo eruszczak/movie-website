@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 
 from importer.utils import import_ratings_from_csv
 from titles.models import Title
-from tmdb.api import TmdbWrapper
+from tmdb.api import TmdbWrapper, TitleDetailsGetter
 
 User = get_user_model()
 
@@ -26,11 +26,11 @@ def test_csv():
 
 
 # for t in Title.objects.filter(tmdb_id='1414'):
-for t in Title.objects.filter(imdb_id='tt0454848'):
-#     # print(t.similar.clear())
-# #     print(t, t.imdb_id)
-    tmdb_instance = t.get_tmdb_instance()
-    tmdb_instance(title=t).update()
+# for t in Title.objects.filter(imdb_id='tt0454848'):
+# #     # print(t.similar.clear())
+# # #     print(t, t.imdb_id)
+#     tmdb_instance = t.get_tmdb_instance()
+#     tmdb_instance(title=t).update()
 
 # Title.objects.filter(tmdb_id='1414').delete()
 # for imdb_id in ['tt0286486', 'tt0133363']:
@@ -42,6 +42,9 @@ imdb_id_movie = 'tt0120889'
 
 # imdb_id_series = 'tt4574334'
 tmdb_id_series = '66732'
+
+t = Title.objects.get(imdb_id='tt1037705')
+TitleDetailsGetter(t).run()
 
 
 # deleted = Title.objects.filter(imdb_id=collection_id).delete()
