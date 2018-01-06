@@ -133,7 +133,7 @@ class UserDetailView(DetailView):
         context.update({
             'is_other_user': is_other_user,
             'is_owner': is_owner,
-            'rating_list': ratings[:self.limit],
+            'rating_list': ratings[:15],
             'total_ratings': Rating.objects.filter(user=self.object).count(),
             'currently_watching': currently_watching[:self.limit],
             'feed': Rating.objects.filter(
