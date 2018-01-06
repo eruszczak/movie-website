@@ -6,7 +6,7 @@ DEBUG = True
 COMPRESS_ENABLED = False
 
 DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL_LOCAL'))
+    'default': dj_database_url.parse(config('DATABASE_URL_LOCAL'))
 }
 
 INSTALLED_APPS += [
