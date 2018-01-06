@@ -54,7 +54,7 @@ class ExportRatingsAPIView(LoginRequiredMixin, GetUserMixin, APIView):
 
     @instance_required
     def post(self, request, *args, **kwargs):
-        task_export.delay(self.request.user.pk)
+        task_export.delay(self.user.pk)
         # export_ratings(self.user)
         return Response({'message': WAIT_MESSAGE, 'title': 'Export'}, status=status.HTTP_200_OK)
 
