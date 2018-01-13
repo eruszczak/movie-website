@@ -6,7 +6,7 @@ DEBUG = False
 COMPRESS_ENABLED = True
 
 DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL_PRODUCTION'))
+    'default': dj_database_url.parse(config('DATABASE_URL_PRODUCTION'))
 }
 
 AUTH_PASSWORD_VALIDATORS = [
