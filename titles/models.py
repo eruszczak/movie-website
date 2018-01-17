@@ -183,7 +183,6 @@ class Title(models.Model):
         Title by default is added without details (similar, recommendations, collection).
         Details are fetched when title without details is visited (through detail-view)
         """
-        print(f'call tmdb updater task for {self.imdb_id}')
         task_get_details.delay(self.pk)
 
     def before_get_details(self):
@@ -269,11 +268,6 @@ class Title(models.Model):
     @property
     def should_get_details(self):
         return not self.has_details and not self.getting_details
-
-    # @property
-    # def can_be_updated(self):
-    #     seconds_since_last_update = (timezone.now() - self.update_date).seconds
-    #     return seconds_since_last_update > 60 * 10
 
 
 class Rating(models.Model):

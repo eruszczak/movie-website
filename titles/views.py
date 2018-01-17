@@ -123,7 +123,7 @@ class TitleDetailView(DetailView):
 
     def get_object(self, queryset=None):
         obj = self.get_queryset().get()
-        if obj.should_get_details:
+        if self.request.user.is_authenticated and obj.should_get_details:
             obj.get_details()
         # consider if update() it wasn't updated for like 50 days
         return obj
@@ -154,7 +154,7 @@ class TitleDetailView(DetailView):
                             user=OuterRef('followed'), title=OuterRef('followed__rating__title')
                         ).order_by('-rate_date').values('rate_date')[:1]
                     )
-                ).select_related('followed'),
+                ).select_related('followed')
             })
 
             summary = Rating.objects.filter(title=self.object).aggregate(avg=Avg('rate'), votes=Count('pk'))
