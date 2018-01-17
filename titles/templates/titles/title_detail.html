@@ -63,7 +63,12 @@
             <p>{{ title.overview }}</p>
             <div class="ui hidden divider"></div>
         {% endif %}
-
+        <div class="ui segment">
+            <span class="ui blue ribbon label">Cast</span>
+            <div class="ui list">
+                {% include 'titles/includes/slick_persons.html' with queryset=cast_list cast_qs=True %}
+            </div>
+        </div>
         {% if title.collection %}
             <div class="ui segment">
                 <span class="ui blue ribbon label">{{ title.collection.name }}</span>
@@ -88,12 +93,6 @@
                 </div>
             </div>
         {% endif %}
-        <div class="ui segment">
-            <span class="ui blue ribbon label">Cast</span>
-            <div class="ui list">
-                {% include 'titles/includes/slick_persons.html' with queryset=cast_list cast_qs=True %}
-            </div>
-        </div>
         <div class="ui segment">
             <span class="ui blue ribbon label">Crew</span>
             <div class="ui list">
