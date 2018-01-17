@@ -122,10 +122,10 @@ class TitleDetailView(DetailView):
         return queryset
 
     def get_object(self, queryset=None):
+        # consider auto update() if it wasn't updated for like 50 days
         obj = self.get_queryset().get()
         if self.request.user.is_authenticated and obj.should_get_details:
             obj.get_details()
-        # consider if update() it wasn't updated for like 50 days
         return obj
 
     def get_context_data(self, **kwargs):

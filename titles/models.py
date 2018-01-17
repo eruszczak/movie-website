@@ -183,7 +183,8 @@ class Title(models.Model):
         Title by default is added without details (similar, recommendations, collection).
         Details are fetched when title without details is visited (through detail-view)
         """
-        task_get_details.delay(self.pk)
+        if not settings.DEBUG:
+            task_get_details.delay(self.pk)
 
     def before_get_details(self):
         self.getting_details = True
@@ -256,7 +257,8 @@ class Title(models.Model):
 
     @property
     def tmdb_url(self):
-        return f'http://www.themoviedb.org/movie/{self.tmdb_id}/'
+        title_type = 'movie' if self.is_movie else 'tv'
+        return f'http://www.themoviedb.org/{title_type}/{self.tmdb_id}/'
 
     @property
     def year(self):
