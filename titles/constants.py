@@ -31,17 +31,18 @@ IMAGE_SIZES = {
     'backdrop_user': 'w1920_and_h318_bestv2',
     'backdrop_title': 'w1280',
     'small': 'w185_and_h278_bestv2',
-    'card': 'w500_and_h281_bestv2',
+    'card': 'w500',
     'small_person': 'w185_and_h278_bestv2'
 }
 
 MY_HEADERS = ['imdb_id', 'rate_date', 'rate']
-IMDB_HEADERS = ['Const', 'Your Rating', 'Date Added']
 MY_CSV_MAPPER = {
     'imdb_id': 'imdb_id',
     'rate': 'rate',
     'rate_date': 'rate_date',
 }
+
+IMDB_HEADERS = ['Const', 'Your Rating', 'Date Added']
 IMDB_CSV_MAPPER = {
     'imdb_id': 'Const',
     'rate': 'Your Rating',
