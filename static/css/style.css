@@ -309,3 +309,10 @@ body {
 .menu.transition.visible {
     z-index: 100;
 }
+
+.ui.card>.image>img, .ui.cards>.card>.image>img {
+    width: 500px;
+    height: auto;
+    max-height: 280px;
+    object-fit: cover;
+}
