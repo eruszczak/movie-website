@@ -1,7 +1,10 @@
 [![Python Version](https://img.shields.io/badge/python-3.6-brightgreen.svg)](https://python.org) [![Django Version](https://img.shields.io/badge/django-1.11-brightgreen.svg)](https://djangoproject.com)
 
 
-# Why
+# About
+
+http://movie.reryk.pl
+
 Created for helping me with tracking watched movies/tv-shows.
 It is helpful because if you rate again some title on IMDb, information about previous rating is overwritten. This site allows you to rate a title multiple times.
 
@@ -46,3 +49,19 @@ I also use Celery for imports/exports. You can import ratings from a file export
 * right now you can add titles to your Favourite list. You can reorder the list but I have limited its capacity to 50 because it was laggy to load 100 items. There must be a way to reorder paginated items.
 * add pagination to watchlist (simpler because there is no reordering)
 * charts! Previous version had HighCharts but they are missing from this one.
+
+# Preview
+
+![](1.png)
+
+---
+
+![](2.png)
+
+---
+
+![](3.png)
+
+---
+
+![](4.png)
