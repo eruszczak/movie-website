@@ -7,3 +7,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         task_run_daily_tmdb_tasks.delay()
+
+

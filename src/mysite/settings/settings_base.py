@@ -1,13 +1,22 @@
 import os
-from decouple import config, Csv
+import json
+from celery.schedules import crontab
+import dj_database_url
 
+DEBUG = os.environ.get('DEBUG', 'false') == 'True'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
+COMPRESS_ENABLED = os.environ.get('COMPRESS_ENABLED') == 'True'
 
-SECRET_KEY = config('SECRET_KEY')
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 BACKUP_ROOT = os.path.join(PROJECT_DIR, 'backup')
-LOGS_ROOT = os.path.join(PROJECT_DIR, 'logs', 'logs.txt')
+LOGS_ROOT = '/opt/logs'
+
+DB_URL = os.environ.get('DATABASE_URL', '')
+DATABASES = {
+    'default': dj_database_url.parse('postgres://postgres:postgres@movie-database:5432/db')
+}
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -68,43 +77,41 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', os.path.join(PROJECT_DIR, 'media'))
+
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+STATIC_ROOT = os.environ.get('STATIC_ROOT', os.path.join(PROJECT_DIR, 'static'))
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-
     'compressor.finders.CompressorFinder',
 )
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
 }
 
-# SESSION_COOKIE_SECURE = True
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'home'
 AUTH_USER_MODEL = 'accounts.User'
 
-ADMINS = (config('ADMIN1', cast=Csv(post_process=tuple)),)
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST = config('EMAIL_HOST', default='')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+ADMINS = json.loads(os.environ.get('ADMINS', '[]'))
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
 DEFAULT_FROM_EMAIL = '[]'
 EMAIL_SUBJECT_PREFIX = '[] '
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
-CORS_ORIGIN_WHITELIST = config('CORS_ORIGIN_WHITELIST', cast=Csv())
+ALLOWED_HOSTS = json.loads(os.environ.get('ALLOWED_HOSTS', '[]'))
+CORS_ORIGIN_WHITELIST = json.loads(os.environ.get('CORS_ORIGIN_WHITELIST', '[]'))
 
-CELERY_BROKER_URL = 'amqp://localhost'
+
 
 CACHES = {
     'default': {
@@ -112,3 +119,18 @@ CACHES = {
         'LOCATION': 'movie-website',
     }
 }
+
+
+
+CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+# http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html?highlight=crontab%20#crontab-schedules
+# CELERY_BEAT_SCHEDULE = {
+#     # 'hello': {
+#     #     'task': 'app.tasks.hello',
+#     #     'schedule': crontab()  # execute every minute
+#     # }
+# }

@@ -1,6 +1,5 @@
 from time import sleep
-
-from decouple import config
+import os
 
 from shared.helpers import get_json_response, SlashDict
 from titles.models import Person
@@ -17,7 +16,7 @@ class PersonMixin:
 
 class TmdbResponseMixin:
     details_path = None
-    api_key = config('TMDB_API_KEY')
+    api_key = os.environ['TMDB_API_KEY']
     urls = {
         'base': 'https://api.themoviedb.org/3/'
     }
