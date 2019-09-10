@@ -1,13 +1,5 @@
-import dj_database_url
 from .settings_base import *
 
-
-DEBUG = False
-COMPRESS_ENABLED = True
-
-DATABASES = {
-    'default': dj_database_url.parse(config('DATABASE_URL_PRODUCTION'))
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {

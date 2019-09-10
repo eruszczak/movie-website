@@ -1,7 +1,6 @@
-from decouple import config
+import os
 
-
-debug = config('DEBUG', default=False, cast=bool)
+debug = os.environ.get('DEBUG', 'False') == 'True'
 
 if debug:
     from .settings_local import *
