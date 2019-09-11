@@ -4,14 +4,12 @@
 *.sqlite3
 *.zip
 /.idea
-/static/semantic
+src/static/semantic
+src/static/node_modules
 
-node_modules/
 /dist
-.env
 
 /semantic
-semantic.json
 
 .env.prod
 .env.dev
