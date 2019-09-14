@@ -13,9 +13,8 @@ PROJECT_DIR = os.path.dirname(BASE_DIR)
 BACKUP_ROOT = os.path.join(PROJECT_DIR, 'backup')
 LOGS_ROOT = '/opt/logs'
 
-DB_URL = os.environ.get('DATABASE_URL', '')
 DATABASES = {
-    'default': dj_database_url.parse('postgres://postgres:postgres@movie-database:5432/db')
+    'default': dj_database_url.parse(os.environ.get('DATABASE_URL', 'postgres://postgres:postgres@movie-database:5432/db'))
 }
 
 INSTALLED_APPS = [
