@@ -1,4 +1,11 @@
+[![Build Status](https://drone.eryk.io/api/badges/reryk/movie-website/status.svg)](https://drone.eryk.io/reryk/movie-website)
+
 # todo
+
+# Features
+
+# Used tools
+
 
 # Preview
 

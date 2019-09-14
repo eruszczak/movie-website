@@ -12,4 +12,3 @@ src/static/node_modules
 /semantic
 
 .env.prod
-.env.dev
