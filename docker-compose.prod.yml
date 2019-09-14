@@ -6,7 +6,7 @@ services:
     image: reryk/movie-backend
     build: ./src
     restart: always
-    command: bash -c "python manage.py collectstatic --noinput && gunicorn mysite.wsgi -b 0.0.0.0:8000 --workers 1"
+    command: bash -c "python manage.py collectstatic --noinput && gunicorn mysite.wsgi -b 0.0.0.0:8001 --workers 1"
     env_file: .env.prod
     volumes:
       - ./src:/code
@@ -14,7 +14,7 @@ services:
       - internal
       - web
     ports:
-      - "8001:8000"
+      - "8001:8001"
     depends_on:
       - movie-database
       - redis
