@@ -3,7 +3,7 @@ import json
 from celery.schedules import crontab
 import dj_database_url
 
-DEBUG = os.environ.get('DEBUG', 'false') == 'True'
+DEBUG = os.environ.get('DEBUG') == 'True'
 SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
 COMPRESS_ENABLED = os.environ.get('COMPRESS_ENABLED') == 'True'
 
