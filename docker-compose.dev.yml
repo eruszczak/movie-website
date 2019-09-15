@@ -7,7 +7,7 @@ services:
     build: ./src
     restart: always
 #    command: bash -c "cd backend && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-    command: bash -c "python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
     env_file: .env.dev
     volumes:
       - ./src:/code
