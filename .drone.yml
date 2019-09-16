@@ -11,6 +11,11 @@ steps:
 #      restore: true
 #      mount:
 #        - ./src/static/node_modules
+  - name: frontend
+    image: node:8
+    commands:
+      - cd src/static
+      - npm install
 
   - name: docker-compose
     image: tiangolo/docker-with-compose
