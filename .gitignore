@@ -12,3 +12,5 @@ src/static/node_modules
 /semantic
 
 .env.prod
+/src/celerybeat-schedule
+/src/celerybeat.pid
