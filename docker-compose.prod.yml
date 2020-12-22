@@ -1,22 +1,36 @@
 version: '3'
 
 services:
+  movie-nginx:
+    container_name: movie-nginx-container
+    build: ./nginx
+    env_file: .env.prod
+    restart: always
+    volumes:
+      - media:/movie-media
+      - static:/movie-static
+    ports:
+      - "8001:80"
+    expose:
+      - 80
+    depends_on:
+      - movie-backend
+
   movie-backend:
     container_name: movie-backend-container
     image: reryk/movie-backend
     build: ./src
     restart: always
-    command: bash -c "python manage.py collectstatic --noinput && gunicorn mysite.wsgi -b 0.0.0.0:9000 --workers 1"
+    command: bash -c "python manage.py collectstatic --noinput && gunicorn mysite.wsgi -b 0.0.0.0:9000 --workers 2"
     env_file: .env.prod
     volumes:
       - ./src:/code
-      - '/opt/movie/static:/opt/movie/static'
-      - '/opt/movie/media:/opt/movie/media'
-    networks:
-      - internal
-      - web
-    ports:
-      - "9000:9000"
+      - media:/movie-media
+      - static:/movie-static
+#    ports:
+#      - "8000:9000"
+    expose:
+      - 9000
     depends_on:
       - movie-database
       - redis
@@ -28,8 +42,6 @@ services:
     env_file: .env.prod
     volumes:
       - /opt/postgres/movie:/var/lib/postgresql/data
-    networks:
-      - internal
     expose:
       - 5432
 
@@ -41,8 +53,10 @@ services:
     container_name: movie-celery-container
     build: ./src
     command: celery -A mysite worker -l info
+    env_file: .env.prod
     volumes:
       - ./src:/code
+      - media:/movie-media
     depends_on:
       - movie-database
       - redis
@@ -57,8 +71,11 @@ services:
       - movie-database
       - redis
 
+volumes:
+  media:
+  static:
+
 networks:
-  web:
-    external: true
-  internal:
-    external: false
+  default:
+    external:
+      name: nginx-proxy
