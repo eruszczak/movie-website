@@ -16,6 +16,7 @@ from tmdb.api import TmdbWrapper
 
 def import_ratings_from_csv(user, file_path):
     """import missing ratings from csv file (exported from here or imdb)"""
+    print('Importing from', file_path)
     try:
         f = open(file_path, 'r', encoding='ISO-8859-1')
         mapper = recognize_file_source(f)
@@ -53,6 +54,7 @@ def import_ratings_from_csv(user, file_path):
 
         f.close()
     finally:
+        print('Removing file', file_path)
         remove(file_path)
 
 

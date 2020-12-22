@@ -6,7 +6,7 @@ import dj_database_url
 DEBUG = os.environ.get('DEBUG') == 'True'
 SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
 COMPRESS_ENABLED = os.environ.get('COMPRESS_ENABLED') == 'True'
-
+print(os.environ.items())
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PROJECT_DIR = os.path.dirname(BASE_DIR)

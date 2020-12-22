@@ -9,6 +9,7 @@ from titles.constants import MY_HEADERS, MY_CSV_MAPPER, IMDB_HEADERS, IMDB_CSV_M
 
 def recognize_file_source(f):
     headers = get_csv_headers(f)
+    print('headers', headers, IMDB_HEADERS, MY_HEADERS)
     if valid_csv_header(headers, MY_HEADERS):
         return MY_CSV_MAPPER
     elif valid_csv_header(headers, IMDB_HEADERS):
