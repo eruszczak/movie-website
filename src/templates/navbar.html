@@ -6,7 +6,6 @@
             <div class="ui secondary top attached menu">
                 <a href="{% url 'home' %}" class="header item">Movie Website</a>
                 {% include 'includes/nav_links_main.html' %}
-                <a href="https://github.com/reryk/movie-website/#readme" class="item" target="_blank"><i class="github icon"></i></a>
                 <div class="right menu item">
                     {% if request.user.is_authenticated %}
                         <div class="ui dropdown item">

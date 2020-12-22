@@ -6,14 +6,10 @@ services:
     image: reryk/movie-backend
     build: ./src
     restart: always
-#    command: bash -c "cd backend && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-    command: bash -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python manage.py collectstatic --noinput && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     env_file: .env.dev
     volumes:
       - ./src:/code
-    networks:
-      - internal
-      - web
     ports:
       - "8000:8000"
     depends_on:
@@ -27,8 +23,6 @@ services:
     env_file: .env.dev
     volumes:
       - /opt/postgres/movie:/var/lib/postgresql/data
-    networks:
-      - internal
     expose:
       - 5432
 
@@ -55,9 +49,3 @@ services:
     depends_on:
       - movie-database
       - redis
-
-networks:
-  web:
-    external: true
-  internal:
-    external: false
