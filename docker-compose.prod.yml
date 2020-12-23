@@ -57,7 +57,7 @@ services:
     volumes:
       - media:/movie-media
     depends_on:
-      - movie-database
+      - movie-backend
       - redis
 
   celery-beat:
@@ -65,7 +65,7 @@ services:
     image: reryk/movie-backend
     command: celery -A mysite beat -l info
     depends_on:
-      - movie-database
+      - movie-backend
       - redis
 
 volumes:
