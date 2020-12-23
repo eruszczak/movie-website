@@ -51,11 +51,10 @@ services:
 
   celery:
     container_name: movie-celery-container
-    build: ./src
+    image: reryk/movie-backend
     command: celery -A mysite worker -l info
     env_file: .env.prod
     volumes:
-      - ./src:/code
       - media:/movie-media
     depends_on:
       - movie-database
@@ -63,10 +62,8 @@ services:
 
   celery-beat:
     container_name: movie-celery-beat-container
-    build: ./src
+    image: reryk/movie-backend
     command: celery -A mysite beat -l info
-    volumes:
-      - ./src:/code
     depends_on:
       - movie-database
       - redis
