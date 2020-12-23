@@ -7,10 +7,9 @@ COPY requirements.txt /code/
 RUN pip install -r requirements.txt
 RUN pip install gunicorn
 
-COPY static/package*.json /code/static/
-COPY static/semantic.json /code/static/
-
-RUN cd /code/static && npm install
+# COPY static/package*.json /code/static/
+# COPY static/semantic.json /code/static/
+# RUN cd /code/static && npm install
 
 WORKDIR /code/
 
