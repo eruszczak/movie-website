@@ -9,8 +9,8 @@ services:
     volumes:
       - media:/movie-media
       - static:/movie-static
-    ports:
-      - "8001:80"
+#    ports:
+#      - "8001:80"
     expose:
       - 80
     depends_on:
