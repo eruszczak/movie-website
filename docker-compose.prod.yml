@@ -6,11 +6,12 @@ services:
     build: ./nginx
     env_file: .env.prod
     restart: always
+    environment:
+      - VIRTUAL_HOST=margo.eryk.io
+      - LETSENCRYPT_HOST=margo.eryk.io
     volumes:
       - media:/movie-media
       - static:/movie-static
-#    ports:
-#      - "8001:80"
     expose:
       - 80
     depends_on:
@@ -27,8 +28,6 @@ services:
       - ./src:/code
       - media:/movie-media
       - static:/movie-static
-#    ports:
-#      - "8000:9000"
     expose:
       - 9000
     depends_on:
