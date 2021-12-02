@@ -5,7 +5,7 @@ services:
     container_name: movie-nginx-container
     build: ./nginx
     env_file: .env.prod
-    restart: always
+    restart: unless-stopped
     environment:
       - VIRTUAL_HOST=movie.eryk.io
       - LETSENCRYPT_HOST=movie.eryk.io
@@ -21,7 +21,7 @@ services:
     container_name: movie-backend-container
     image: reryk/movie-backend
     build: ./src
-    restart: always
+    restart: unless-stopped
     command: bash -c "python manage.py collectstatic --noinput && gunicorn mysite.wsgi -b 0.0.0.0:9000 --workers 2"
     env_file: .env.prod
     volumes:
@@ -37,7 +37,7 @@ services:
   movie-database:
     container_name: movie-database-container
     image: postgres:9.4
-    restart: always
+    restart: unless-stopped
     env_file: .env.prod
     volumes:
       - /opt/postgres/movie:/var/lib/postgresql/data
@@ -47,7 +47,7 @@ services:
   redis:
     container_name: movie-redis-container
     image: "redis:alpine"
-    restart: always
+    restart: unless-stopped
 
   celery:
     container_name: movie-celery-container
@@ -59,7 +59,7 @@ services:
     depends_on:
       - movie-backend
       - redis
-    restart: always
+    restart: unless-stopped
 
   celery-beat:
     container_name: movie-celery-beat-container
@@ -68,7 +68,7 @@ services:
     depends_on:
       - movie-backend
       - redis
-    restart: always
+    restart: unless-stopped
 
 volumes:
   media:
