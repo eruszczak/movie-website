@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Push Docker Image
 
 on:
   push:
@@ -21,7 +21,17 @@ jobs:
         password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
 
     - uses: actions/checkout@v2
-    
+      with:
+        ref: master
+
+    - uses: actions/checkout@v2
+      with:
+        repository: erykio/private
+        ref: master
+
+    - name: Run a one-line script
+      run: ls -all
+
     - name: Build images
       run: docker-compose -f docker-compose.prod.yml build
       
