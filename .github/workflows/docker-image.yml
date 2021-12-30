@@ -29,12 +29,13 @@ jobs:
         repository: erykio/private
         ref: master
         token: ${{ secrets.ACCESS_TOKEN }}
+        path: private
 
     - name: Run a one-line script
-      run: ls -all
+      run: ls
 
     - name: Build images
-      run: docker-compose -f docker-compose.prod.yml build
+      run: docker-compose -f private/docker-compose.prod.yml build
       
     - name: Push images
-      run: docker-compose -f docker-compose.prod.yml push
+      run: docker-compose -f private/docker-compose.prod.yml push
