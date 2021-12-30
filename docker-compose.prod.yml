@@ -2,7 +2,8 @@ version: '3'
 
 services:
   movie-nginx:
-    container_name: movie-nginx-container
+    container_name: movie-nginx
+    image: registry.eryk.io/movie-nginx
     build: ./nginx
     env_file: .env.prod
     restart: unless-stopped
@@ -18,8 +19,8 @@ services:
       - movie-backend
 
   movie-backend:
-    container_name: movie-backend-container
-    image: reryk/movie-backend
+    container_name: movie-backend
+    image: registry.eryk.io/movie-backend
     build: ./src
     restart: unless-stopped
     command: bash -c "python manage.py collectstatic --noinput && gunicorn mysite.wsgi -b 0.0.0.0:9000 --workers 2"
@@ -35,7 +36,7 @@ services:
       - redis
 
   movie-database:
-    container_name: movie-database-container
+    container_name: movie-database
     image: postgres:9.4
     restart: unless-stopped
     env_file: .env.prod
@@ -44,30 +45,30 @@ services:
     expose:
       - 5432
 
-  redis:
-    container_name: movie-redis-container
+  movie-redis:
+    container_name: movie-redis
     image: "redis:alpine"
     restart: unless-stopped
 
-  celery:
-    container_name: movie-celery-container
-    image: reryk/movie-backend
+  movie-celery:
+    container_name: movie-celery
+    image: registry.eryk.io/movie-backend
     command: celery -A mysite worker -l info
     env_file: .env.prod
     volumes:
       - media:/movie-media
     depends_on:
       - movie-backend
-      - redis
+      - movie-redis
     restart: unless-stopped
 
-  celery-beat:
-    container_name: movie-celery-beat-container
-    image: reryk/movie-backend
+  movie-celery-beat:
+    container_name: movie-celery-beat
+    image: registry.eryk.io/movie-backend
     command: celery -A mysite beat -l info
     depends_on:
       - movie-backend
-      - redis
+      - movie-redis
     restart: unless-stopped
 
 volumes:
