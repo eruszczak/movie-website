@@ -26,16 +26,16 @@ jobs:
 
     - uses: actions/checkout@v2
       with:
-        repository: erykio/private
+        repository: ${{ secrets.PRIVATE_REPO }}
         ref: master
         token: ${{ secrets.ACCESS_TOKEN }}
         path: private
 
     - name: Copy docker-compose files
-      run: cp private/apps/movie-website/docker-compose.prod.yml . && cp private/apps/movie-website/.env.prod .
+      run: cp private/apps/movie-website/* .
 
     - name: Build images
-      run: docker-compose -f docker-compose.prod.yml build
+      run: docker-compose build
       
     - name: Push images
-      run: docker-compose -f docker-compose.prod.yml push
+      run: docker-compose push
