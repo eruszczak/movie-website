@@ -21,5 +21,9 @@ jobs:
         password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
 
     - uses: actions/checkout@v2
-    - name: Build the Docker image
+    
+    - name: Build images
+      run: docker-compose -f docker-compose.prod.yml build
+      
+    - name: Push images
       run: docker-compose -f docker-compose.prod.yml push
