@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  build:
+  build_and_push:
 
     runs-on: ubuntu-latest
 
@@ -32,7 +32,13 @@ jobs:
         path: private
 
     - name: Run a one-line script
-      run: ls
+      run: ls private
+
+    - name: Run a one-line script
+      run: ls private/apps
+
+    - name: Run a one-line script
+      run: ls private/apps/movie-website
 
     - name: Build images
       run: docker-compose -f private/apps/movie-website/docker-compose.prod.yml build
