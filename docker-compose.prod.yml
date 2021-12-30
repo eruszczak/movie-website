@@ -33,7 +33,7 @@ services:
       - 9000
     depends_on:
       - movie-database
-      - redis
+      - movie-redis
 
   movie-database:
     container_name: movie-database
