@@ -28,6 +28,7 @@ jobs:
       with:
         repository: erykio/private
         ref: master
+        token: ${{ secrets.ACCESS_TOKEN }}
 
     - name: Run a one-line script
       run: ls -all
