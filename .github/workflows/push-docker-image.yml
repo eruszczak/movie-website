@@ -31,17 +31,11 @@ jobs:
         token: ${{ secrets.ACCESS_TOKEN }}
         path: private
 
-    - name: Run a one-line script
-      run: ls private
-
-    - name: Run a one-line script
-      run: ls private/apps
-
-    - name: Run a one-line script
-      run: ls private/apps/movie-website
+    - name: Copy docker-compose files
+      run: cp private/apps/movie-website/docker-compose.prod.yml . && cp private/apps/movie-website/.env.prod .
 
     - name: Build images
-      run: docker-compose -f private/apps/movie-website/docker-compose.prod.yml build
+      run: docker-compose -f docker-compose.prod.yml build
       
     - name: Push images
-      run: docker-compose -f private/apps/movie-website/docker-compose.prod.yml push
+      run: docker-compose -f docker-compose.prod.yml push
