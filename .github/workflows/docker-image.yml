@@ -35,7 +35,7 @@ jobs:
       run: ls
 
     - name: Build images
-      run: docker-compose -f private/docker-compose.prod.yml build
+      run: docker-compose -f private/apps/movie-website/docker-compose.prod.yml build
       
     - name: Push images
-      run: docker-compose -f private/docker-compose.prod.yml push
+      run: docker-compose -f private/apps/movie-website/docker-compose.prod.yml push
