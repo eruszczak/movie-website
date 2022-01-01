@@ -1,0 +1,83 @@
+version: '3'
+
+services:
+  movie-nginx:
+    container_name: movie-nginx
+    image: ${DOCKER_REGISTRY}movie-nginx
+    build: ./nginx
+    env_file:
+      - .env.prod
+      - .env.nginx
+    restart: unless-stopped
+    volumes:
+      - movie-website_media:/movie-media
+      - movie-website_static:/movie-static
+    expose:
+      - 80
+    depends_on:
+      - movie-app
+
+  movie-app:
+    container_name: movie-app
+    image: ${DOCKER_REGISTRY}movie-app
+    build: ./src
+    restart: unless-stopped
+    command: bash -c "python manage.py collectstatic --noinput && gunicorn mysite.wsgi -b 0.0.0.0:9000 --workers 2"
+    env_file: .env.prod
+    volumes:
+      - movie-website_media:/movie-media
+      - movie-website_static:/movie-static
+    expose:
+      - 9000
+    depends_on:
+      - movie-database
+      - movie-redis
+
+  movie-database:
+    container_name: movie-database
+    image: postgres:9.4
+    restart: unless-stopped
+    env_file: .env.prod
+    volumes:
+      - movie-website_data:/var/lib/postgresql/data
+    expose:
+      - 5432
+
+  movie-redis:
+    container_name: movie-redis
+    image: "redis:alpine"
+    restart: unless-stopped
+
+  movie-celery:
+    container_name: movie-celery
+    image: ${DOCKER_REGISTRY}movie-app
+    command: celery -A mysite worker -l info
+    env_file: .env.prod
+    volumes:
+      - movie-website_media:/movie-media
+    depends_on:
+      - movie-app
+      - movie-redis
+    restart: unless-stopped
+
+  movie-celery-beat:
+    container_name: movie-celery-beat
+    image: ${DOCKER_REGISTRY}movie-app
+    command: celery -A mysite beat -l info
+    depends_on:
+      - movie-app
+      - movie-redis
+    restart: unless-stopped
+
+volumes:
+  movie-website_media:
+    external: true
+  movie-website_static:
+    external: true
+  movie-website_data:
+    external: true
+
+networks:
+  default:
+    external:
+      name: nginx-proxy
