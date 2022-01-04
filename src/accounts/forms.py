@@ -37,7 +37,7 @@ class UserUpdateForm(SizeExtValidatorMixin, forms.ModelForm):
         help_texts = {
             'imdb_id': 'If you will provide your IMDb Id and your lists are public, '
                        'you will be able to update your ratings/watchlist on your profile page.',
-            'picture': 'Only jpg and png files are allowed. Image must be a square with width between 100-200px'
+            'picture': 'Only jpg and png files are allowed. Image must be a 100-200px square'
         }
         widgets = {
             'picture': MyClearableFileInput
@@ -55,7 +55,7 @@ class UserUpdateForm(SizeExtValidatorMixin, forms.ModelForm):
             if not all(valid_dimensions_conditions):
                 raise forms.ValidationError(
                     f'The image is {w}x{h}px. '
-                    f'It must be a square with width between {min_width}px and {max_width}px.'
+                    f'It must be a {min_width}-{max_width}px square.'
                 )
 
         return picture

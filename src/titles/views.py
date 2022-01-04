@@ -27,23 +27,25 @@ class HomeTemplateView(AnonymousCacheMixin, TemplateView):
         if current_popular:
             context.update({
                 'update_date': current_popular.update_date,
-                'popular_movies': current_popular.movies.all().order_by('-create_date')
+                'popular_movies': Title.objects.movies().random().all()
                     .annotate_fav_and_watch(self.request.user)
                     .annotate_rates(request_user=self.request.user),
-                'popular_tv': current_popular.tv.all().annotate_rates(request_user=self.request.user),
+                'popular_tv': Title.objects.series().random().all()
+                    .annotate_fav_and_watch(self.request.user)
+                    .annotate_rates(request_user=self.request.user),
                 'popular_persons': current_popular.persons.all(),
             })
 
         now_playing = NowPlaying.objects.filter(active=True).prefetch_related('titles').first()
         # this prefetches do nothing ?
         if now_playing:
-            context['now_playing'] = now_playing.titles.all().order_by('-release_date')\
+            context['now_playing'] = Title.objects.movies().random().all().order_by('-release_date')\
                 .annotate_rates(request_user=self.request.user)
 
         upcoming = Upcoming.objects.filter(active=True).prefetch_related('titles').first()
         # this prefetches do nothing ?
         if upcoming:
-            context['upcoming'] = upcoming.titles.upcoming().order_by('release_date')\
+            context['upcoming'] = Title.objects.movies().random().all().order_by('-release_date')\
                 .annotate_rates(request_user=self.request.user)
 
         return context

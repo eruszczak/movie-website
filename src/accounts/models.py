@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.contrib.staticfiles.templatetags.staticfiles import static
 
 from shared.helpers import get_random_file_path
 from shared.models import FolderPathMixin
@@ -87,7 +88,7 @@ class User(FolderPathMixin, AbstractUser):
     def avatar_url(self):
         if self.picture:
             return self.picture.url
-        return f'https://api.hello-avatar.com/adorables/200/{self.username}'
+        return static('img/avatar.png')
 
     @property
     def latest_rated_title(self):

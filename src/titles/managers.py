@@ -1,3 +1,5 @@
+import random
+
 from django.db.models import Exists, Subquery, OuterRef
 from django.db.models.query import QuerySet
 from django.utils.timezone import now
@@ -15,6 +17,12 @@ class TitleQuerySet(QuerySet):
 
     def upcoming(self):
         return self.filter(release_date__gte=now().date())
+
+    def random(self):
+        valid_profiles_id_list = self.all().values_list('pk', flat=True)
+        random_profiles_id_list = random.sample(list(valid_profiles_id_list), min(len(list(valid_profiles_id_list)), 10))
+        query_set = self.filter(pk__in=random_profiles_id_list)
+        return query_set
 
     def annotate_fav_and_watch(self, request_user):
         from lists.models import Watchlist, Favourite

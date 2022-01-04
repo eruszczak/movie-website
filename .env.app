@@ -2,13 +2,9 @@ DEBUG=True
 COMPRESS_ENABLED=False
 SECRET_KEY=5a!7x-l0vay2_!n)@ly44za3qbwy&42k($mq(#+((d76$gji(f
 DATABASE_URL=postgres://postgres:postgres@movie-database:5432/db
-ALLOWED_HOSTS=[".localhost", "127.0.0.1"]
-
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=db
-
+ALLOWED_HOSTS=["*"]
 CORS_ORIGIN_WHITELIST=[]
 ADMIN=[]
-TMDB_API_KEY=b358da8a53d3207e7e2e581adffe17b7
+TMDB_API_KEY=
 MEDIA_ROOT=/movie-media
+STATIC_ROOT=/movie-static

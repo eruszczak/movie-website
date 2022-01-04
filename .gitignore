@@ -13,5 +13,3 @@ src/static/node_modules
 
 /src/celerybeat-schedule
 /src/celerybeat.pid
-
-.env*

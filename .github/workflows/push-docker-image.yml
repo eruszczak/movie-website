@@ -24,9 +24,6 @@ jobs:
       with:
         ref: master
 
-    - name: Prepare empty env files needed for build
-      run: touch .env.prod .env.nginx
-
     - name: Build images
       run: docker-compose build
       

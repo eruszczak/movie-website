@@ -34,11 +34,11 @@
             {% include 'titles/includes/slick_titles.html' with queryset=popular_tv %}
         </div>
     </div>
-    <div class="ui segment">
-      <span class="ui blue ribbon label">Popular people</span>
-        <div class="ui list">
-            {% include 'titles/includes/slick_persons.html' with queryset=popular_persons person_qs=True %}
-        </div>
-    </div>
+<!--    <div class="ui segment">-->
+<!--      <span class="ui blue ribbon label">Popular people</span>-->
+<!--        <div class="ui list">-->
+<!--            {% include 'titles/includes/slick_persons.html' with queryset=popular_persons person_qs=True %}-->
+<!--        </div>-->
+<!--    </div>-->
     <small>Latest update: {{ update_date }}</small>
 {% endblock %}

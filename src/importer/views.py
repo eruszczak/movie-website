@@ -42,7 +42,7 @@ class ImportRatingsFormView(LoginRequiredMixin, FormView):
             default_storage.delete(file_path)
         default_storage.save(file_path, ContentFile(file.read()))
         task_import.delay(self.request.user.pk, file_path)
-        messages.success(self.request, WAIT_MESSAGE)
+        messages.success(self.request, 'Refresh the page in a moment and your ratings should be imported')
         # with default_storage.open(file_path, 'wb+') as destination:
         #     for chunk in file.chunks():
         #         destination.write(chunk)
@@ -56,7 +56,7 @@ class ExportRatingsAPIView(LoginRequiredMixin, GetUserMixin, APIView):
     def post(self, request, *args, **kwargs):
         task_export.delay(self.user.pk)
         # export_ratings(self.user)
-        return Response({'message': WAIT_MESSAGE, 'title': 'Export'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Wait a moment, refresh the page and expand the management windows again and you should see link to your export', 'title': 'Export'}, status=status.HTTP_200_OK)
 
 
 # class SyncRatingsAPIView(LoginRequiredMixin, APIView):

@@ -7,6 +7,8 @@
     <script>
         $(document)
             .ready(function () {
+                $('[name="username"]').val('test')
+                $('[name="password"]').val('test')
                 $('.ui.form')
                     .form({
                         fields: {
@@ -40,14 +42,13 @@
     {% if request.GET.login_required %}
         <div class="mt10 ui text ignored info message warning">
             <div class="header">You must be logged in</div>
-            To continue, login or <a href="{% url 'register' %}?{{ request.GET.urlencode }}">sign up</a> for a new
-            account
         </div>
     {% endif %}
     <div class="ui middle aligned center aligned grid">
         <div class="column twelve wide">
             {% include 'includes/form_errors.html' %}
             <h2 class="ui image header">Log-in to your account</h2>
+            <div class="ui message">Registration is disabled. Demo account - test/test</div>
             <form class="ui large form" action="{% url 'login' %}?{{ request.GET.urlencode }}"
                   method="post">{% csrf_token %}
                 <div class="ui stacked segment">
@@ -57,7 +58,6 @@
                 </div>
                 <div class="ui error message"></div>
             </form>
-            <div class="ui message">New to us? <a href="{% url 'register' %}?{{ request.GET.urlencode }}">Sign Up</a></div>
         </div>
     </div>
 {% endblock %}
