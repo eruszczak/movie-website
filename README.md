@@ -4,6 +4,7 @@
 
 
 # About
+https://movie.eryk.io
 
 This is the first website I have ever built. At the time it was useful for me because it helped me with managing my IMDb.com movie and tv series ratings (my biggest problem with IMDb was that you couldn't rate the same title multiple times).
 
