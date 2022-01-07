@@ -15,8 +15,8 @@ The first commit was added on **7 Jul 2016**, but now it is the end of 2021, and
 
 * [Django](https://www.djangoproject.com/)
 * [Django REST framework](https://www.django-rest-framework.org/)
-* [Semantic UI](https://semantic-ui.com/) (CSS)
-* [Celery](http://docs.celeryproject.org) (task queue)
+* [Semantic UI](https://semantic-ui.com/)
+* [Celery Task Queue](http://docs.celeryproject.org)
 * Docker & Docker Compose
 
 # Features
