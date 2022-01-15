@@ -27,8 +27,8 @@ services:
       - movie-website_static:/movie-static
     expose:
       - 9000
-    ports:
-      - "10001:9000" # for local dev
+#     ports:
+#       - "10001:9000" # for local dev
     depends_on:
       - movie-database
       - movie-redis
