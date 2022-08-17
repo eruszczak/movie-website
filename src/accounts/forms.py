@@ -30,35 +30,11 @@ class UserUpdateForm(SizeExtValidatorMixin, forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('picture', 'tagline', 'imdb_id')
-        labels = {
-            'picture': 'Avatar',
-        }
+        fields = ('tagline', 'imdb_id')
         help_texts = {
             'imdb_id': 'If you will provide your IMDb Id and your lists are public, '
-                       'you will be able to update your ratings/watchlist on your profile page.',
-            'picture': 'Only jpg and png files are allowed. Image must be a 100-200px square'
+                       'you will be able to update your ratings/watchlist on your profile page.'
         }
-        widgets = {
-            'picture': MyClearableFileInput
-        }
-
-    def clean_picture(self):
-        picture = self.cleaned_data.get('picture')
-        if isinstance(picture, UploadedFile):
-            self.validate_extension(picture.name, ['.png', '.jpg'])
-            self.validate_size(picture.size, 150)
-
-            w, h = get_image_dimensions(picture)
-            min_width, max_width = 100, 200
-            valid_dimensions_conditions = [min_width <= h <= max_width, min_width <= w <= max_width, w == h]
-            if not all(valid_dimensions_conditions):
-                raise forms.ValidationError(
-                    f'The image is {w}x{h}px. '
-                    f'It must be a {min_width}-{max_width}px square.'
-                )
-
-        return picture
 
     def clean_imdb_id(self):
         imdb_id = self.cleaned_data.get('imdb_id')
@@ -76,7 +52,7 @@ class UserUpdateForm(SizeExtValidatorMixin, forms.ModelForm):
 
     def remove_not_used_files(self):
         """if any file field has changed and it had file before update, remove that file"""
-        file_fields_to_clean = ['picture', 'csv_ratings']
+        file_fields_to_clean = ['csv_ratings']
         for field in file_fields_to_clean:
             if field in self.changed_data:
                 original_field = getattr(self.original_instance, field)
