@@ -1,6 +1,6 @@
 import os
 import json
-from celery.schedules import crontab
+# from celery.schedules import crontab
 import dj_database_url
 
 DEBUG = os.environ.get('DEBUG') == 'True'
@@ -121,11 +121,11 @@ CACHES = {
 
 
 
-CELERY_BROKER_URL = 'redis://movie-redis:6379'
-CELERY_RESULT_BACKEND = 'redis://movie-redis:6379'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_BROKER_URL = 'redis://movie-redis:6379'
+# CELERY_RESULT_BACKEND = 'redis://movie-redis:6379'
+# CELERY_ACCEPT_CONTENT = ['application/json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
 # http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html?highlight=crontab%20#crontab-schedules
 # CELERY_BEAT_SCHEDULE = {
 #     # 'hello': {
