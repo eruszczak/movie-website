@@ -1,12 +1,11 @@
 name: Release
 
 on:
-  workflow_dispatch
-
+  push:
+    branches: [ master ]
 
 env:
   APP_IMAGE_NAME: ${{ secrets.DOCKER_REGISTRY }}/movie-app
-
 
 jobs:
   build_and_push:
