@@ -11,7 +11,6 @@ print(os.environ.items())
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 BACKUP_ROOT = os.path.join(PROJECT_DIR, 'backup')
-LOGS_ROOT = '/opt/logs'
 
 DATABASES = {
     'default': dj_database_url.parse(os.environ.get('DATABASE_URL', 'postgres://postgres:postgres@movie-database:5432/db'))
