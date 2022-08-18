@@ -37,9 +37,7 @@ The IMDb and TMDB APIs have changed or stopped working since I created this app,
 # Local dev
 To avoid issues with permissions you need to create 2 folders owned by a user with id=1000.
 ```
-docker volume create movie-website_data
 mkdir movie-static
 mkdir movie-media
 docker-compose up
-# fill database
 ```

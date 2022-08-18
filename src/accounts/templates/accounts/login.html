@@ -48,7 +48,7 @@
         <div class="column twelve wide">
             {% include 'includes/form_errors.html' %}
             <h2 class="ui image header">Log-in to your account</h2>
-            <div class="ui message">Registration is disabled. Demo account - test/test</div>
+            <div class="ui warning message">Registration is disabled. Demo account - test/test</div>
             <form class="ui large form" action="{% url 'login' %}?{{ request.GET.urlencode }}"
                   method="post">{% csrf_token %}
                 <div class="ui stacked segment">

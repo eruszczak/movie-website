@@ -6,7 +6,8 @@ services:
     image: movie-app
     build: ./src
     restart: unless-stopped
-    command: bash -c "python manage.py collectstatic --noinput && gunicorn mysite.wsgi -b 0.0.0.0:8000 --workers 2"
+    command: bash -c "python manage.py collectstatic --noinput && python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+#    command: bash -c "python manage.py collectstatic --noinput && gunicorn mysite.wsgi -b 0.0.0.0:8000 --workers 2"
     env_file:
       - .env
     volumes:
@@ -28,12 +29,11 @@ services:
       POSTGRES_USER: postgres # superuser to be created
       POSTGRES_DB: db # database to be created
     volumes:
-      - movie-website_data:/var/lib/postgresql/data
+      - movie-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     expose:
       - 5432
 
 volumes:
-  movie-website_data:
-    external: true
+  movie-data:
