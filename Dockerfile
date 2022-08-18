@@ -12,9 +12,10 @@ ENV PATH="/home/runner/.local/bin:${PATH}"
 
 WORKDIR /code/
 
-COPY --chown=1000:1000 requirements.txt /code/
+COPY --chown=1000:1000 src/requirements.txt /code/
 
 RUN pip install -r requirements.txt
-RUN pip install gunicorn
 
-COPY --chown=1000:1000 . /code/
+COPY --chown=1000:1000 src /code/
+
+EXPOSE 8000

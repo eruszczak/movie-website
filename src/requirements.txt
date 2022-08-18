@@ -18,7 +18,7 @@ django-filter==0.14.0
 django-widget-tweaks==1.4.1
 djangorestframework==3.7.3
 Fabric3==1.13.1.post1
-gunicorn==19.6.0
+gunicorn==19.9.0
 html5lib==0.9999999
 idna==2.6
 kombu==4.6.4

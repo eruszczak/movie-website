@@ -4,10 +4,10 @@ services:
   movie-app:
     container_name: movie-app
     image: movie-app
-    build: ./src
+    build: .
     restart: unless-stopped
     command: bash -c "python manage.py collectstatic --noinput && python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
-#    command: bash -c "python manage.py collectstatic --noinput && gunicorn mysite.wsgi -b 0.0.0.0:8000 --workers 2"
+#    command: bash -c "python manage.py collectstatic --noinput && python manage.py migrate --noinput && gunicorn mysite.wsgi -b 0.0.0.0:8000 --workers 2"
     env_file:
       - .env
     volumes:
