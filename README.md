@@ -21,7 +21,6 @@ The first commit was added on **7 Jul 2016**, but now it is the end of 2021, and
 * Docker & Docker Compose
 
 # Features
-
 The IMDb and TMDB APIs have changed or stopped working since I created this app, so the app is not as functional as it was before.
 
 * rate the same title multiple times
@@ -34,3 +33,13 @@ The IMDb and TMDB APIs have changed or stopped working since I created this app,
 # Preview
 
 ![](preview.png)
+
+# Local dev
+To avoid issues with permissions you need to create 2 folders owned by a user with id=1000.
+```
+docker volume create movie-website_data
+mkdir movie-static
+mkdir movie-media
+docker-compose up
+# fill database
+```
