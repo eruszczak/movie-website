@@ -31,9 +31,9 @@
                             </div>
                         </div>
                     </div>
-                    {% if not user.imdb_id %}
-                        <div class="ui compact warning mini message"><p class="header">If you want to fetch ratings or watchlist from IMDb you must provide your IMDb id in settings.</p></div>
-                    {% endif %}
+                    <div class="ui compact warning mini message">
+                        <p class="header">Sync and import/export features have been disabled.</p>
+                    </div>
                     <div class="row">
                         {% if not user.imdb_id %}
                             <button class="ui basic orange mini button disabled">sync ratings</button>
@@ -42,8 +42,8 @@
                             <button class="ui basic orange button update-ratings">update ratings</button>
                             <button class="ui basic orange button update-watchlist">update watchlist</button>
                         {% endif %}
-                        <button class="ui basic primary button import-ratings">Import ratings</button>
-                        <button class="ui basic primary button export-ratings">Export your ratings</button>
+                        <button class="ui basic primary button import-ratings disabled">Import ratings</button>
+                        <button class="ui basic primary button export-ratings disabled">Export your ratings</button>
                     </div>
                     {% if export_file %}<h4 class="mb10"><a href="{{ export_file.path }}" download="{{ export_file.name }}">Download your latest export</a></h4>{% endif %}
                 </div>
