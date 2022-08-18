@@ -23,18 +23,18 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-        },
-        'logfile': {
-            'level':'DEBUG',
-            # 'class':'logging.FileHandler',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOGS_ROOT,
-            'maxBytes': 1024 * 1024 * 20,
-        },
+        }
+#         'logfile': {
+#             'level':'DEBUG',
+#             # 'class':'logging.FileHandler',
+#             'class': 'logging.handlers.RotatingFileHandler',
+#             'filename': LOGS_ROOT,
+#             'maxBytes': 1024 * 1024 * 20,
+#         },
     },
     'root': {
         'level': 'INFO',
-        'handlers': ['console', 'logfile']
+        'handlers': ['console']
     },
 }
 
