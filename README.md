@@ -1,11 +1,8 @@
-[![Push Docker Image](https://github.com/erykio/movie-website/actions/workflows/push-docker-image.yml/badge.svg)](https://github.com/erykio/movie-website/actions/workflows/push-docker-image.yml) 
 [![](https://img.shields.io/badge/Python-3.6-brightgreen)](https://python.org)
 [![](https://img.shields.io/badge/Django-1.11-brightgreen)](https://djangoproject.com)
 
 
 # About
-https://movie.eryk.io
-
 This is the first website I have ever built. At the time it was useful for me because it helped me with managing my IMDb.com movie and tv series ratings (my biggest problem with IMDb was that you couldn't rate the same title multiple times).
 
 I wanted to learn web development, so I decided to pick the Django framework and after going through a few Django tutorials I decided to make my own website.
